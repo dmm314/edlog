@@ -1,0 +1,145 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ── USERS & AUTH ──────────────────────────────────────────
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  firstName    String
+  lastName     String
+  phone        String?
+  role         String   @default("TEACHER")
+  isVerified   Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  school        School?        @relation("SchoolTeachers", fields: [schoolId], references: [id])
+  schoolId      String?
+  adminOfSchool School?        @relation("SchoolAdmin")
+  rpiBoard      RPIBoard?      @relation("RPIMembers", fields: [rpiBoardId], references: [id])
+  rpiBoardId    String?
+  entries       LogbookEntry[]
+  sessions      Session[]
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// ── ORGANIZATIONAL HIERARCHY ─────────────────────────────
+
+model RPIBoard {
+  id        String   @id @default(cuid())
+  name      String
+  region    String
+  createdAt DateTime @default(now())
+  schools   School[]
+  members   User[]   @relation("RPIMembers")
+}
+
+model School {
+  id         String          @id @default(cuid())
+  name       String
+  code       String          @unique
+  town       String
+  region     String
+  isActive   Boolean         @default(true)
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt
+  rpiBoard   RPIBoard        @relation(fields: [rpiBoardId], references: [id])
+  rpiBoardId String
+  admin      User?           @relation("SchoolAdmin", fields: [adminId], references: [id])
+  adminId    String?         @unique
+  teachers   User[]          @relation("SchoolTeachers")
+  classes    Class[]
+  subjects   SchoolSubject[]
+}
+
+model Class {
+  id        String         @id @default(cuid())
+  name      String
+  level     String
+  stream    String?
+  section   String?
+  year      Int
+  createdAt DateTime       @default(now())
+  school    School         @relation(fields: [schoolId], references: [id])
+  schoolId  String
+  entries   LogbookEntry[]
+
+  @@unique([schoolId, name, year])
+}
+
+// ── CURRICULUM ───────────────────────────────────────────
+
+model Subject {
+  id        String          @id @default(cuid())
+  name      String          @unique
+  code      String          @unique
+  category  String?
+  createdAt DateTime        @default(now())
+  topics    Topic[]
+  schools   SchoolSubject[]
+}
+
+model Topic {
+  id         String         @id @default(cuid())
+  name       String
+  moduleNum  Int?
+  moduleName String?
+  orderIndex Int            @default(0)
+  createdAt  DateTime       @default(now())
+  subject    Subject        @relation(fields: [subjectId], references: [id])
+  subjectId  String
+  entries    LogbookEntry[]
+
+  @@unique([subjectId, name])
+}
+
+model SchoolSubject {
+  id        String  @id @default(cuid())
+  school    School  @relation(fields: [schoolId], references: [id])
+  schoolId  String
+  subject   Subject @relation(fields: [subjectId], references: [id])
+  subjectId String
+
+  @@unique([schoolId, subjectId])
+}
+
+// ── LOGBOOK ENTRIES (CORE) ───────────────────────────────
+
+model LogbookEntry {
+  id            String   @id @default(cuid())
+  date          DateTime
+  period        Int?
+  duration      Int      @default(60)
+  notes         String?  @db.Text
+  objectives    String?  @db.Text
+  signatureData String?  @db.Text
+  status        String   @default("SUBMITTED")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  teacher       User     @relation(fields: [teacherId], references: [id])
+  teacherId     String
+  class         Class    @relation(fields: [classId], references: [id])
+  classId       String
+  topic         Topic    @relation(fields: [topicId], references: [id])
+  topicId       String
+
+  @@index([teacherId, date])
+  @@index([classId, date])
+}
