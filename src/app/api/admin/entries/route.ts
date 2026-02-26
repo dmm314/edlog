@@ -14,6 +14,8 @@ export async function GET(request: NextRequest) {
     const to = searchParams.get("to");
     const subjectId = searchParams.get("subjectId");
     const classId = searchParams.get("classId");
+    const teacherId = searchParams.get("teacherId");
+    const status = searchParams.get("status");
     const limit = parseInt(searchParams.get("limit") || "20");
     const offset = parseInt(searchParams.get("offset") || "0");
 
@@ -27,14 +29,16 @@ export async function GET(request: NextRequest) {
       if (to) (where.date as Record<string, unknown>).lte = new Date(to);
     }
     if (classId) where.classId = classId;
-    if (subjectId) where.topic = { subjectId };
+    if (teacherId) where.teacherId = teacherId;
+    if (status) where.status = status;
+    if (subjectId) where.topics = { some: { subjectId } };
 
     const [entries, total] = await Promise.all([
       db.logbookEntry.findMany({
         where,
         include: {
           class: true,
-          topic: { include: { subject: true } },
+          topics: { include: { subject: true } },
           teacher: {
             select: {
               id: true,

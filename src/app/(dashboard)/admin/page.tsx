@@ -9,6 +9,7 @@ import {
   AlertTriangle,
   ChevronRight,
 } from "lucide-react";
+import { NotificationBell } from "@/components/NotificationBell";
 import type { AdminStats } from "@/types";
 
 export default function AdminDashboardPage() {
@@ -59,10 +60,15 @@ export default function AdminDashboardPage() {
       {/* Header */}
       <div className="bg-gradient-to-br from-brand-950 to-brand-800 px-5 pt-10 pb-6 rounded-b-2xl">
         <div className="max-w-lg mx-auto">
-          <h1 className="text-xl font-bold text-white">Admin Dashboard</h1>
-          <p className="text-brand-400 text-sm mt-0.5">
-            Lycée Bilingue de Yaoundé
-          </p>
+          <div className="flex items-start justify-between">
+            <div>
+              <h1 className="text-xl font-bold text-white">Admin Dashboard</h1>
+              <p className="text-brand-400 text-sm mt-0.5">
+                School overview
+              </p>
+            </div>
+            <NotificationBell />
+          </div>
         </div>
       </div>
 

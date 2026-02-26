@@ -27,6 +27,8 @@ export async function GET(request: NextRequest) {
       where.teacherId = user.id;
     } else if (user.role === "SCHOOL_ADMIN") {
       where.teacher = { schoolId: user.schoolId };
+    } else if (user.role === "REGIONAL_ADMIN") {
+      where.teacher = { school: { regionId: user.regionId } };
     }
 
     if (from || to) {
@@ -38,15 +40,15 @@ export async function GET(request: NextRequest) {
     if (classId) where.classId = classId;
 
     if (subjectId) {
-      where.topic = { subjectId };
+      where.topics = { some: { subjectId } };
     }
 
     if (search) {
       where.OR = [
-        { notes: { contains: search } },
-        { objectives: { contains: search } },
-        { topic: { name: { contains: search } } },
-        { topic: { subject: { name: { contains: search } } } },
+        { notes: { contains: search, mode: "insensitive" } },
+        { objectives: { contains: search, mode: "insensitive" } },
+        { topics: { some: { name: { contains: search, mode: "insensitive" } } } },
+        { topics: { some: { subject: { name: { contains: search, mode: "insensitive" } } } } },
       ];
     }
 
@@ -55,7 +57,7 @@ export async function GET(request: NextRequest) {
         where,
         include: {
           class: true,
-          topic: {
+          topics: {
             include: { subject: true },
           },
           teacher: {
@@ -66,6 +68,10 @@ export async function GET(request: NextRequest) {
               email: true,
             },
           },
+          assignment: {
+            include: { subject: true },
+          },
+          timetableSlot: true,
         },
         orderBy: { date: "desc" },
         take: limit,
@@ -117,22 +123,43 @@ export async function POST(request: Request) {
       ? sanitizeHtml(data.objectives)
       : null;
 
+    // Build topic connections (support single topicId or array of topicIds)
+    const topicIds = data.topicIds?.length
+      ? data.topicIds
+      : data.topicId
+        ? [data.topicId]
+        : [];
+
+    if (topicIds.length === 0) {
+      return NextResponse.json(
+        { error: "At least one topic is required" },
+        { status: 400 }
+      );
+    }
+
     const entry = await db.logbookEntry.create({
       data: {
         date: new Date(data.date),
         classId: data.classId,
-        topicId: data.topicId,
+        topics: { connect: topicIds.map((id: string) => ({ id })) },
+        assignmentId: data.assignmentId ?? null,
+        timetableSlotId: data.timetableSlotId ?? null,
         period: data.period ?? null,
         duration: data.duration,
         notes,
         objectives,
         signatureData: data.signatureData ?? null,
-        status: "SUBMITTED",
+        studentAttendance: data.studentAttendance ?? null,
+        engagementLevel: data.engagementLevel ?? null,
+        status: data.status || "SUBMITTED",
         teacherId: user.id,
       },
       include: {
         class: true,
-        topic: {
+        topics: {
+          include: { subject: true },
+        },
+        assignment: {
           include: { subject: true },
         },
       },

@@ -44,8 +44,11 @@ export default function ProfilePage() {
           // Count subjects
           const subjectCounts: Record<string, number> = {};
           for (const entry of entries) {
-            const name = entry.topic?.subject?.name;
-            if (name) subjectCounts[name] = (subjectCounts[name] || 0) + 1;
+            const topics = entry.topics || [];
+            for (const t of topics) {
+              const name = t?.subject?.name;
+              if (name) subjectCounts[name] = (subjectCounts[name] || 0) + 1;
+            }
           }
           const topSubject = Object.entries(subjectCounts).sort(
             (a, b) => b[1] - a[1]

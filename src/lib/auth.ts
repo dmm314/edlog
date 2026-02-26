@@ -2,6 +2,7 @@ import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { compare } from "bcryptjs";
 import { db } from "./db";
+import type { Role } from "@/types";
 
 export const {
   handlers: { GET, POST },
@@ -33,7 +34,7 @@ export const {
 
         const user = await db.user.findUnique({
           where: { email },
-          include: { school: true },
+          include: { school: true, regionAdmin: true },
         });
 
         if (!user) {
@@ -53,6 +54,7 @@ export const {
           lastName: user.lastName,
           role: user.role,
           schoolId: user.schoolId,
+          regionId: user.regionId,
         } as unknown as { id: string; email: string; name: string };
       },
     }),
@@ -66,6 +68,7 @@ export const {
         token.firstName = u.firstName as string;
         token.lastName = u.lastName as string;
         token.schoolId = u.schoolId as string | null;
+        token.regionId = u.regionId as string | null;
       }
       return token;
     },
@@ -77,6 +80,7 @@ export const {
         u.firstName = token.firstName;
         u.lastName = token.lastName;
         u.schoolId = token.schoolId;
+        u.regionId = token.regionId;
       }
       return session;
     },
@@ -94,7 +98,22 @@ export async function getSessionUser() {
     email: user.email as string,
     firstName: user.firstName as string,
     lastName: user.lastName as string,
-    role: user.role as string,
+    role: user.role as Role,
     schoolId: user.schoolId as string | null,
+    regionId: user.regionId as string | null,
   };
+}
+
+// Role-based redirect helper
+export function getDashboardPath(role: Role): string {
+  switch (role) {
+    case "REGIONAL_ADMIN":
+      return "/regional";
+    case "SCHOOL_ADMIN":
+      return "/admin";
+    case "TEACHER":
+      return "/logbook";
+    default:
+      return "/logbook";
+  }
 }

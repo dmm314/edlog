@@ -8,7 +8,41 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-// ── USERS & AUTH ──────────────────────────────────────────
+// ── ENUMS ────────────────────────────────────────────────
+
+enum Role {
+  TEACHER
+  SCHOOL_ADMIN
+  REGIONAL_ADMIN
+}
+
+enum CodeType {
+  SCHOOL_REGISTRATION
+}
+
+enum SchoolStatus {
+  PENDING
+  ACTIVE
+  SUSPENDED
+}
+
+enum EngagementLevel {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum NotificationType {
+  LOG_REMINDER
+  WEEKLY_SUMMARY
+  COMPLIANCE_WARNING
+  LOG_REVIEWED
+  NEW_TEACHER
+  CURRICULUM_GAP
+  GENERAL
+}
+
+// ── USERS & AUTH ─────────────────────────────────────────
 
 model User {
   id           String   @id @default(cuid())
@@ -17,18 +51,29 @@ model User {
   firstName    String
   lastName     String
   phone        String?
-  role         String   @default("TEACHER")
+  role         Role     @default(TEACHER)
   isVerified   Boolean  @default(false)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
+  // School relationship (for TEACHER and SCHOOL_ADMIN)
   school        School?        @relation("SchoolTeachers", fields: [schoolId], references: [id])
   schoolId      String?
   adminOfSchool School?        @relation("SchoolAdmin")
-  rpiBoard      RPIBoard?      @relation("RPIMembers", fields: [rpiBoardId], references: [id])
-  rpiBoardId    String?
-  entries       LogbookEntry[]
-  sessions      Session[]
+
+  // Region relationship (for REGIONAL_ADMIN)
+  regionAdmin  Region?  @relation("RegionalAdmins", fields: [regionId], references: [id])
+  regionId     String?
+
+  // Registration codes
+  codesCreated RegistrationCode[] @relation("CodesCreated")
+  codesUsed    RegistrationCode[] @relation("CodesUsed")
+
+  // Teacher features
+  entries      LogbookEntry[]
+  assignments  TeacherAssignment[]
+  sessions     Session[]
+  notifications Notification[]
 }
 
 model Session {
@@ -40,46 +85,116 @@ model Session {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-// ── ORGANIZATIONAL HIERARCHY ─────────────────────────────
+// ── GEOGRAPHY (Cameroon Regions & Divisions) ─────────────
 
-model RPIBoard {
+model Region {
+  id        String     @id @default(cuid())
+  name      String     @unique
+  code      String     @unique // e.g., "CE", "SW", "NW"
+  capital   String
+  divisions Division[]
+  schools   School[]
+  admins    User[]     @relation("RegionalAdmins")
+  codes     RegistrationCode[]
+  createdAt DateTime   @default(now())
+}
+
+model Division {
   id        String   @id @default(cuid())
   name      String
-  region    String
-  createdAt DateTime @default(now())
+  regionId  String
+  region    Region   @relation(fields: [regionId], references: [id])
   schools   School[]
-  members   User[]   @relation("RPIMembers")
+  createdAt DateTime @default(now())
+
+  @@unique([regionId, name])
 }
+
+// ── REGISTRATION CODES ───────────────────────────────────
+
+model RegistrationCode {
+  id          String    @id @default(cuid())
+  code        String    @unique
+  type        CodeType  @default(SCHOOL_REGISTRATION)
+  regionId    String
+  region      Region    @relation(fields: [regionId], references: [id])
+  createdById String
+  createdBy   User      @relation("CodesCreated", fields: [createdById], references: [id])
+  usedAt      DateTime?
+  usedById    String?
+  usedBy      User?     @relation("CodesUsed", fields: [usedById], references: [id])
+  schoolId    String?
+  expiresAt   DateTime
+  createdAt   DateTime  @default(now())
+
+  @@index([regionId])
+  @@index([code])
+}
+
+// ── SCHOOL ───────────────────────────────────────────────
 
 model School {
-  id         String          @id @default(cuid())
-  name       String
-  code       String          @unique
-  town       String
-  region     String
-  isActive   Boolean         @default(true)
-  createdAt  DateTime        @default(now())
-  updatedAt  DateTime        @updatedAt
-  rpiBoard   RPIBoard        @relation(fields: [rpiBoardId], references: [id])
-  rpiBoardId String
-  admin      User?           @relation("SchoolAdmin", fields: [adminId], references: [id])
-  adminId    String?         @unique
-  teachers   User[]          @relation("SchoolTeachers")
-  classes    Class[]
-  subjects   SchoolSubject[]
+  id             String       @id @default(cuid())
+  name           String
+  code           String       @unique
+  schoolType     String?      // GHS, CSS, Baptist, Lay Private, GBHS, GTHS, Other
+  principalName  String?
+  principalPhone String?
+  status         SchoolStatus @default(ACTIVE)
+  profileComplete Boolean     @default(false)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  // Geography
+  regionId   String
+  region     Region   @relation(fields: [regionId], references: [id])
+  divisionId String
+  division   Division @relation(fields: [divisionId], references: [id])
+
+  // Admin
+  adminId  String? @unique
+  admin    User?   @relation("SchoolAdmin", fields: [adminId], references: [id])
+
+  // Relations
+  teachers       User[]              @relation("SchoolTeachers")
+  classes        Class[]
+  subjects       SchoolSubject[]
+  assignments    TeacherAssignment[]
+  timetableSlots TimetableSlot[]
+  periodSchedule PeriodSchedule[]
 }
 
+// ── PERIOD SCHEDULE (school-wide bell times) ─────────────
+
+model PeriodSchedule {
+  id         String @id @default(cuid())
+  schoolId   String
+  school     School @relation(fields: [schoolId], references: [id])
+  periodNum  Int    // 1, 2, 3, ..., 8
+  label      String // "Period 1", "Period 2", etc.
+  startTime  String // "07:30"
+  endTime    String // "08:30"
+  createdAt  DateTime @default(now())
+
+  @@unique([schoolId, periodNum])
+}
+
+// ── CLASSES ──────────────────────────────────────────────
+
 model Class {
-  id        String         @id @default(cuid())
-  name      String
-  level     String
-  stream    String?
-  section   String?
-  year      Int
-  createdAt DateTime       @default(now())
-  school    School         @relation(fields: [schoolId], references: [id])
-  schoolId  String
-  entries   LogbookEntry[]
+  id           String   @id @default(cuid())
+  name         String   // "Form 1A", "Lower Sixth Science A"
+  abbreviation String?  // "F1A", "LSSA"
+  level        String   // "Form 1", "Form 2", ..., "Lower Sixth", "Upper Sixth"
+  stream       String?  // "Science", "Arts", "General"
+  section      String?  // "A", "B", "C", etc.
+  year         Int
+  createdAt    DateTime @default(now())
+  schoolId     String
+  school       School   @relation(fields: [schoolId], references: [id])
+
+  entries     LogbookEntry[]
+  assignments TeacherAssignment[]
 
   @@unique([schoolId, name, year])
 }
@@ -94,52 +209,123 @@ model Subject {
   createdAt DateTime        @default(now())
   topics    Topic[]
   schools   SchoolSubject[]
+  assignments TeacherAssignment[]
 }
 
 model Topic {
-  id         String         @id @default(cuid())
+  id         String   @id @default(cuid())
   name       String
+  classLevel String   // "Form 1", "Form 2", ..., "Lower Sixth", "Upper Sixth"
   moduleNum  Int?
   moduleName String?
-  orderIndex Int            @default(0)
-  createdAt  DateTime       @default(now())
-  subject    Subject        @relation(fields: [subjectId], references: [id])
+  orderIndex Int      @default(0)
+  createdAt  DateTime @default(now())
   subjectId  String
-  entries    LogbookEntry[]
+  subject    Subject  @relation(fields: [subjectId], references: [id])
 
-  @@unique([subjectId, name])
+  entries LogbookEntry[] @relation("EntryTopics")
+
+  @@unique([subjectId, classLevel, name])
+  @@index([subjectId, classLevel])
 }
 
 model SchoolSubject {
   id        String  @id @default(cuid())
-  school    School  @relation(fields: [schoolId], references: [id])
   schoolId  String
-  subject   Subject @relation(fields: [subjectId], references: [id])
+  school    School  @relation(fields: [schoolId], references: [id])
   subjectId String
+  subject   Subject @relation(fields: [subjectId], references: [id])
 
   @@unique([schoolId, subjectId])
+}
+
+// ── TEACHER ASSIGNMENTS & TIMETABLE ──────────────────────
+
+model TeacherAssignment {
+  id        String   @id @default(cuid())
+  teacherId String
+  teacher   User     @relation(fields: [teacherId], references: [id])
+  classId   String
+  class     Class    @relation(fields: [classId], references: [id])
+  subjectId String
+  subject   Subject  @relation(fields: [subjectId], references: [id])
+  schoolId  String
+  school    School   @relation(fields: [schoolId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  periods TimetableSlot[]
+  entries LogbookEntry[]
+
+  @@unique([teacherId, classId, subjectId])
+  @@index([teacherId])
+  @@index([schoolId])
+}
+
+model TimetableSlot {
+  id           String            @id @default(cuid())
+  assignmentId String
+  assignment   TeacherAssignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  dayOfWeek    Int               // 1=Monday ... 5=Friday
+  startTime    String            // "07:30"
+  endTime      String            // "08:30"
+  periodLabel  String            // "Period 1"
+  schoolId     String
+  school       School            @relation(fields: [schoolId], references: [id])
+  createdAt    DateTime          @default(now())
+
+  entries LogbookEntry[]
+
+  @@index([schoolId, dayOfWeek])
+  @@index([assignmentId])
 }
 
 // ── LOGBOOK ENTRIES (CORE) ───────────────────────────────
 
 model LogbookEntry {
-  id            String   @id @default(cuid())
-  date          DateTime
-  period        Int?
-  duration      Int      @default(60)
-  notes         String?  @db.Text
-  objectives    String?  @db.Text
-  signatureData String?  @db.Text
-  status        String   @default("SUBMITTED")
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  teacher       User     @relation(fields: [teacherId], references: [id])
-  teacherId     String
-  class         Class    @relation(fields: [classId], references: [id])
-  classId       String
-  topic         Topic    @relation(fields: [topicId], references: [id])
-  topicId       String
+  id                String           @id @default(cuid())
+  date              DateTime
+  period            Int?
+  duration          Int              @default(60)
+  notes             String?          @db.Text
+  objectives        String?          @db.Text
+  signatureData     String?          @db.Text
+  status            String           @default("SUBMITTED")
+  studentAttendance Int?
+  engagementLevel   EngagementLevel?
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+
+  // Relations
+  teacherId       String
+  teacher         User              @relation(fields: [teacherId], references: [id])
+  classId         String
+  class           Class             @relation(fields: [classId], references: [id])
+  assignmentId    String?
+  assignment      TeacherAssignment? @relation(fields: [assignmentId], references: [id])
+  timetableSlotId String?
+  timetableSlot   TimetableSlot?    @relation(fields: [timetableSlotId], references: [id])
+
+  // Many-to-many topics
+  topics Topic[] @relation("EntryTopics")
 
   @@index([teacherId, date])
   @@index([classId, date])
+}
+
+// ── NOTIFICATIONS ────────────────────────────────────────
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  user      User             @relation(fields: [userId], references: [id])
+  type      NotificationType
+  title     String
+  message   String           @db.Text
+  isRead    Boolean          @default(false)
+  link      String?
+  createdAt DateTime         @default(now())
+
+  @@index([userId, isRead])
+  @@index([userId, createdAt])
 }
