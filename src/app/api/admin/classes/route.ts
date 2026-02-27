@@ -78,9 +78,8 @@ export async function GET() {
     });
   } catch (error) {
     console.error("GET /api/admin/classes error:", error);
-    const msg = error instanceof Error ? error.message : String(error);
     return NextResponse.json(
-      { error: `Failed to fetch classes: ${msg}` },
+      { error: "Failed to fetch classes" },
       { status: 500 }
     );
   }
