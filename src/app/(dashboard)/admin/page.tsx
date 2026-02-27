@@ -96,7 +96,7 @@ export default function AdminDashboardPage() {
 
         {/* Stats grid */}
         <div className="grid grid-cols-2 gap-3">
-          <div className="card p-4">
+          <Link href="/admin/teachers" className="card p-4 hover:bg-slate-50 transition-colors">
             <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center mb-2">
               <Users className="w-5 h-5 text-blue-600" />
             </div>
@@ -104,9 +104,9 @@ export default function AdminDashboardPage() {
               {stats?.totalTeachers ?? 0}
             </p>
             <p className="text-xs text-slate-400 mt-0.5">Total Teachers</p>
-          </div>
+          </Link>
 
-          <div className="card p-4">
+          <Link href="/admin/reports" className="card p-4 hover:bg-slate-50 transition-colors">
             <div className="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center mb-2">
               <BookOpen className="w-5 h-5 text-green-600" />
             </div>
@@ -114,9 +114,9 @@ export default function AdminDashboardPage() {
               {stats?.totalEntries ?? 0}
             </p>
             <p className="text-xs text-slate-400 mt-0.5">Total Entries</p>
-          </div>
+          </Link>
 
-          <div className="card p-4">
+          <Link href="/admin/reports" className="card p-4 hover:bg-slate-50 transition-colors">
             <div className="w-10 h-10 bg-purple-50 rounded-xl flex items-center justify-center mb-2">
               <TrendingUp className="w-5 h-5 text-purple-600" />
             </div>
@@ -124,9 +124,9 @@ export default function AdminDashboardPage() {
               {stats?.entriesThisMonth ?? 0}
             </p>
             <p className="text-xs text-slate-400 mt-0.5">This Month</p>
-          </div>
+          </Link>
 
-          <div className="card p-4">
+          <Link href="/admin/reports" className="card p-4 hover:bg-slate-50 transition-colors">
             <div className="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center mb-2">
               <BookOpen className="w-5 h-5 text-amber-600" />
             </div>
@@ -134,7 +134,7 @@ export default function AdminDashboardPage() {
               {stats?.entriesThisWeek ?? 0}
             </p>
             <p className="text-xs text-slate-400 mt-0.5">This Week</p>
-          </div>
+          </Link>
         </div>
 
         {/* Entries by Week Chart (simple bar) */}

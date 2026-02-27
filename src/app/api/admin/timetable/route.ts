@@ -20,7 +20,7 @@ export async function GET() {
         assignment: {
           include: {
             teacher: { select: { firstName: true, lastName: true } },
-            class: { select: { name: true } },
+            class: { select: { id: true, name: true } },
             subject: { select: { name: true } },
           },
         },
@@ -45,6 +45,15 @@ export async function GET() {
       orderBy: { periodNum: "asc" },
     });
 
+    // Get all classes with counts
+    const classes = await db.class.findMany({
+      where: { schoolId: user.schoolId },
+      include: {
+        _count: { select: { assignments: true } },
+      },
+      orderBy: [{ level: "asc" }, { name: "asc" }],
+    });
+
     const result = slots.map((slot) => ({
       id: slot.id,
       dayOfWeek: slot.dayOfWeek,
@@ -54,6 +63,7 @@ export async function GET() {
       assignmentId: slot.assignmentId,
       teacher: `${slot.assignment.teacher.firstName} ${slot.assignment.teacher.lastName}`,
       className: slot.assignment.class.name,
+      classId: slot.assignment.class.id,
       subject: slot.assignment.subject.name,
     }));
 
@@ -61,10 +71,24 @@ export async function GET() {
       id: a.id,
       teacher: `${a.teacher.firstName} ${a.teacher.lastName}`,
       className: a.class.name,
+      classId: a.class.id,
       subject: a.subject.name,
     }));
 
-    return NextResponse.json({ slots: result, assignments: assignmentOptions, periods });
+    const classOptions = classes.map((c) => ({
+      id: c.id,
+      name: c.name,
+      level: c.level,
+      slotCount: result.filter((s) => s.classId === c.id).length,
+      teacherCount: c._count.assignments,
+    }));
+
+    return NextResponse.json({
+      slots: result,
+      assignments: assignmentOptions,
+      periods,
+      classes: classOptions,
+    });
   } catch (error) {
     console.error("GET /api/admin/timetable error:", error);
     return NextResponse.json(
@@ -98,6 +122,9 @@ export async function POST(request: Request) {
     // Verify assignment belongs to this school
     const assignment = await db.teacherAssignment.findFirst({
       where: { id: assignmentId, schoolId: user.schoolId },
+      include: {
+        class: { select: { id: true, name: true } },
+      },
     });
 
     if (!assignment) {
@@ -120,7 +147,7 @@ export async function POST(request: Request) {
         assignment: {
           include: {
             teacher: { select: { firstName: true, lastName: true } },
-            class: { select: { name: true } },
+            class: { select: { id: true, name: true } },
             subject: { select: { name: true } },
           },
         },
@@ -136,6 +163,7 @@ export async function POST(request: Request) {
       assignmentId: slot.assignmentId,
       teacher: `${slot.assignment.teacher.firstName} ${slot.assignment.teacher.lastName}`,
       className: slot.assignment.class.name,
+      classId: slot.assignment.class.id,
       subject: slot.assignment.subject.name,
     }, { status: 201 });
   } catch (error) {
