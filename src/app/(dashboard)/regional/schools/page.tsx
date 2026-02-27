@@ -54,8 +54,7 @@ export default function RegionalSchoolsPage() {
     }
   }
 
-  async function toggleStatus(schoolId: string, currentStatus: string) {
-    const newStatus = currentStatus === "ACTIVE" ? "SUSPENDED" : "ACTIVE";
+  async function updateSchoolStatus(schoolId: string, newStatus: "ACTIVE" | "SUSPENDED") {
     setToggling(schoolId);
     try {
       const res = await fetch("/api/regional/schools", {
@@ -67,7 +66,7 @@ export default function RegionalSchoolsPage() {
         setSchools((prev) =>
           prev.map((s) =>
             s.id === schoolId
-              ? { ...s, status: newStatus as SchoolItem["status"] }
+              ? { ...s, status: newStatus }
               : s
           )
         );
@@ -281,44 +280,65 @@ export default function RegionalSchoolsPage() {
                           </span>
                         </div>
 
-                        {/* Toggle status button */}
-                        <div className="pt-2">
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              toggleStatus(school.id, school.status);
-                            }}
-                            disabled={
-                              toggling === school.id ||
-                              school.status === "PENDING"
-                            }
-                            className={`w-full flex items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-medium transition-colors ${
-                              school.status === "PENDING"
-                                ? "bg-slate-100 text-slate-400 cursor-not-allowed"
-                                : school.status === "ACTIVE"
-                                ? "bg-red-50 text-red-600 hover:bg-red-100"
-                                : "bg-green-50 text-green-600 hover:bg-green-100"
-                            }`}
-                          >
-                            {toggling === school.id ? (
-                              <span>Updating...</span>
-                            ) : school.status === "PENDING" ? (
-                              <>
-                                <ToggleLeft className="w-4 h-4" />
-                                Pending Activation
-                              </>
-                            ) : school.status === "ACTIVE" ? (
-                              <>
-                                <ToggleRight className="w-4 h-4" />
-                                Suspend School
-                              </>
-                            ) : (
-                              <>
-                                <ToggleLeft className="w-4 h-4" />
-                                Activate School
-                              </>
-                            )}
-                          </button>
+                        {/* Action buttons */}
+                        <div className="pt-2 space-y-2">
+                          {school.status === "PENDING" && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                updateSchoolStatus(school.id, "ACTIVE");
+                              }}
+                              disabled={toggling === school.id}
+                              className="w-full flex items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-medium transition-colors bg-green-50 text-green-600 hover:bg-green-100"
+                            >
+                              {toggling === school.id ? (
+                                <span>Approving...</span>
+                              ) : (
+                                <>
+                                  <ToggleRight className="w-4 h-4" />
+                                  Approve &amp; Activate School
+                                </>
+                              )}
+                            </button>
+                          )}
+                          {school.status === "ACTIVE" && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                updateSchoolStatus(school.id, "SUSPENDED");
+                              }}
+                              disabled={toggling === school.id}
+                              className="w-full flex items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-medium transition-colors bg-red-50 text-red-600 hover:bg-red-100"
+                            >
+                              {toggling === school.id ? (
+                                <span>Updating...</span>
+                              ) : (
+                                <>
+                                  <ToggleRight className="w-4 h-4" />
+                                  Suspend School
+                                </>
+                              )}
+                            </button>
+                          )}
+                          {school.status === "SUSPENDED" && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                updateSchoolStatus(school.id, "ACTIVE");
+                              }}
+                              disabled={toggling === school.id}
+                              className="w-full flex items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-medium transition-colors bg-green-50 text-green-600 hover:bg-green-100"
+                            >
+                              {toggling === school.id ? (
+                                <span>Updating...</span>
+                              ) : (
+                                <>
+                                  <ToggleLeft className="w-4 h-4" />
+                                  Activate School
+                                </>
+                              )}
+                            </button>
+                          )}
                         </div>
                       </div>
                     </div>

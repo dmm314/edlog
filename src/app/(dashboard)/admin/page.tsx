@@ -8,6 +8,8 @@ import {
   TrendingUp,
   AlertTriangle,
   ChevronRight,
+  Calendar,
+  Building2,
 } from "lucide-react";
 import { NotificationBell } from "@/components/NotificationBell";
 import type { AdminStats } from "@/types";
@@ -206,6 +208,30 @@ export default function AdminDashboardPage() {
               <Users className="w-5 h-5 text-slate-400" />
               <span className="font-medium text-slate-900">
                 Manage Teachers
+              </span>
+            </div>
+            <ChevronRight className="w-4 h-4 text-slate-400" />
+          </Link>
+          <Link
+            href="/admin/timetable"
+            className="card p-4 flex items-center justify-between"
+          >
+            <div className="flex items-center gap-3">
+              <Calendar className="w-5 h-5 text-slate-400" />
+              <span className="font-medium text-slate-900">
+                Manage Timetable
+              </span>
+            </div>
+            <ChevronRight className="w-4 h-4 text-slate-400" />
+          </Link>
+          <Link
+            href="/admin/school"
+            className="card p-4 flex items-center justify-between"
+          >
+            <div className="flex items-center gap-3">
+              <Building2 className="w-5 h-5 text-slate-400" />
+              <span className="font-medium text-slate-900">
+                School Profile
               </span>
             </div>
             <ChevronRight className="w-4 h-4 text-slate-400" />

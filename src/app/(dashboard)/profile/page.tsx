@@ -33,7 +33,7 @@ export default function ProfilePage() {
           startOfWeek.setDate(now.getDate() - now.getDay() + (now.getDay() === 0 ? -6 : 1));
           startOfWeek.setHours(0, 0, 0, 0);
 
-          const entries = data.entries;
+          const entries = data.entries || [];
           const thisMonth = entries.filter(
             (e: { date: string }) => new Date(e.date) >= startOfMonth
           );
@@ -55,21 +55,18 @@ export default function ProfilePage() {
           )[0]?.[0] ?? null;
 
           setStats({
-            totalEntries: data.total,
+            totalEntries: data.total || 0,
             entriesThisMonth: thisMonth.length,
             entriesThisWeek: thisWeek.length,
             topSubject,
           });
         }
 
-        // Get school name
-        const classRes = await fetch("/api/classes");
-        if (classRes.ok) {
-          const classes = await classRes.json();
-          if (classes.length > 0) {
-            // school name can be inferred from the school linked to classes
-            setSchoolName("Lycée Bilingue de Yaoundé"); // will be overridden if proper endpoint exists
-          }
+        // Get school name dynamically (works for all roles with a school)
+        const schoolRes = await fetch("/api/school");
+        if (schoolRes.ok) {
+          const schoolData = await schoolRes.json();
+          setSchoolName(schoolData.name);
         }
       } catch {
         // silently fail

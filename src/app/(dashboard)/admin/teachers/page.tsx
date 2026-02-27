@@ -11,9 +11,11 @@ export default function ManageTeachersPage() {
   const [loading, setLoading] = useState(true);
   const [copiedCode, setCopiedCode] = useState(false);
   const [verifying, setVerifying] = useState<string | null>(null);
+  const [schoolCode, setSchoolCode] = useState("");
 
   useEffect(() => {
     fetchTeachers();
+    fetchSchoolCode();
   }, []);
 
   async function fetchTeachers() {
@@ -26,6 +28,18 @@ export default function ManageTeachersPage() {
       // silently fail
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function fetchSchoolCode() {
+    try {
+      const res = await fetch("/api/admin/school");
+      if (res.ok) {
+        const data = await res.json();
+        setSchoolCode(data.code);
+      }
+    } catch {
+      // silently fail
     }
   }
 
@@ -50,7 +64,8 @@ export default function ManageTeachersPage() {
   }
 
   function copySchoolCode() {
-    navigator.clipboard.writeText("LBY-001");
+    if (!schoolCode) return;
+    navigator.clipboard.writeText(schoolCode);
     setCopiedCode(true);
     setTimeout(() => setCopiedCode(false), 2000);
   }
@@ -79,7 +94,7 @@ export default function ManageTeachersPage() {
           </p>
           <div className="flex items-center gap-2">
             <code className="flex-1 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 font-mono text-lg text-brand-950 font-bold tracking-wider">
-              LBY-001
+              {schoolCode || "Loading..."}
             </code>
             <button
               onClick={copySchoolCode}
