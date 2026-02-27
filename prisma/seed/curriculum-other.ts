@@ -133,4 +133,47 @@ export const OTHER_SUBJECTS: SubjectDef[] = [
       levelsFromTo("Form 1", "Form 5"),
     ),
   },
+  {
+    name: "Sports",
+    code: "SPO",
+    category: "General",
+    levels: buildLevels("Sports", levelsFromTo("Form 1", "Upper Sixth")),
+  },
+  {
+    name: "Manual Labour",
+    code: "MLA",
+    category: "General",
+    levels: buildLevels(
+      "Manual Labour",
+      levelsFromTo("Form 1", "Form 5"),
+    ),
+  },
+  // Chemistry branch subjects — individually assignable
+  {
+    name: "Physical Chemistry",
+    code: "PCH",
+    category: "Chemistry",
+    levels: buildLevels(
+      "Physical Chemistry",
+      levelsFromTo("Form 1", "Upper Sixth"),
+    ),
+  },
+  {
+    name: "Organic Chemistry",
+    code: "OCH",
+    category: "Chemistry",
+    levels: buildLevels(
+      "Organic Chemistry",
+      levelsFromTo("Form 1", "Upper Sixth"),
+    ),
+  },
+  {
+    name: "Inorganic Chemistry",
+    code: "ICH",
+    category: "Chemistry",
+    levels: buildLevels(
+      "Inorganic Chemistry",
+      levelsFromTo("Form 1", "Upper Sixth"),
+    ),
+  },
 ];

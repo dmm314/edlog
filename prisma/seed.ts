@@ -87,7 +87,7 @@ async function main() {
 
   try {
     const { CHEMISTRY_CURRICULUM } = await import("./seed/curriculum-chemistry");
-    allSubjects.push({ name: "Chemistry", code: "CHE", category: "Science", levels: CHEMISTRY_CURRICULUM });
+    allSubjects.push({ name: "Chemistry", code: "CHE", category: "Chemistry", levels: CHEMISTRY_CURRICULUM });
   } catch { console.log("  ⚠ Chemistry curriculum file not found, skipping"); }
 
   try {

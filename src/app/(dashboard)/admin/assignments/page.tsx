@@ -46,6 +46,9 @@ export default function AssignmentsPage() {
   const [teachers, setTeachers] = useState<TeacherOption[]>([]);
   const [classes, setClasses] = useState<ClassOption[]>([]);
   const [subjects, setSubjects] = useState<SubjectOption[]>([]);
+  const [subjectsByClass, setSubjectsByClass] = useState<
+    Record<string, SubjectOption[]>
+  >({});
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -73,6 +76,7 @@ export default function AssignmentsPage() {
         setTeachers(data.teachers);
         setClasses(data.classes);
         setSubjects(data.subjects);
+        setSubjectsByClass(data.subjectsByClass || {});
       }
     } catch {
       // silently fail
@@ -164,6 +168,11 @@ export default function AssignmentsPage() {
     );
   }, [filteredAssignments]);
 
+  // Subjects available for the selected class
+  const availableSubjects = form.classId
+    ? subjectsByClass[form.classId] || []
+    : [];
+
   const hasSetup = teachers.length > 0 && classes.length > 0 && subjects.length > 0;
 
   return (
@@ -238,12 +247,12 @@ export default function AssignmentsPage() {
                 )}
                 {subjects.length === 0 && (
                   <p className="text-slate-500">
-                    No subjects set up for your school.{" "}
+                    No subjects assigned to any class.{" "}
                     <Link
-                      href="/admin/subjects"
+                      href="/admin/classes"
                       className="text-brand-600 font-medium"
                     >
-                      Add subjects
+                      Manage class subjects
                     </Link>
                   </p>
                 )}
@@ -292,7 +301,11 @@ export default function AssignmentsPage() {
               <select
                 value={form.classId}
                 onChange={(e) =>
-                  setForm((prev) => ({ ...prev, classId: e.target.value }))
+                  setForm((prev) => ({
+                    ...prev,
+                    classId: e.target.value,
+                    subjectId: "",
+                  }))
                 }
                 className="input-field"
               >
@@ -313,14 +326,32 @@ export default function AssignmentsPage() {
                   setForm((prev) => ({ ...prev, subjectId: e.target.value }))
                 }
                 className="input-field"
+                disabled={!form.classId}
               >
-                <option value="">Select subject</option>
-                {subjects.map((s) => (
+                <option value="">
+                  {!form.classId
+                    ? "Select a class first"
+                    : availableSubjects.length === 0
+                    ? "No subjects — add them in Classes"
+                    : "Select subject"}
+                </option>
+                {availableSubjects.map((s) => (
                   <option key={s.id} value={s.id}>
                     {s.name}
                   </option>
                 ))}
               </select>
+              {form.classId && availableSubjects.length === 0 && (
+                <p className="text-xs text-amber-600 mt-1">
+                  This class has no subjects.{" "}
+                  <Link
+                    href={`/admin/classes/${form.classId}`}
+                    className="text-brand-600 font-medium"
+                  >
+                    Add subjects
+                  </Link>
+                </p>
+              )}
             </div>
 
             <button

@@ -251,18 +251,6 @@ export default function AdminDashboardPage() {
             <ChevronRight className="w-4 h-4 text-slate-400" />
           </Link>
           <Link
-            href="/admin/subjects"
-            className="card p-4 flex items-center justify-between"
-          >
-            <div className="flex items-center gap-3">
-              <BookOpen className="w-5 h-5 text-slate-400" />
-              <span className="font-medium text-slate-900">
-                Manage Subjects
-              </span>
-            </div>
-            <ChevronRight className="w-4 h-4 text-slate-400" />
-          </Link>
-          <Link
             href="/admin/school"
             className="card p-4 flex items-center justify-between"
           >
