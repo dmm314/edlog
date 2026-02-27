@@ -16,7 +16,7 @@ export async function GET() {
       );
     }
 
-    const [assignments, teachers, classes, schoolSubjects] = await Promise.all([
+    const [assignments, teachers, classes, classSubjects] = await Promise.all([
       db.teacherAssignment.findMany({
         where: { schoolId: user.schoolId },
         include: {
@@ -52,13 +52,28 @@ export async function GET() {
         select: { id: true, name: true, level: true },
         orderBy: { name: "asc" },
       }),
-      db.schoolSubject.findMany({
-        where: { schoolId: user.schoolId },
+      db.classSubject.findMany({
+        where: {
+          class: { schoolId: user.schoolId },
+        },
         include: {
           subject: { select: { id: true, name: true, code: true } },
         },
       }),
     ]);
+
+    // Build a map of classId -> subjects for the frontend
+    const subjectsByClass: Record<string, { id: string; name: string; code: string }[]> = {};
+    for (const cs of classSubjects) {
+      if (!subjectsByClass[cs.classId]) subjectsByClass[cs.classId] = [];
+      subjectsByClass[cs.classId].push(cs.subject);
+    }
+
+    // Dedupe all subjects across classes for backward compat
+    const allSubjectMap = new Map<string, { id: string; name: string; code: string }>();
+    for (const cs of classSubjects) {
+      allSubjectMap.set(cs.subject.id, cs.subject);
+    }
 
     return NextResponse.json({
       assignments: assignments.map((a) => ({
@@ -83,7 +98,8 @@ export async function GET() {
       })),
       teachers,
       classes,
-      subjects: schoolSubjects.map((ss) => ss.subject),
+      subjects: Array.from(allSubjectMap.values()),
+      subjectsByClass,
     });
   } catch (error) {
     console.error("GET /api/admin/assignments error:", error);

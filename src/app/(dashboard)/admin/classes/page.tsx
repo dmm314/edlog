@@ -9,6 +9,7 @@ import {
   GraduationCap,
   Users,
   BookOpen,
+  ChevronRight,
 } from "lucide-react";
 
 interface ClassItem {
@@ -21,6 +22,7 @@ interface ClassItem {
   year: number;
   entryCount: number;
   teacherCount: number;
+  subjectCount: number;
 }
 
 const LEVEL_ORDER = [
@@ -316,30 +318,38 @@ export default function ManageClassesPage() {
                 {levelClasses.map((cls) => (
                   <div key={cls.id} className="card p-3">
                     <div className="flex items-center justify-between">
-                      <div className="flex-1">
+                      <Link
+                        href={`/admin/classes/${cls.id}`}
+                        className="flex-1 min-w-0"
+                      >
                         <h4 className="font-semibold text-slate-900 text-sm">
                           {cls.name}
                         </h4>
                         <div className="flex items-center gap-3 mt-1 text-xs text-slate-400">
                           <span className="flex items-center gap-1">
+                            <BookOpen className="w-3 h-3" />
+                            {cls.subjectCount} subject{cls.subjectCount !== 1 ? "s" : ""}
+                          </span>
+                          <span className="flex items-center gap-1">
                             <Users className="w-3 h-3" />
                             {cls.teacherCount} assigned
                           </span>
-                          <span className="flex items-center gap-1">
-                            <BookOpen className="w-3 h-3" />
-                            {cls.entryCount} entries
-                          </span>
                         </div>
+                      </Link>
+                      <div className="flex items-center gap-1">
+                        {cls.entryCount === 0 && (
+                          <button
+                            onClick={() => handleDelete(cls.id)}
+                            disabled={deleting === cls.id}
+                            className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        )}
+                        <Link href={`/admin/classes/${cls.id}`}>
+                          <ChevronRight className="w-4 h-4 text-slate-400" />
+                        </Link>
                       </div>
-                      {cls.entryCount === 0 && (
-                        <button
-                          onClick={() => handleDelete(cls.id)}
-                          disabled={deleting === cls.id}
-                          className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      )}
                     </div>
                   </div>
                 ))}

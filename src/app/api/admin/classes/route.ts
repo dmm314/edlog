@@ -34,7 +34,7 @@ export async function GET() {
       where: { schoolId: user.schoolId },
       include: {
         _count: {
-          select: { entries: true, assignments: true },
+          select: { entries: true, assignments: true, subjects: true },
         },
       },
       orderBy: [{ level: "asc" }, { name: "asc" }],
@@ -51,6 +51,7 @@ export async function GET() {
         year: c.year,
         entryCount: c._count.entries,
         teacherCount: c._count.assignments,
+        subjectCount: c._count.subjects,
       })),
       levels: VALID_LEVELS,
       streams: STREAMS,

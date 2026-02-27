@@ -195,6 +195,7 @@ model Class {
 
   entries     LogbookEntry[]
   assignments TeacherAssignment[]
+  subjects    ClassSubject[]
 
   @@unique([schoolId, name, year])
 }
@@ -209,6 +210,7 @@ model Subject {
   createdAt DateTime        @default(now())
   topics    Topic[]
   schools   SchoolSubject[]
+  classes   ClassSubject[]
   assignments TeacherAssignment[]
 }
 
@@ -237,6 +239,16 @@ model SchoolSubject {
   subject   Subject @relation(fields: [subjectId], references: [id])
 
   @@unique([schoolId, subjectId])
+}
+
+model ClassSubject {
+  id        String  @id @default(cuid())
+  classId   String
+  class     Class   @relation(fields: [classId], references: [id], onDelete: Cascade)
+  subjectId String
+  subject   Subject @relation(fields: [subjectId], references: [id])
+
+  @@unique([classId, subjectId])
 }
 
 // ── TEACHER ASSIGNMENTS & TIMETABLE ──────────────────────
