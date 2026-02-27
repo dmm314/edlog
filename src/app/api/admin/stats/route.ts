@@ -99,8 +99,9 @@ export async function GET() {
     });
   } catch (error) {
     console.error("GET /api/admin/stats error:", error);
+    const msg = error instanceof Error ? error.message : String(error);
     return NextResponse.json(
-      { error: "Failed to fetch stats" },
+      { error: `Failed to fetch stats: ${msg}` },
       { status: 500 }
     );
   }

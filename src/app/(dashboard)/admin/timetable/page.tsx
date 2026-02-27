@@ -70,6 +70,8 @@ export default function TimetableManagementPage() {
   const [selectedClassId, setSelectedClassId] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
 
+  const [error, setError] = useState("");
+
   const [form, setForm] = useState({
     assignmentId: "",
     dayOfWeek: "1",
@@ -83,15 +85,18 @@ export default function TimetableManagementPage() {
   async function fetchTimetable() {
     try {
       const res = await fetch("/api/admin/timetable");
+      const data = await res.json();
       if (res.ok) {
-        const data = await res.json();
         setSlots(data.slots);
         setAssignments(data.assignments);
         setPeriods(data.periods);
         setClasses(data.classes);
+      } else {
+        setError(data.error || "Failed to load timetable");
       }
-    } catch {
-      // silently fail
+    } catch (e) {
+      console.error("Timetable fetch error:", e);
+      setError("Failed to connect to server");
     } finally {
       setLoading(false);
     }
@@ -121,18 +126,20 @@ export default function TimetableManagementPage() {
         }),
       });
 
+      const data = await res.json();
       if (res.ok) {
-        const newSlot = await res.json();
-        setSlots((prev) => [...prev, newSlot]);
+        setSlots((prev) => [...prev, data]);
         setForm({
           assignmentId: "",
           dayOfWeek: form.dayOfWeek,
           periodNum: "",
         });
         setShowForm(false);
+      } else {
+        setError(data.error || "Failed to add slot");
       }
     } catch {
-      // silently fail
+      setError("Failed to connect to server");
     } finally {
       setSaving(false);
     }
@@ -146,9 +153,12 @@ export default function TimetableManagementPage() {
       });
       if (res.ok) {
         setSlots((prev) => prev.filter((s) => s.id !== slotId));
+      } else {
+        const data = await res.json();
+        setError(data.error || "Failed to delete slot");
       }
     } catch {
-      // silently fail
+      setError("Failed to connect to server");
     } finally {
       setDeleting(null);
     }
@@ -216,6 +226,11 @@ export default function TimetableManagementPage() {
         </div>
 
         <div className="px-5 mt-4 max-w-lg mx-auto space-y-4">
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-4 py-3">
+              {error}
+            </div>
+          )}
           {loading ? (
             <div className="space-y-3">
               {[1, 2, 3].map((i) => (

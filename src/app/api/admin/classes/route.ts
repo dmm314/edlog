@@ -30,15 +30,34 @@ export async function GET() {
       );
     }
 
-    const classes = await db.class.findMany({
-      where: { schoolId: user.schoolId },
-      include: {
-        _count: {
-          select: { entries: true, assignments: true, subjects: true },
+    let classes;
+    try {
+      classes = await db.class.findMany({
+        where: { schoolId: user.schoolId },
+        include: {
+          _count: {
+            select: { entries: true, assignments: true, subjects: true },
+          },
         },
-      },
-      orderBy: [{ level: "asc" }, { name: "asc" }],
-    });
+        orderBy: [{ level: "asc" }, { name: "asc" }],
+      });
+    } catch (e) {
+      // Fallback: if subjects count fails (ClassSubject table issue), query without it
+      console.error("Classes query with subjects count failed, retrying without:", e);
+      const fallback = await db.class.findMany({
+        where: { schoolId: user.schoolId },
+        include: {
+          _count: {
+            select: { entries: true, assignments: true },
+          },
+        },
+        orderBy: [{ level: "asc" }, { name: "asc" }],
+      });
+      classes = fallback.map((c) => ({
+        ...c,
+        _count: { ...c._count, subjects: 0 },
+      }));
+    }
 
     return NextResponse.json({
       classes: classes.map((c) => ({
@@ -59,8 +78,9 @@ export async function GET() {
     });
   } catch (error) {
     console.error("GET /api/admin/classes error:", error);
+    const msg = error instanceof Error ? error.message : String(error);
     return NextResponse.json(
-      { error: "Failed to fetch classes" },
+      { error: `Failed to fetch classes: ${msg}` },
       { status: 500 }
     );
   }

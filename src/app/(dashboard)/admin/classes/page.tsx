@@ -120,7 +120,7 @@ export default function ManageClassesPage() {
         setError(data.error || "Failed to delete class");
       }
     } catch {
-      // silently fail
+      setError("Failed to connect to server");
     } finally {
       setDeleting(null);
     }

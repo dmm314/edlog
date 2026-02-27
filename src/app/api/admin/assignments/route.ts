@@ -104,8 +104,9 @@ export async function GET() {
     });
   } catch (error) {
     console.error("GET /api/admin/assignments error:", error);
+    const msg = error instanceof Error ? error.message : String(error);
     return NextResponse.json(
-      { error: "Failed to fetch assignments" },
+      { error: `Failed to fetch assignments: ${msg}` },
       { status: 500 }
     );
   }
