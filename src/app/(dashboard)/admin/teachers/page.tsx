@@ -293,12 +293,15 @@ export default function ManageTeachersPage() {
             {filteredTeachers.map((teacher) => (
               <div key={teacher.id} className="card p-4">
                 <div className="flex items-start justify-between">
-                  <div>
+                  <Link
+                    href={`/admin/teachers/${teacher.id}`}
+                    className="flex-1 hover:opacity-80 transition-opacity"
+                  >
                     <h4 className="font-semibold text-slate-900">
                       {teacher.firstName} {teacher.lastName}
                     </h4>
                     <p className="text-sm text-slate-500">{teacher.email}</p>
-                  </div>
+                  </Link>
                   <button
                     onClick={() => toggleVerify(teacher.id)}
                     disabled={verifying === teacher.id}
@@ -322,40 +325,42 @@ export default function ManageTeachersPage() {
                   </button>
                 </div>
 
-                {/* Subjects & Classes tags */}
-                {((teacher.subjects && teacher.subjects.length > 0) ||
-                  (teacher.classes && teacher.classes.length > 0)) && (
-                  <div className="flex flex-wrap gap-1 mt-2">
-                    {teacher.subjects?.map((s) => (
-                      <span
-                        key={s}
-                        className="text-[10px] font-medium bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded"
-                      >
-                        {s}
-                      </span>
-                    ))}
-                    {teacher.classes?.map((c) => (
-                      <span
-                        key={c}
-                        className="text-[10px] font-medium bg-purple-50 text-purple-600 px-1.5 py-0.5 rounded"
-                      >
-                        {c}
-                      </span>
-                    ))}
-                  </div>
-                )}
-
-                <div className="flex items-center gap-3 mt-2 text-xs text-slate-400">
-                  <span>{teacher.entryCount} entries</span>
-                  {teacher.lastEntry && (
-                    <>
-                      <span>&middot;</span>
-                      <span>Last: {formatDate(teacher.lastEntry)}</span>
-                    </>
+                <Link href={`/admin/teachers/${teacher.id}`}>
+                  {/* Subjects & Classes tags */}
+                  {((teacher.subjects && teacher.subjects.length > 0) ||
+                    (teacher.classes && teacher.classes.length > 0)) && (
+                    <div className="flex flex-wrap gap-1 mt-2">
+                      {teacher.subjects?.map((s) => (
+                        <span
+                          key={s}
+                          className="text-[10px] font-medium bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded"
+                        >
+                          {s}
+                        </span>
+                      ))}
+                      {teacher.classes?.map((c) => (
+                        <span
+                          key={c}
+                          className="text-[10px] font-medium bg-purple-50 text-purple-600 px-1.5 py-0.5 rounded"
+                        >
+                          {c}
+                        </span>
+                      ))}
+                    </div>
                   )}
-                  <span>&middot;</span>
-                  <span>Joined {formatDate(teacher.createdAt)}</span>
-                </div>
+
+                  <div className="flex items-center gap-3 mt-2 text-xs text-slate-400">
+                    <span className="text-brand-600 font-medium">{teacher.entryCount} entries</span>
+                    {teacher.lastEntry && (
+                      <>
+                        <span>&middot;</span>
+                        <span>Last: {formatDate(teacher.lastEntry)}</span>
+                      </>
+                    )}
+                    <span>&middot;</span>
+                    <span>Joined {formatDate(teacher.createdAt)}</span>
+                  </div>
+                </Link>
               </div>
             ))}
           </div>
