@@ -155,6 +155,7 @@ export async function POST(request: Request) {
       year: newClass.year,
       entryCount: 0,
       teacherCount: 0,
+      subjectCount: 0,
     });
   } catch (error) {
     console.error("POST /api/admin/classes error:", error);
