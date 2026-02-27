@@ -16,6 +16,7 @@ export async function GET() {
       );
     }
 
+    // Run queries individually so one failure doesn't break everything
     const [assignments, teachers, classes, classSubjects] = await Promise.all([
       db.teacherAssignment.findMany({
         where: { schoolId: user.schoolId },
@@ -37,7 +38,7 @@ export async function GET() {
           { teacher: { lastName: "asc" } },
           { class: { name: "asc" } },
         ],
-      }),
+      }).catch((e) => { console.error("assignments query failed:", e); return []; }),
       db.user.findMany({
         where: {
           schoolId: user.schoolId,
@@ -46,12 +47,12 @@ export async function GET() {
         },
         select: { id: true, firstName: true, lastName: true },
         orderBy: { lastName: "asc" },
-      }),
+      }).catch((e) => { console.error("teachers query failed:", e); return []; }),
       db.class.findMany({
         where: { schoolId: user.schoolId },
         select: { id: true, name: true, level: true },
         orderBy: { name: "asc" },
-      }),
+      }).catch((e) => { console.error("classes query failed:", e); return []; }),
       db.classSubject.findMany({
         where: {
           class: { schoolId: user.schoolId },
@@ -59,7 +60,7 @@ export async function GET() {
         include: {
           subject: { select: { id: true, name: true, code: true } },
         },
-      }),
+      }).catch((e) => { console.error("classSubjects query failed:", e); return []; }),
     ]);
 
     // Build a map of classId -> subjects for the frontend

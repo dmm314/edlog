@@ -70,16 +70,20 @@ export default function AssignmentsPage() {
   async function fetchAssignments() {
     try {
       const res = await fetch("/api/admin/assignments");
+      const data = await res.json();
       if (res.ok) {
-        const data = await res.json();
         setAssignments(data.assignments);
         setTeachers(data.teachers);
         setClasses(data.classes);
         setSubjects(data.subjects);
         setSubjectsByClass(data.subjectsByClass || {});
+      } else {
+        console.error("Assignments API error:", data.error);
+        setError(data.error || "Failed to load assignments data");
       }
-    } catch {
-      // silently fail
+    } catch (e) {
+      console.error("Assignments fetch error:", e);
+      setError("Failed to connect to server");
     } finally {
       setLoading(false);
     }

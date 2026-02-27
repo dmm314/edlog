@@ -59,15 +59,19 @@ export default function ManageClassesPage() {
   async function fetchClasses() {
     try {
       const res = await fetch("/api/admin/classes");
+      const data = await res.json();
       if (res.ok) {
-        const data = await res.json();
         setClasses(data.classes);
         setLevels(data.levels);
         setStreams(data.streams);
         setSections(data.sections);
+      } else {
+        console.error("Classes API error:", data.error);
+        setError(data.error || "Failed to load classes");
       }
-    } catch {
-      // silently fail
+    } catch (e) {
+      console.error("Classes fetch error:", e);
+      setError("Failed to connect to server");
     } finally {
       setLoading(false);
     }
