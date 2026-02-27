@@ -238,8 +238,13 @@ export default function AssignmentsPage() {
                 )}
                 {subjects.length === 0 && (
                   <p className="text-slate-500">
-                    No subjects set up for your school. Contact your regional
-                    admin.
+                    No subjects set up for your school.{" "}
+                    <Link
+                      href="/admin/subjects"
+                      className="text-brand-600 font-medium"
+                    >
+                      Add subjects
+                    </Link>
                   </p>
                 )}
               </div>
