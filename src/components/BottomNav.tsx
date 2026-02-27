@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, PlusCircle, Clock, User, Shield, Globe, BarChart3 } from "lucide-react";
+import { Home, PlusCircle, Clock, User, Shield, Globe, BarChart3, Users, Calendar, GraduationCap } from "lucide-react";
 
 interface BottomNavProps {
   role: string;
@@ -29,8 +29,8 @@ function getNavTabs(role: string): NavItem[] {
   if (role === "SCHOOL_ADMIN") {
     return [
       { href: "/admin", label: "Dashboard", icon: Shield },
-      { href: "/logbook/new", label: "New Entry", icon: PlusCircle, highlight: true },
-      { href: "/admin/teachers", label: "Teachers", icon: Home },
+      { href: "/admin/teachers", label: "Teachers", icon: Users },
+      { href: "/admin/timetable", label: "Timetable", icon: Calendar },
       { href: "/profile", label: "Profile", icon: User },
     ];
   }
@@ -39,6 +39,7 @@ function getNavTabs(role: string): NavItem[] {
   return [
     { href: "/logbook", label: "Home", icon: Home },
     { href: "/logbook/new", label: "New Entry", icon: PlusCircle, highlight: true },
+    { href: "/assignments", label: "Classes", icon: GraduationCap },
     { href: "/history", label: "History", icon: Clock },
     { href: "/profile", label: "Profile", icon: User },
   ];

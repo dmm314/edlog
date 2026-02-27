@@ -16,34 +16,43 @@ export async function GET() {
       );
     }
 
-    const schools = await db.school.findMany({
-      where: { regionId: user.regionId },
-      include: {
-        division: { select: { name: true } },
-        admin: {
-          select: { firstName: true, lastName: true, email: true },
-        },
-        _count: {
-          select: {
-            teachers: { where: { role: "TEACHER" } },
+    const [schools, divisions] = await Promise.all([
+      db.school.findMany({
+        where: { regionId: user.regionId },
+        include: {
+          division: { select: { id: true, name: true } },
+          admin: {
+            select: { firstName: true, lastName: true, email: true },
+          },
+          _count: {
+            select: {
+              teachers: { where: { role: "TEACHER" } },
+              classes: true,
+            },
+          },
+          teachers: {
+            where: { role: "TEACHER" },
+            select: {
+              _count: { select: { entries: true } },
+            },
           },
         },
-        teachers: {
-          where: { role: "TEACHER" },
-          select: {
-            _count: { select: { entries: true } },
-          },
-        },
-      },
-      orderBy: { name: "asc" },
-    });
+        orderBy: { name: "asc" },
+      }),
+      db.division.findMany({
+        where: { regionId: user.regionId },
+        select: { id: true, name: true },
+        orderBy: { name: "asc" },
+      }),
+    ]);
 
-    const result = schools.map((school) => ({
+    const schoolResults = schools.map((school) => ({
       id: school.id,
       name: school.name,
       code: school.code,
       schoolType: school.schoolType,
       status: school.status,
+      divisionId: school.division.id,
       division: school.division.name,
       principalName: school.principalName,
       principalPhone: school.principalPhone,
@@ -54,6 +63,7 @@ export async function GET() {
           }
         : null,
       teacherCount: school._count.teachers,
+      classCount: school._count.classes,
       entryCount: school.teachers.reduce(
         (sum, t) => sum + t._count.entries,
         0
@@ -61,7 +71,7 @@ export async function GET() {
       createdAt: school.createdAt.toISOString(),
     }));
 
-    return NextResponse.json(result);
+    return NextResponse.json({ schools: schoolResults, divisions });
   } catch (error) {
     console.error("GET /api/regional/schools error:", error);
     return NextResponse.json(

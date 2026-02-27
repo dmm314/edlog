@@ -5,13 +5,12 @@ import { ArrowLeft, Save, Building2, CheckCircle } from "lucide-react";
 import Link from "next/link";
 
 const SCHOOL_TYPES = [
-  "GHS",
-  "GBHS",
-  "GTHS",
-  "CSS",
-  "Baptist",
-  "Lay Private",
-  "Other",
+  "Government",
+  "Private Lay",
+  "Private Confessional - Catholic",
+  "Private Confessional - Protestant",
+  "Private Confessional - Islamic",
+  "Community",
 ];
 
 interface SchoolInfo {

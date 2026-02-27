@@ -1,7 +1,16 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { ArrowLeft, CheckCircle, XCircle, Copy, Check } from "lucide-react";
+import { useState, useEffect, useMemo } from "react";
+import {
+  ArrowLeft,
+  CheckCircle,
+  XCircle,
+  Copy,
+  Check,
+  Search,
+  Filter,
+  X,
+} from "lucide-react";
 import Link from "next/link";
 import { formatDate } from "@/lib/utils";
 import type { TeacherWithStats } from "@/types";
@@ -12,6 +21,12 @@ export default function ManageTeachersPage() {
   const [copiedCode, setCopiedCode] = useState(false);
   const [verifying, setVerifying] = useState<string | null>(null);
   const [schoolCode, setSchoolCode] = useState("");
+
+  // Search & filter state
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterSubject, setFilterSubject] = useState("");
+  const [filterClass, setFilterClass] = useState("");
+  const [showFilters, setShowFilters] = useState(false);
 
   useEffect(() => {
     fetchTeachers();
@@ -70,6 +85,47 @@ export default function ManageTeachersPage() {
     setTimeout(() => setCopiedCode(false), 2000);
   }
 
+  // Extract unique subjects and classes from all teachers
+  const allSubjects = useMemo(() => {
+    const set = new Set<string>();
+    teachers.forEach((t) => t.subjects?.forEach((s) => set.add(s)));
+    return Array.from(set).sort();
+  }, [teachers]);
+
+  const allClasses = useMemo(() => {
+    const set = new Set<string>();
+    teachers.forEach((t) => t.classes?.forEach((c) => set.add(c)));
+    return Array.from(set).sort();
+  }, [teachers]);
+
+  // Filter teachers
+  const filteredTeachers = useMemo(() => {
+    return teachers.filter((t) => {
+      const nameMatch =
+        !searchQuery ||
+        `${t.firstName} ${t.lastName}`
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase()) ||
+        t.email.toLowerCase().includes(searchQuery.toLowerCase());
+
+      const subjectMatch =
+        !filterSubject || (t.subjects && t.subjects.includes(filterSubject));
+
+      const classMatch =
+        !filterClass || (t.classes && t.classes.includes(filterClass));
+
+      return nameMatch && subjectMatch && classMatch;
+    });
+  }, [teachers, searchQuery, filterSubject, filterClass]);
+
+  const hasActiveFilters = filterSubject || filterClass;
+
+  function clearFilters() {
+    setFilterSubject("");
+    setFilterClass("");
+    setSearchQuery("");
+  }
+
   return (
     <div className="min-h-screen bg-slate-50 pb-24">
       {/* Header */}
@@ -83,6 +139,9 @@ export default function ManageTeachersPage() {
             Back to Dashboard
           </Link>
           <h1 className="text-xl font-bold text-white">Manage Teachers</h1>
+          <p className="text-brand-400 text-sm mt-0.5">
+            {teachers.length} teacher{teachers.length !== 1 ? "s" : ""} registered
+          </p>
         </div>
       </div>
 
@@ -112,9 +171,92 @@ export default function ManageTeachersPage() {
           </p>
         </div>
 
+        {/* Search Bar */}
+        <div className="flex gap-2">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <input
+              type="text"
+              placeholder="Search by name or email..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-9 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+            />
+          </div>
+          <button
+            onClick={() => setShowFilters(!showFilters)}
+            className={`flex items-center gap-1.5 px-3 py-2.5 rounded-xl text-sm font-medium border transition-colors ${
+              hasActiveFilters
+                ? "bg-brand-50 border-brand-200 text-brand-700"
+                : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
+            }`}
+          >
+            <Filter className="w-4 h-4" />
+            {hasActiveFilters && (
+              <span className="w-1.5 h-1.5 bg-brand-600 rounded-full" />
+            )}
+          </button>
+        </div>
+
+        {/* Filter Dropdowns */}
+        {showFilters && (
+          <div className="card p-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <h4 className="text-sm font-semibold text-slate-700">Filters</h4>
+              {hasActiveFilters && (
+                <button
+                  onClick={clearFilters}
+                  className="text-xs text-brand-600 font-medium flex items-center gap-1"
+                >
+                  <X className="w-3 h-3" />
+                  Clear all
+                </button>
+              )}
+            </div>
+            <div>
+              <label className="label-field">Subject</label>
+              <select
+                value={filterSubject}
+                onChange={(e) => setFilterSubject(e.target.value)}
+                className="input-field"
+              >
+                <option value="">All subjects</option>
+                {allSubjects.map((s) => (
+                  <option key={s} value={s}>
+                    {s}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="label-field">Class</label>
+              <select
+                value={filterClass}
+                onChange={(e) => setFilterClass(e.target.value)}
+                className="input-field"
+              >
+                <option value="">All classes</option>
+                {allClasses.map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+        )}
+
+        {/* Results count */}
+        {(searchQuery || hasActiveFilters) && (
+          <p className="text-xs text-slate-400">
+            Showing {filteredTeachers.length} of {teachers.length} teacher
+            {teachers.length !== 1 ? "s" : ""}
+          </p>
+        )}
+
         {/* Teachers List */}
         <h3 className="text-xs font-semibold uppercase tracking-widest text-slate-400">
-          Teachers ({teachers.length})
+          Teachers ({filteredTeachers.length})
         </h3>
 
         {loading ? (
@@ -126,16 +268,29 @@ export default function ManageTeachersPage() {
               </div>
             ))}
           </div>
-        ) : teachers.length === 0 ? (
+        ) : filteredTeachers.length === 0 ? (
           <div className="text-center py-8">
-            <p className="text-slate-500">No teachers registered yet</p>
-            <p className="text-sm text-slate-400 mt-1">
-              Share the school code above with your teachers
+            <p className="text-slate-500">
+              {teachers.length === 0
+                ? "No teachers registered yet"
+                : "No teachers match your search"}
             </p>
+            {teachers.length === 0 ? (
+              <p className="text-sm text-slate-400 mt-1">
+                Share the school code above with your teachers
+              </p>
+            ) : (
+              <button
+                onClick={clearFilters}
+                className="text-sm text-brand-600 font-medium mt-2"
+              >
+                Clear filters
+              </button>
+            )}
           </div>
         ) : (
           <div className="space-y-3">
-            {teachers.map((teacher) => (
+            {filteredTeachers.map((teacher) => (
               <div key={teacher.id} className="card p-4">
                 <div className="flex items-start justify-between">
                   <div>
@@ -166,6 +321,30 @@ export default function ManageTeachersPage() {
                     )}
                   </button>
                 </div>
+
+                {/* Subjects & Classes tags */}
+                {((teacher.subjects && teacher.subjects.length > 0) ||
+                  (teacher.classes && teacher.classes.length > 0)) && (
+                  <div className="flex flex-wrap gap-1 mt-2">
+                    {teacher.subjects?.map((s) => (
+                      <span
+                        key={s}
+                        className="text-[10px] font-medium bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded"
+                      >
+                        {s}
+                      </span>
+                    ))}
+                    {teacher.classes?.map((c) => (
+                      <span
+                        key={c}
+                        className="text-[10px] font-medium bg-purple-50 text-purple-600 px-1.5 py-0.5 rounded"
+                      >
+                        {c}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
                 <div className="flex items-center gap-3 mt-2 text-xs text-slate-400">
                   <span>{teacher.entryCount} entries</span>
                   {teacher.lastEntry && (
