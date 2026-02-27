@@ -41,9 +41,8 @@ export async function GET() {
     });
   } catch (error) {
     console.error("GET /api/admin/school error:", error);
-    const msg = error instanceof Error ? error.message : String(error);
     return NextResponse.json(
-      { error: `Failed to fetch school: ${msg}` },
+      { error: "Failed to fetch school" },
       { status: 500 }
     );
   }

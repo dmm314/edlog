@@ -44,7 +44,7 @@ export const createEntrySchema = z.object({
   topicIds: z.array(z.string()).optional(),
   assignmentId: z.string().optional().nullable(),
   timetableSlotId: z.string().optional().nullable(),
-  period: z.number().int().min(1).max(8).optional().nullable(),
+  period: z.number().int().min(1).max(9).optional().nullable(),
   duration: z.number().int().min(15).max(180).default(60),
   notes: z.string().max(500, "Notes must be under 500 characters").optional().nullable(),
   objectives: z
@@ -63,7 +63,7 @@ export const updateEntrySchema = z.object({
   classId: z.string().optional(),
   topicId: z.string().optional(),
   topicIds: z.array(z.string()).optional(),
-  period: z.number().int().min(1).max(8).optional().nullable(),
+  period: z.number().int().min(1).max(9).optional().nullable(),
   duration: z.number().int().min(15).max(180).optional(),
   notes: z.string().max(500).optional().nullable(),
   objectives: z.string().max(500).optional().nullable(),

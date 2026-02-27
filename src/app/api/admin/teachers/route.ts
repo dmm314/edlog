@@ -48,9 +48,8 @@ export async function GET() {
     return NextResponse.json(result);
   } catch (error) {
     console.error("GET /api/admin/teachers error:", error);
-    const msg = error instanceof Error ? error.message : String(error);
     return NextResponse.json(
-      { error: `Failed to fetch teachers: ${msg}` },
+      { error: "Failed to fetch teachers" },
       { status: 500 }
     );
   }

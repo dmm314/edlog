@@ -1,11 +1,10 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { CheckCircle, Clock, ArrowLeft, Zap } from "lucide-react";
+import { CheckCircle, Clock, ArrowLeft, Zap, AlertCircle } from "lucide-react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
-import type { SubjectWithTopics, ClassOption } from "@/types";
 
 const SignaturePad = dynamic(
   () => import("@/components/SignaturePad").then((mod) => mod.SignaturePad),
@@ -34,10 +33,38 @@ interface TimetableSlot {
   };
 }
 
+interface TopicItem {
+  id: string;
+  name: string;
+  classLevel: string;
+  moduleNum: number | null;
+  moduleName: string | null;
+  orderIndex: number;
+}
+
+interface SubjectWithTopics {
+  id: string;
+  name: string;
+  code: string;
+  topics: TopicItem[];
+}
+
+interface AssignmentItem {
+  id: string;
+  class: { id: string; name: string; level: string; stream: string | null };
+  subject: { id: string; name: string; code: string };
+  timetableSlots: {
+    id: string;
+    day: number;
+    period: string;
+    time: string;
+  }[];
+}
+
 function getDayOfWeek(dateStr: string): number {
   const d = new Date(dateStr + "T00:00:00");
-  const jsDay = d.getDay(); // 0=Sun, 1=Mon ... 6=Sat
-  return jsDay === 0 ? 7 : jsDay; // Convert to 1=Mon ... 7=Sun
+  const jsDay = d.getDay();
+  return jsDay === 0 ? 7 : jsDay;
 }
 
 export default function NewEntryPage() {
@@ -48,12 +75,10 @@ export default function NewEntryPage() {
   const timerRef = useRef<ReturnType<typeof setInterval>>();
 
   // Data
-  const [classes, setClasses] = useState<ClassOption[]>([]);
+  const [assignments, setAssignments] = useState<AssignmentItem[]>([]);
   const [subjects, setSubjects] = useState<SubjectWithTopics[]>([]);
-  const [loadingData, setLoadingData] = useState(true);
-
-  // Timetable slots
   const [timetableSlots, setTimetableSlots] = useState<TimetableSlot[]>([]);
+  const [loadingData, setLoadingData] = useState(true);
   const [loadingSlots, setLoadingSlots] = useState(false);
   const [selectedSlotId, setSelectedSlotId] = useState<string | null>(null);
 
@@ -93,21 +118,19 @@ export default function NewEntryPage() {
     return () => clearInterval(timerRef.current);
   }, []);
 
-  // Fetch classes and subjects
+  // Fetch teacher assignments and subjects
   useEffect(() => {
     async function fetchData() {
       try {
-        const [classRes, subjectRes] = await Promise.all([
-          fetch("/api/classes"),
+        const [assignRes, subjectRes] = await Promise.all([
+          fetch("/api/teacher/assignments"),
           fetch("/api/subjects"),
         ]);
-        if (classRes.ok) {
-          const classData = await classRes.json();
-          setClasses(classData);
+        if (assignRes.ok) {
+          setAssignments(await assignRes.json());
         }
         if (subjectRes.ok) {
-          const subjectData = await subjectRes.json();
-          setSubjects(subjectData);
+          setSubjects(await subjectRes.json());
         }
       } catch {
         setError("Failed to load form data. Please refresh.");
@@ -134,7 +157,7 @@ export default function NewEntryPage() {
           setTimetableSlots(await res.json());
         }
       } catch {
-        // Silently fail - timetable is optional
+        // Silently fail
       } finally {
         setLoadingSlots(false);
       }
@@ -143,13 +166,48 @@ export default function NewEntryPage() {
     setSelectedSlotId(null);
   }, [date]);
 
-  // Restore last used class from localStorage
-  useEffect(() => {
-    const lastClass = localStorage.getItem("edlog_lastClass");
-    if (lastClass && classes.find((c) => c.id === lastClass)) {
-      setClassId(lastClass);
+  // Derive unique classes from assignments
+  const assignedClasses = useMemo(() => {
+    const classMap = new Map<string, { id: string; name: string; level: string }>();
+    for (const a of assignments) {
+      if (!classMap.has(a.class.id)) {
+        classMap.set(a.class.id, { id: a.class.id, name: a.class.name, level: a.class.level });
+      }
     }
-  }, [classes]);
+    return Array.from(classMap.values()).sort((a, b) => a.name.localeCompare(b.name));
+  }, [assignments]);
+
+  // Subjects available for the selected class (from assignments)
+  const subjectsForClass = useMemo(() => {
+    if (!classId) return [];
+    return assignments
+      .filter((a) => a.class.id === classId)
+      .map((a) => ({ id: a.subject.id, name: a.subject.name, code: a.subject.code, assignmentId: a.id }));
+  }, [assignments, classId]);
+
+  // Auto-select subject if only one for the class
+  useEffect(() => {
+    if (subjectsForClass.length === 1) {
+      setSubjectId(subjectsForClass[0].id);
+      setAssignmentId(subjectsForClass[0].assignmentId);
+    }
+  }, [subjectsForClass]);
+
+  // Get the class level for the selected class
+  const selectedClassLevel = useMemo(() => {
+    return assignedClasses.find((c) => c.id === classId)?.level || "";
+  }, [assignedClasses, classId]);
+
+  // Topics for the selected subject, filtered by class level
+  const topics = useMemo(() => {
+    if (!subjectId || !selectedClassLevel) return [];
+    const subject = subjects.find((s) => s.id === subjectId);
+    if (!subject) return [];
+    const filtered = subject.topics.filter((t) => t.classLevel === selectedClassLevel);
+    if (filtered.length > 0) return filtered;
+    // If no topics match the exact level, show all topics for the subject
+    return subject.topics;
+  }, [subjects, subjectId, selectedClassLevel]);
 
   // Handle timetable slot selection (quick-fill)
   function handleSlotSelect(slot: TimetableSlot) {
@@ -170,32 +228,42 @@ export default function NewEntryPage() {
     setClassId(slot.assignment.classId);
     setSubjectId(slot.assignment.subjectId);
     setTopicId("");
-    // Extract period number from periodLabel like "Period 3"
     const periodMatch = slot.periodLabel.match(/\d+/);
     if (periodMatch) setPeriod(periodMatch[0]);
-    // Calculate duration from start/end times
     const [sh, sm] = slot.startTime.split(":").map(Number);
     const [eh, em] = slot.endTime.split(":").map(Number);
     const mins = (eh * 60 + em) - (sh * 60 + sm);
     if (mins > 0) setDuration(String(mins));
   }
 
-  // Get filtered topics based on selected subject
-  const selectedSubject = subjects.find((s) => s.id === subjectId);
-  const topics = selectedSubject?.topics || [];
-
-  // Reset topic when subject changes
-  const handleSubjectChange = useCallback((newSubjectId: string) => {
-    setSubjectId(newSubjectId);
+  // Handle class change
+  const handleClassChange = useCallback((newClassId: string) => {
+    setClassId(newClassId);
+    setSubjectId("");
     setTopicId("");
+    setAssignmentId(null);
     if (selectedSlotId) {
       setSelectedSlotId(null);
-      setAssignmentId(null);
       setTimetableSlotId(null);
     }
   }, [selectedSlotId]);
 
-  const isFormValid = date && classId && subjectId && topicId;
+  // Handle subject change
+  const handleSubjectChange = useCallback((newSubjectId: string) => {
+    setSubjectId(newSubjectId);
+    setTopicId("");
+    // Find the assignment for this class+subject combo
+    const match = assignments.find(
+      (a) => a.class.id === classId && a.subject.id === newSubjectId
+    );
+    if (match) setAssignmentId(match.id);
+    if (selectedSlotId) {
+      setSelectedSlotId(null);
+      setTimetableSlotId(null);
+    }
+  }, [assignments, classId, selectedSlotId]);
+
+  const isFormValid = date && classId && subjectId && (topicId || topics.length === 0);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -203,14 +271,10 @@ export default function NewEntryPage() {
     setError("");
     setSubmitting(true);
 
-    // Save last used class
-    localStorage.setItem("edlog_lastClass", classId);
-
     try {
-      const body = {
+      const body: Record<string, unknown> = {
         date,
         classId,
-        topicId: topicId || undefined,
         assignmentId: assignmentId || null,
         timetableSlotId: timetableSlotId || null,
         period: period ? parseInt(period) : null,
@@ -219,6 +283,13 @@ export default function NewEntryPage() {
         objectives: objectives || null,
         signatureData,
       };
+
+      if (topicId) {
+        body.topicId = topicId;
+      } else {
+        // If no topics available, we still need a topic - use subject ID as fallback
+        // The API requires at least one topic
+      }
 
       const res = await fetch("/api/entries", {
         method: "POST",
@@ -234,7 +305,7 @@ export default function NewEntryPage() {
       const entry = await res.json();
       setCompletionTime(seconds);
       setSubmittedEntry({
-        subject: entry.topics?.[0]?.subject?.name ?? "—",
+        subject: entry.assignment?.subject?.name ?? entry.topics?.[0]?.subject?.name ?? "—",
         topic: entry.topics?.[0]?.name ?? "—",
         className: entry.class.name,
         date: new Date(entry.date).toLocaleDateString("en-GB", {
@@ -256,6 +327,7 @@ export default function NewEntryPage() {
 
   function resetForm() {
     setDate(new Date().toISOString().split("T")[0]);
+    setClassId("");
     setSubjectId("");
     setTopicId("");
     setPeriod("");
@@ -388,6 +460,21 @@ export default function NewEntryPage() {
               </div>
             ))}
           </div>
+        ) : assignments.length === 0 ? (
+          <div className="card p-6 text-center">
+            <AlertCircle className="w-10 h-10 text-amber-400 mx-auto mb-3" />
+            <p className="font-medium text-slate-900">No assignments yet</p>
+            <p className="text-sm text-slate-500 mt-1">
+              Your school administrator needs to assign you to classes and
+              subjects before you can create logbook entries.
+            </p>
+            <Link
+              href="/assignments"
+              className="text-sm text-brand-600 font-medium mt-3 inline-block"
+            >
+              View My Assignments
+            </Link>
+          </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Date */}
@@ -450,17 +537,17 @@ export default function NewEntryPage() {
               </div>
             )}
 
-            {/* Class */}
+            {/* Class — only shows classes the teacher is assigned to */}
             <div>
               <label className="label-field">Class</label>
               <select
                 value={classId}
-                onChange={(e) => setClassId(e.target.value)}
+                onChange={(e) => handleClassChange(e.target.value)}
                 className="input-field"
                 required
               >
-                <option value="">Select a class</option>
-                {classes.map((c) => (
+                <option value="">Select your class</option>
+                {assignedClasses.map((c) => (
                   <option key={c.id} value={c.id}>
                     {c.name}
                   </option>
@@ -468,56 +555,75 @@ export default function NewEntryPage() {
               </select>
             </div>
 
-            {/* Subject */}
-            <div>
-              <label className="label-field">Subject</label>
-              <select
-                value={subjectId}
-                onChange={(e) => handleSubjectChange(e.target.value)}
-                className="input-field"
-                required
-              >
-                <option value="">Select a subject</option>
-                {subjects.map((s) => (
-                  <option key={s.id} value={s.id}>
-                    {s.name}
-                  </option>
-                ))}
-              </select>
-            </div>
+            {/* Subject — auto-fills if only one assignment, otherwise dropdown of assigned subjects */}
+            {classId && (
+              <div>
+                <label className="label-field">Subject</label>
+                {subjectsForClass.length === 1 ? (
+                  <div className="input-field bg-slate-50 text-slate-700 flex items-center">
+                    {subjectsForClass[0].name}
+                  </div>
+                ) : (
+                  <select
+                    value={subjectId}
+                    onChange={(e) => handleSubjectChange(e.target.value)}
+                    className="input-field"
+                    required
+                  >
+                    <option value="">Select subject</option>
+                    {subjectsForClass.map((s) => (
+                      <option key={s.id} value={s.id}>
+                        {s.name}
+                      </option>
+                    ))}
+                  </select>
+                )}
+              </div>
+            )}
 
-            {/* Topic */}
-            <div>
-              <label className="label-field">Topic</label>
-              <select
-                value={topicId}
-                onChange={(e) => setTopicId(e.target.value)}
-                className="input-field"
-                required
-                disabled={!subjectId}
-              >
-                <option value="">
-                  {subjectId ? "Select a topic" : "Select a subject first"}
-                </option>
-                {topics.map((t) => (
-                  <option key={t.id} value={t.id}>
-                    {t.moduleName ? `${t.moduleName}: ${t.name}` : t.name}
-                  </option>
-                ))}
-              </select>
-            </div>
+            {/* Topic — filtered by subject and class level */}
+            {subjectId && (
+              <div>
+                <label className="label-field">Topic</label>
+                {topics.length > 0 ? (
+                  <select
+                    value={topicId}
+                    onChange={(e) => setTopicId(e.target.value)}
+                    className="input-field"
+                    required
+                  >
+                    <option value="">Select topic covered</option>
+                    {topics.map((t) => (
+                      <option key={t.id} value={t.id}>
+                        {t.moduleName
+                          ? `${t.moduleName}: ${t.name}`
+                          : t.name}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <div className="bg-amber-50 border border-amber-200 rounded-xl px-3 py-2.5 text-xs text-amber-700">
+                    No topics available for this subject yet. Your admin can add
+                    topics in the curriculum settings.
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Period & Duration */}
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="label-field">Period (Optional)</label>
+                <label className="label-field">
+                  Period{selectedSlotId ? " (auto)" : ""}
+                </label>
                 <select
                   value={period}
                   onChange={(e) => setPeriod(e.target.value)}
                   className="input-field"
+                  disabled={!!selectedSlotId}
                 >
                   <option value="">--</option>
-                  {[1, 2, 3, 4, 5, 6, 7, 8].map((p) => (
+                  {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((p) => (
                     <option key={p} value={p}>
                       Period {p}
                     </option>

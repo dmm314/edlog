@@ -118,6 +118,22 @@ export async function GET() {
       })
       .sort((a, b) => b.complianceRate - a.complianceRate);
 
+    // Fetch filter options for reports
+    const [regionSubjects, regionClasses] = await Promise.all([
+      db.subject.findMany({
+        where: {
+          schools: { some: { school: { regionId: user.regionId } } },
+        },
+        select: { id: true, name: true, code: true },
+        orderBy: { name: "asc" },
+      }).catch(() => []),
+      db.class.findMany({
+        where: { school: { regionId: user.regionId } },
+        select: { id: true, name: true, level: true, school: { select: { name: true } } },
+        orderBy: [{ level: "asc" }, { name: "asc" }],
+      }).catch(() => []),
+    ]);
+
     return NextResponse.json({
       totalSchools,
       activeSchools,
@@ -127,6 +143,16 @@ export async function GET() {
       entriesThisMonth,
       complianceRate: Math.min(complianceRate, 100),
       schoolRankings,
+      filterOptions: {
+        subjects: regionSubjects,
+        classes: regionClasses.map((c) => ({
+          id: c.id,
+          name: c.name,
+          level: c.level,
+          schoolName: c.school.name,
+        })),
+        schools: schools.map((s) => ({ id: s.id, name: s.name, code: s.code })),
+      },
     });
   } catch (error) {
     console.error("GET /api/regional/stats error:", error);

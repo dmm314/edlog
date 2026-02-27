@@ -413,7 +413,23 @@ DO $$ BEGIN
 EXCEPTION WHEN duplicate_object THEN NULL;
 END $$;
 
--- ── SEED SUBJECTS (skip duplicates) ─────────────────────────
+-- ── MISSING COLUMNS (add to existing tables if they were created without them) ──
+
+ALTER TABLE "School" ADD COLUMN IF NOT EXISTS "schoolType" TEXT;
+ALTER TABLE "School" ADD COLUMN IF NOT EXISTS "principalName" TEXT;
+ALTER TABLE "School" ADD COLUMN IF NOT EXISTS "principalPhone" TEXT;
+ALTER TABLE "School" ADD COLUMN IF NOT EXISTS "profileComplete" BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE "Class" ADD COLUMN IF NOT EXISTS "abbreviation" TEXT;
+ALTER TABLE "Class" ADD COLUMN IF NOT EXISTS "stream" TEXT;
+ALTER TABLE "Class" ADD COLUMN IF NOT EXISTS "section" TEXT;
+ALTER TABLE "LogbookEntry" ADD COLUMN IF NOT EXISTS "objectives" TEXT;
+ALTER TABLE "LogbookEntry" ADD COLUMN IF NOT EXISTS "signatureData" TEXT;
+ALTER TABLE "LogbookEntry" ADD COLUMN IF NOT EXISTS "studentAttendance" INTEGER;
+ALTER TABLE "LogbookEntry" ADD COLUMN IF NOT EXISTS "engagementLevel" "EngagementLevel";
+ALTER TABLE "LogbookEntry" ADD COLUMN IF NOT EXISTS "assignmentId" TEXT;
+ALTER TABLE "LogbookEntry" ADD COLUMN IF NOT EXISTS "timetableSlotId" TEXT;
+
+-- ── SEED SUBJECTS (skip ANY duplicate — name or code) ───────
 
 INSERT INTO "Subject" ("id", "name", "code", "category", "createdAt")
 VALUES
@@ -442,7 +458,233 @@ VALUES
   (gen_random_uuid()::text, 'Physical Education',     'PHE', 'General',   NOW()),
   (gen_random_uuid()::text, 'Sports',                 'SPO', 'General',   NOW()),
   (gen_random_uuid()::text, 'Manual Labour',          'MLA', 'General',   NOW())
-ON CONFLICT ("code") DO UPDATE SET "category" = EXCLUDED."category";
+ON CONFLICT DO NOTHING;
+
+-- ── SEED TOPICS (Cameroon GCE curriculum, skip duplicates) ──
+
+-- Mathematics topics
+INSERT INTO "Topic" ("id", "name", "classLevel", "subjectId", "moduleNum", "moduleName", "orderIndex", "createdAt")
+SELECT gen_random_uuid()::text, t.name, t.level, s."id", t.mnum, t.mname, t.idx, NOW()
+FROM "Subject" s,
+(VALUES
+  ('Number Bases',         'Form 1', 1, 'Module 1: Numbers',        1),
+  ('Fractions & Decimals', 'Form 1', 1, 'Module 1: Numbers',        2),
+  ('Ratios & Proportions', 'Form 1', 1, 'Module 1: Numbers',        3),
+  ('Algebraic Expressions','Form 1', 2, 'Module 2: Algebra',        4),
+  ('Linear Equations',     'Form 1', 2, 'Module 2: Algebra',        5),
+  ('Basic Geometry',       'Form 1', 3, 'Module 3: Geometry',       6),
+  ('Angles & Lines',       'Form 1', 3, 'Module 3: Geometry',       7),
+  ('Perimeter & Area',     'Form 1', 4, 'Module 4: Mensuration',    8),
+  ('Indices & Logarithms', 'Form 2', 1, 'Module 1: Numbers',        1),
+  ('Sets & Venn Diagrams', 'Form 2', 1, 'Module 1: Numbers',        2),
+  ('Simultaneous Equations','Form 2',2, 'Module 2: Algebra',        3),
+  ('Quadratic Equations',  'Form 2', 2, 'Module 2: Algebra',        4),
+  ('Polygons & Circles',   'Form 2', 3, 'Module 3: Geometry',       5),
+  ('Trigonometry Basics',  'Form 2', 4, 'Module 4: Trigonometry',   6),
+  ('Sequences & Series',   'Form 3', 1, 'Module 1: Algebra',        1),
+  ('Matrices',             'Form 3', 1, 'Module 1: Algebra',        2),
+  ('Vectors in 2D',        'Form 3', 2, 'Module 2: Geometry',       3),
+  ('Transformations',      'Form 3', 2, 'Module 2: Geometry',       4),
+  ('Statistics & Probability','Form 3',3,'Module 3: Statistics',     5),
+  ('Functions & Graphs',   'Form 4', 1, 'Module 1: Algebra',        1),
+  ('Calculus Introduction', 'Form 4', 2, 'Module 2: Calculus',      2),
+  ('Probability Distributions','Form 4',3,'Module 3: Statistics',   3),
+  ('Coordinate Geometry',  'Form 5', 1, 'Module 1: Geometry',       1),
+  ('Differentiation',      'Form 5', 2, 'Module 2: Calculus',       2),
+  ('Integration',          'Form 5', 2, 'Module 2: Calculus',       3)
+) AS t(name, level, mnum, mname, idx)
+WHERE s."code" = 'MAT'
+ON CONFLICT ("subjectId", "classLevel", "name") DO NOTHING;
+
+-- Physics topics
+INSERT INTO "Topic" ("id", "name", "classLevel", "subjectId", "moduleNum", "moduleName", "orderIndex", "createdAt")
+SELECT gen_random_uuid()::text, t.name, t.level, s."id", t.mnum, t.mname, t.idx, NOW()
+FROM "Subject" s,
+(VALUES
+  ('Measurement & Units',     'Form 1', 1, 'Module 1: Mechanics',    1),
+  ('Motion & Speed',          'Form 1', 1, 'Module 1: Mechanics',    2),
+  ('Forces',                  'Form 1', 1, 'Module 1: Mechanics',    3),
+  ('Density & Pressure',      'Form 1', 2, 'Module 2: Properties',   4),
+  ('Heat & Temperature',      'Form 2', 1, 'Module 1: Heat',         1),
+  ('Thermal Expansion',       'Form 2', 1, 'Module 1: Heat',         2),
+  ('Light & Reflection',      'Form 2', 2, 'Module 2: Optics',       3),
+  ('Refraction & Lenses',     'Form 2', 2, 'Module 2: Optics',       4),
+  ('Static Electricity',      'Form 3', 1, 'Module 1: Electricity',  1),
+  ('Current Electricity',     'Form 3', 1, 'Module 1: Electricity',  2),
+  ('Magnetism',               'Form 3', 2, 'Module 2: Magnetism',    3),
+  ('Electromagnetic Induction','Form 3',2, 'Module 2: Magnetism',    4),
+  ('Waves & Sound',           'Form 4', 1, 'Module 1: Waves',        1),
+  ('Electromagnetic Spectrum', 'Form 4', 1, 'Module 1: Waves',       2),
+  ('Nuclear Physics',         'Form 5', 1, 'Module 1: Modern Physics',1),
+  ('Radioactivity',           'Form 5', 1, 'Module 1: Modern Physics',2)
+) AS t(name, level, mnum, mname, idx)
+WHERE s."code" = 'PHY'
+ON CONFLICT ("subjectId", "classLevel", "name") DO NOTHING;
+
+-- Biology topics
+INSERT INTO "Topic" ("id", "name", "classLevel", "subjectId", "moduleNum", "moduleName", "orderIndex", "createdAt")
+SELECT gen_random_uuid()::text, t.name, t.level, s."id", t.mnum, t.mname, t.idx, NOW()
+FROM "Subject" s,
+(VALUES
+  ('Cell Structure',          'Form 1', 1, 'Module 1: Cell Biology',  1),
+  ('Classification of Living Things','Form 1',1,'Module 1: Cell Biology',2),
+  ('Nutrition in Plants',     'Form 1', 2, 'Module 2: Nutrition',     3),
+  ('Nutrition in Animals',    'Form 1', 2, 'Module 2: Nutrition',     4),
+  ('Transport in Plants',     'Form 2', 1, 'Module 1: Transport',     1),
+  ('Circulatory System',      'Form 2', 1, 'Module 1: Transport',     2),
+  ('Respiration',             'Form 2', 2, 'Module 2: Respiration',   3),
+  ('Excretion',               'Form 2', 2, 'Module 2: Excretion',     4),
+  ('Reproduction in Plants',  'Form 3', 1, 'Module 1: Reproduction',  1),
+  ('Reproduction in Animals', 'Form 3', 1, 'Module 1: Reproduction',  2),
+  ('Genetics & Heredity',     'Form 3', 2, 'Module 2: Genetics',      3),
+  ('Ecology',                 'Form 4', 1, 'Module 1: Ecology',       1),
+  ('Evolution',               'Form 4', 2, 'Module 2: Evolution',     2),
+  ('Nervous System',          'Form 5', 1, 'Module 1: Coordination',  1),
+  ('Endocrine System',        'Form 5', 1, 'Module 1: Coordination',  2)
+) AS t(name, level, mnum, mname, idx)
+WHERE s."code" = 'BIO'
+ON CONFLICT ("subjectId", "classLevel", "name") DO NOTHING;
+
+-- Chemistry topics
+INSERT INTO "Topic" ("id", "name", "classLevel", "subjectId", "moduleNum", "moduleName", "orderIndex", "createdAt")
+SELECT gen_random_uuid()::text, t.name, t.level, s."id", t.mnum, t.mname, t.idx, NOW()
+FROM "Subject" s,
+(VALUES
+  ('States of Matter',        'Form 1', 1, 'Module 1: Matter',       1),
+  ('Mixtures & Separation',   'Form 1', 1, 'Module 1: Matter',       2),
+  ('Atomic Structure',        'Form 1', 2, 'Module 2: Structure',    3),
+  ('Chemical Bonding',        'Form 1', 2, 'Module 2: Structure',    4),
+  ('Acids, Bases & Salts',    'Form 2', 1, 'Module 1: Reactions',    1),
+  ('Metals & Reactivity',     'Form 2', 1, 'Module 1: Reactions',    2),
+  ('Oxidation & Reduction',   'Form 2', 2, 'Module 2: Redox',        3),
+  ('Periodic Table',          'Form 3', 1, 'Module 1: Periodicity',  1),
+  ('Chemical Calculations',   'Form 3', 2, 'Module 2: Stoichiometry',2),
+  ('Rate of Reaction',        'Form 4', 1, 'Module 1: Kinetics',     1),
+  ('Equilibrium',             'Form 4', 1, 'Module 1: Kinetics',     2),
+  ('Organic Chemistry Intro', 'Form 5', 1, 'Module 1: Organic',      1),
+  ('Hydrocarbons',            'Form 5', 1, 'Module 1: Organic',      2)
+) AS t(name, level, mnum, mname, idx)
+WHERE s."code" = 'CHE'
+ON CONFLICT ("subjectId", "classLevel", "name") DO NOTHING;
+
+-- English Language topics
+INSERT INTO "Topic" ("id", "name", "classLevel", "subjectId", "moduleNum", "moduleName", "orderIndex", "createdAt")
+SELECT gen_random_uuid()::text, t.name, t.level, s."id", t.mnum, t.mname, t.idx, NOW()
+FROM "Subject" s,
+(VALUES
+  ('Parts of Speech',         'Form 1', 1, 'Module 1: Grammar',      1),
+  ('Sentence Structure',      'Form 1', 1, 'Module 1: Grammar',      2),
+  ('Comprehension Skills',    'Form 1', 2, 'Module 2: Comprehension',3),
+  ('Narrative Writing',       'Form 1', 3, 'Module 3: Writing',      4),
+  ('Tenses & Verb Forms',     'Form 2', 1, 'Module 1: Grammar',      1),
+  ('Punctuation & Spelling',  'Form 2', 1, 'Module 1: Grammar',      2),
+  ('Descriptive Writing',     'Form 2', 2, 'Module 2: Writing',      3),
+  ('Summary Writing',         'Form 2', 3, 'Module 3: Comprehension',4),
+  ('Argumentative Writing',   'Form 3', 1, 'Module 1: Writing',      1),
+  ('Letter Writing',          'Form 3', 1, 'Module 1: Writing',      2),
+  ('Oral Communication',      'Form 3', 2, 'Module 2: Speaking',     3),
+  ('Essay Writing',           'Form 4', 1, 'Module 1: Writing',      1),
+  ('Précis Writing',          'Form 4', 2, 'Module 2: Comprehension',2),
+  ('Report Writing',          'Form 5', 1, 'Module 1: Writing',      1),
+  ('Advanced Comprehension',  'Form 5', 2, 'Module 2: Comprehension',2)
+) AS t(name, level, mnum, mname, idx)
+WHERE s."code" = 'ENG'
+ON CONFLICT ("subjectId", "classLevel", "name") DO NOTHING;
+
+-- French topics
+INSERT INTO "Topic" ("id", "name", "classLevel", "subjectId", "moduleNum", "moduleName", "orderIndex", "createdAt")
+SELECT gen_random_uuid()::text, t.name, t.level, s."id", t.mnum, t.mname, t.idx, NOW()
+FROM "Subject" s,
+(VALUES
+  ('Salutations et Présentations','Form 1',1,'Module 1: Communication',1),
+  ('La Famille',              'Form 1', 1, 'Module 1: Communication', 2),
+  ('Les Articles et Noms',   'Form 1', 2, 'Module 2: Grammaire',     3),
+  ('Les Verbes au Présent',  'Form 1', 2, 'Module 2: Grammaire',     4),
+  ('La Description',         'Form 2', 1, 'Module 1: Expression',    1),
+  ('Le Passé Composé',       'Form 2', 2, 'Module 2: Grammaire',     2),
+  ('La Vie Quotidienne',     'Form 2', 3, 'Module 3: Culture',       3),
+  ('La Rédaction',           'Form 3', 1, 'Module 1: Écriture',      1),
+  ('Compréhension de Texte', 'Form 3', 2, 'Module 2: Compréhension', 2),
+  ('Expression Orale',       'Form 4', 1, 'Module 1: Communication', 1),
+  ('Littérature Française',  'Form 5', 1, 'Module 1: Littérature',   1)
+) AS t(name, level, mnum, mname, idx)
+WHERE s."code" = 'FRE'
+ON CONFLICT ("subjectId", "classLevel", "name") DO NOTHING;
+
+-- History topics
+INSERT INTO "Topic" ("id", "name", "classLevel", "subjectId", "moduleNum", "moduleName", "orderIndex", "createdAt")
+SELECT gen_random_uuid()::text, t.name, t.level, s."id", t.mnum, t.mname, t.idx, NOW()
+FROM "Subject" s,
+(VALUES
+  ('Early Cameroon History',  'Form 1', 1, 'Module 1: Cameroon',     1),
+  ('Pre-Colonial Kingdoms',   'Form 1', 1, 'Module 1: Cameroon',     2),
+  ('German Colonisation',     'Form 2', 1, 'Module 1: Colonialism',  1),
+  ('British & French Mandate','Form 2', 1, 'Module 1: Colonialism',  2),
+  ('Independence Movement',   'Form 3', 1, 'Module 1: Independence', 1),
+  ('Reunification',           'Form 3', 1, 'Module 1: Independence', 2),
+  ('World War I',             'Form 4', 1, 'Module 1: World History', 1),
+  ('World War II',            'Form 4', 1, 'Module 1: World History', 2),
+  ('Cold War',                'Form 5', 1, 'Module 1: Modern World',  1),
+  ('African Unity & AU',      'Form 5', 1, 'Module 1: Modern World',  2)
+) AS t(name, level, mnum, mname, idx)
+WHERE s."code" = 'HIS'
+ON CONFLICT ("subjectId", "classLevel", "name") DO NOTHING;
+
+-- Geography topics
+INSERT INTO "Topic" ("id", "name", "classLevel", "subjectId", "moduleNum", "moduleName", "orderIndex", "createdAt")
+SELECT gen_random_uuid()::text, t.name, t.level, s."id", t.mnum, t.mname, t.idx, NOW()
+FROM "Subject" s,
+(VALUES
+  ('Map Reading',             'Form 1', 1, 'Module 1: Map Skills',   1),
+  ('Weather & Climate',       'Form 1', 2, 'Module 2: Atmosphere',   2),
+  ('Landforms & Erosion',     'Form 2', 1, 'Module 1: Geomorphology',1),
+  ('Rivers & Drainage',       'Form 2', 1, 'Module 1: Geomorphology',2),
+  ('Population Studies',      'Form 3', 1, 'Module 1: Human Geography',1),
+  ('Urbanisation',            'Form 3', 1, 'Module 1: Human Geography',2),
+  ('Agriculture',             'Form 4', 1, 'Module 1: Economic Geography',1),
+  ('Industry & Development',  'Form 4', 1, 'Module 1: Economic Geography',2),
+  ('Environmental Issues',    'Form 5', 1, 'Module 1: Environment',   1),
+  ('Cameroon Geography',      'Form 5', 2, 'Module 2: Regional Study',2)
+) AS t(name, level, mnum, mname, idx)
+WHERE s."code" = 'GEO'
+ON CONFLICT ("subjectId", "classLevel", "name") DO NOTHING;
+
+-- Economics topics
+INSERT INTO "Topic" ("id", "name", "classLevel", "subjectId", "moduleNum", "moduleName", "orderIndex", "createdAt")
+SELECT gen_random_uuid()::text, t.name, t.level, s."id", t.mnum, t.mname, t.idx, NOW()
+FROM "Subject" s,
+(VALUES
+  ('Basic Economic Concepts', 'Form 3', 1, 'Module 1: Introduction',  1),
+  ('Demand & Supply',         'Form 3', 1, 'Module 1: Introduction',  2),
+  ('Market Structures',       'Form 3', 2, 'Module 2: Markets',       3),
+  ('National Income',         'Form 4', 1, 'Module 1: Macro',         1),
+  ('Money & Banking',         'Form 4', 1, 'Module 1: Macro',         2),
+  ('International Trade',     'Form 5', 1, 'Module 1: Global',        1),
+  ('Economic Development',    'Form 5', 1, 'Module 1: Global',        2)
+) AS t(name, level, mnum, mname, idx)
+WHERE s."code" = 'ECO'
+ON CONFLICT ("subjectId", "classLevel", "name") DO NOTHING;
+
+-- Computer Science topics
+INSERT INTO "Topic" ("id", "name", "classLevel", "subjectId", "moduleNum", "moduleName", "orderIndex", "createdAt")
+SELECT gen_random_uuid()::text, t.name, t.level, s."id", t.mnum, t.mname, t.idx, NOW()
+FROM "Subject" s,
+(VALUES
+  ('Introduction to Computers','Form 1',1,'Module 1: Fundamentals',  1),
+  ('Number Systems',          'Form 1', 1, 'Module 1: Fundamentals', 2),
+  ('Computer Hardware',       'Form 1', 2, 'Module 2: Hardware',     3),
+  ('Operating Systems',       'Form 2', 1, 'Module 1: Software',     1),
+  ('Word Processing',         'Form 2', 2, 'Module 2: Applications', 2),
+  ('Spreadsheets',            'Form 2', 2, 'Module 2: Applications', 3),
+  ('Introduction to Programming','Form 3',1,'Module 1: Programming', 1),
+  ('Algorithms & Flowcharts', 'Form 3', 1, 'Module 1: Programming',  2),
+  ('Databases',               'Form 4', 1, 'Module 1: Data',         1),
+  ('Networking Basics',       'Form 4', 2, 'Module 2: Networks',     2),
+  ('Web Development',         'Form 5', 1, 'Module 1: Web',          1),
+  ('Cybersecurity',           'Form 5', 2, 'Module 2: Security',     2)
+) AS t(name, level, mnum, mname, idx)
+WHERE s."code" = 'CSC'
+ON CONFLICT ("subjectId", "classLevel", "name") DO NOTHING;
 
 -- ── DONE ────────────────────────────────────────────────────
--- All tables, indexes, foreign keys, and seed data are now in sync.
+-- All tables, columns, indexes, foreign keys, seed subjects, and seed topics are now in sync.

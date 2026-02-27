@@ -75,7 +75,7 @@ export default function TimetableManagementPage() {
   const [form, setForm] = useState({
     assignmentId: "",
     dayOfWeek: "1",
-    periodNum: "",
+    selectedPeriods: [] as number[],
   });
 
   useEffect(() => {
@@ -102,41 +102,57 @@ export default function TimetableManagementPage() {
     }
   }
 
+  function togglePeriod(periodNum: number) {
+    setForm((prev) => {
+      const already = prev.selectedPeriods.includes(periodNum);
+      if (already) {
+        return { ...prev, selectedPeriods: prev.selectedPeriods.filter((p) => p !== periodNum) };
+      }
+      if (prev.selectedPeriods.length >= 2) return prev; // max 2
+      return { ...prev, selectedPeriods: [...prev.selectedPeriods, periodNum].sort((a, b) => a - b) };
+    });
+  }
+
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault();
-    if (!form.assignmentId || !form.periodNum) return;
-
-    const period = periods.find(
-      (p) => p.periodNum === parseInt(form.periodNum)
-    );
-    if (!period) return;
+    if (!form.assignmentId || form.selectedPeriods.length === 0) return;
 
     setSaving(true);
+    setError("");
     try {
-      const res = await fetch("/api/admin/timetable", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          assignmentId: form.assignmentId,
-          dayOfWeek: form.dayOfWeek,
-          periodNum: parseInt(form.periodNum),
-          startTime: period.startTime,
-          endTime: period.endTime,
-          periodLabel: period.label,
-        }),
-      });
+      const newSlots: TimetableSlot[] = [];
+      for (const periodNum of form.selectedPeriods) {
+        const period = periods.find((p) => p.periodNum === periodNum);
+        if (!period) continue;
 
-      const data = await res.json();
-      if (res.ok) {
-        setSlots((prev) => [...prev, data]);
+        const res = await fetch("/api/admin/timetable", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            assignmentId: form.assignmentId,
+            dayOfWeek: form.dayOfWeek,
+            periodNum,
+            startTime: period.startTime,
+            endTime: period.endTime,
+            periodLabel: period.label,
+          }),
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+          newSlots.push(data);
+        } else {
+          setError(data.error || `Failed to add slot for ${period.label}`);
+        }
+      }
+      if (newSlots.length > 0) {
+        setSlots((prev) => [...prev, ...newSlots]);
         setForm({
           assignmentId: "",
           dayOfWeek: form.dayOfWeek,
-          periodNum: "",
+          selectedPeriods: [],
         });
         setShowForm(false);
-      } else {
-        setError(data.error || "Failed to add slot");
       }
     } catch {
       setError("Failed to connect to server");
@@ -410,30 +426,42 @@ export default function TimetableManagementPage() {
               </div>
 
               <div>
-                <label className="label-field">Period</label>
-                <select
-                  value={form.periodNum}
-                  onChange={(e) =>
-                    setForm((prev) => ({
-                      ...prev,
-                      periodNum: e.target.value,
-                    }))
-                  }
-                  className="input-field"
-                >
-                  <option value="">Select period</option>
-                  {periods.map((p) => (
-                    <option key={p.periodNum} value={p.periodNum}>
-                      {p.label} ({p.startTime} - {p.endTime})
-                    </option>
-                  ))}
-                </select>
+                <label className="label-field">
+                  Period{" "}
+                  <span className="text-slate-400 font-normal">(select up to 2)</span>
+                </label>
+                <div className="grid grid-cols-3 gap-1.5 mt-1">
+                  {periods.map((p) => {
+                    const selected = form.selectedPeriods.includes(p.periodNum);
+                    const disabled = !selected && form.selectedPeriods.length >= 2;
+                    return (
+                      <button
+                        key={p.periodNum}
+                        type="button"
+                        onClick={() => togglePeriod(p.periodNum)}
+                        disabled={disabled}
+                        className={`text-left px-2.5 py-2 rounded-lg border-2 text-xs transition-all ${
+                          selected
+                            ? "border-brand-500 bg-brand-50 text-brand-800"
+                            : disabled
+                            ? "border-slate-100 bg-slate-50 text-slate-300 cursor-not-allowed"
+                            : "border-slate-200 bg-white text-slate-700 hover:border-slate-300"
+                        }`}
+                      >
+                        <span className="font-semibold">{p.label}</span>
+                        <span className="block text-[10px] mt-0.5 opacity-70">
+                          {p.startTime} - {p.endTime}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             </div>
 
             <button
               type="submit"
-              disabled={saving || !form.assignmentId || !form.periodNum}
+              disabled={saving || !form.assignmentId || form.selectedPeriods.length === 0}
               className="btn-primary text-sm"
             >
               {saving ? "Adding..." : "Add Slot"}

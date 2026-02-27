@@ -36,9 +36,8 @@ export async function GET() {
     });
   } catch (error) {
     console.error("GET /api/admin/subjects error:", error);
-    const msg = error instanceof Error ? error.message : String(error);
     return NextResponse.json(
-      { error: `Failed to fetch subjects: ${msg}` },
+      { error: "Failed to fetch subjects" },
       { status: 500 }
     );
   }
