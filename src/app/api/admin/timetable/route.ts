@@ -39,11 +39,33 @@ export async function GET() {
       orderBy: [{ teacher: { lastName: "asc" } }],
     });
 
-    // Get period schedule
-    const periods = await db.periodSchedule.findMany({
+    // Get period schedule — auto-seed defaults if none exist
+    let periods = await db.periodSchedule.findMany({
       where: { schoolId: user.schoolId },
       orderBy: { periodNum: "asc" },
     });
+
+    if (periods.length === 0) {
+      const defaults = [
+        { periodNum: 1, label: "Period 1", startTime: "07:30", endTime: "08:20" },
+        { periodNum: 2, label: "Period 2", startTime: "08:20", endTime: "09:10" },
+        { periodNum: 3, label: "Period 3", startTime: "09:10", endTime: "10:00" },
+        { periodNum: 4, label: "Period 4", startTime: "10:30", endTime: "11:20" },
+        { periodNum: 5, label: "Period 5", startTime: "11:20", endTime: "12:10" },
+        { periodNum: 6, label: "Period 6", startTime: "12:10", endTime: "13:00" },
+        { periodNum: 7, label: "Period 7", startTime: "14:00", endTime: "14:50" },
+        { periodNum: 8, label: "Period 8", startTime: "14:50", endTime: "15:40" },
+        { periodNum: 9, label: "Period 9", startTime: "15:40", endTime: "16:30" },
+      ];
+      await db.periodSchedule.createMany({
+        data: defaults.map((d) => ({ ...d, schoolId: user.schoolId! })),
+        skipDuplicates: true,
+      });
+      periods = await db.periodSchedule.findMany({
+        where: { schoolId: user.schoolId },
+        orderBy: { periodNum: "asc" },
+      });
+    }
 
     // Get all classes with counts
     const classes = await db.class.findMany({
