@@ -21,6 +21,12 @@ export async function GET() {
           select: { date: true },
         },
         _count: { select: { entries: true } },
+        assignments: {
+          include: {
+            class: { select: { name: true } },
+            subject: { select: { name: true } },
+          },
+        },
       },
       orderBy: { lastName: "asc" },
     });
@@ -35,6 +41,8 @@ export async function GET() {
       createdAt: t.createdAt.toISOString(),
       entryCount: t._count.entries,
       lastEntry: t.entries[0]?.date.toISOString() ?? null,
+      subjects: Array.from(new Set(t.assignments.map((a) => a.subject.name))),
+      classes: Array.from(new Set(t.assignments.map((a) => a.class.name))),
     }));
 
     return NextResponse.json(result);

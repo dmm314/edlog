@@ -10,6 +10,8 @@ import {
   ChevronRight,
   Calendar,
   Building2,
+  GraduationCap,
+  UserCheck,
 } from "lucide-react";
 import { NotificationBell } from "@/components/NotificationBell";
 import type { AdminStats } from "@/types";
@@ -208,6 +210,30 @@ export default function AdminDashboardPage() {
               <Users className="w-5 h-5 text-slate-400" />
               <span className="font-medium text-slate-900">
                 Manage Teachers
+              </span>
+            </div>
+            <ChevronRight className="w-4 h-4 text-slate-400" />
+          </Link>
+          <Link
+            href="/admin/classes"
+            className="card p-4 flex items-center justify-between"
+          >
+            <div className="flex items-center gap-3">
+              <GraduationCap className="w-5 h-5 text-slate-400" />
+              <span className="font-medium text-slate-900">
+                Manage Classes
+              </span>
+            </div>
+            <ChevronRight className="w-4 h-4 text-slate-400" />
+          </Link>
+          <Link
+            href="/admin/assignments"
+            className="card p-4 flex items-center justify-between"
+          >
+            <div className="flex items-center gap-3">
+              <UserCheck className="w-5 h-5 text-slate-400" />
+              <span className="font-medium text-slate-900">
+                Assign Teachers
               </span>
             </div>
             <ChevronRight className="w-4 h-4 text-slate-400" />

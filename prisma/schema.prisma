@@ -137,7 +137,7 @@ model School {
   id             String       @id @default(cuid())
   name           String
   code           String       @unique
-  schoolType     String?      // GHS, CSS, Baptist, Lay Private, GBHS, GTHS, Other
+  schoolType     String?      // Government, Private Lay, Private Confessional - Catholic/Protestant/Islamic, Community
   principalName  String?
   principalPhone String?
   status         SchoolStatus @default(ACTIVE)

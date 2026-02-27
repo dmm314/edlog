@@ -1,19 +1,21 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
   Building2,
   Users,
   BookOpen,
-  ChevronDown,
-  ChevronUp,
+  ChevronRight,
   ToggleLeft,
   ToggleRight,
   Search,
+  Filter,
+  X,
+  GraduationCap,
 } from "lucide-react";
-import { formatDate } from "@/lib/utils";
 
 interface SchoolItem {
   id: string;
@@ -21,21 +23,32 @@ interface SchoolItem {
   code: string;
   schoolType: string | null;
   status: "PENDING" | "ACTIVE" | "SUSPENDED";
+  divisionId: string;
   division: string;
   principalName: string | null;
   principalPhone: string | null;
   admin: { name: string; email: string } | null;
   teacherCount: number;
+  classCount: number;
   entryCount: number;
   createdAt: string;
 }
 
+interface DivisionOption {
+  id: string;
+  name: string;
+}
+
 export default function RegionalSchoolsPage() {
+  const router = useRouter();
   const [schools, setSchools] = useState<SchoolItem[]>([]);
+  const [divisions, setDivisions] = useState<DivisionOption[]>([]);
   const [loading, setLoading] = useState(true);
   const [toggling, setToggling] = useState<string | null>(null);
-  const [expandedId, setExpandedId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [filterDivision, setFilterDivision] = useState("");
+  const [filterStatus, setFilterStatus] = useState("");
+  const [showFilters, setShowFilters] = useState(false);
 
   useEffect(() => {
     fetchSchools();
@@ -45,7 +58,9 @@ export default function RegionalSchoolsPage() {
     try {
       const res = await fetch("/api/regional/schools");
       if (res.ok) {
-        setSchools(await res.json());
+        const data = await res.json();
+        setSchools(data.schools);
+        setDivisions(data.divisions);
       }
     } catch {
       // silently fail
@@ -54,7 +69,12 @@ export default function RegionalSchoolsPage() {
     }
   }
 
-  async function updateSchoolStatus(schoolId: string, newStatus: "ACTIVE" | "SUSPENDED") {
+  async function updateSchoolStatus(
+    e: React.MouseEvent,
+    schoolId: string,
+    newStatus: "ACTIVE" | "SUSPENDED"
+  ) {
+    e.stopPropagation();
     setToggling(schoolId);
     try {
       const res = await fetch("/api/regional/schools", {
@@ -65,9 +85,7 @@ export default function RegionalSchoolsPage() {
       if (res.ok) {
         setSchools((prev) =>
           prev.map((s) =>
-            s.id === schoolId
-              ? { ...s, status: newStatus }
-              : s
+            s.id === schoolId ? { ...s, status: newStatus } : s
           )
         );
       }
@@ -78,17 +96,36 @@ export default function RegionalSchoolsPage() {
     }
   }
 
-  const filteredSchools = schools.filter(
-    (s) =>
-      s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      s.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      s.division.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredSchools = useMemo(() => {
+    return schools.filter((s) => {
+      const nameMatch =
+        !searchQuery ||
+        s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        s.code.toLowerCase().includes(searchQuery.toLowerCase());
 
-  const statusOrder = { PENDING: 0, ACTIVE: 1, SUSPENDED: 2 };
-  const sortedSchools = [...filteredSchools].sort(
-    (a, b) => statusOrder[a.status] - statusOrder[b.status]
-  );
+      const divisionMatch =
+        !filterDivision || s.divisionId === filterDivision;
+
+      const statusMatch = !filterStatus || s.status === filterStatus;
+
+      return nameMatch && divisionMatch && statusMatch;
+    });
+  }, [schools, searchQuery, filterDivision, filterStatus]);
+
+  const sortedSchools = useMemo(() => {
+    const statusOrder: Record<string, number> = { PENDING: 0, ACTIVE: 1, SUSPENDED: 2 };
+    return [...filteredSchools].sort(
+      (a, b) => statusOrder[a.status] - statusOrder[b.status]
+    );
+  }, [filteredSchools]);
+
+  const hasActiveFilters = filterDivision || filterStatus;
+
+  function clearFilters() {
+    setFilterDivision("");
+    setFilterStatus("");
+    setSearchQuery("");
+  }
 
   function getStatusBadge(status: string) {
     switch (status) {
@@ -124,17 +161,78 @@ export default function RegionalSchoolsPage() {
       </div>
 
       <div className="px-5 mt-4 max-w-lg mx-auto space-y-4">
-        {/* Search */}
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-          <input
-            type="text"
-            placeholder="Search schools..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
-          />
+        {/* Search + Filter button */}
+        <div className="flex gap-2">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <input
+              type="text"
+              placeholder="Search by school name or code..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-9 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+            />
+          </div>
+          <button
+            onClick={() => setShowFilters(!showFilters)}
+            className={`flex items-center gap-1.5 px-3 py-2.5 rounded-xl text-sm font-medium border transition-colors ${
+              hasActiveFilters
+                ? "bg-brand-50 border-brand-200 text-brand-700"
+                : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
+            }`}
+          >
+            <Filter className="w-4 h-4" />
+            {hasActiveFilters && (
+              <span className="w-1.5 h-1.5 bg-brand-600 rounded-full" />
+            )}
+          </button>
         </div>
+
+        {/* Filter Panel */}
+        {showFilters && (
+          <div className="card p-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <h4 className="text-sm font-semibold text-slate-700">Filters</h4>
+              {hasActiveFilters && (
+                <button
+                  onClick={clearFilters}
+                  className="text-xs text-brand-600 font-medium flex items-center gap-1"
+                >
+                  <X className="w-3 h-3" />
+                  Clear all
+                </button>
+              )}
+            </div>
+            <div>
+              <label className="label-field">Division</label>
+              <select
+                value={filterDivision}
+                onChange={(e) => setFilterDivision(e.target.value)}
+                className="input-field"
+              >
+                <option value="">All divisions</option>
+                {divisions.map((d) => (
+                  <option key={d.id} value={d.id}>
+                    {d.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="label-field">Status</label>
+              <select
+                value={filterStatus}
+                onChange={(e) => setFilterStatus(e.target.value)}
+                className="input-field"
+              >
+                <option value="">All statuses</option>
+                <option value="ACTIVE">Active</option>
+                <option value="PENDING">Pending</option>
+                <option value="SUSPENDED">Suspended</option>
+              </select>
+            </div>
+          </div>
+        )}
 
         {/* Status summary */}
         <div className="flex gap-2">
@@ -167,6 +265,14 @@ export default function RegionalSchoolsPage() {
           ))}
         </div>
 
+        {/* Results count */}
+        {(searchQuery || hasActiveFilters) && (
+          <p className="text-xs text-slate-400">
+            Showing {sortedSchools.length} of {schools.length} school
+            {schools.length !== 1 ? "s" : ""}
+          </p>
+        )}
+
         {/* Schools List */}
         {loading ? (
           <div className="space-y-3">
@@ -181,171 +287,126 @@ export default function RegionalSchoolsPage() {
           <div className="text-center py-8">
             <Building2 className="w-10 h-10 text-slate-300 mx-auto mb-2" />
             <p className="text-slate-500">No schools found</p>
-            {searchQuery && (
-              <p className="text-sm text-slate-400 mt-1">
-                Try adjusting your search
-              </p>
+            {(searchQuery || hasActiveFilters) && (
+              <button
+                onClick={clearFilters}
+                className="text-sm text-brand-600 font-medium mt-2"
+              >
+                Clear filters
+              </button>
             )}
           </div>
         ) : (
           <div className="space-y-3">
-            {sortedSchools.map((school) => {
-              const isExpanded = expandedId === school.id;
-              return (
-                <div key={school.id} className="card overflow-hidden">
-                  {/* School header row */}
-                  <button
-                    onClick={() =>
-                      setExpandedId(isExpanded ? null : school.id)
-                    }
-                    className="w-full p-4 text-left"
-                  >
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          <h4 className="font-semibold text-slate-900 truncate">
-                            {school.name}
-                          </h4>
-                          <span
-                            className={`text-[10px] font-semibold uppercase px-1.5 py-0.5 rounded-full ${getStatusBadge(
-                              school.status
-                            )}`}
-                          >
-                            {school.status}
-                          </span>
-                        </div>
-                        <p className="text-xs text-slate-400">
-                          {school.code} &middot; {school.division}
-                          {school.schoolType ? ` &middot; ${school.schoolType}` : ""}
-                        </p>
+            {sortedSchools.map((school) => (
+              <div
+                key={school.id}
+                className="card overflow-hidden cursor-pointer hover:shadow-md transition-shadow"
+                onClick={() =>
+                  router.push(`/regional/schools/${school.id}`)
+                }
+              >
+                <div className="p-4">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h4 className="font-semibold text-slate-900 truncate">
+                          {school.name}
+                        </h4>
+                        <span
+                          className={`text-[10px] font-semibold uppercase px-1.5 py-0.5 rounded-full flex-shrink-0 ${getStatusBadge(
+                            school.status
+                          )}`}
+                        >
+                          {school.status}
+                        </span>
                       </div>
-                      {isExpanded ? (
-                        <ChevronUp className="w-4 h-4 text-slate-400 flex-shrink-0 mt-1" />
-                      ) : (
-                        <ChevronDown className="w-4 h-4 text-slate-400 flex-shrink-0 mt-1" />
-                      )}
+                      <p className="text-xs text-slate-400">
+                        {school.code} &middot; {school.division}
+                        {school.schoolType
+                          ? ` \u00b7 ${school.schoolType}`
+                          : ""}
+                      </p>
                     </div>
+                    <ChevronRight className="w-4 h-4 text-slate-400 flex-shrink-0 mt-1" />
+                  </div>
 
-                    {/* Quick stats */}
-                    <div className="flex items-center gap-4 mt-2 text-xs text-slate-500">
-                      <span className="flex items-center gap-1">
-                        <Users className="w-3.5 h-3.5" />
-                        {school.teacherCount} teachers
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <BookOpen className="w-3.5 h-3.5" />
-                        {school.entryCount} entries
-                      </span>
-                    </div>
-                  </button>
+                  {/* Quick stats */}
+                  <div className="flex items-center gap-4 mt-2 text-xs text-slate-500">
+                    <span className="flex items-center gap-1">
+                      <Users className="w-3.5 h-3.5" />
+                      {school.teacherCount} teachers
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <GraduationCap className="w-3.5 h-3.5" />
+                      {school.classCount} classes
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <BookOpen className="w-3.5 h-3.5" />
+                      {school.entryCount} entries
+                    </span>
+                  </div>
 
-                  {/* Expanded details */}
-                  {isExpanded && (
-                    <div className="px-4 pb-4 pt-0 border-t border-slate-100">
-                      <div className="mt-3 space-y-2 text-sm">
-                        {school.principalName && (
-                          <div className="flex justify-between">
-                            <span className="text-slate-400">Principal</span>
-                            <span className="text-slate-700 font-medium">
-                              {school.principalName}
-                            </span>
-                          </div>
+                  {/* Action buttons - prevent navigation */}
+                  <div className="mt-3 flex gap-2">
+                    {school.status === "PENDING" && (
+                      <button
+                        onClick={(e) =>
+                          updateSchoolStatus(e, school.id, "ACTIVE")
+                        }
+                        disabled={toggling === school.id}
+                        className="flex-1 flex items-center justify-center gap-1.5 rounded-xl py-2 text-xs font-medium transition-colors bg-green-50 text-green-600 hover:bg-green-100"
+                      >
+                        {toggling === school.id ? (
+                          "Approving..."
+                        ) : (
+                          <>
+                            <ToggleRight className="w-3.5 h-3.5" />
+                            Approve
+                          </>
                         )}
-                        {school.principalPhone && (
-                          <div className="flex justify-between">
-                            <span className="text-slate-400">Phone</span>
-                            <span className="text-slate-700">
-                              {school.principalPhone}
-                            </span>
-                          </div>
+                      </button>
+                    )}
+                    {school.status === "ACTIVE" && (
+                      <button
+                        onClick={(e) =>
+                          updateSchoolStatus(e, school.id, "SUSPENDED")
+                        }
+                        disabled={toggling === school.id}
+                        className="flex-1 flex items-center justify-center gap-1.5 rounded-xl py-2 text-xs font-medium transition-colors bg-red-50 text-red-600 hover:bg-red-100"
+                      >
+                        {toggling === school.id ? (
+                          "Suspending..."
+                        ) : (
+                          <>
+                            <ToggleRight className="w-3.5 h-3.5" />
+                            Suspend
+                          </>
                         )}
-                        {school.admin && (
-                          <div className="flex justify-between">
-                            <span className="text-slate-400">Admin</span>
-                            <span className="text-slate-700 text-right">
-                              <span className="font-medium">
-                                {school.admin.name}
-                              </span>
-                              <br />
-                              <span className="text-xs text-slate-400">
-                                {school.admin.email}
-                              </span>
-                            </span>
-                          </div>
+                      </button>
+                    )}
+                    {school.status === "SUSPENDED" && (
+                      <button
+                        onClick={(e) =>
+                          updateSchoolStatus(e, school.id, "ACTIVE")
+                        }
+                        disabled={toggling === school.id}
+                        className="flex-1 flex items-center justify-center gap-1.5 rounded-xl py-2 text-xs font-medium transition-colors bg-green-50 text-green-600 hover:bg-green-100"
+                      >
+                        {toggling === school.id ? (
+                          "Activating..."
+                        ) : (
+                          <>
+                            <ToggleLeft className="w-3.5 h-3.5" />
+                            Activate
+                          </>
                         )}
-                        <div className="flex justify-between">
-                          <span className="text-slate-400">Registered</span>
-                          <span className="text-slate-700">
-                            {formatDate(school.createdAt)}
-                          </span>
-                        </div>
-
-                        {/* Action buttons */}
-                        <div className="pt-2 space-y-2">
-                          {school.status === "PENDING" && (
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                updateSchoolStatus(school.id, "ACTIVE");
-                              }}
-                              disabled={toggling === school.id}
-                              className="w-full flex items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-medium transition-colors bg-green-50 text-green-600 hover:bg-green-100"
-                            >
-                              {toggling === school.id ? (
-                                <span>Approving...</span>
-                              ) : (
-                                <>
-                                  <ToggleRight className="w-4 h-4" />
-                                  Approve &amp; Activate School
-                                </>
-                              )}
-                            </button>
-                          )}
-                          {school.status === "ACTIVE" && (
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                updateSchoolStatus(school.id, "SUSPENDED");
-                              }}
-                              disabled={toggling === school.id}
-                              className="w-full flex items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-medium transition-colors bg-red-50 text-red-600 hover:bg-red-100"
-                            >
-                              {toggling === school.id ? (
-                                <span>Updating...</span>
-                              ) : (
-                                <>
-                                  <ToggleRight className="w-4 h-4" />
-                                  Suspend School
-                                </>
-                              )}
-                            </button>
-                          )}
-                          {school.status === "SUSPENDED" && (
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                updateSchoolStatus(school.id, "ACTIVE");
-                              }}
-                              disabled={toggling === school.id}
-                              className="w-full flex items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-medium transition-colors bg-green-50 text-green-600 hover:bg-green-100"
-                            >
-                              {toggling === school.id ? (
-                                <span>Updating...</span>
-                              ) : (
-                                <>
-                                  <ToggleLeft className="w-4 h-4" />
-                                  Activate School
-                                </>
-                              )}
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  )}
+                      </button>
+                    )}
+                  </div>
                 </div>
-              );
-            })}
+              </div>
+            ))}
           </div>
         )}
       </div>
