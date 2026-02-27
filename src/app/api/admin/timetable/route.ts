@@ -91,8 +91,9 @@ export async function GET() {
     });
   } catch (error) {
     console.error("GET /api/admin/timetable error:", error);
+    const msg = error instanceof Error ? error.message : String(error);
     return NextResponse.json(
-      { error: "Failed to fetch timetable" },
+      { error: `Failed to fetch timetable: ${msg}` },
       { status: 500 }
     );
   }

@@ -19,16 +19,21 @@ import type { AdminStats } from "@/types";
 export default function AdminDashboardPage() {
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     async function fetchStats() {
       try {
         const res = await fetch("/api/admin/stats");
+        const data = await res.json();
         if (res.ok) {
-          setStats(await res.json());
+          setStats(data);
+        } else {
+          setError(data.error || "Failed to load stats");
         }
-      } catch {
-        // silently fail
+      } catch (e) {
+        console.error("Stats fetch error:", e);
+        setError("Failed to connect to server");
       } finally {
         setLoading(false);
       }
@@ -77,6 +82,13 @@ export default function AdminDashboardPage() {
       </div>
 
       <div className="px-5 mt-4 max-w-lg mx-auto space-y-4">
+        {/* Error message */}
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-4 py-3">
+            {error}
+          </div>
+        )}
+
         {/* Alert for unverified teachers */}
         {stats && stats.unverifiedTeachers > 0 && (
           <Link

@@ -58,8 +58,9 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ entries, total });
   } catch (error) {
     console.error("GET /api/admin/entries error:", error);
+    const msg = error instanceof Error ? error.message : String(error);
     return NextResponse.json(
-      { error: "Failed to fetch entries" },
+      { error: `Failed to fetch entries: ${msg}` },
       { status: 500 }
     );
   }

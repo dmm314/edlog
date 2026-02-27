@@ -133,7 +133,7 @@ export default function AssignmentsPage() {
         setError(data.error || "Failed to delete assignment");
       }
     } catch {
-      // silently fail
+      setError("Failed to connect to server");
     } finally {
       setDeleting(null);
     }
