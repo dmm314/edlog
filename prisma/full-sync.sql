@@ -413,7 +413,23 @@ DO $$ BEGIN
 EXCEPTION WHEN duplicate_object THEN NULL;
 END $$;
 
--- ── SEED SUBJECTS (skip duplicates) ─────────────────────────
+-- ── MISSING COLUMNS (add to existing tables if they were created without them) ──
+
+ALTER TABLE "School" ADD COLUMN IF NOT EXISTS "schoolType" TEXT;
+ALTER TABLE "School" ADD COLUMN IF NOT EXISTS "principalName" TEXT;
+ALTER TABLE "School" ADD COLUMN IF NOT EXISTS "principalPhone" TEXT;
+ALTER TABLE "School" ADD COLUMN IF NOT EXISTS "profileComplete" BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE "Class" ADD COLUMN IF NOT EXISTS "abbreviation" TEXT;
+ALTER TABLE "Class" ADD COLUMN IF NOT EXISTS "stream" TEXT;
+ALTER TABLE "Class" ADD COLUMN IF NOT EXISTS "section" TEXT;
+ALTER TABLE "LogbookEntry" ADD COLUMN IF NOT EXISTS "objectives" TEXT;
+ALTER TABLE "LogbookEntry" ADD COLUMN IF NOT EXISTS "signatureData" TEXT;
+ALTER TABLE "LogbookEntry" ADD COLUMN IF NOT EXISTS "studentAttendance" INTEGER;
+ALTER TABLE "LogbookEntry" ADD COLUMN IF NOT EXISTS "engagementLevel" "EngagementLevel";
+ALTER TABLE "LogbookEntry" ADD COLUMN IF NOT EXISTS "assignmentId" TEXT;
+ALTER TABLE "LogbookEntry" ADD COLUMN IF NOT EXISTS "timetableSlotId" TEXT;
+
+-- ── SEED SUBJECTS (skip ANY duplicate — name or code) ───────
 
 INSERT INTO "Subject" ("id", "name", "code", "category", "createdAt")
 VALUES
@@ -442,7 +458,7 @@ VALUES
   (gen_random_uuid()::text, 'Physical Education',     'PHE', 'General',   NOW()),
   (gen_random_uuid()::text, 'Sports',                 'SPO', 'General',   NOW()),
   (gen_random_uuid()::text, 'Manual Labour',          'MLA', 'General',   NOW())
-ON CONFLICT ("code") DO UPDATE SET "category" = EXCLUDED."category";
+ON CONFLICT DO NOTHING;
 
 -- ── DONE ────────────────────────────────────────────────────
--- All tables, indexes, foreign keys, and seed data are now in sync.
+-- All tables, columns, indexes, foreign keys, and seed data are now in sync.
