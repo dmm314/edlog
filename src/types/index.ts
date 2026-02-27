@@ -1,5 +1,7 @@
-export type Role = "TEACHER" | "SCHOOL_ADMIN" | "RPI_MEMBER";
+export type Role = "TEACHER" | "SCHOOL_ADMIN" | "REGIONAL_ADMIN";
 export type EntryStatus = "DRAFT" | "SUBMITTED" | "VERIFIED" | "FLAGGED";
+export type EngagementLevel = "LOW" | "MEDIUM" | "HIGH";
+export type SchoolStatus = "PENDING" | "ACTIVE" | "SUSPENDED";
 
 export interface SessionUser {
   id: string;
@@ -8,6 +10,7 @@ export interface SessionUser {
   lastName: string;
   role: Role;
   schoolId: string | null;
+  regionId: string | null;
 }
 
 export interface SubjectWithTopics {
@@ -18,10 +21,23 @@ export interface SubjectWithTopics {
   topics: {
     id: string;
     name: string;
+    classLevel: string;
     moduleNum: number | null;
     moduleName: string | null;
     orderIndex: number;
   }[];
+}
+
+export interface TopicRef {
+  id: string;
+  name: string;
+  moduleName: string | null;
+  moduleNum: number | null;
+  subject?: {
+    id: string;
+    name: string;
+    code: string;
+  };
 }
 
 export interface EntryWithRelations {
@@ -33,6 +49,8 @@ export interface EntryWithRelations {
   objectives: string | null;
   signatureData: string | null;
   status: EntryStatus;
+  studentAttendance: number | null;
+  engagementLevel: EngagementLevel | null;
   createdAt: string;
   updatedAt: string;
   teacherId: string;
@@ -45,33 +63,39 @@ export interface EntryWithRelations {
   class: {
     id: string;
     name: string;
+    abbreviation: string | null;
     level: string;
   };
-  topic: {
+  topics: TopicRef[];
+  assignment?: {
     id: string;
-    name: string;
-    moduleName: string | null;
-    subject: {
-      id: string;
-      name: string;
-      code: string;
-    };
-  };
+    subject: { id: string; name: string; code: string };
+  } | null;
+  timetableSlot?: {
+    id: string;
+    periodLabel: string;
+    startTime: string;
+    endTime: string;
+  } | null;
 }
 
 export interface ClassOption {
   id: string;
   name: string;
+  abbreviation: string | null;
   level: string;
   stream: string | null;
+  section: string | null;
 }
 
 export interface AdminStats {
   totalTeachers: number;
+  verifiedTeachers: number;
+  unverifiedTeachers: number;
   totalEntries: number;
   entriesThisMonth: number;
   entriesThisWeek: number;
-  unverifiedTeachers: number;
+  complianceRate: number;
   entriesBySubject: { subject: string; count: number }[];
   entriesByWeek: { week: string; count: number }[];
 }
@@ -86,4 +110,34 @@ export interface TeacherWithStats {
   createdAt: string;
   entryCount: number;
   lastEntry: string | null;
+  subjects: string[];
+  classes: string[];
+}
+
+export interface NotificationData {
+  id: string;
+  type: string;
+  title: string;
+  message: string;
+  isRead: boolean;
+  link: string | null;
+  createdAt: string;
+}
+
+export interface RegionalStats {
+  totalSchools: number;
+  activeSchools: number;
+  pendingSchools: number;
+  totalTeachers: number;
+  totalEntries: number;
+  entriesThisMonth: number;
+  complianceRate: number;
+  schoolRankings: {
+    id: string;
+    name: string;
+    code: string;
+    teacherCount: number;
+    entryCount: number;
+    complianceRate: number;
+  }[];
 }

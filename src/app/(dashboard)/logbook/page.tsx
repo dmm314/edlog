@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Plus, BookOpen } from "lucide-react";
+import { NotificationBell } from "@/components/NotificationBell";
 import type { EntryWithRelations } from "@/types";
 import { formatDate, formatTime, truncate } from "@/lib/utils";
 
@@ -66,10 +67,11 @@ export default function LogbookPage() {
             <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center">
               <BookOpen className="w-5 h-5 text-white" />
             </div>
-            <div>
+            <div className="flex-1">
               <h1 className="text-xl font-bold text-white">Logbook</h1>
               <p className="text-brand-400 text-sm">Your recent entries</p>
             </div>
+            <NotificationBell />
           </div>
 
           {/* Today stats */}
@@ -126,15 +128,15 @@ export default function LogbookPage() {
                 <div key={entry.id} className="card p-4">
                   <div className="flex items-start justify-between mb-1">
                     <h4 className="font-semibold text-brand-950">
-                      {entry.topic.subject.name}
+                      {entry.topics?.[0]?.subject?.name ?? "—"}
                     </h4>
                     <StatusBadge status={entry.status} />
                   </div>
                   <p className="text-sm text-slate-600">
-                    {entry.topic.moduleName
-                      ? `${entry.topic.moduleName}: `
+                    {entry.topics?.[0]?.moduleName
+                      ? `${entry.topics[0].moduleName}: `
                       : ""}
-                    {entry.topic.name}
+                    {entry.topics?.[0]?.name ?? "—"}
                   </p>
                   <div className="flex items-center gap-2 mt-2 text-xs text-slate-400">
                     <span>{entry.class.name}</span>

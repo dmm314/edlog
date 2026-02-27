@@ -6,6 +6,18 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { BookOpen, Eye, EyeOff } from "lucide-react";
 
+function getDashboardPath(role: string): string {
+  switch (role) {
+    case "REGIONAL_ADMIN":
+      return "/regional";
+    case "SCHOOL_ADMIN":
+      return "/admin";
+    case "TEACHER":
+    default:
+      return "/logbook";
+  }
+}
+
 export default function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -32,7 +44,12 @@ export default function LoginForm() {
       if (result?.error) {
         setError("Invalid email or password");
       } else {
-        router.push("/logbook");
+        // Fetch session to get user role for redirect
+        const sessionRes = await fetch("/api/auth/session");
+        const session = await sessionRes.json();
+        const role = (session?.user as Record<string, unknown>)?.role as string;
+        const path = getDashboardPath(role || "TEACHER");
+        router.push(path);
         router.refresh();
       }
     } catch {
@@ -153,15 +170,26 @@ export default function LoginForm() {
             </button>
           </form>
 
-          <p className="text-center text-sm text-slate-500 mt-6">
-            Don&apos;t have an account?{" "}
-            <Link
-              href="/register"
-              className="text-brand-700 font-semibold hover:underline"
-            >
-              Register here
-            </Link>
-          </p>
+          <div className="flex flex-col items-center gap-2 mt-6">
+            <p className="text-sm text-slate-500">
+              Teacher?{" "}
+              <Link
+                href="/register"
+                className="text-brand-700 font-semibold hover:underline"
+              >
+                Register here
+              </Link>
+            </p>
+            <p className="text-sm text-slate-500">
+              School admin?{" "}
+              <Link
+                href="/register/school"
+                className="text-brand-700 font-semibold hover:underline"
+              >
+                Register your school
+              </Link>
+            </p>
+          </div>
         </div>
       </div>
     </div>

@@ -19,13 +19,16 @@ export async function GET() {
 
     const [
       totalTeachers,
+      verifiedTeachers,
       totalEntries,
       entriesThisMonth,
       entriesThisWeek,
-      unverifiedTeachers,
     ] = await Promise.all([
       db.user.count({
         where: { schoolId: user.schoolId, role: "TEACHER" },
+      }),
+      db.user.count({
+        where: { schoolId: user.schoolId, role: "TEACHER", isVerified: true },
       }),
       db.logbookEntry.count({
         where: { teacher: { schoolId: user.schoolId } },
@@ -42,27 +45,28 @@ export async function GET() {
           date: { gte: startOfWeek },
         },
       }),
-      db.user.count({
-        where: {
-          schoolId: user.schoolId,
-          role: "TEACHER",
-          isVerified: false,
-        },
-      }),
     ]);
 
-    // Entries by subject
+    const unverifiedTeachers = totalTeachers - verifiedTeachers;
+
+    // Entries by subject (using m2m topics)
     const entries = await db.logbookEntry.findMany({
       where: { teacher: { schoolId: user.schoolId } },
-      include: { topic: { include: { subject: true } } },
+      include: { topics: { include: { subject: true } } },
     });
 
     const subjectCounts: Record<string, number> = {};
     const weekCounts: Record<string, number> = {};
 
     for (const entry of entries) {
-      const subjectName = entry.topic.subject.name;
-      subjectCounts[subjectName] = (subjectCounts[subjectName] || 0) + 1;
+      const seenSubjects = new Set<string>();
+      for (const topic of entry.topics) {
+        const subjectName = topic.subject.name;
+        if (!seenSubjects.has(subjectName)) {
+          subjectCounts[subjectName] = (subjectCounts[subjectName] || 0) + 1;
+          seenSubjects.add(subjectName);
+        }
+      }
 
       const week = getWeekNumber(entry.date);
       weekCounts[week] = (weekCounts[week] || 0) + 1;
@@ -77,12 +81,19 @@ export async function GET() {
       .sort((a, b) => a.week.localeCompare(b.week))
       .slice(-4);
 
+    const expectedPerTeacher = 20;
+    const complianceRate = totalTeachers > 0
+      ? Math.round((entriesThisMonth / (totalTeachers * expectedPerTeacher)) * 100)
+      : 0;
+
     return NextResponse.json({
       totalTeachers,
+      verifiedTeachers,
+      unverifiedTeachers,
       totalEntries,
       entriesThisMonth,
       entriesThisWeek,
-      unverifiedTeachers,
+      complianceRate: Math.min(complianceRate, 100),
       entriesBySubject,
       entriesByWeek,
     });

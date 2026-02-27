@@ -229,15 +229,15 @@ export default function HistoryPage() {
               >
                 <div className="flex items-start justify-between mb-1">
                   <h4 className="font-semibold text-brand-950">
-                    {entry.topic.subject.name}
+                    {entry.topics?.[0]?.subject?.name ?? "—"}
                   </h4>
                   <StatusBadge status={entry.status} />
                 </div>
                 <p className="text-sm text-slate-600">
-                  {entry.topic.moduleName
-                    ? `${entry.topic.moduleName}: `
+                  {entry.topics?.[0]?.moduleName
+                    ? `${entry.topics[0].moduleName}: `
                     : ""}
-                  {entry.topic.name}
+                  {entry.topics?.[0]?.name ?? "—"}
                 </p>
                 <div className="flex items-center gap-2 mt-2 text-xs text-slate-400">
                   <span>{entry.class.name}</span>

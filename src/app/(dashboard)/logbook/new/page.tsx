@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { CheckCircle, Clock, ArrowLeft } from "lucide-react";
+import { CheckCircle, Clock, ArrowLeft, Zap } from "lucide-react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import type { SubjectWithTopics, ClassOption } from "@/types";
@@ -19,6 +19,27 @@ const SignaturePad = dynamic(
   }
 );
 
+interface TimetableSlot {
+  id: string;
+  dayOfWeek: number;
+  startTime: string;
+  endTime: string;
+  periodLabel: string;
+  assignment: {
+    id: string;
+    classId: string;
+    className: string;
+    subjectId: string;
+    subjectName: string;
+  };
+}
+
+function getDayOfWeek(dateStr: string): number {
+  const d = new Date(dateStr + "T00:00:00");
+  const jsDay = d.getDay(); // 0=Sun, 1=Mon ... 6=Sat
+  return jsDay === 0 ? 7 : jsDay; // Convert to 1=Mon ... 7=Sun
+}
+
 export default function NewEntryPage() {
   const router = useRouter();
 
@@ -30,6 +51,11 @@ export default function NewEntryPage() {
   const [classes, setClasses] = useState<ClassOption[]>([]);
   const [subjects, setSubjects] = useState<SubjectWithTopics[]>([]);
   const [loadingData, setLoadingData] = useState(true);
+
+  // Timetable slots
+  const [timetableSlots, setTimetableSlots] = useState<TimetableSlot[]>([]);
+  const [loadingSlots, setLoadingSlots] = useState(false);
+  const [selectedSlotId, setSelectedSlotId] = useState<string | null>(null);
 
   // Form state
   const [date, setDate] = useState(() => {
@@ -44,6 +70,8 @@ export default function NewEntryPage() {
   const [notes, setNotes] = useState("");
   const [objectives, setObjectives] = useState("");
   const [signatureData, setSignatureData] = useState<string | null>(null);
+  const [assignmentId, setAssignmentId] = useState<string | null>(null);
+  const [timetableSlotId, setTimetableSlotId] = useState<string | null>(null);
 
   // UI state
   const [submitting, setSubmitting] = useState(false);
@@ -90,6 +118,31 @@ export default function NewEntryPage() {
     fetchData();
   }, []);
 
+  // Fetch timetable slots when date changes
+  useEffect(() => {
+    async function fetchSlots() {
+      if (!date) return;
+      const dayOfWeek = getDayOfWeek(date);
+      if (dayOfWeek > 5) {
+        setTimetableSlots([]);
+        return;
+      }
+      setLoadingSlots(true);
+      try {
+        const res = await fetch(`/api/timetable/slots?dayOfWeek=${dayOfWeek}`);
+        if (res.ok) {
+          setTimetableSlots(await res.json());
+        }
+      } catch {
+        // Silently fail - timetable is optional
+      } finally {
+        setLoadingSlots(false);
+      }
+    }
+    fetchSlots();
+    setSelectedSlotId(null);
+  }, [date]);
+
   // Restore last used class from localStorage
   useEffect(() => {
     const lastClass = localStorage.getItem("edlog_lastClass");
@@ -97,6 +150,35 @@ export default function NewEntryPage() {
       setClassId(lastClass);
     }
   }, [classes]);
+
+  // Handle timetable slot selection (quick-fill)
+  function handleSlotSelect(slot: TimetableSlot) {
+    if (selectedSlotId === slot.id) {
+      // Deselect
+      setSelectedSlotId(null);
+      setAssignmentId(null);
+      setTimetableSlotId(null);
+      setClassId("");
+      setSubjectId("");
+      setTopicId("");
+      setPeriod("");
+      return;
+    }
+    setSelectedSlotId(slot.id);
+    setAssignmentId(slot.assignment.id);
+    setTimetableSlotId(slot.id);
+    setClassId(slot.assignment.classId);
+    setSubjectId(slot.assignment.subjectId);
+    setTopicId("");
+    // Extract period number from periodLabel like "Period 3"
+    const periodMatch = slot.periodLabel.match(/\d+/);
+    if (periodMatch) setPeriod(periodMatch[0]);
+    // Calculate duration from start/end times
+    const [sh, sm] = slot.startTime.split(":").map(Number);
+    const [eh, em] = slot.endTime.split(":").map(Number);
+    const mins = (eh * 60 + em) - (sh * 60 + sm);
+    if (mins > 0) setDuration(String(mins));
+  }
 
   // Get filtered topics based on selected subject
   const selectedSubject = subjects.find((s) => s.id === subjectId);
@@ -106,7 +188,12 @@ export default function NewEntryPage() {
   const handleSubjectChange = useCallback((newSubjectId: string) => {
     setSubjectId(newSubjectId);
     setTopicId("");
-  }, []);
+    if (selectedSlotId) {
+      setSelectedSlotId(null);
+      setAssignmentId(null);
+      setTimetableSlotId(null);
+    }
+  }, [selectedSlotId]);
 
   const isFormValid = date && classId && subjectId && topicId;
 
@@ -123,7 +210,9 @@ export default function NewEntryPage() {
       const body = {
         date,
         classId,
-        topicId,
+        topicId: topicId || undefined,
+        assignmentId: assignmentId || null,
+        timetableSlotId: timetableSlotId || null,
         period: period ? parseInt(period) : null,
         duration: parseInt(duration),
         notes: notes || null,
@@ -145,8 +234,8 @@ export default function NewEntryPage() {
       const entry = await res.json();
       setCompletionTime(seconds);
       setSubmittedEntry({
-        subject: entry.topic.subject.name,
-        topic: entry.topic.name,
+        subject: entry.topics?.[0]?.subject?.name ?? "—",
+        topic: entry.topics?.[0]?.name ?? "—",
         className: entry.class.name,
         date: new Date(entry.date).toLocaleDateString("en-GB", {
           day: "numeric",
@@ -174,6 +263,9 @@ export default function NewEntryPage() {
     setNotes("");
     setObjectives("");
     setSignatureData(null);
+    setAssignmentId(null);
+    setTimetableSlotId(null);
+    setSelectedSlotId(null);
     setSuccess(false);
     setSeconds(0);
     setError("");
@@ -310,6 +402,53 @@ export default function NewEntryPage() {
                 required
               />
             </div>
+
+            {/* Timetable Quick-Fill */}
+            {!loadingSlots && timetableSlots.length > 0 && (
+              <div>
+                <label className="label-field flex items-center gap-1.5">
+                  <Zap className="w-3.5 h-3.5 text-amber-500" />
+                  Quick Fill from Timetable
+                </label>
+                <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
+                  {timetableSlots.map((slot) => (
+                    <button
+                      key={slot.id}
+                      type="button"
+                      onClick={() => handleSlotSelect(slot)}
+                      className={`flex-shrink-0 rounded-xl border-2 px-3 py-2 text-left transition-all ${
+                        selectedSlotId === slot.id
+                          ? "border-brand-500 bg-brand-50"
+                          : "border-slate-200 bg-white hover:border-slate-300"
+                      }`}
+                    >
+                      <p className="text-xs font-semibold text-slate-900">
+                        {slot.periodLabel}
+                      </p>
+                      <p className="text-[10px] text-slate-500 mt-0.5">
+                        {slot.startTime} - {slot.endTime}
+                      </p>
+                      <p className="text-[11px] font-medium text-brand-700 mt-1">
+                        {slot.assignment.subjectName}
+                      </p>
+                      <p className="text-[10px] text-slate-400">
+                        {slot.assignment.className}
+                      </p>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+            {loadingSlots && (
+              <div className="flex gap-2">
+                {[1, 2].map((i) => (
+                  <div
+                    key={i}
+                    className="flex-shrink-0 w-28 h-20 rounded-xl bg-slate-100 animate-pulse"
+                  />
+                ))}
+              </div>
+            )}
 
             {/* Class */}
             <div>

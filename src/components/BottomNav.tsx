@@ -3,7 +3,8 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, PlusCircle, Clock, User, Shield } from "lucide-react";
+import { Home, PlusCircle, Clock, User, Shield, Globe, BarChart3 } from "lucide-react";
+
 interface BottomNavProps {
   role: string;
 }
@@ -15,17 +16,37 @@ interface NavItem {
   highlight?: boolean;
 }
 
-function BottomNav({ role }: BottomNavProps) {
-  const pathname = usePathname();
+function getNavTabs(role: string): NavItem[] {
+  if (role === "REGIONAL_ADMIN") {
+    return [
+      { href: "/regional", label: "Overview", icon: Globe },
+      { href: "/regional/schools", label: "Schools", icon: Home },
+      { href: "/regional/reports", label: "Reports", icon: BarChart3 },
+      { href: "/profile", label: "Profile", icon: User },
+    ];
+  }
 
-  const tabs: NavItem[] = [
+  if (role === "SCHOOL_ADMIN") {
+    return [
+      { href: "/admin", label: "Dashboard", icon: Shield },
+      { href: "/logbook/new", label: "New Entry", icon: PlusCircle, highlight: true },
+      { href: "/admin/teachers", label: "Teachers", icon: Home },
+      { href: "/profile", label: "Profile", icon: User },
+    ];
+  }
+
+  // TEACHER (default)
+  return [
     { href: "/logbook", label: "Home", icon: Home },
     { href: "/logbook/new", label: "New Entry", icon: PlusCircle, highlight: true },
-    role === "SCHOOL_ADMIN"
-      ? { href: "/admin", label: "Admin", icon: Shield }
-      : { href: "/history", label: "History", icon: Clock },
+    { href: "/history", label: "History", icon: Clock },
     { href: "/profile", label: "Profile", icon: User },
   ];
+}
+
+function BottomNav({ role }: BottomNavProps) {
+  const pathname = usePathname();
+  const tabs = getNavTabs(role);
 
   return (
     <nav className="fixed bottom-0 left-0 w-full z-50 bg-white border-t border-slate-200 pb-[env(safe-area-inset-bottom)]">

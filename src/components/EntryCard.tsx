@@ -34,9 +34,13 @@ function EntryCard({ entry, onClick }: EntryCardProps) {
     minute: "2-digit",
   });
 
-  const topicDisplay = entry.topic.moduleName
-    ? `${entry.topic.moduleName}: ${entry.topic.name}`
-    : entry.topic.name;
+  const firstTopic = entry.topics?.[0];
+  const topicDisplay = firstTopic
+    ? firstTopic.moduleName
+      ? `${firstTopic.moduleName}: ${firstTopic.name}`
+      : firstTopic.name
+    : "—";
+  const subjectName = firstTopic?.subject?.name ?? "—";
 
   return (
     <Card
@@ -46,7 +50,7 @@ function EntryCard({ entry, onClick }: EntryCardProps) {
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0 flex-1">
             <p className="font-bold text-brand-950 truncate">
-              {entry.topic.subject.name}
+              {subjectName}
             </p>
             <p className="text-sm text-slate-600 mt-0.5 truncate">
               {topicDisplay}

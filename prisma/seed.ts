@@ -1,403 +1,368 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, Role } from "@prisma/client";
 import { hash } from "bcryptjs";
+import { REGIONS } from "./seed/regions";
+import {
+  DEMO_SCHOOL,
+  DEMO_ADMIN,
+  DEMO_TEACHERS,
+  DEMO_CLASSES,
+  DEFAULT_PERIOD_SCHEDULE,
+  DEMO_TIMETABLE,
+  DEMO_ENTRIES,
+  DEMO_NOTIFICATIONS,
+} from "./seed/demo-data";
 
 const prisma = new PrismaClient();
 
+// Helper types for curriculum data
+interface TopicData {
+  name: string;
+  moduleNum: number;
+  moduleName: string;
+  orderIndex: number;
+}
+interface LevelData {
+  classLevel: string;
+  topics: TopicData[];
+}
+interface SubjectDef {
+  name: string;
+  code: string;
+  category: string;
+  levels: LevelData[];
+}
+
 async function main() {
-  console.log("Seeding database...");
+  console.log("🌱 Seeding Edlog V2 database...\n");
 
-  // ── RPI Board ──────────────────────────────────────────
-  const rpiBoard = await prisma.rPIBoard.create({
-    data: {
-      name: "RPI Board — Centre Region",
-      region: "Centre",
-    },
-  });
+  // ── 1. Regions & Divisions ─────────────────────────────
+  console.log("📍 Creating regions and divisions...");
+  const regionMap: Record<string, string> = {};
+  const divisionMap: Record<string, string> = {};
 
-  // ── School ─────────────────────────────────────────────
-  const school = await prisma.school.create({
-    data: {
-      name: "Lycée Bilingue de Yaoundé",
-      code: "LBY-001",
-      town: "Yaoundé",
-      region: "Centre",
-      rpiBoardId: rpiBoard.id,
-    },
-  });
-
-  // ── Admin User ─────────────────────────────────────────
-  const adminPassword = await hash("edlog2025", 12);
-  const admin = await prisma.user.create({
-    data: {
-      email: "admin@edlog.cm",
-      passwordHash: adminPassword,
-      firstName: "Brayan",
-      lastName: "Lontchi",
-      role: "SCHOOL_ADMIN",
-      isVerified: true,
-      schoolId: school.id,
-    },
-  });
-
-  await prisma.school.update({
-    where: { id: school.id },
-    data: { adminId: admin.id },
-  });
-
-  // ── Demo Teacher ───────────────────────────────────────
-  const teacherPassword = await hash("edlog2025", 12);
-  const teacher = await prisma.user.create({
-    data: {
-      email: "teacher@edlog.cm",
-      passwordHash: teacherPassword,
-      firstName: "Darren",
-      lastName: "Monyongo",
-      role: "TEACHER",
-      isVerified: true,
-      schoolId: school.id,
-    },
-  });
-
-  // ── Classes (year 2025) ────────────────────────────────
-  const classesData = [
-    { name: "Form 5 Science A", level: "Form 5", stream: "Science", section: "A" },
-    { name: "Form 5 Science B", level: "Form 5", stream: "Science", section: "B" },
-    { name: "Form 5 Arts", level: "Form 5", stream: "Arts", section: null },
-    { name: "Lower Sixth Science", level: "Lower Sixth", stream: "Science", section: null },
-    { name: "Lower Sixth Arts", level: "Lower Sixth", stream: "Arts", section: null },
-    { name: "Upper Sixth Science", level: "Upper Sixth", stream: "Science", section: null },
-    { name: "Upper Sixth Arts", level: "Upper Sixth", stream: "Arts", section: null },
-  ];
-
-  const classes: Record<string, string> = {};
-  for (const c of classesData) {
-    const created = await prisma.class.create({
-      data: { ...c, year: 2025, schoolId: school.id },
+  for (const r of REGIONS) {
+    const region = await prisma.region.create({
+      data: { name: r.name, code: r.code, capital: r.capital },
     });
-    classes[c.name] = created.id;
+    regionMap[r.code] = region.id;
+
+    for (const divName of r.divisions) {
+      const div = await prisma.division.create({
+        data: { name: divName, regionId: region.id },
+      });
+      divisionMap[`${r.code}:${divName}`] = div.id;
+    }
   }
+  console.log(`  ✓ ${REGIONS.length} regions, ${Object.keys(divisionMap).length} divisions\n`);
 
-  // ── Subjects & Topics ─────────────────────────────────
-
-  interface TopicDef {
-    moduleName: string;
-    topics: string[];
-  }
-
-  interface SubjectDef {
-    name: string;
-    code: string;
-    category: string;
-    modules: TopicDef[];
-  }
-
-  const subjectsData: SubjectDef[] = [
-    {
-      name: "Physics",
-      code: "PHY",
-      category: "Science",
-      modules: [
-        {
-          moduleName: "Mechanics",
-          topics: [
-            "Kinematics",
-            "Newton's Laws of Motion",
-            "Work Energy & Power",
-            "Momentum & Collisions",
-          ],
-        },
-        { moduleName: "Rotational Mechanics", topics: ["Circular Motion"] },
-        { moduleName: "Fields", topics: ["Gravitational Fields"] },
-        {
-          moduleName: "Electricity",
-          topics: [
-            "Electric Fields",
-            "Current Electricity",
-            "Electromagnetic Induction",
-          ],
-        },
-        { moduleName: "Waves & Optics", topics: ["Wave Motion", "Light & Optics"] },
-        { moduleName: "Thermal Physics", topics: ["Thermal Physics"] },
-        {
-          moduleName: "Modern Physics",
-          topics: ["Nuclear Physics", "Radioactivity"],
-        },
-      ],
-    },
-    {
-      name: "Mathematics",
-      code: "MAT",
-      category: "Science",
-      modules: [
-        {
-          moduleName: "Pure Mathematics",
-          topics: [
-            "Algebra & Polynomials",
-            "Trigonometry",
-            "Coordinate Geometry",
-            "Sequences & Series",
-          ],
-        },
-        { moduleName: "Calculus", topics: ["Differentiation", "Integration"] },
-        { moduleName: "Vectors & Mechanics", topics: ["Vectors"] },
-        { moduleName: "Statistics", topics: ["Statistics & Probability"] },
-        { moduleName: "Applied Mathematics", topics: ["Mechanics"] },
-      ],
-    },
-    {
-      name: "Chemistry",
-      code: "CHE",
-      category: "Science",
-      modules: [
-        {
-          moduleName: "Physical Chemistry",
-          topics: [
-            "Atomic Structure",
-            "Chemical Bonding",
-            "Stoichiometry",
-            "Energetics & Thermochemistry",
-            "Reaction Kinetics",
-            "Chemical Equilibrium",
-            "Electrochemistry",
-          ],
-        },
-        {
-          moduleName: "Organic Chemistry",
-          topics: ["Hydrocarbons", "Functional Groups"],
-        },
-        {
-          moduleName: "Inorganic Chemistry",
-          topics: ["Periodic Table & Trends"],
-        },
-      ],
-    },
-    {
-      name: "Further Mathematics",
-      code: "FMA",
-      category: "Science",
-      modules: [
-        {
-          moduleName: "Pure Mathematics",
-          topics: [
-            "Complex Numbers",
-            "Matrices & Transformations",
-            "Proof & Logic",
-            "Hyperbolic Functions",
-          ],
-        },
-        { moduleName: "Calculus", topics: ["Differential Equations"] },
-        { moduleName: "Applied", topics: ["Numerical Methods"] },
-      ],
-    },
-    {
-      name: "Computer Science",
-      code: "CSC",
-      category: "Science",
-      modules: [
-        { moduleName: "Fundamentals", topics: ["Data Representation"] },
-        { moduleName: "Programming", topics: ["Programming Concepts"] },
-        {
-          moduleName: "Computer Science",
-          topics: ["Algorithms & Data Structures"],
-        },
-        { moduleName: "Hardware", topics: ["Computer Architecture"] },
-        { moduleName: "Networks", topics: ["Networking"] },
-        { moduleName: "Data Management", topics: ["Databases"] },
-      ],
-    },
-    {
-      name: "English Language",
-      code: "ENG",
-      category: "Language",
-      modules: [
-        { moduleName: "Reading", topics: ["Comprehension & Summary"] },
-        { moduleName: "Writing", topics: ["Essay Writing"] },
-        { moduleName: "Language", topics: ["Grammar & Usage"] },
-        { moduleName: "Literature", topics: ["Prose", "Poetry", "Drama"] },
-      ],
-    },
-    {
-      name: "French",
-      code: "FRE",
-      category: "Language",
-      modules: [
-        { moduleName: "Lecture", topics: ["Compréhension écrite"] },
-        { moduleName: "Écriture", topics: ["Expression écrite"] },
-        { moduleName: "Langue", topics: ["Grammaire"] },
-        { moduleName: "Oral", topics: ["Compréhension orale"] },
-        { moduleName: "Littérature", topics: ["Littérature"] },
-      ],
-    },
-  ];
-
-  const subjectIds: Record<string, string> = {};
-  const topicIds: Record<string, string> = {};
-  let orderIdx = 0;
-
-  for (const subjectDef of subjectsData) {
-    const subject = await prisma.subject.create({
+  // ── 2. Regional Admin Accounts ─────────────────────────
+  console.log("👤 Creating regional admin accounts...");
+  for (const r of REGIONS) {
+    const pw = await hash(`EdLog2026_${r.code}!`, 12);
+    await prisma.user.create({
       data: {
-        name: subjectDef.name,
-        code: subjectDef.code,
-        category: subjectDef.category,
+        email: r.email,
+        passwordHash: pw,
+        firstName: "Regional",
+        lastName: `Admin — ${r.name}`,
+        role: Role.REGIONAL_ADMIN,
+        isVerified: true,
+        regionId: regionMap[r.code],
       },
     });
-    subjectIds[subjectDef.name] = subject.id;
+  }
+  console.log(`  ✓ 10 regional admin accounts\n`);
 
-    let moduleNum = 1;
-    for (const mod of subjectDef.modules) {
-      for (const topicName of mod.topics) {
-        const topic = await prisma.topic.create({
+  // ── 3. Curriculum: Subjects & Topics ───────────────────
+  console.log("📚 Seeding curriculum data...");
+  const subjectMap: Record<string, string> = {};
+
+  // Dynamic imports for curriculum files
+  let allSubjects: SubjectDef[] = [];
+
+  try {
+    const { PHYSICS_CURRICULUM } = await import("./seed/curriculum-physics");
+    allSubjects.push({ name: "Physics", code: "PHY", category: "Science", levels: PHYSICS_CURRICULUM });
+  } catch { console.log("  ⚠ Physics curriculum file not found, skipping"); }
+
+  try {
+    const { CHEMISTRY_CURRICULUM } = await import("./seed/curriculum-chemistry");
+    allSubjects.push({ name: "Chemistry", code: "CHE", category: "Science", levels: CHEMISTRY_CURRICULUM });
+  } catch { console.log("  ⚠ Chemistry curriculum file not found, skipping"); }
+
+  try {
+    const { BIOLOGY_CURRICULUM } = await import("./seed/curriculum-biology");
+    allSubjects.push({ name: "Biology", code: "BIO", category: "Science", levels: BIOLOGY_CURRICULUM });
+  } catch { console.log("  ⚠ Biology curriculum file not found, skipping"); }
+
+  try {
+    const mod = await import("./seed/curriculum-mathematics");
+    allSubjects.push({ name: "Mathematics", code: "MAT", category: "Science", levels: mod.MATHEMATICS_CURRICULUM });
+    if (mod.ADDITIONAL_MATH_F4) allSubjects.push({ name: "Additional Mathematics", code: "AMA", category: "Science", levels: [...mod.ADDITIONAL_MATH_F4, ...(mod.ADDITIONAL_MATH_F5 || [])] });
+    if (mod.PURE_MATH_LS) allSubjects.push({ name: "Pure Mathematics", code: "PMA", category: "Science", levels: [...mod.PURE_MATH_LS, ...(mod.PURE_MATH_US || [])] });
+    if (mod.FURTHER_MATH_LS) allSubjects.push({ name: "Further Mathematics", code: "FMA", category: "Science", levels: [...mod.FURTHER_MATH_LS, ...(mod.FURTHER_MATH_US || [])] });
+    if (mod.STATISTICS_US) allSubjects.push({ name: "Statistics", code: "STA", category: "Science", levels: mod.STATISTICS_US });
+    if (mod.MECHANICS_US) allSubjects.push({ name: "Mechanics", code: "MEC", category: "Science", levels: mod.MECHANICS_US });
+  } catch { console.log("  ⚠ Mathematics curriculum file not found, skipping"); }
+
+  try {
+    const { CS_CURRICULUM } = await import("./seed/curriculum-computer-science");
+    allSubjects.push({ name: "Computer Science", code: "CSC", category: "Science", levels: CS_CURRICULUM });
+  } catch { console.log("  ⚠ Computer Science curriculum file not found, skipping"); }
+
+  try {
+    const { OTHER_SUBJECTS } = await import("./seed/curriculum-other");
+    allSubjects.push(...OTHER_SUBJECTS);
+  } catch { console.log("  ⚠ Other subjects file not found, skipping"); }
+
+  let totalTopics = 0;
+  for (const subj of allSubjects) {
+    const subject = await prisma.subject.create({
+      data: { name: subj.name, code: subj.code, category: subj.category },
+    });
+    subjectMap[subj.code] = subject.id;
+
+    for (const level of subj.levels) {
+      for (const topic of level.topics) {
+        await prisma.topic.create({
           data: {
-            name: topicName,
-            moduleName: mod.moduleName,
-            moduleNum,
-            orderIndex: orderIdx++,
+            name: topic.name,
+            classLevel: level.classLevel,
+            moduleNum: topic.moduleNum,
+            moduleName: topic.moduleName,
+            orderIndex: topic.orderIndex,
             subjectId: subject.id,
           },
         });
-        topicIds[`${subjectDef.name}:${topicName}`] = topic.id;
+        totalTopics++;
       }
-      moduleNum++;
     }
+  }
+  console.log(`  ✓ ${allSubjects.length} subjects, ${totalTopics} topics\n`);
 
-    // Link subject to school
-    await prisma.schoolSubject.create({
-      data: {
-        schoolId: school.id,
-        subjectId: subject.id,
-      },
+  // ── 4. Demo School ─────────────────────────────────────
+  console.log("🏫 Creating demo school...");
+  const swRegionId = regionMap["SW"];
+  const fakoId = divisionMap["SW:Fako"];
+
+  const school = await prisma.school.create({
+    data: {
+      name: DEMO_SCHOOL.name,
+      code: "SW-FAK-0001",
+      schoolType: DEMO_SCHOOL.schoolType,
+      principalName: DEMO_SCHOOL.principalName,
+      principalPhone: DEMO_SCHOOL.principalPhone,
+      status: "ACTIVE",
+      profileComplete: true,
+      regionId: swRegionId,
+      divisionId: fakoId,
+    },
+  });
+
+  // Period schedule
+  for (const p of DEFAULT_PERIOD_SCHEDULE) {
+    await prisma.periodSchedule.create({
+      data: { schoolId: school.id, ...p },
     });
   }
 
-  // ── Sample Logbook Entries ─────────────────────────────
-  const now = new Date();
-  const entries = [
-    {
-      daysAgo: 1,
-      subject: "Physics",
-      topic: "Kinematics",
-      className: "Form 5 Science A",
-      period: 2,
-      notes: "Covered equations of motion for uniformly accelerated bodies. Students practiced with numerical examples.",
-      objectives: "Students can derive and apply the three equations of motion",
+  // School admin
+  const adminPw = await hash(DEMO_ADMIN.password, 12);
+  const admin = await prisma.user.create({
+    data: {
+      email: DEMO_ADMIN.email,
+      passwordHash: adminPw,
+      firstName: DEMO_ADMIN.firstName,
+      lastName: DEMO_ADMIN.lastName,
+      role: Role.SCHOOL_ADMIN,
+      isVerified: true,
+      schoolId: school.id,
     },
-    {
-      daysAgo: 2,
-      subject: "Physics",
-      topic: "Newton's Laws of Motion",
-      className: "Form 5 Science B",
-      period: 1,
-      notes: "Introduced Newton's three laws. Demonstrated with practical examples using weights and pulleys.",
-      objectives: "Students understand and can state Newton's three laws",
-    },
-    {
-      daysAgo: 3,
-      subject: "Mathematics",
-      topic: "Differentiation",
-      className: "Lower Sixth Science",
-      period: 3,
-      notes: "Taught differentiation from first principles. Moved to power rule and sum rule.",
-      objectives: "Students can differentiate polynomial functions",
-    },
-    {
-      daysAgo: 4,
-      subject: "Chemistry",
-      topic: "Atomic Structure",
-      className: "Form 5 Science A",
-      period: 4,
-      notes: "Electronic configuration and quantum numbers. Students drew orbital diagrams.",
-      objectives: "Students can write electronic configurations for elements 1-36",
-    },
-    {
-      daysAgo: 5,
-      subject: "Physics",
-      topic: "Work Energy & Power",
-      className: "Upper Sixth Science",
-      period: 2,
-      notes: "Work-energy theorem and conservation of mechanical energy. Solved past GCE questions.",
-      objectives: "Students can apply the work-energy theorem to solve problems",
-    },
-    {
-      daysAgo: 7,
-      subject: "Mathematics",
-      topic: "Trigonometry",
-      className: "Form 5 Science A",
-      period: 5,
-      notes: "Trigonometric identities and solving trig equations in a given range.",
-      objectives: "Students can prove simple trig identities and solve equations",
-    },
-    {
-      daysAgo: 8,
-      subject: "Computer Science",
-      topic: "Programming Concepts",
-      className: "Lower Sixth Science",
-      period: 1,
-      notes: "Introduction to loops and conditional statements. Wrote basic programs in Python.",
-      objectives: "Students can write programs using for loops and if statements",
-    },
-    {
-      daysAgo: 10,
-      subject: "Physics",
-      topic: "Wave Motion",
-      className: "Form 5 Science B",
-      period: 3,
-      notes: "Properties of waves: frequency, wavelength, amplitude. Distinction between transverse and longitudinal.",
-      objectives: "Students can describe wave properties and classify wave types",
-    },
-    {
-      daysAgo: 12,
-      subject: "Chemistry",
-      topic: "Chemical Bonding",
-      className: "Form 5 Science A",
-      period: 2,
-      notes: "Ionic and covalent bonding. Drew Lewis dot structures for common molecules.",
-      objectives: "Students can explain ionic and covalent bonding with examples",
-    },
-    {
-      daysAgo: 13,
-      subject: "Mathematics",
-      topic: "Integration",
-      className: "Upper Sixth Science",
-      period: 4,
-      notes: "Definite integrals and area under curves. Applied to find areas between curves.",
-      objectives: "Students can evaluate definite integrals and compute areas",
-    },
-  ];
+  });
+  await prisma.school.update({ where: { id: school.id }, data: { adminId: admin.id } });
 
-  for (const entry of entries) {
+  // Link subjects to school
+  for (const code of Object.keys(subjectMap)) {
+    await prisma.schoolSubject.create({
+      data: { schoolId: school.id, subjectId: subjectMap[code] },
+    });
+  }
+  console.log(`  ✓ School: ${school.name} (${school.code})\n`);
+
+  // ── 5. Classes ─────────────────────────────────────────
+  console.log("📋 Creating classes...");
+  const classMap: Record<string, string> = {};
+  const classLevelMap: Record<string, string> = {};
+  for (const c of DEMO_CLASSES) {
+    const cls = await prisma.class.create({
+      data: { ...c, year: 2026, schoolId: school.id },
+    });
+    classMap[c.name] = cls.id;
+    classLevelMap[c.name] = c.level;
+  }
+  console.log(`  ✓ ${DEMO_CLASSES.length} classes\n`);
+
+  // ── 6. Demo Teachers ───────────────────────────────────
+  console.log("👨‍🏫 Creating demo teachers...");
+  const teacherMap: Record<string, string> = {};
+  for (const t of DEMO_TEACHERS) {
+    const pw = await hash(t.password, 12);
+    const teacher = await prisma.user.create({
+      data: {
+        email: t.email,
+        passwordHash: pw,
+        firstName: t.firstName,
+        lastName: t.lastName,
+        role: Role.TEACHER,
+        isVerified: true,
+        schoolId: school.id,
+      },
+    });
+    teacherMap[t.email] = teacher.id;
+  }
+  console.log(`  ✓ ${DEMO_TEACHERS.length} teachers\n`);
+
+  // ── 7. Teacher Assignments & Timetable ─────────────────
+  console.log("📅 Creating assignments and timetable...");
+  const assignmentMap: Record<string, string> = {};
+
+  // Create assignments from teacher subjects
+  for (const t of DEMO_TEACHERS) {
+    for (const subj of t.subjects) {
+      for (const className of subj.classNames) {
+        const key = `${t.email}:${className}:${subj.code}`;
+        const assignment = await prisma.teacherAssignment.create({
+          data: {
+            teacherId: teacherMap[t.email],
+            classId: classMap[className],
+            subjectId: subjectMap[subj.code],
+            schoolId: school.id,
+          },
+        });
+        assignmentMap[key] = assignment.id;
+      }
+    }
+  }
+
+  // Create timetable slots
+  const periodMap: Record<number, { startTime: string; endTime: string; label: string }> = {};
+  for (const p of DEFAULT_PERIOD_SCHEDULE) {
+    periodMap[p.periodNum] = { startTime: p.startTime, endTime: p.endTime, label: p.label };
+  }
+
+  for (const [email, className, subjCode, dayOfWeek, periodNum] of DEMO_TIMETABLE) {
+    const assignKey = `${email}:${className}:${subjCode}`;
+    const assignId = assignmentMap[assignKey];
+    if (!assignId) {
+      console.log(`  ⚠ Assignment not found for ${assignKey}`);
+      continue;
+    }
+    const period = periodMap[periodNum];
+    await prisma.timetableSlot.create({
+      data: {
+        assignmentId: assignId,
+        dayOfWeek,
+        startTime: period.startTime,
+        endTime: period.endTime,
+        periodLabel: period.label,
+        schoolId: school.id,
+      },
+    });
+  }
+  console.log(`  ✓ ${Object.keys(assignmentMap).length} assignments, ${DEMO_TIMETABLE.length} timetable slots\n`);
+
+  // ── 8. Sample Logbook Entries ──────────────────────────
+  console.log("📝 Creating sample logbook entries...");
+  const now = new Date();
+  let entryCount = 0;
+
+  for (const entry of DEMO_ENTRIES) {
     const entryDate = new Date(now);
-    entryDate.setDate(entryDate.getDate() - entry.daysAgo);
+    entryDate.setDate(entryDate.getDate() - (entry.daysAgo || 0));
     entryDate.setHours(8, 0, 0, 0);
+
+    // Find assignment
+    const assignKey = `${entry.teacherEmail}:${entry.className}:${entry.subjectCode}`;
+    const assignId = assignmentMap[assignKey];
+
+    // Find topics
+    const subjectId = subjectMap[entry.subjectCode];
+    const classLevel = classLevelMap[entry.className];
+    const topics = await prisma.topic.findMany({
+      where: {
+        subjectId,
+        classLevel,
+        name: { in: entry.topicNames },
+      },
+    });
+
+    if (topics.length === 0) {
+      console.log(`  ⚠ No topics found for ${entry.subjectCode} ${classLevel}: ${entry.topicNames[0]}`);
+      continue;
+    }
 
     await prisma.logbookEntry.create({
       data: {
         date: entryDate,
         period: entry.period,
         duration: 60,
-        notes: entry.notes,
-        objectives: entry.objectives,
-        status: "SUBMITTED",
-        teacherId: teacher.id,
-        classId: classes[entry.className],
-        topicId: topicIds[`${entry.subject}:${entry.topic}`],
+        notes: entry.notes || null,
+        objectives: entry.objectives || null,
+        status: (entry as Record<string, unknown>).status as string || "SUBMITTED",
+        studentAttendance: entry.attendance || null,
+        engagementLevel: entry.engagement || null,
+        teacherId: teacherMap[entry.teacherEmail],
+        classId: classMap[entry.className],
+        assignmentId: assignId || null,
+        topics: { connect: topics.map((t) => ({ id: t.id })) },
+      },
+    });
+    entryCount++;
+  }
+  console.log(`  ✓ ${entryCount} logbook entries\n`);
+
+  // ── 9. Notifications ───────────────────────────────────
+  console.log("🔔 Creating sample notifications...");
+  for (const n of DEMO_NOTIFICATIONS) {
+    const userId = (n as Record<string, unknown>).teacherEmail
+      ? teacherMap[(n as Record<string, unknown>).teacherEmail as string]
+      : (n as Record<string, unknown>).adminEmail === "admin@edlog.cm"
+      ? admin.id
+      : null;
+    if (!userId) continue;
+
+    await prisma.notification.create({
+      data: {
+        userId,
+        type: n.type,
+        title: n.title,
+        message: n.message,
+        isRead: n.isRead || false,
+        link: n.link || null,
       },
     });
   }
+  console.log(`  ✓ ${DEMO_NOTIFICATIONS.length} notifications\n`);
 
-  console.log("Seed completed successfully!");
-  console.log(`  - 1 RPI Board`);
-  console.log(`  - 1 School (code: LBY-001)`);
-  console.log(`  - 1 Admin (admin@edlog.cm / edlog2025)`);
-  console.log(`  - 1 Teacher (teacher@edlog.cm / edlog2025)`);
-  console.log(`  - ${classesData.length} Classes`);
-  console.log(`  - ${subjectsData.length} Subjects with topics`);
-  console.log(`  - ${entries.length} Sample entries`);
+  // ── Summary ────────────────────────────────────────────
+  console.log("═══════════════════════════════════════════════");
+  console.log("✅ Seed completed successfully!");
+  console.log("═══════════════════════════════════════════════");
+  console.log("\n📋 Login Credentials:");
+  console.log("─────────────────────────────────────────────");
+  console.log("Regional Admins (10 accounts):");
+  for (const r of REGIONS) {
+    console.log(`  ${r.name.padEnd(12)} ${r.email.padEnd(24)} EdLog2026_${r.code}!`);
+  }
+  console.log(`\nSchool Admin:  admin@edlog.cm       EdLog2026!`);
+  console.log(`Teacher 1:     darren@edlog.cm      EdLog2026!`);
+  console.log(`Teacher 2:     brayan@edlog.cm      EdLog2026!`);
+  console.log(`\nSchool Code:   SW-FAK-0001`);
 }
 
 main()
   .catch((e) => {
-    console.error("Seed failed:", e);
+    console.error("❌ Seed failed:", e);
     process.exit(1);
   })
   .finally(async () => {

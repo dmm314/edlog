@@ -18,7 +18,7 @@ export async function GET(
       where: { id: params.id },
       include: {
         class: true,
-        topic: { include: { subject: true } },
+        topics: { include: { subject: true } },
         teacher: {
           select: {
             id: true,
@@ -27,6 +27,8 @@ export async function GET(
             email: true,
           },
         },
+        assignment: { include: { subject: true } },
+        timetableSlot: true,
       },
     });
 
@@ -111,18 +113,34 @@ export async function PATCH(
     }
 
     // Sanitize text
-    const updateData: Record<string, unknown> = { ...data };
-    if (data.notes) updateData.notes = sanitizeHtml(data.notes);
-    if (data.objectives)
-      updateData.objectives = sanitizeHtml(data.objectives);
+    const updateData: Record<string, unknown> = {};
     if (data.date) updateData.date = new Date(data.date);
+    if (data.classId) updateData.classId = data.classId;
+    if (data.period !== undefined) updateData.period = data.period;
+    if (data.duration) updateData.duration = data.duration;
+    if (data.notes !== undefined) updateData.notes = data.notes ? sanitizeHtml(data.notes) : null;
+    if (data.objectives !== undefined) updateData.objectives = data.objectives ? sanitizeHtml(data.objectives) : null;
+    if (data.signatureData !== undefined) updateData.signatureData = data.signatureData;
+    if (data.status) updateData.status = data.status;
+    if (data.studentAttendance !== undefined) updateData.studentAttendance = data.studentAttendance;
+    if (data.engagementLevel !== undefined) updateData.engagementLevel = data.engagementLevel;
+
+    // Handle topic updates via many-to-many
+    const topicConnect = data.topicIds?.length
+      ? { set: data.topicIds.map((id: string) => ({ id })) }
+      : data.topicId
+        ? { set: [{ id: data.topicId }] }
+        : undefined;
 
     const updated = await db.logbookEntry.update({
       where: { id: params.id },
-      data: updateData,
+      data: {
+        ...updateData,
+        ...(topicConnect ? { topics: topicConnect } : {}),
+      },
       include: {
         class: true,
-        topic: { include: { subject: true } },
+        topics: { include: { subject: true } },
       },
     });
 

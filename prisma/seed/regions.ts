@@ -1,0 +1,77 @@
+// Cameroon's 10 regions with their divisions
+export const REGIONS = [
+  {
+    name: "Adamawa",
+    code: "AD",
+    capital: "Ngaoundéré",
+    email: "adamawa@edlog.cm",
+    divisions: ["Djerem", "Faro-et-Déo", "Mayo-Banyo", "Mbéré", "Vina"],
+  },
+  {
+    name: "Centre",
+    code: "CE",
+    capital: "Yaoundé",
+    email: "centre@edlog.cm",
+    divisions: [
+      "Haute-Sanaga", "Lekié", "Mbam-et-Inoubou", "Mbam-et-Kim",
+      "Méfou-et-Afamba", "Méfou-et-Akono", "Mfoundi", "Nyong-et-Kellé",
+      "Nyong-et-Mfoumou", "Nyong-et-So'o",
+    ],
+  },
+  {
+    name: "East",
+    code: "ES",
+    capital: "Bertoua",
+    email: "east@edlog.cm",
+    divisions: ["Boumba-et-Ngoko", "Haut-Nyong", "Kadey", "Lom-et-Djérem"],
+  },
+  {
+    name: "Far North",
+    code: "FN",
+    capital: "Maroua",
+    email: "farnorth@edlog.cm",
+    divisions: ["Diamaré", "Logone-et-Chari", "Mayo-Danay", "Mayo-Kani", "Mayo-Sava", "Mayo-Tsanaga"],
+  },
+  {
+    name: "Littoral",
+    code: "LT",
+    capital: "Douala",
+    email: "littoral@edlog.cm",
+    divisions: ["Moungo", "Nkam", "Sanaga-Maritime", "Wouri"],
+  },
+  {
+    name: "North",
+    code: "NO",
+    capital: "Garoua",
+    email: "north@edlog.cm",
+    divisions: ["Bénoué", "Faro", "Mayo-Louti", "Mayo-Rey"],
+  },
+  {
+    name: "Northwest",
+    code: "NW",
+    capital: "Bamenda",
+    email: "northwest@edlog.cm",
+    divisions: ["Boyo", "Bui", "Donga-Mantung", "Menchum", "Mezam", "Momo", "Ngo-Ketunjia"],
+  },
+  {
+    name: "South",
+    code: "SU",
+    capital: "Ebolowa",
+    email: "south@edlog.cm",
+    divisions: ["Dja-et-Lobo", "Mvila", "Océan", "Vallée-du-Ntem"],
+  },
+  {
+    name: "Southwest",
+    code: "SW",
+    capital: "Buea",
+    email: "southwest@edlog.cm",
+    divisions: ["Fako", "Koupé-Manengouba", "Lebialem", "Manyu", "Meme", "Ndian"],
+  },
+  {
+    name: "West",
+    code: "OU",
+    capital: "Bafoussam",
+    email: "west@edlog.cm",
+    divisions: ["Bamboutos", "Haut-Nkam", "Hauts-Plateaux", "Koung-Khi", "Menoua", "Mifi", "Ndé", "Noun"],
+  },
+];

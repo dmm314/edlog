@@ -20,10 +20,30 @@ export const registerSchema = z
     path: ["confirmPassword"],
   });
 
+export const schoolRegisterSchema = z.object({
+  schoolName: z.string().min(3, "School name must be at least 3 characters"),
+  schoolCode: z.string().min(3, "School code must be at least 3 characters"),
+  regionId: z.string().min(1, "Region is required"),
+  divisionId: z.string().optional(),
+  address: z.string().optional(),
+  phone: z.string().optional(),
+  adminFirstName: z.string().min(2, "First name must be at least 2 characters"),
+  adminLastName: z.string().min(2, "Last name must be at least 2 characters"),
+  adminEmail: z.string().email("Please enter a valid email address"),
+  adminPassword: z.string().min(6, "Password must be at least 6 characters"),
+  adminConfirmPassword: z.string(),
+}).refine((data) => data.adminPassword === data.adminConfirmPassword, {
+  message: "Passwords do not match",
+  path: ["adminConfirmPassword"],
+});
+
 export const createEntrySchema = z.object({
   date: z.string().min(1, "Date is required"),
   classId: z.string().min(1, "Class is required"),
-  topicId: z.string().min(1, "Topic is required"),
+  topicId: z.string().optional(),
+  topicIds: z.array(z.string()).optional(),
+  assignmentId: z.string().optional().nullable(),
+  timetableSlotId: z.string().optional().nullable(),
   period: z.number().int().min(1).max(8).optional().nullable(),
   duration: z.number().int().min(15).max(180).default(60),
   notes: z.string().max(500, "Notes must be under 500 characters").optional().nullable(),
@@ -33,21 +53,28 @@ export const createEntrySchema = z.object({
     .optional()
     .nullable(),
   signatureData: z.string().optional().nullable(),
+  studentAttendance: z.number().int().min(0).optional().nullable(),
+  engagementLevel: z.enum(["LOW", "MEDIUM", "HIGH"]).optional().nullable(),
+  status: z.enum(["DRAFT", "SUBMITTED"]).optional(),
 });
 
 export const updateEntrySchema = z.object({
   date: z.string().optional(),
   classId: z.string().optional(),
   topicId: z.string().optional(),
+  topicIds: z.array(z.string()).optional(),
   period: z.number().int().min(1).max(8).optional().nullable(),
   duration: z.number().int().min(15).max(180).optional(),
   notes: z.string().max(500).optional().nullable(),
   objectives: z.string().max(500).optional().nullable(),
   signatureData: z.string().optional().nullable(),
   status: z.enum(["DRAFT", "SUBMITTED", "VERIFIED", "FLAGGED"]).optional(),
+  studentAttendance: z.number().int().min(0).optional().nullable(),
+  engagementLevel: z.enum(["LOW", "MEDIUM", "HIGH"]).optional().nullable(),
 });
 
 export type LoginInput = z.infer<typeof loginSchema>;
 export type RegisterInput = z.infer<typeof registerSchema>;
+export type SchoolRegisterInput = z.infer<typeof schoolRegisterSchema>;
 export type CreateEntryInput = z.infer<typeof createEntrySchema>;
 export type UpdateEntryInput = z.infer<typeof updateEntrySchema>;
