@@ -2,7 +2,18 @@
 
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { CheckCircle, Clock, ArrowLeft, Zap, AlertCircle } from "lucide-react";
+import {
+  CheckCircle,
+  Clock,
+  ArrowLeft,
+  AlertCircle,
+  BookOpen,
+  FileText,
+  GraduationCap,
+  Calendar,
+  PenTool,
+  Layers,
+} from "lucide-react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 
@@ -89,7 +100,8 @@ export default function NewEntryPage() {
   });
   const [classId, setClassId] = useState("");
   const [subjectId, setSubjectId] = useState("");
-  const [topicId, setTopicId] = useState("");
+  const [moduleName, setModuleName] = useState("");
+  const [topicText, setTopicText] = useState("");
   const [period, setPeriod] = useState("");
   const [duration, setDuration] = useState("60");
   const [notes, setNotes] = useState("");
@@ -105,9 +117,15 @@ export default function NewEntryPage() {
   const [completionTime, setCompletionTime] = useState(0);
   const [submittedEntry, setSubmittedEntry] = useState<{
     subject: string;
+    module: string;
     topic: string;
     className: string;
     date: string;
+    period: string;
+    time: string;
+    duration: string;
+    notes: string;
+    objectives: string;
   } | null>(null);
 
   // Start timer
@@ -198,28 +216,34 @@ export default function NewEntryPage() {
     return assignedClasses.find((c) => c.id === classId)?.level || "";
   }, [assignedClasses, classId]);
 
-  // Topics for the selected subject, filtered by class level
-  const topics = useMemo(() => {
+  // Get unique modules for the selected subject and class level
+  const modules = useMemo(() => {
     if (!subjectId || !selectedClassLevel) return [];
     const subject = subjects.find((s) => s.id === subjectId);
     if (!subject) return [];
     const filtered = subject.topics.filter((t) => t.classLevel === selectedClassLevel);
-    if (filtered.length > 0) return filtered;
-    // If no topics match the exact level, show all topics for the subject
-    return subject.topics;
+    const topicsToUse = filtered.length > 0 ? filtered : subject.topics;
+    const moduleMap = new Map<string, string>();
+    for (const t of topicsToUse) {
+      if (t.moduleName && !moduleMap.has(t.moduleName)) {
+        moduleMap.set(t.moduleName, t.moduleName);
+      }
+    }
+    return Array.from(moduleMap.values());
   }, [subjects, subjectId, selectedClassLevel]);
 
   // Handle timetable slot selection (quick-fill)
   function handleSlotSelect(slot: TimetableSlot) {
     if (selectedSlotId === slot.id) {
-      // Deselect
       setSelectedSlotId(null);
       setAssignmentId(null);
       setTimetableSlotId(null);
       setClassId("");
       setSubjectId("");
-      setTopicId("");
+      setModuleName("");
+      setTopicText("");
       setPeriod("");
+      setDuration("60");
       return;
     }
     setSelectedSlotId(slot.id);
@@ -227,7 +251,8 @@ export default function NewEntryPage() {
     setTimetableSlotId(slot.id);
     setClassId(slot.assignment.classId);
     setSubjectId(slot.assignment.subjectId);
-    setTopicId("");
+    setModuleName("");
+    setTopicText("");
     const periodMatch = slot.periodLabel.match(/\d+/);
     if (periodMatch) setPeriod(periodMatch[0]);
     const [sh, sm] = slot.startTime.split(":").map(Number);
@@ -240,7 +265,8 @@ export default function NewEntryPage() {
   const handleClassChange = useCallback((newClassId: string) => {
     setClassId(newClassId);
     setSubjectId("");
-    setTopicId("");
+    setModuleName("");
+    setTopicText("");
     setAssignmentId(null);
     if (selectedSlotId) {
       setSelectedSlotId(null);
@@ -251,8 +277,8 @@ export default function NewEntryPage() {
   // Handle subject change
   const handleSubjectChange = useCallback((newSubjectId: string) => {
     setSubjectId(newSubjectId);
-    setTopicId("");
-    // Find the assignment for this class+subject combo
+    setModuleName("");
+    setTopicText("");
     const match = assignments.find(
       (a) => a.class.id === classId && a.subject.id === newSubjectId
     );
@@ -263,7 +289,7 @@ export default function NewEntryPage() {
     }
   }, [assignments, classId, selectedSlotId]);
 
-  const isFormValid = date && classId && subjectId && (topicId || topics.length === 0);
+  const isFormValid = date && classId && subjectId && topicText.trim().length > 0;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -279,17 +305,12 @@ export default function NewEntryPage() {
         timetableSlotId: timetableSlotId || null,
         period: period ? parseInt(period) : null,
         duration: parseInt(duration),
+        moduleName: moduleName || null,
+        topicText: topicText.trim() || null,
         notes: notes || null,
         objectives: objectives || null,
         signatureData,
       };
-
-      if (topicId) {
-        body.topicId = topicId;
-      } else {
-        // If no topics available, we still need a topic - use subject ID as fallback
-        // The API requires at least one topic
-      }
 
       const res = await fetch("/api/entries", {
         method: "POST",
@@ -304,15 +325,27 @@ export default function NewEntryPage() {
 
       const entry = await res.json();
       setCompletionTime(seconds);
+
+      const subjectName = entry.assignment?.subject?.name ?? entry.topics?.[0]?.subject?.name ?? "—";
+      const entryDate = new Date(entry.date).toLocaleDateString("en-GB", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      });
+
       setSubmittedEntry({
-        subject: entry.assignment?.subject?.name ?? entry.topics?.[0]?.subject?.name ?? "—",
-        topic: entry.topics?.[0]?.name ?? "—",
+        subject: subjectName,
+        module: entry.moduleName || "—",
+        topic: entry.topicText || entry.topics?.[0]?.name || "—",
         className: entry.class.name,
-        date: new Date(entry.date).toLocaleDateString("en-GB", {
-          day: "numeric",
-          month: "short",
-          year: "numeric",
-        }),
+        date: entryDate,
+        period: entry.timetableSlot?.periodLabel || (entry.period ? `Period ${entry.period}` : "—"),
+        time: entry.timetableSlot
+          ? `${entry.timetableSlot.startTime} - ${entry.timetableSlot.endTime}`
+          : "—",
+        duration: `${entry.duration} min`,
+        notes: entry.notes || "",
+        objectives: entry.objectives || "",
       });
       setSuccess(true);
       clearInterval(timerRef.current);
@@ -329,7 +362,8 @@ export default function NewEntryPage() {
     setDate(new Date().toISOString().split("T")[0]);
     setClassId("");
     setSubjectId("");
-    setTopicId("");
+    setModuleName("");
+    setTopicText("");
     setPeriod("");
     setDuration("60");
     setNotes("");
@@ -346,7 +380,7 @@ export default function NewEntryPage() {
     }, 1000);
   }
 
-  // Success screen
+  // ───── Beautiful Success Screen ─────
   if (success && submittedEntry) {
     return (
       <div className="min-h-screen bg-slate-50 flex flex-col">
@@ -366,41 +400,92 @@ export default function NewEntryPage() {
         </div>
 
         <div className="px-5 -mt-4 max-w-lg mx-auto w-full flex-1">
-          <div className="card p-6 space-y-3">
-            <div className="flex justify-between text-sm">
-              <span className="text-slate-500">Subject</span>
-              <span className="font-medium text-slate-900">
-                {submittedEntry.subject}
-              </span>
+          <div className="card overflow-hidden">
+            {/* Header Strip */}
+            <div className="bg-gradient-to-r from-brand-600 to-brand-500 px-5 py-3">
+              <p className="text-white font-bold text-base">{submittedEntry.subject}</p>
+              <p className="text-white/70 text-xs">{submittedEntry.className} &middot; {submittedEntry.date}</p>
             </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-slate-500">Topic</span>
-              <span className="font-medium text-slate-900">
-                {submittedEntry.topic}
-              </span>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-slate-500">Class</span>
-              <span className="font-medium text-slate-900">
-                {submittedEntry.className}
-              </span>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-slate-500">Date</span>
-              <span className="font-medium text-slate-900">
-                {submittedEntry.date}
-              </span>
+
+            <div className="p-5 space-y-0 divide-y divide-slate-100">
+              {/* Module & Topic */}
+              <div className="pb-3">
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <Layers className="w-4 h-4 text-blue-600" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400">Module</p>
+                    <p className="text-sm font-medium text-slate-800">{submittedEntry.module}</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3 mt-2.5">
+                  <div className="w-8 h-8 bg-purple-50 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <BookOpen className="w-4 h-4 text-purple-600" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400">Topic Covered</p>
+                    <p className="text-sm font-medium text-slate-800">{submittedEntry.topic}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Period, Time & Duration */}
+              <div className="py-3">
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="text-center bg-slate-50 rounded-xl py-2.5 px-2">
+                    <Calendar className="w-4 h-4 text-slate-400 mx-auto mb-1" />
+                    <p className="text-[10px] text-slate-400 font-medium">Period</p>
+                    <p className="text-xs font-bold text-slate-800">{submittedEntry.period}</p>
+                  </div>
+                  <div className="text-center bg-slate-50 rounded-xl py-2.5 px-2">
+                    <Clock className="w-4 h-4 text-slate-400 mx-auto mb-1" />
+                    <p className="text-[10px] text-slate-400 font-medium">Time</p>
+                    <p className="text-xs font-bold text-slate-800">{submittedEntry.time}</p>
+                  </div>
+                  <div className="text-center bg-slate-50 rounded-xl py-2.5 px-2">
+                    <Clock className="w-4 h-4 text-slate-400 mx-auto mb-1" />
+                    <p className="text-[10px] text-slate-400 font-medium">Duration</p>
+                    <p className="text-xs font-bold text-slate-800">{submittedEntry.duration}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Notes & Objectives */}
+              {(submittedEntry.notes || submittedEntry.objectives) && (
+                <div className="pt-3 space-y-3">
+                  {submittedEntry.objectives && (
+                    <div className="flex items-start gap-3">
+                      <div className="w-8 h-8 bg-amber-50 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <GraduationCap className="w-4 h-4 text-amber-600" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400">Objectives</p>
+                        <p className="text-sm text-slate-600 mt-0.5">{submittedEntry.objectives}</p>
+                      </div>
+                    </div>
+                  )}
+                  {submittedEntry.notes && (
+                    <div className="flex items-start gap-3">
+                      <div className="w-8 h-8 bg-emerald-50 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <FileText className="w-4 h-4 text-emerald-600" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400">Notes</p>
+                        <p className="text-sm text-slate-600 mt-0.5">{submittedEntry.notes}</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
 
-          <div className="mt-6 space-y-3">
+          <div className="mt-6 space-y-3 pb-8">
             <button onClick={resetForm} className="btn-primary text-center">
               New Entry
             </button>
-            <Link
-              href="/history"
-              className="btn-secondary block text-center"
-            >
+            <Link href="/history" className="btn-secondary block text-center">
               View History
             </Link>
           </div>
@@ -409,6 +494,7 @@ export default function NewEntryPage() {
     );
   }
 
+  // ───── Entry Form ─────
   return (
     <div className="min-h-screen bg-slate-50 pb-24">
       {/* Header */}
@@ -428,12 +514,8 @@ export default function NewEntryPage() {
               </span>
             </div>
           </div>
-          <h1 className="text-xl font-bold text-white">
-            New Logbook Entry
-          </h1>
-          <p className="text-brand-400 text-sm mt-0.5">
-            Fill in under 60 seconds
-          </p>
+          <h1 className="text-xl font-bold text-white">New Logbook Entry</h1>
+          <p className="text-brand-400 text-sm mt-0.5">Fill in under 60 seconds</p>
         </div>
       </div>
 
@@ -442,10 +524,7 @@ export default function NewEntryPage() {
         {error && (
           <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-4 py-3 mb-4">
             {error}
-            <button
-              onClick={() => setError("")}
-              className="ml-2 font-semibold underline"
-            >
+            <button onClick={() => setError("")} className="ml-2 font-semibold underline">
               Dismiss
             </button>
           </div>
@@ -468,11 +547,8 @@ export default function NewEntryPage() {
               Your school administrator needs to assign you to classes and
               subjects before you can create logbook entries.
             </p>
-            <Link
-              href="/assignments"
-              className="text-sm text-brand-600 font-medium mt-3 inline-block"
-            >
-              View My Assignments
+            <Link href="/timetable" className="text-sm text-brand-600 font-medium mt-3 inline-block">
+              View My Timetable
             </Link>
           </div>
         ) : (
@@ -490,12 +566,12 @@ export default function NewEntryPage() {
               />
             </div>
 
-            {/* Timetable Quick-Fill */}
+            {/* Timetable Slot Picker */}
             {!loadingSlots && timetableSlots.length > 0 && (
               <div>
                 <label className="label-field flex items-center gap-1.5">
-                  <Zap className="w-3.5 h-3.5 text-amber-500" />
-                  Quick Fill from Timetable
+                  <Calendar className="w-3.5 h-3.5 text-brand-500" />
+                  Select Period from Timetable
                 </label>
                 <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
                   {timetableSlots.map((slot) => (
@@ -503,24 +579,20 @@ export default function NewEntryPage() {
                       key={slot.id}
                       type="button"
                       onClick={() => handleSlotSelect(slot)}
-                      className={`flex-shrink-0 rounded-xl border-2 px-3 py-2 text-left transition-all ${
+                      className={`flex-shrink-0 rounded-xl border-2 px-3 py-2.5 text-left transition-all ${
                         selectedSlotId === slot.id
-                          ? "border-brand-500 bg-brand-50"
+                          ? "border-brand-500 bg-brand-50 shadow-sm"
                           : "border-slate-200 bg-white hover:border-slate-300"
                       }`}
                     >
-                      <p className="text-xs font-semibold text-slate-900">
-                        {slot.periodLabel}
-                      </p>
-                      <p className="text-[10px] text-slate-500 mt-0.5">
+                      <p className="text-xs font-bold text-slate-900">{slot.periodLabel}</p>
+                      <p className="text-[10px] text-slate-500 mt-0.5 font-medium">
                         {slot.startTime} - {slot.endTime}
                       </p>
-                      <p className="text-[11px] font-medium text-brand-700 mt-1">
+                      <p className="text-[11px] font-semibold text-brand-700 mt-1.5">
                         {slot.assignment.subjectName}
                       </p>
-                      <p className="text-[10px] text-slate-400">
-                        {slot.assignment.className}
-                      </p>
+                      <p className="text-[10px] text-slate-400">{slot.assignment.className}</p>
                     </button>
                   ))}
                 </div>
@@ -529,34 +601,63 @@ export default function NewEntryPage() {
             {loadingSlots && (
               <div className="flex gap-2">
                 {[1, 2].map((i) => (
-                  <div
-                    key={i}
-                    className="flex-shrink-0 w-28 h-20 rounded-xl bg-slate-100 animate-pulse"
-                  />
+                  <div key={i} className="flex-shrink-0 w-28 h-20 rounded-xl bg-slate-100 animate-pulse" />
                 ))}
               </div>
             )}
 
-            {/* Class — only shows classes the teacher is assigned to */}
-            <div>
-              <label className="label-field">Class</label>
-              <select
-                value={classId}
-                onChange={(e) => handleClassChange(e.target.value)}
-                className="input-field"
-                required
-              >
-                <option value="">Select your class</option>
-                {assignedClasses.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
-                ))}
-              </select>
-            </div>
+            {/* Auto-filled Period & Duration info */}
+            {selectedSlotId && (
+              <div className="bg-brand-50 border border-brand-200 rounded-xl px-4 py-3 flex items-center gap-3">
+                <Clock className="w-4 h-4 text-brand-600 flex-shrink-0" />
+                <div className="text-sm text-brand-800">
+                  <span className="font-semibold">Period {period}</span>
+                  <span className="text-brand-500 mx-1.5">&middot;</span>
+                  <span>{duration} min</span>
+                  <span className="text-brand-500 mx-1.5">&middot;</span>
+                  <span className="text-brand-600">Auto-filled from timetable</span>
+                </div>
+              </div>
+            )}
 
-            {/* Subject — auto-fills if only one assignment, otherwise dropdown of assigned subjects */}
-            {classId && (
+            {/* Class — manual selection only when no slot selected */}
+            {!selectedSlotId && (
+              <div>
+                <label className="label-field">Class</label>
+                <select
+                  value={classId}
+                  onChange={(e) => handleClassChange(e.target.value)}
+                  className="input-field"
+                  required
+                >
+                  <option value="">Select your class</option>
+                  {assignedClasses.map((c) => (
+                    <option key={c.id} value={c.id}>{c.name}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            {/* Auto-filled class & subject display */}
+            {selectedSlotId && (
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="label-field">Class</label>
+                  <div className="input-field bg-slate-50 text-slate-700 flex items-center text-sm">
+                    {assignedClasses.find((c) => c.id === classId)?.name || "—"}
+                  </div>
+                </div>
+                <div>
+                  <label className="label-field">Subject</label>
+                  <div className="input-field bg-slate-50 text-slate-700 flex items-center text-sm">
+                    {subjectsForClass.find((s) => s.id === subjectId)?.name || "—"}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Subject — only when not auto-filled */}
+            {classId && !selectedSlotId && (
               <div>
                 <label className="label-field">Subject</label>
                 {subjectsForClass.length === 1 ? (
@@ -572,79 +673,89 @@ export default function NewEntryPage() {
                   >
                     <option value="">Select subject</option>
                     {subjectsForClass.map((s) => (
-                      <option key={s.id} value={s.id}>
-                        {s.name}
-                      </option>
+                      <option key={s.id} value={s.id}>{s.name}</option>
                     ))}
                   </select>
                 )}
               </div>
             )}
 
-            {/* Topic — filtered by subject and class level */}
+            {/* Module Picker */}
             {subjectId && (
               <div>
-                <label className="label-field">Topic</label>
-                {topics.length > 0 ? (
+                <label className="label-field flex items-center gap-1.5">
+                  <Layers className="w-3.5 h-3.5 text-indigo-500" />
+                  Module
+                </label>
+                {modules.length > 0 ? (
                   <select
-                    value={topicId}
-                    onChange={(e) => setTopicId(e.target.value)}
+                    value={moduleName}
+                    onChange={(e) => setModuleName(e.target.value)}
                     className="input-field"
-                    required
                   >
-                    <option value="">Select topic covered</option>
-                    {topics.map((t) => (
-                      <option key={t.id} value={t.id}>
-                        {t.moduleName
-                          ? `${t.moduleName}: ${t.name}`
-                          : t.name}
-                      </option>
+                    <option value="">Select module (optional)</option>
+                    {modules.map((m) => (
+                      <option key={m} value={m}>{m}</option>
                     ))}
                   </select>
                 ) : (
-                  <div className="bg-amber-50 border border-amber-200 rounded-xl px-3 py-2.5 text-xs text-amber-700">
-                    No topics available for this subject yet. Your admin can add
-                    topics in the curriculum settings.
+                  <div className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs text-slate-500">
+                    No modules defined for this subject yet. You can still type your topic below.
                   </div>
                 )}
               </div>
             )}
 
-            {/* Period & Duration */}
-            <div className="grid grid-cols-2 gap-3">
+            {/* Topic (free text) */}
+            {subjectId && (
               <div>
-                <label className="label-field">
-                  Period{selectedSlotId ? " (auto)" : ""}
+                <label className="label-field flex items-center gap-1.5">
+                  <PenTool className="w-3.5 h-3.5 text-emerald-500" />
+                  Topic Covered
                 </label>
-                <select
-                  value={period}
-                  onChange={(e) => setPeriod(e.target.value)}
+                <input
+                  type="text"
+                  value={topicText}
+                  onChange={(e) => setTopicText(e.target.value.slice(0, 300))}
                   className="input-field"
-                  disabled={!!selectedSlotId}
-                >
-                  <option value="">--</option>
-                  {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((p) => (
-                    <option key={p} value={p}>
-                      Period {p}
-                    </option>
-                  ))}
-                </select>
+                  placeholder="Type the topic you taught..."
+                  required
+                  maxLength={300}
+                />
+                <p className="text-xs text-slate-400 mt-1 text-right">{topicText.length}/300</p>
               </div>
-              <div>
-                <label className="label-field">Duration (min)</label>
-                <select
-                  value={duration}
-                  onChange={(e) => setDuration(e.target.value)}
-                  className="input-field"
-                >
-                  {[30, 45, 60, 90, 120].map((d) => (
-                    <option key={d} value={d}>
-                      {d} min
-                    </option>
-                  ))}
-                </select>
+            )}
+
+            {/* Period & Duration — only if NOT auto-filled */}
+            {!selectedSlotId && (
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="label-field">Period</label>
+                  <select
+                    value={period}
+                    onChange={(e) => setPeriod(e.target.value)}
+                    className="input-field"
+                  >
+                    <option value="">--</option>
+                    {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((p) => (
+                      <option key={p} value={p}>Period {p}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="label-field">Duration (min)</label>
+                  <select
+                    value={duration}
+                    onChange={(e) => setDuration(e.target.value)}
+                    className="input-field"
+                  >
+                    {[30, 45, 60, 90, 120].map((d) => (
+                      <option key={d} value={d}>{d} min</option>
+                    ))}
+                  </select>
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Notes */}
             <div>
@@ -657,9 +768,7 @@ export default function NewEntryPage() {
                 placeholder="Brief notes about the lesson..."
                 maxLength={500}
               />
-              <p className="text-xs text-slate-400 mt-1 text-right">
-                {notes.length}/500
-              </p>
+              <p className="text-xs text-slate-400 mt-1 text-right">{notes.length}/500</p>
             </div>
 
             {/* Objectives */}
@@ -667,24 +776,18 @@ export default function NewEntryPage() {
               <label className="label-field">Objectives (Optional)</label>
               <textarea
                 value={objectives}
-                onChange={(e) =>
-                  setObjectives(e.target.value.slice(0, 500))
-                }
+                onChange={(e) => setObjectives(e.target.value.slice(0, 500))}
                 className="input-field resize-none"
                 rows={2}
                 placeholder="Learning objectives covered..."
                 maxLength={500}
               />
-              <p className="text-xs text-slate-400 mt-1 text-right">
-                {objectives.length}/500
-              </p>
+              <p className="text-xs text-slate-400 mt-1 text-right">{objectives.length}/500</p>
             </div>
 
             {/* Signature */}
             <div>
-              <label className="label-field">
-                Digital Signature (Optional)
-              </label>
+              <label className="label-field">Digital Signature (Optional)</label>
               <SignaturePad
                 onSign={(data: string) => setSignatureData(data)}
                 onClear={() => setSignatureData(null)}
@@ -699,24 +802,9 @@ export default function NewEntryPage() {
             >
               {submitting ? (
                 <>
-                  <svg
-                    className="animate-spin h-5 w-5"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    />
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                    />
+                  <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24" fill="none">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                   </svg>
                   Submitting...
                 </>

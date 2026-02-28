@@ -45,6 +45,8 @@ export interface EntryWithRelations {
   date: string;
   period: number | null;
   duration: number;
+  moduleName: string | null;
+  topicText: string | null;
   notes: string | null;
   objectives: string | null;
   signatureData: string | null;
@@ -106,12 +108,14 @@ export interface TeacherWithStats {
   lastName: string;
   email: string;
   phone: string | null;
+  gender: string | null;
   isVerified: boolean;
   createdAt: string;
   entryCount: number;
   lastEntry: string | null;
   subjects: string[];
   classes: string[];
+  subjectClasses: { subject: string; classes: string[] }[];
 }
 
 export interface NotificationData {

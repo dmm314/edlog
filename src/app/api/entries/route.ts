@@ -47,6 +47,8 @@ export async function GET(request: NextRequest) {
       where.OR = [
         { notes: { contains: search, mode: "insensitive" } },
         { objectives: { contains: search, mode: "insensitive" } },
+        { topicText: { contains: search, mode: "insensitive" } },
+        { moduleName: { contains: search, mode: "insensitive" } },
         { topics: { some: { name: { contains: search, mode: "insensitive" } } } },
         { topics: { some: { subject: { name: { contains: search, mode: "insensitive" } } } } },
       ];
@@ -122,6 +124,8 @@ export async function POST(request: Request) {
     const objectives = data.objectives
       ? sanitizeHtml(data.objectives)
       : null;
+    const topicText = data.topicText ? sanitizeHtml(data.topicText) : null;
+    const moduleName = data.moduleName ? sanitizeHtml(data.moduleName) : null;
 
     // Build topic connections (support single topicId or array of topicIds)
     const topicIds = data.topicIds?.length
@@ -130,9 +134,10 @@ export async function POST(request: Request) {
         ? [data.topicId]
         : [];
 
-    if (topicIds.length === 0) {
+    // topicText (free-text) OR topicId is required
+    if (topicIds.length === 0 && !topicText) {
       return NextResponse.json(
-        { error: "At least one topic is required" },
+        { error: "A topic is required" },
         { status: 400 }
       );
     }
@@ -141,7 +146,11 @@ export async function POST(request: Request) {
       data: {
         date: new Date(data.date),
         classId: data.classId,
-        topics: { connect: topicIds.map((id: string) => ({ id })) },
+        ...(topicIds.length > 0
+          ? { topics: { connect: topicIds.map((id: string) => ({ id })) } }
+          : {}),
+        moduleName,
+        topicText,
         assignmentId: data.assignmentId ?? null,
         timetableSlotId: data.timetableSlotId ?? null,
         period: data.period ?? null,
@@ -162,6 +171,7 @@ export async function POST(request: Request) {
         assignment: {
           include: { subject: true },
         },
+        timetableSlot: true,
       },
     });
 

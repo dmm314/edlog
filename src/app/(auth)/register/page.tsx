@@ -16,6 +16,8 @@ export default function RegisterPage() {
     password: "",
     confirmPassword: "",
     schoolCode: "",
+    dateOfBirth: "",
+    gender: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [serverError, setServerError] = useState("");
@@ -111,9 +113,7 @@ export default function RegisterPage() {
                   placeholder="Darren"
                 />
                 {errors.firstName && (
-                  <p className="text-red-500 text-xs mt-1">
-                    {errors.firstName}
-                  </p>
+                  <p className="text-red-500 text-xs mt-1">{errors.firstName}</p>
                 )}
               </div>
               <div>
@@ -126,9 +126,7 @@ export default function RegisterPage() {
                   placeholder="Monyongo"
                 />
                 {errors.lastName && (
-                  <p className="text-red-500 text-xs mt-1">
-                    {errors.lastName}
-                  </p>
+                  <p className="text-red-500 text-xs mt-1">{errors.lastName}</p>
                 )}
               </div>
             </div>
@@ -159,6 +157,32 @@ export default function RegisterPage() {
               />
             </div>
 
+            {/* Date of Birth */}
+            <div>
+              <label className="label-field">Date of Birth</label>
+              <input
+                type="date"
+                value={form.dateOfBirth}
+                onChange={(e) => updateField("dateOfBirth", e.target.value)}
+                className="input-field"
+                max={new Date().toISOString().split("T")[0]}
+              />
+            </div>
+
+            {/* Gender */}
+            <div>
+              <label className="label-field">Gender</label>
+              <select
+                value={form.gender}
+                onChange={(e) => updateField("gender", e.target.value)}
+                className="input-field"
+              >
+                <option value="">Select gender</option>
+                <option value="MALE">Male</option>
+                <option value="FEMALE">Female</option>
+              </select>
+            </div>
+
             <div>
               <label className="label-field">Password</label>
               <div className="relative">
@@ -175,11 +199,7 @@ export default function RegisterPage() {
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
                 >
-                  {showPassword ? (
-                    <EyeOff className="w-5 h-5" />
-                  ) : (
-                    <Eye className="w-5 h-5" />
-                  )}
+                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
               {errors.password && (
@@ -192,17 +212,13 @@ export default function RegisterPage() {
               <input
                 type="password"
                 value={form.confirmPassword}
-                onChange={(e) =>
-                  updateField("confirmPassword", e.target.value)
-                }
+                onChange={(e) => updateField("confirmPassword", e.target.value)}
                 className={`input-field ${errors.confirmPassword ? "border-red-300 focus:ring-red-500" : ""}`}
                 placeholder="Repeat your password"
                 autoComplete="new-password"
               />
               {errors.confirmPassword && (
-                <p className="text-red-500 text-xs mt-1">
-                  {errors.confirmPassword}
-                </p>
+                <p className="text-red-500 text-xs mt-1">{errors.confirmPassword}</p>
               )}
             </div>
 
@@ -211,16 +227,12 @@ export default function RegisterPage() {
               <input
                 type="text"
                 value={form.schoolCode}
-                onChange={(e) =>
-                  updateField("schoolCode", e.target.value.toUpperCase())
-                }
+                onChange={(e) => updateField("schoolCode", e.target.value.toUpperCase())}
                 className={`input-field font-mono ${errors.schoolCode ? "border-red-300 focus:ring-red-500" : ""}`}
                 placeholder="e.g. LBY-001"
               />
               {errors.schoolCode && (
-                <p className="text-red-500 text-xs mt-1">
-                  {errors.schoolCode}
-                </p>
+                <p className="text-red-500 text-xs mt-1">{errors.schoolCode}</p>
               )}
               <p className="text-xs text-slate-400 mt-1">
                 Ask your school administrator for this code
@@ -234,24 +246,9 @@ export default function RegisterPage() {
             >
               {loading ? (
                 <>
-                  <svg
-                    className="animate-spin h-5 w-5"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    />
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                    />
+                  <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24" fill="none">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                   </svg>
                   Creating account...
                 </>
@@ -263,10 +260,7 @@ export default function RegisterPage() {
 
           <p className="text-center text-sm text-slate-500 mt-6">
             Already have an account?{" "}
-            <Link
-              href="/login"
-              className="text-brand-700 font-semibold hover:underline"
-            >
+            <Link href="/login" className="text-brand-700 font-semibold hover:underline">
               Sign in
             </Link>
           </p>

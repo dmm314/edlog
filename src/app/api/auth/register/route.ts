@@ -16,7 +16,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const { firstName, lastName, email, phone, password, schoolCode } =
+    const { firstName, lastName, email, phone, password, schoolCode, dateOfBirth, gender } =
       parsed.data;
 
     // Check if email already exists
@@ -49,6 +49,8 @@ export async function POST(request: Request) {
         role: "TEACHER",
         isVerified: false,
         schoolId: school.id,
+        dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : null,
+        gender: gender || null,
       },
     });
 

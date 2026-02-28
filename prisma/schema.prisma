@@ -32,6 +32,11 @@ enum EngagementLevel {
   HIGH
 }
 
+enum Gender {
+  MALE
+  FEMALE
+}
+
 enum NotificationType {
   LOG_REMINDER
   WEEKLY_SUMMARY
@@ -45,16 +50,19 @@ enum NotificationType {
 // ── USERS & AUTH ─────────────────────────────────────────
 
 model User {
-  id           String   @id @default(cuid())
-  email        String   @unique
+  id           String    @id @default(cuid())
+  email        String    @unique
   passwordHash String
   firstName    String
   lastName     String
   phone        String?
-  role         Role     @default(TEACHER)
-  isVerified   Boolean  @default(false)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  role         Role      @default(TEACHER)
+  isVerified   Boolean   @default(false)
+  dateOfBirth  DateTime?
+  gender       Gender?
+  photoUrl     String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 
   // School relationship (for TEACHER and SCHOOL_ADMIN)
   school        School?        @relation("SchoolTeachers", fields: [schoolId], references: [id])
@@ -299,6 +307,8 @@ model LogbookEntry {
   date              DateTime
   period            Int?
   duration          Int              @default(60)
+  moduleName        String?          // Selected module name
+  topicText         String?          // Free-text topic typed by teacher
   notes             String?          @db.Text
   objectives        String?          @db.Text
   signatureData     String?          @db.Text
@@ -318,7 +328,7 @@ model LogbookEntry {
   timetableSlotId String?
   timetableSlot   TimetableSlot?    @relation(fields: [timetableSlotId], references: [id])
 
-  // Many-to-many topics
+  // Many-to-many topics (kept for backward compat)
   topics Topic[] @relation("EntryTopics")
 
   @@index([teacherId, date])

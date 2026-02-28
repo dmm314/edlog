@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getSessionUser } from "@/lib/auth";
 
+const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+
 export async function GET() {
   try {
     const user = await getSessionUser();
@@ -153,6 +155,71 @@ export async function POST(request: Request) {
       return NextResponse.json(
         { error: "Assignment not found" },
         { status: 404 }
+      );
+    }
+
+    // Double-booking prevention: check if this teacher already has a slot at this day/time
+    const teacherConflict = await db.timetableSlot.findFirst({
+      where: {
+        dayOfWeek: parseInt(dayOfWeek),
+        assignment: { teacherId: assignment.teacherId },
+        OR: [
+          // Overlapping time check: new slot starts during existing slot
+          { AND: [{ startTime: { lte: startTime } }, { endTime: { gt: startTime } }] },
+          // New slot ends during existing slot
+          { AND: [{ startTime: { lt: endTime } }, { endTime: { gte: endTime } }] },
+          // New slot fully contains existing slot
+          { AND: [{ startTime: { gte: startTime } }, { endTime: { lte: endTime } }] },
+        ],
+      },
+      include: {
+        assignment: {
+          include: {
+            class: { select: { name: true } },
+            subject: { select: { name: true } },
+          },
+        },
+      },
+    });
+
+    if (teacherConflict) {
+      const conflictTeacher = teacherConflict.assignment;
+      return NextResponse.json(
+        {
+          error: `Double-booking conflict: This teacher is already assigned to ${conflictTeacher.subject.name} (${conflictTeacher.class.name}) on ${DAYS[parseInt(dayOfWeek) - 1] || `Day ${dayOfWeek}`} at ${teacherConflict.startTime}-${teacherConflict.endTime}. A teacher cannot teach two classes at the same time.`,
+        },
+        { status: 409 }
+      );
+    }
+
+    // Also check if the same class already has a slot at this time
+    const classConflict = await db.timetableSlot.findFirst({
+      where: {
+        dayOfWeek: parseInt(dayOfWeek),
+        assignment: { classId: assignment.classId },
+        OR: [
+          { AND: [{ startTime: { lte: startTime } }, { endTime: { gt: startTime } }] },
+          { AND: [{ startTime: { lt: endTime } }, { endTime: { gte: endTime } }] },
+          { AND: [{ startTime: { gte: startTime } }, { endTime: { lte: endTime } }] },
+        ],
+      },
+      include: {
+        assignment: {
+          include: {
+            subject: { select: { name: true } },
+            teacher: { select: { firstName: true, lastName: true } },
+          },
+        },
+      },
+    });
+
+    if (classConflict) {
+      const cc = classConflict.assignment;
+      return NextResponse.json(
+        {
+          error: `Class conflict: ${assignment.class.name} already has ${cc.subject.name} with ${cc.teacher.firstName} ${cc.teacher.lastName} at ${classConflict.startTime}-${classConflict.endTime} on this day.`,
+        },
+        { status: 409 }
       );
     }
 

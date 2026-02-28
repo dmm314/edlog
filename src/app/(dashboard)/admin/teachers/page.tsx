@@ -326,25 +326,26 @@ export default function ManageTeachersPage() {
                 </div>
 
                 <Link href={`/admin/teachers/${teacher.id}`}>
-                  {/* Subjects & Classes tags */}
-                  {((teacher.subjects && teacher.subjects.length > 0) ||
-                    (teacher.classes && teacher.classes.length > 0)) && (
-                    <div className="flex flex-wrap gap-1 mt-2">
-                      {teacher.subjects?.map((s) => (
-                        <span
-                          key={s}
-                          className="text-[10px] font-medium bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded"
-                        >
-                          {s}
-                        </span>
-                      ))}
-                      {teacher.classes?.map((c) => (
-                        <span
-                          key={c}
-                          className="text-[10px] font-medium bg-purple-50 text-purple-600 px-1.5 py-0.5 rounded"
-                        >
-                          {c}
-                        </span>
+                  {/* Subject → Classes mapping */}
+                  {teacher.subjectClasses && teacher.subjectClasses.length > 0 && (
+                    <div className="mt-2.5 space-y-1.5">
+                      {teacher.subjectClasses.map((sc: { subject: string; classes: string[] }) => (
+                        <div key={sc.subject} className="flex items-start gap-1.5">
+                          <span className="text-[10px] font-bold bg-blue-50 text-blue-700 px-1.5 py-0.5 rounded flex-shrink-0">
+                            {sc.subject}
+                          </span>
+                          <span className="text-slate-300 text-[10px] mt-0.5">&rarr;</span>
+                          <div className="flex flex-wrap gap-1">
+                            {sc.classes.map((c: string) => (
+                              <span
+                                key={c}
+                                className="text-[10px] font-medium bg-purple-50 text-purple-600 px-1.5 py-0.5 rounded"
+                              >
+                                {c}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
                       ))}
                     </div>
                   )}
