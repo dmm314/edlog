@@ -1,7 +1,30 @@
 import { NextResponse } from "next/server";
 import { hash } from "bcryptjs";
+import { randomBytes } from "crypto";
 import { db } from "@/lib/db";
 import { schoolRegisterSchema } from "@/lib/validations";
+
+// Generate a cryptographically random school code
+// Format: EDL-XXXX-XXXX (8 random chars from unambiguous set)
+function generateSchoolCode(): string {
+  const chars = "ABCDEFGHJKMNPQRSTUVWXYZ23456789"; // no 0/O, 1/I/L
+  const bytes = randomBytes(8);
+  let code = "";
+  for (let i = 0; i < 8; i++) {
+    code += chars[bytes[i] % chars.length];
+  }
+  return `EDL-${code.slice(0, 4)}-${code.slice(4)}`;
+}
+
+// Try generating a unique code, retrying on collision
+async function generateUniqueSchoolCode(): Promise<string> {
+  for (let attempt = 0; attempt < 10; attempt++) {
+    const code = generateSchoolCode();
+    const existing = await db.school.findUnique({ where: { code } });
+    if (!existing) return code;
+  }
+  throw new Error("Failed to generate unique school code");
+}
 
 export async function POST(request: Request) {
   try {
@@ -18,7 +41,7 @@ export async function POST(request: Request) {
 
     const {
       schoolName,
-      schoolCode,
+      registrationCode,
       regionId,
       divisionId,
       adminFirstName,
@@ -27,14 +50,29 @@ export async function POST(request: Request) {
       adminPassword,
     } = parsed.data;
 
-    // Check if school code already exists
-    const existingSchool = await db.school.findUnique({
-      where: { code: schoolCode },
+    // Validate the registration code
+    const regCode = await db.registrationCode.findUnique({
+      where: { code: registrationCode },
     });
-    if (existingSchool) {
+
+    if (!regCode) {
       return NextResponse.json(
-        { error: "A school with this code already exists. Please choose a different school code." },
-        { status: 409 }
+        { error: "Invalid registration code. Please get a valid code from your Regional Education Admin." },
+        { status: 400 }
+      );
+    }
+
+    if (regCode.usedAt) {
+      return NextResponse.json(
+        { error: "This registration code has already been used." },
+        { status: 400 }
+      );
+    }
+
+    if (new Date() > regCode.expiresAt) {
+      return NextResponse.json(
+        { error: "This registration code has expired. Please request a new one from your Regional Admin." },
+        { status: 400 }
       );
     }
 
@@ -49,6 +87,9 @@ export async function POST(request: Request) {
       );
     }
 
+    // Use the region from the registration code to ensure consistency
+    const codeRegionId = regCode.regionId;
+
     // Verify region exists
     const region = await db.region.findUnique({
       where: { id: regionId },
@@ -56,6 +97,14 @@ export async function POST(request: Request) {
     if (!region) {
       return NextResponse.json(
         { error: "The selected region is invalid." },
+        { status: 400 }
+      );
+    }
+
+    // Verify the selected region matches the code's region
+    if (regionId !== codeRegionId) {
+      return NextResponse.json(
+        { error: "The selected region does not match the registration code's region. Please select the correct region." },
         { status: 400 }
       );
     }
@@ -73,6 +122,9 @@ export async function POST(request: Request) {
       }
     }
 
+    // Generate a unique, cryptographically random school code
+    const schoolCode = await generateUniqueSchoolCode();
+
     // Hash password
     const passwordHash = await hash(adminPassword, 12);
 
@@ -84,7 +136,7 @@ export async function POST(request: Request) {
           name: schoolName,
           code: schoolCode,
           regionId,
-          divisionId: divisionId || regionId, // fallback if division not provided
+          divisionId: divisionId || regionId,
           status: "PENDING",
         },
       });
@@ -106,6 +158,16 @@ export async function POST(request: Request) {
       await tx.school.update({
         where: { id: school.id },
         data: { adminId: user.id },
+      });
+
+      // Mark the registration code as used
+      await tx.registrationCode.update({
+        where: { id: regCode.id },
+        data: {
+          usedAt: new Date(),
+          usedById: user.id,
+          schoolId: school.id,
+        },
       });
 
       return { school, user };

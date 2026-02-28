@@ -148,6 +148,7 @@ model School {
   schoolType     String?      // Government, Private Lay, Private Confessional - Catholic/Protestant/Islamic, Community
   principalName  String?
   principalPhone String?
+  foundingDate   DateTime?
   status         SchoolStatus @default(ACTIVE)
   profileComplete Boolean     @default(false)
   createdAt      DateTime     @default(now())

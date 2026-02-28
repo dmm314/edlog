@@ -4,6 +4,8 @@ import { getSessionUser } from "@/lib/auth";
 import { updateEntrySchema } from "@/lib/validations";
 import { sanitizeHtml } from "@/lib/utils";
 
+const ONE_HOUR_MS = 60 * 60 * 1000;
+
 export async function GET(
   _request: Request,
   { params }: { params: { id: string } }
@@ -25,6 +27,8 @@ export async function GET(
             firstName: true,
             lastName: true,
             email: true,
+            schoolId: true,
+            school: { select: { name: true, regionId: true } },
           },
         },
         assignment: { include: { subject: true } },
@@ -40,16 +44,21 @@ export async function GET(
     if (user.role === "TEACHER" && entry.teacherId !== user.id) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
-    if (user.role === "SCHOOL_ADMIN") {
-      const teacher = await db.user.findUnique({
-        where: { id: entry.teacherId },
-      });
-      if (teacher?.schoolId !== user.schoolId) {
-        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-      }
+    if (user.role === "SCHOOL_ADMIN" && entry.teacher.schoolId !== user.schoolId) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+    if (user.role === "REGIONAL_ADMIN" && entry.teacher.school?.regionId !== user.regionId) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    return NextResponse.json(entry);
+    // Check if editable (within 1 hour of creation, only by the teacher)
+    const createdMs = new Date(entry.createdAt).getTime();
+    const isEditable =
+      user.role === "TEACHER" &&
+      entry.teacherId === user.id &&
+      Date.now() - createdMs < ONE_HOUR_MS;
+
+    return NextResponse.json({ ...entry, isEditable });
   } catch (error) {
     console.error("GET /api/entries/[id] error:", error);
     return NextResponse.json(
@@ -87,17 +96,21 @@ export async function PATCH(
 
     const data = parsed.data;
 
-    // Teachers can only edit their own DRAFT or SUBMITTED entries
+    // Teachers can only edit their own entries within the 1-hour window
     if (user.role === "TEACHER") {
       if (entry.teacherId !== user.id) {
         return NextResponse.json({ error: "Forbidden" }, { status: 403 });
       }
-      if (entry.status !== "DRAFT" && entry.status !== "SUBMITTED") {
+
+      // Check 1-hour window
+      const createdMs = new Date(entry.createdAt).getTime();
+      if (Date.now() - createdMs >= ONE_HOUR_MS) {
         return NextResponse.json(
-          { error: "Cannot edit a verified or flagged entry" },
-          { status: 400 }
+          { error: "Entries can only be edited within 1 hour of submission." },
+          { status: 403 }
         );
       }
+
       // Teachers cannot change status
       delete data.status;
     }

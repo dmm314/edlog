@@ -121,6 +121,7 @@ export default function TimetableManagementPage() {
     setError("");
     try {
       const newSlots: TimetableSlot[] = [];
+      let hadError = false;
       for (const periodNum of form.selectedPeriods) {
         const period = periods.find((p) => p.periodNum === periodNum);
         if (!period) continue;
@@ -143,6 +144,7 @@ export default function TimetableManagementPage() {
           newSlots.push(data);
         } else {
           setError(data.error || `Failed to add slot for ${period.label}`);
+          hadError = true;
         }
       }
       if (newSlots.length > 0) {
@@ -152,7 +154,7 @@ export default function TimetableManagementPage() {
           dayOfWeek: form.dayOfWeek,
           selectedPeriods: [],
         });
-        setShowForm(false);
+        if (!hadError) setShowForm(false);
       }
     } catch {
       setError("Failed to connect to server");
@@ -243,8 +245,9 @@ export default function TimetableManagementPage() {
 
         <div className="px-5 mt-4 max-w-lg mx-auto space-y-4">
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-4 py-3">
-              {error}
+            <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-4 py-3 flex items-start gap-2">
+              <span className="flex-1">{error}</span>
+              <button onClick={() => setError("")} className="text-red-500 font-bold text-xs mt-0.5 flex-shrink-0 hover:underline">Dismiss</button>
             </div>
           )}
           {loading ? (

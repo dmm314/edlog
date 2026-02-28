@@ -61,11 +61,9 @@ export function getStartOfMonth(date: Date = new Date()): Date {
 
 export function sanitizeHtml(input: string): string {
   return input
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#x27;");
+    .replace(/</g, "")
+    .replace(/>/g, "")
+    .replace(/<script[\s\S]*?<\/script>/gi, "");
 }
 
 export function truncate(str: string, length: number): string {

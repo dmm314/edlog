@@ -124,10 +124,10 @@ export async function PATCH(request: Request) {
       );
     }
 
-    // When approving a PENDING school, also verify the school admin
-    if (school.status === "PENDING" && status === "ACTIVE" && school.adminId) {
-      await db.user.update({
-        where: { id: school.adminId },
+    // When approving a PENDING school, verify the school admin and all existing teachers
+    if (school.status === "PENDING" && status === "ACTIVE") {
+      await db.user.updateMany({
+        where: { schoolId: schoolId, isVerified: false },
         data: { isVerified: true },
       });
     }

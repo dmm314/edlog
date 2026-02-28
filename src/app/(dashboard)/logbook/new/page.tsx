@@ -78,6 +78,8 @@ function getDayOfWeek(dateStr: string): number {
   return jsDay === 0 ? 7 : jsDay;
 }
 
+const DAY_NAMES = ["", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+
 export default function NewEntryPage() {
   const router = useRouter();
 
@@ -181,7 +183,11 @@ export default function NewEntryPage() {
       }
     }
     fetchSlots();
+    // Reset slot selection when date changes
     setSelectedSlotId(null);
+    setTimetableSlotId(null);
+    setPeriod("");
+    setDuration("60");
   }, [date]);
 
   // Derive unique classes from assignments
@@ -203,6 +209,15 @@ export default function NewEntryPage() {
       .map((a) => ({ id: a.subject.id, name: a.subject.name, code: a.subject.code, assignmentId: a.id }));
   }, [assignments, classId]);
 
+  // Timetable slots filtered by selected class + date's day of week
+  const slotsForClassAndDay = useMemo(() => {
+    if (!classId || !date) return [];
+    const dayOfWeek = getDayOfWeek(date);
+    return timetableSlots.filter(
+      (slot) => slot.assignment.classId === classId && slot.dayOfWeek === dayOfWeek
+    );
+  }, [timetableSlots, classId, date]);
+
   // Auto-select subject if only one for the class
   useEffect(() => {
     if (subjectsForClass.length === 1) {
@@ -210,6 +225,14 @@ export default function NewEntryPage() {
       setAssignmentId(subjectsForClass[0].assignmentId);
     }
   }, [subjectsForClass]);
+
+  // Auto-select slot if there's only one for the class+day
+  useEffect(() => {
+    if (slotsForClassAndDay.length === 1 && !selectedSlotId) {
+      handleSlotSelect(slotsForClassAndDay[0]);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [slotsForClassAndDay]);
 
   // Get the class level for the selected class
   const selectedClassLevel = useMemo(() => {
@@ -235,20 +258,17 @@ export default function NewEntryPage() {
   // Handle timetable slot selection (quick-fill)
   function handleSlotSelect(slot: TimetableSlot) {
     if (selectedSlotId === slot.id) {
+      // Deselect
       setSelectedSlotId(null);
-      setAssignmentId(null);
       setTimetableSlotId(null);
-      setClassId("");
-      setSubjectId("");
-      setModuleName("");
-      setTopicText("");
       setPeriod("");
       setDuration("60");
+      // Don't clear class/subject — keep manual selection
       return;
     }
     setSelectedSlotId(slot.id);
-    setAssignmentId(slot.assignment.id);
     setTimetableSlotId(slot.id);
+    setAssignmentId(slot.assignment.id);
     setClassId(slot.assignment.classId);
     setSubjectId(slot.assignment.subjectId);
     setModuleName("");
@@ -268,11 +288,11 @@ export default function NewEntryPage() {
     setModuleName("");
     setTopicText("");
     setAssignmentId(null);
-    if (selectedSlotId) {
-      setSelectedSlotId(null);
-      setTimetableSlotId(null);
-    }
-  }, [selectedSlotId]);
+    setSelectedSlotId(null);
+    setTimetableSlotId(null);
+    setPeriod("");
+    setDuration("60");
+  }, []);
 
   // Handle subject change
   const handleSubjectChange = useCallback((newSubjectId: string) => {
@@ -289,6 +309,8 @@ export default function NewEntryPage() {
     }
   }, [assignments, classId, selectedSlotId]);
 
+  const selectedDayName = date ? DAY_NAMES[getDayOfWeek(date)] || "" : "";
+  const isWeekend = date ? getDayOfWeek(date) > 5 : false;
   const isFormValid = date && classId && subjectId && topicText.trim().length > 0;
 
   async function handleSubmit(e: React.FormEvent) {
@@ -564,14 +586,20 @@ export default function NewEntryPage() {
                 className="input-field"
                 required
               />
+              {date && !isWeekend && (
+                <p className="text-xs text-brand-600 mt-1 font-medium">{selectedDayName}</p>
+              )}
+              {isWeekend && (
+                <p className="text-xs text-amber-600 mt-1">Weekend — no timetable slots available</p>
+              )}
             </div>
 
-            {/* Timetable Slot Picker */}
-            {!loadingSlots && timetableSlots.length > 0 && (
+            {/* Timetable Slot Picker — show ALL slots for the day */}
+            {!loadingSlots && timetableSlots.length > 0 && !classId && (
               <div>
                 <label className="label-field flex items-center gap-1.5">
                   <Calendar className="w-3.5 h-3.5 text-brand-500" />
-                  Select Period from Timetable
+                  Your {selectedDayName} Schedule — Tap to Fill
                 </label>
                 <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
                   {timetableSlots.map((slot) => (
@@ -606,21 +634,7 @@ export default function NewEntryPage() {
               </div>
             )}
 
-            {/* Auto-filled Period & Duration info */}
-            {selectedSlotId && (
-              <div className="bg-brand-50 border border-brand-200 rounded-xl px-4 py-3 flex items-center gap-3">
-                <Clock className="w-4 h-4 text-brand-600 flex-shrink-0" />
-                <div className="text-sm text-brand-800">
-                  <span className="font-semibold">Period {period}</span>
-                  <span className="text-brand-500 mx-1.5">&middot;</span>
-                  <span>{duration} min</span>
-                  <span className="text-brand-500 mx-1.5">&middot;</span>
-                  <span className="text-brand-600">Auto-filled from timetable</span>
-                </div>
-              </div>
-            )}
-
-            {/* Class — manual selection only when no slot selected */}
+            {/* Class Selection — show when no slot selected */}
             {!selectedSlotId && (
               <div>
                 <label className="label-field">Class</label>
@@ -638,25 +652,90 @@ export default function NewEntryPage() {
               </div>
             )}
 
-            {/* Auto-filled class & subject display */}
-            {selectedSlotId && (
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="label-field">Class</label>
-                  <div className="input-field bg-slate-50 text-slate-700 flex items-center text-sm">
-                    {assignedClasses.find((c) => c.id === classId)?.name || "—"}
-                  </div>
-                </div>
-                <div>
-                  <label className="label-field">Subject</label>
-                  <div className="input-field bg-slate-50 text-slate-700 flex items-center text-sm">
-                    {subjectsForClass.find((s) => s.id === subjectId)?.name || "—"}
-                  </div>
+            {/* Period picker for selected class + day (from timetable) */}
+            {classId && !selectedSlotId && slotsForClassAndDay.length > 0 && (
+              <div>
+                <label className="label-field flex items-center gap-1.5">
+                  <Clock className="w-3.5 h-3.5 text-brand-500" />
+                  Your Periods for this Class on {selectedDayName}
+                </label>
+                <div className="flex gap-2 overflow-x-auto pb-1">
+                  {slotsForClassAndDay.map((slot) => (
+                    <button
+                      key={slot.id}
+                      type="button"
+                      onClick={() => handleSlotSelect(slot)}
+                      className="flex-shrink-0 rounded-xl border-2 border-slate-200 bg-white hover:border-brand-300 px-3 py-2.5 text-left transition-all"
+                    >
+                      <p className="text-xs font-bold text-slate-900">{slot.periodLabel}</p>
+                      <p className="text-[10px] text-slate-500 mt-0.5">
+                        {slot.startTime} - {slot.endTime}
+                      </p>
+                      <p className="text-[11px] font-semibold text-brand-700 mt-1">
+                        {slot.assignment.subjectName}
+                      </p>
+                    </button>
+                  ))}
                 </div>
               </div>
             )}
 
-            {/* Subject — only when not auto-filled */}
+            {/* No timetable slots message */}
+            {classId && !selectedSlotId && slotsForClassAndDay.length === 0 && !isWeekend && !loadingSlots && (
+              <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 text-xs text-amber-700">
+                No timetable periods found for this class on {selectedDayName}. You can still fill the entry manually.
+              </div>
+            )}
+
+            {/* Auto-filled display when slot is selected */}
+            {selectedSlotId && (
+              <>
+                <div className="bg-brand-50 border border-brand-200 rounded-xl px-4 py-3">
+                  <div className="flex items-center gap-3 text-sm text-brand-800">
+                    <Clock className="w-4 h-4 text-brand-600 flex-shrink-0" />
+                    <div>
+                      <span className="font-semibold">Period {period}</span>
+                      <span className="text-brand-500 mx-1.5">&middot;</span>
+                      <span>{duration} min</span>
+                      <span className="text-brand-500 mx-1.5">&middot;</span>
+                      <span className="text-brand-600">Auto-filled from timetable</span>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedSlotId(null);
+                      setTimetableSlotId(null);
+                      setClassId("");
+                      setSubjectId("");
+                      setAssignmentId(null);
+                      setPeriod("");
+                      setDuration("60");
+                    }}
+                    className="text-xs text-brand-600 font-medium mt-1 underline"
+                  >
+                    Change selection
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="label-field">Class</label>
+                    <div className="input-field bg-slate-50 text-slate-700 flex items-center text-sm">
+                      {assignedClasses.find((c) => c.id === classId)?.name || "—"}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="label-field">Subject</label>
+                    <div className="input-field bg-slate-50 text-slate-700 flex items-center text-sm">
+                      {subjectsForClass.find((s) => s.id === subjectId)?.name || "—"}
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
+
+            {/* Subject — only when class selected manually and not auto-filled */}
             {classId && !selectedSlotId && (
               <div>
                 <label className="label-field">Subject</label>
@@ -723,37 +802,6 @@ export default function NewEntryPage() {
                   maxLength={300}
                 />
                 <p className="text-xs text-slate-400 mt-1 text-right">{topicText.length}/300</p>
-              </div>
-            )}
-
-            {/* Period & Duration — only if NOT auto-filled */}
-            {!selectedSlotId && (
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="label-field">Period</label>
-                  <select
-                    value={period}
-                    onChange={(e) => setPeriod(e.target.value)}
-                    className="input-field"
-                  >
-                    <option value="">--</option>
-                    {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((p) => (
-                      <option key={p} value={p}>Period {p}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="label-field">Duration (min)</label>
-                  <select
-                    value={duration}
-                    onChange={(e) => setDuration(e.target.value)}
-                    className="input-field"
-                  >
-                    {[30, 45, 60, 90, 120].map((d) => (
-                      <option key={d} value={d}>{d} min</option>
-                    ))}
-                  </select>
-                </div>
               </div>
             )}
 

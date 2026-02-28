@@ -37,6 +37,9 @@ export async function POST(request: Request) {
       );
     }
 
+    // Auto-verify teachers registering at an ACTIVE school
+    const autoVerify = school.status === "ACTIVE";
+
     // Hash password and create user
     const passwordHash = await hash(password, 12);
     const user = await db.user.create({
@@ -47,7 +50,7 @@ export async function POST(request: Request) {
         phone: phone || null,
         passwordHash,
         role: "TEACHER",
-        isVerified: false,
+        isVerified: autoVerify,
         schoolId: school.id,
         dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : null,
         gender: gender || null,

@@ -12,6 +12,7 @@ import {
   Building2,
   GraduationCap,
   UserCheck,
+  FileText,
 } from "lucide-react";
 import { NotificationBell } from "@/components/NotificationBell";
 import type { AdminStats } from "@/types";
@@ -214,6 +215,18 @@ export default function AdminDashboardPage() {
 
         {/* Quick Links */}
         <div className="space-y-2">
+          <Link
+            href="/admin/entries"
+            className="card p-4 flex items-center justify-between"
+          >
+            <div className="flex items-center gap-3">
+              <FileText className="w-5 h-5 text-slate-400" />
+              <span className="font-medium text-slate-900">
+                View Entries
+              </span>
+            </div>
+            <ChevronRight className="w-4 h-4 text-slate-400" />
+          </Link>
           <Link
             href="/admin/teachers"
             className="card p-4 flex items-center justify-between"
