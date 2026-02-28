@@ -14,6 +14,8 @@ export const registerSchema = z
     password: z.string().min(6, "Password must be at least 6 characters"),
     confirmPassword: z.string(),
     schoolCode: z.string().min(1, "School code is required"),
+    dateOfBirth: z.string().optional(),
+    gender: z.enum(["MALE", "FEMALE"]).optional(),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match",
@@ -42,6 +44,8 @@ export const createEntrySchema = z.object({
   classId: z.string().min(1, "Class is required"),
   topicId: z.string().optional(),
   topicIds: z.array(z.string()).optional(),
+  moduleName: z.string().optional().nullable(),
+  topicText: z.string().max(300, "Topic must be under 300 characters").optional().nullable(),
   assignmentId: z.string().optional().nullable(),
   timetableSlotId: z.string().optional().nullable(),
   period: z.number().int().min(1).max(9).optional().nullable(),

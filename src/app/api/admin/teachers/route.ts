@@ -31,19 +31,36 @@ export async function GET() {
       orderBy: { lastName: "asc" },
     });
 
-    const result = teachers.map((t) => ({
-      id: t.id,
-      firstName: t.firstName,
-      lastName: t.lastName,
-      email: t.email,
-      phone: t.phone,
-      isVerified: t.isVerified,
-      createdAt: t.createdAt.toISOString(),
-      entryCount: t._count.entries,
-      lastEntry: t.entries[0]?.date.toISOString() ?? null,
-      subjects: Array.from(new Set(t.assignments.map((a) => a.subject.name))),
-      classes: Array.from(new Set(t.assignments.map((a) => a.class.name))),
-    }));
+    const result = teachers.map((t) => {
+      // Build subject -> classes mapping
+      const subjectClassMap = new Map<string, Set<string>>();
+      for (const a of t.assignments) {
+        if (!subjectClassMap.has(a.subject.name)) {
+          subjectClassMap.set(a.subject.name, new Set());
+        }
+        subjectClassMap.get(a.subject.name)!.add(a.class.name);
+      }
+      const subjectClasses = Array.from(subjectClassMap.entries()).map(([subject, classSet]) => ({
+        subject,
+        classes: Array.from(classSet).sort(),
+      }));
+
+      return {
+        id: t.id,
+        firstName: t.firstName,
+        lastName: t.lastName,
+        email: t.email,
+        phone: t.phone,
+        gender: (t as Record<string, unknown>).gender as string | null,
+        isVerified: t.isVerified,
+        createdAt: t.createdAt.toISOString(),
+        entryCount: t._count.entries,
+        lastEntry: t.entries[0]?.date.toISOString() ?? null,
+        subjects: Array.from(new Set(t.assignments.map((a) => a.subject.name))),
+        classes: Array.from(new Set(t.assignments.map((a) => a.class.name))),
+        subjectClasses,
+      };
+    });
 
     return NextResponse.json(result);
   } catch (error) {
