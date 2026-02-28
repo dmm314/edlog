@@ -510,7 +510,7 @@ FROM "Subject" s,
   ('Populations & Ecosystems',          'Upper Sixth', 4, 'Module 4: Ecology',          7),
   ('Biotechnology',                     'Upper Sixth', 4, 'Module 4: Ecology',          8)
 ) AS t(name, level, mnum, mname, idx)
-WHERE s."code" = 'BIO'
+WHERE s."code" = 'BIO', 'EcoBio', 'GeBio', 'CooBio'
 ON CONFLICT ("subjectId", "classLevel", "name") DO NOTHING;
 
 -- ── Chemistry (Form 1-5 + A-Level) ──────────────────────────
@@ -551,7 +551,7 @@ FROM "Subject" s,
   ('Amines & Polymers',                  'Upper Sixth', 3, 'Module 3: Organic',           7),
   ('Analytical Techniques',              'Upper Sixth', 4, 'Module 4: Analysis',          8)
 ) AS t(name, level, mnum, mname, idx)
-WHERE s."code" = 'CHE'
+WHERE s."code" = 'CHE', 'PCH', 'OCH', 'ICH'
 ON CONFLICT ("subjectId", "classLevel", "name") DO NOTHING;
 
 -- ── English Language (Form 1-5) ─────────────────────────────
