@@ -1,7 +1,30 @@
 import { NextResponse } from "next/server";
 import { hash } from "bcryptjs";
+import { randomBytes } from "crypto";
 import { db } from "@/lib/db";
 import { schoolRegisterSchema } from "@/lib/validations";
+
+// Generate a cryptographically random school code
+// Format: EDL-XXXX-XXXX (8 random chars from unambiguous set)
+function generateSchoolCode(): string {
+  const chars = "ABCDEFGHJKMNPQRSTUVWXYZ23456789"; // no 0/O, 1/I/L
+  const bytes = randomBytes(8);
+  let code = "";
+  for (let i = 0; i < 8; i++) {
+    code += chars[bytes[i] % chars.length];
+  }
+  return `EDL-${code.slice(0, 4)}-${code.slice(4)}`;
+}
+
+// Try generating a unique code, retrying on collision
+async function generateUniqueSchoolCode(): Promise<string> {
+  for (let attempt = 0; attempt < 10; attempt++) {
+    const code = generateSchoolCode();
+    const existing = await db.school.findUnique({ where: { code } });
+    if (!existing) return code;
+  }
+  throw new Error("Failed to generate unique school code");
+}
 
 export async function POST(request: Request) {
   try {
@@ -18,7 +41,6 @@ export async function POST(request: Request) {
 
     const {
       schoolName,
-      schoolCode,
       regionId,
       divisionId,
       adminFirstName,
@@ -26,17 +48,6 @@ export async function POST(request: Request) {
       adminEmail,
       adminPassword,
     } = parsed.data;
-
-    // Check if school code already exists
-    const existingSchool = await db.school.findUnique({
-      where: { code: schoolCode },
-    });
-    if (existingSchool) {
-      return NextResponse.json(
-        { error: "A school with this code already exists. Please choose a different school code." },
-        { status: 409 }
-      );
-    }
 
     // Check if admin email already exists
     const existingUser = await db.user.findUnique({
@@ -73,6 +84,9 @@ export async function POST(request: Request) {
       }
     }
 
+    // Generate a unique, cryptographically random school code
+    const schoolCode = await generateUniqueSchoolCode();
+
     // Hash password
     const passwordHash = await hash(adminPassword, 12);
 
@@ -84,7 +98,7 @@ export async function POST(request: Request) {
           name: schoolName,
           code: schoolCode,
           regionId,
-          divisionId: divisionId || regionId, // fallback if division not provided
+          divisionId: divisionId || regionId,
           status: "PENDING",
         },
       });

@@ -24,7 +24,7 @@ export async function GET() {
         photoUrl: true,
         createdAt: true,
         schoolId: true,
-        school: { select: { name: true, code: true } },
+        school: { select: { name: true, code: true, foundingDate: true } },
       },
     });
 
@@ -47,8 +47,9 @@ export async function PUT(request: Request) {
     }
 
     const body = await request.json();
-    const { dateOfBirth, gender, photoUrl, phone } = body;
+    const { dateOfBirth, gender, photoUrl, phone, foundingDate } = body;
 
+    // Update user fields
     const updateData: Record<string, unknown> = {};
     if (dateOfBirth !== undefined) {
       updateData.dateOfBirth = dateOfBirth ? new Date(dateOfBirth) : null;
@@ -76,10 +77,31 @@ export async function PUT(request: Request) {
         dateOfBirth: true,
         gender: true,
         photoUrl: true,
+        schoolId: true,
       },
     });
 
-    return NextResponse.json(updated);
+    // If school admin and foundingDate provided, update the school
+    let schoolData = null;
+    if (user.role === "SCHOOL_ADMIN" && user.schoolId && foundingDate !== undefined) {
+      const updatedSchool = await db.school.update({
+        where: { id: user.schoolId },
+        data: {
+          foundingDate: foundingDate ? new Date(foundingDate) : null,
+        },
+        select: {
+          name: true,
+          code: true,
+          foundingDate: true,
+        },
+      });
+      schoolData = updatedSchool;
+    }
+
+    return NextResponse.json({
+      ...updated,
+      school: schoolData,
+    });
   } catch (error) {
     console.error("PUT /api/profile error:", error);
     return NextResponse.json({ error: "Failed to update profile" }, { status: 500 });

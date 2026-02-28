@@ -23,7 +23,6 @@ export default function SchoolRegisterPage() {
   const [step, setStep] = useState(1);
   const [form, setForm] = useState({
     schoolName: "",
-    schoolCode: "",
     regionId: "",
     divisionId: "",
     address: "",
@@ -40,6 +39,8 @@ export default function SchoolRegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [regions, setRegions] = useState<Region[]>([]);
   const [regionsLoading, setRegionsLoading] = useState(true);
+  const [registeredCode, setRegisteredCode] = useState<string | null>(null);
+  const [codeCopied, setCodeCopied] = useState(false);
 
   // Fetch regions on mount
   useEffect(() => {
@@ -89,8 +90,6 @@ export default function SchoolRegisterPage() {
     const errs: Record<string, string> = {};
     if (form.schoolName.length < 3)
       errs.schoolName = "School name must be at least 3 characters";
-    if (form.schoolCode.length < 3)
-      errs.schoolCode = "School code must be at least 3 characters";
     if (!form.regionId) errs.regionId = "Please select a region";
     setErrors(errs);
     return Object.keys(errs).length === 0;
@@ -145,7 +144,8 @@ export default function SchoolRegisterPage() {
         return;
       }
 
-      router.push("/login?registered=true");
+      // Show the auto-generated school code before redirecting
+      setRegisteredCode(data.school?.code || null);
     } catch {
       setServerError("Something went wrong. Please try again.");
     } finally {
@@ -190,14 +190,56 @@ export default function SchoolRegisterPage() {
       {/* Form */}
       <div className="px-5 -mt-4 max-w-lg mx-auto">
         <div className="card p-6">
-          {serverError && (
+          {/* Success: Show generated school code */}
+          {registeredCode && (
+            <div className="text-center space-y-4">
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
+                <ChevronRight className="w-8 h-8 text-green-600" />
+              </div>
+              <h2 className="text-lg font-bold text-slate-900">
+                School Registered Successfully!
+              </h2>
+              <p className="text-sm text-slate-500">
+                Your unique school code has been generated. Share this code with
+                your teachers so they can register and join your school.
+              </p>
+              <div className="bg-slate-50 border-2 border-dashed border-slate-300 rounded-xl p-4">
+                <p className="text-xs text-slate-400 mb-1">Your School Code</p>
+                <p className="text-2xl font-mono font-bold text-brand-950 tracking-wider">
+                  {registeredCode}
+                </p>
+              </div>
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(registeredCode);
+                  setCodeCopied(true);
+                  setTimeout(() => setCodeCopied(false), 2000);
+                }}
+                className="btn-secondary text-sm"
+              >
+                {codeCopied ? "Copied!" : "Copy Code"}
+              </button>
+              <p className="text-xs text-amber-600 bg-amber-50 rounded-lg p-3">
+                Save this code! Your account is pending regional admin approval.
+                You can sign in once approved.
+              </p>
+              <button
+                onClick={() => router.push("/login?registered=true")}
+                className="btn-primary"
+              >
+                Go to Sign In
+              </button>
+            </div>
+          )}
+
+          {!registeredCode && serverError && (
             <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-4 py-3 mb-4">
               {serverError}
             </div>
           )}
 
           {/* Step 1: School Information */}
-          {step === 1 && (
+          {!registeredCode && step === 1 && (
             <div className="space-y-4">
               <div>
                 <h2 className="text-lg font-semibold text-slate-900 mb-1">
@@ -222,27 +264,6 @@ export default function SchoolRegisterPage() {
                     {errors.schoolName}
                   </p>
                 )}
-              </div>
-
-              <div>
-                <label className="label-field">School Code</label>
-                <input
-                  type="text"
-                  value={form.schoolCode}
-                  onChange={(e) =>
-                    updateField("schoolCode", e.target.value.toUpperCase())
-                  }
-                  className={`input-field font-mono ${errors.schoolCode ? "border-red-300 focus:ring-red-500" : ""}`}
-                  placeholder="e.g. GBHS-YDE"
-                />
-                {errors.schoolCode && (
-                  <p className="text-red-500 text-xs mt-1">
-                    {errors.schoolCode}
-                  </p>
-                )}
-                <p className="text-xs text-slate-400 mt-1">
-                  A unique code for your school (auto-uppercase)
-                </p>
               </div>
 
               <div>
@@ -326,7 +347,7 @@ export default function SchoolRegisterPage() {
           )}
 
           {/* Step 2: Admin Account */}
-          {step === 2 && (
+          {!registeredCode && step === 2 && (
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <h2 className="text-lg font-semibold text-slate-900 mb-1">
@@ -487,25 +508,29 @@ export default function SchoolRegisterPage() {
             </form>
           )}
 
-          <p className="text-center text-sm text-slate-500 mt-6">
-            Already have an account?{" "}
-            <Link
-              href="/login"
-              className="text-brand-700 font-semibold hover:underline"
-            >
-              Sign in
-            </Link>
-          </p>
+          {!registeredCode && (
+            <>
+              <p className="text-center text-sm text-slate-500 mt-6">
+                Already have an account?{" "}
+                <Link
+                  href="/login"
+                  className="text-brand-700 font-semibold hover:underline"
+                >
+                  Sign in
+                </Link>
+              </p>
 
-          <p className="text-center text-sm text-slate-500 mt-2">
-            Registering as a teacher?{" "}
-            <Link
-              href="/register"
-              className="text-brand-700 font-semibold hover:underline"
-            >
-              Teacher registration
-            </Link>
-          </p>
+              <p className="text-center text-sm text-slate-500 mt-2">
+                Registering as a teacher?{" "}
+                <Link
+                  href="/register"
+                  className="text-brand-700 font-semibold hover:underline"
+                >
+                  Teacher registration
+                </Link>
+              </p>
+            </>
+          )}
         </div>
       </div>
     </div>

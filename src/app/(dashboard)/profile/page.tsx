@@ -14,6 +14,8 @@ import {
   Edit3,
   Save,
   X,
+  Building2,
+  Phone,
 } from "lucide-react";
 import { formatDate } from "@/lib/utils";
 
@@ -29,7 +31,7 @@ interface ProfileData {
   gender: string | null;
   photoUrl: string | null;
   createdAt: string;
-  school: { name: string; code: string } | null;
+  school: { name: string; code: string; foundingDate: string | null } | null;
 }
 
 interface ProfileStats {
@@ -46,22 +48,22 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState("");
 
   // Edit form state
   const [editPhone, setEditPhone] = useState("");
   const [editDob, setEditDob] = useState("");
   const [editGender, setEditGender] = useState("");
+  const [editFoundingDate, setEditFoundingDate] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const user = session?.user as Record<string, unknown> | undefined;
+  const isSchoolAdmin = (profile?.role || (user?.role as string)) === "SCHOOL_ADMIN";
 
   useEffect(() => {
     async function fetchProfile() {
       try {
-        const [profileRes, entriesRes] = await Promise.all([
-          fetch("/api/profile"),
-          fetch("/api/entries?limit=1000"),
-        ]);
+        const profileRes = await fetch("/api/profile");
 
         if (profileRes.ok) {
           const data = await profileRes.json();
@@ -69,41 +71,49 @@ export default function ProfilePage() {
           setEditPhone(data.phone || "");
           setEditDob(data.dateOfBirth ? data.dateOfBirth.split("T")[0] : "");
           setEditGender(data.gender || "");
+          setEditFoundingDate(
+            data.school?.foundingDate ? data.school.foundingDate.split("T")[0] : ""
+          );
         }
 
-        if (entriesRes.ok) {
-          const data = await entriesRes.json();
-          const now = new Date();
-          const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-          const startOfWeek = new Date(now);
-          startOfWeek.setDate(now.getDate() - now.getDay() + (now.getDay() === 0 ? -6 : 1));
-          startOfWeek.setHours(0, 0, 0, 0);
+        // Only fetch entries for teachers
+        const role = (user?.role as string) || "";
+        if (role === "TEACHER") {
+          const entriesRes = await fetch("/api/entries?limit=1000");
+          if (entriesRes.ok) {
+            const data = await entriesRes.json();
+            const now = new Date();
+            const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+            const startOfWeek = new Date(now);
+            startOfWeek.setDate(now.getDate() - now.getDay() + (now.getDay() === 0 ? -6 : 1));
+            startOfWeek.setHours(0, 0, 0, 0);
 
-          const entries = data.entries || [];
-          const thisMonth = entries.filter(
-            (e: { date: string }) => new Date(e.date) >= startOfMonth
-          );
-          const thisWeek = entries.filter(
-            (e: { date: string }) => new Date(e.date) >= startOfWeek
-          );
+            const entries = data.entries || [];
+            const thisMonth = entries.filter(
+              (e: { date: string }) => new Date(e.date) >= startOfMonth
+            );
+            const thisWeek = entries.filter(
+              (e: { date: string }) => new Date(e.date) >= startOfWeek
+            );
 
-          const subjectCounts: Record<string, number> = {};
-          for (const entry of entries) {
-            const topics = entry.topics || [];
-            for (const t of topics) {
-              const name = t?.subject?.name;
-              if (name) subjectCounts[name] = (subjectCounts[name] || 0) + 1;
+            const subjectCounts: Record<string, number> = {};
+            for (const entry of entries) {
+              const topics = entry.topics || [];
+              for (const t of topics) {
+                const name = t?.subject?.name;
+                if (name) subjectCounts[name] = (subjectCounts[name] || 0) + 1;
+              }
             }
-          }
-          const topSubject =
-            Object.entries(subjectCounts).sort((a, b) => b[1] - a[1])[0]?.[0] ?? null;
+            const topSubject =
+              Object.entries(subjectCounts).sort((a, b) => b[1] - a[1])[0]?.[0] ?? null;
 
-          setStats({
-            totalEntries: data.total || 0,
-            entriesThisMonth: thisMonth.length,
-            entriesThisWeek: thisWeek.length,
-            topSubject,
-          });
+            setStats({
+              totalEntries: data.total || 0,
+              entriesThisMonth: thisMonth.length,
+              entriesThisWeek: thisWeek.length,
+              topSubject,
+            });
+          }
         }
       } catch {
         // silently fail
@@ -112,31 +122,54 @@ export default function ProfilePage() {
       }
     }
     fetchProfile();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function handleSaveProfile() {
     setSaving(true);
+    setSaveError("");
     try {
+      const body: Record<string, unknown> = {
+        phone: editPhone || null,
+      };
+
+      if (isSchoolAdmin) {
+        // School admin: save founding date
+        body.foundingDate = editFoundingDate || null;
+      } else {
+        // Teacher: save DOB and gender
+        body.dateOfBirth = editDob || null;
+        body.gender = editGender || null;
+      }
+
       const res = await fetch("/api/profile", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          phone: editPhone || null,
-          dateOfBirth: editDob || null,
-          gender: editGender || null,
-        }),
+        body: JSON.stringify(body),
       });
+
       if (res.ok) {
         const updated = await res.json();
-        setProfile((prev) =>
-          prev
-            ? { ...prev, phone: updated.phone, dateOfBirth: updated.dateOfBirth, gender: updated.gender }
-            : prev
-        );
+        setProfile((prev) => {
+          if (!prev) return prev;
+          const newProfile = {
+            ...prev,
+            phone: updated.phone,
+            dateOfBirth: updated.dateOfBirth,
+            gender: updated.gender,
+          };
+          if (updated.school) {
+            newProfile.school = { ...prev.school!, foundingDate: updated.school.foundingDate };
+          }
+          return newProfile;
+        });
         setEditing(false);
+      } else {
+        const data = await res.json().catch(() => ({}));
+        setSaveError(data.error || "Failed to save profile");
       }
     } catch {
-      // silently fail
+      setSaveError("Network error. Please try again.");
     } finally {
       setSaving(false);
     }
@@ -216,7 +249,7 @@ export default function ProfilePage() {
             <span className="bg-white/10 text-white text-xs rounded-full px-3 py-1 font-medium capitalize">
               {(profile?.role || (user.role as string))?.replace("_", " ").toLowerCase()}
             </span>
-            {profile?.gender && (
+            {!isSchoolAdmin && profile?.gender && (
               <span className="bg-white/10 text-white text-xs rounded-full px-3 py-1 font-medium">
                 {profile.gender === "MALE" ? "Male" : "Female"}
               </span>
@@ -226,52 +259,56 @@ export default function ProfilePage() {
       </div>
 
       <div className="px-5 -mt-4 max-w-lg mx-auto">
-        {/* Stats */}
-        {loading ? (
-          <div className="card p-4 animate-pulse">
-            <div className="grid grid-cols-3 gap-4">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="text-center">
-                  <div className="h-8 bg-slate-200 rounded mb-1 mx-auto w-12" />
-                  <div className="h-3 bg-slate-200 rounded mx-auto w-16" />
+        {/* Stats - only for teachers */}
+        {!isSchoolAdmin && (
+          <>
+            {loading ? (
+              <div className="card p-4 animate-pulse">
+                <div className="grid grid-cols-3 gap-4">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="text-center">
+                      <div className="h-8 bg-slate-200 rounded mb-1 mx-auto w-12" />
+                      <div className="h-3 bg-slate-200 rounded mx-auto w-16" />
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          </div>
-        ) : stats ? (
-          <div className="card p-4">
-            <div className="grid grid-cols-3 gap-4 text-center">
-              <div>
-                <p className="text-2xl font-bold text-brand-950">{stats.totalEntries}</p>
-                <p className="text-xs text-slate-400 mt-0.5">Total</p>
               </div>
-              <div>
-                <p className="text-2xl font-bold text-brand-950">{stats.entriesThisMonth}</p>
-                <p className="text-xs text-slate-400 mt-0.5">This Month</p>
+            ) : stats ? (
+              <div className="card p-4">
+                <div className="grid grid-cols-3 gap-4 text-center">
+                  <div>
+                    <p className="text-2xl font-bold text-brand-950">{stats.totalEntries}</p>
+                    <p className="text-xs text-slate-400 mt-0.5">Total</p>
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold text-brand-950">{stats.entriesThisMonth}</p>
+                    <p className="text-xs text-slate-400 mt-0.5">This Month</p>
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold text-brand-950">{stats.entriesThisWeek}</p>
+                    <p className="text-xs text-slate-400 mt-0.5">This Week</p>
+                  </div>
+                </div>
+                {stats.topSubject && (
+                  <div className="mt-3 pt-3 border-t border-slate-100 text-center">
+                    <p className="text-xs text-slate-400">Most taught subject</p>
+                    <p className="text-sm font-semibold text-brand-950 mt-0.5">{stats.topSubject}</p>
+                  </div>
+                )}
               </div>
-              <div>
-                <p className="text-2xl font-bold text-brand-950">{stats.entriesThisWeek}</p>
-                <p className="text-xs text-slate-400 mt-0.5">This Week</p>
-              </div>
-            </div>
-            {stats.topSubject && (
-              <div className="mt-3 pt-3 border-t border-slate-100 text-center">
-                <p className="text-xs text-slate-400">Most taught subject</p>
-                <p className="text-sm font-semibold text-brand-950 mt-0.5">{stats.topSubject}</p>
-              </div>
-            )}
-          </div>
-        ) : null}
+            ) : null}
+          </>
+        )}
 
         {/* Info Card */}
         <div className="card mt-4 overflow-hidden">
           <div className="flex items-center justify-between px-4 pt-4 pb-2">
             <h3 className="text-xs font-semibold uppercase tracking-widest text-slate-400">
-              Personal Information
+              {isSchoolAdmin ? "Profile & School Info" : "Personal Information"}
             </h3>
             {!editing ? (
               <button
-                onClick={() => setEditing(true)}
+                onClick={() => { setEditing(true); setSaveError(""); }}
                 className="flex items-center gap-1 text-xs text-brand-600 font-semibold"
               >
                 <Edit3 className="w-3.5 h-3.5" />
@@ -280,7 +317,7 @@ export default function ProfilePage() {
             ) : (
               <div className="flex items-center gap-2">
                 <button
-                  onClick={() => setEditing(false)}
+                  onClick={() => { setEditing(false); setSaveError(""); }}
                   className="flex items-center gap-1 text-xs text-slate-500 font-semibold"
                 >
                   <X className="w-3.5 h-3.5" />
@@ -297,6 +334,12 @@ export default function ProfilePage() {
               </div>
             )}
           </div>
+
+          {saveError && (
+            <div className="mx-4 mb-2 bg-red-50 border border-red-200 text-red-700 text-xs rounded-lg px-3 py-2">
+              {saveError}
+            </div>
+          )}
 
           <div className="divide-y divide-slate-100">
             <div className="flex items-center gap-3 p-4">
@@ -317,50 +360,79 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            <div className="flex items-center gap-3 p-4">
-              <Calendar className="w-5 h-5 text-slate-400" />
-              <div className="flex-1">
-                <p className="text-xs text-slate-400">Date of Birth</p>
-                {editing ? (
-                  <input
-                    type="date"
-                    value={editDob}
-                    onChange={(e) => setEditDob(e.target.value)}
-                    max={new Date().toISOString().split("T")[0]}
-                    className="input-field mt-1"
-                  />
-                ) : (
-                  <p className="text-sm font-medium text-slate-900">
-                    {profile?.dateOfBirth ? formatDate(profile.dateOfBirth) : "Not set"}
-                  </p>
-                )}
+            {/* School Admin: Founding Date instead of DOB/Gender */}
+            {isSchoolAdmin ? (
+              <div className="flex items-center gap-3 p-4">
+                <Building2 className="w-5 h-5 text-slate-400" />
+                <div className="flex-1">
+                  <p className="text-xs text-slate-400">Founding Date</p>
+                  {editing ? (
+                    <input
+                      type="date"
+                      value={editFoundingDate}
+                      onChange={(e) => setEditFoundingDate(e.target.value)}
+                      max={new Date().toISOString().split("T")[0]}
+                      className="input-field mt-1"
+                    />
+                  ) : (
+                    <p className="text-sm font-medium text-slate-900">
+                      {profile?.school?.foundingDate
+                        ? formatDate(profile.school.foundingDate)
+                        : "Not set"}
+                    </p>
+                  )}
+                </div>
               </div>
-            </div>
+            ) : (
+              <>
+                {/* Teacher: Date of Birth */}
+                <div className="flex items-center gap-3 p-4">
+                  <Calendar className="w-5 h-5 text-slate-400" />
+                  <div className="flex-1">
+                    <p className="text-xs text-slate-400">Date of Birth</p>
+                    {editing ? (
+                      <input
+                        type="date"
+                        value={editDob}
+                        onChange={(e) => setEditDob(e.target.value)}
+                        max={new Date().toISOString().split("T")[0]}
+                        className="input-field mt-1"
+                      />
+                    ) : (
+                      <p className="text-sm font-medium text-slate-900">
+                        {profile?.dateOfBirth ? formatDate(profile.dateOfBirth) : "Not set"}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Teacher: Gender */}
+                <div className="flex items-center gap-3 p-4">
+                  <User className="w-5 h-5 text-slate-400" />
+                  <div className="flex-1">
+                    <p className="text-xs text-slate-400">Gender</p>
+                    {editing ? (
+                      <select
+                        value={editGender}
+                        onChange={(e) => setEditGender(e.target.value)}
+                        className="input-field mt-1"
+                      >
+                        <option value="">Select gender</option>
+                        <option value="MALE">Male</option>
+                        <option value="FEMALE">Female</option>
+                      </select>
+                    ) : (
+                      <p className="text-sm font-medium text-slate-900">
+                        {profile?.gender === "MALE" ? "Male" : profile?.gender === "FEMALE" ? "Female" : "Not set"}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </>
+            )}
 
             <div className="flex items-center gap-3 p-4">
-              <User className="w-5 h-5 text-slate-400" />
-              <div className="flex-1">
-                <p className="text-xs text-slate-400">Gender</p>
-                {editing ? (
-                  <select
-                    value={editGender}
-                    onChange={(e) => setEditGender(e.target.value)}
-                    className="input-field mt-1"
-                  >
-                    <option value="">Select gender</option>
-                    <option value="MALE">Male</option>
-                    <option value="FEMALE">Female</option>
-                  </select>
-                ) : (
-                  <p className="text-sm font-medium text-slate-900">
-                    {profile?.gender === "MALE" ? "Male" : profile?.gender === "FEMALE" ? "Female" : "Not set"}
-                  </p>
-                )}
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3 p-4">
-              <BookOpen className="w-5 h-5 text-slate-400" />
+              <Phone className="w-5 h-5 text-slate-400" />
               <div className="flex-1">
                 <p className="text-xs text-slate-400">Phone</p>
                 {editing ? (

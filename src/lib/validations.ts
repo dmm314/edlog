@@ -24,7 +24,6 @@ export const registerSchema = z
 
 export const schoolRegisterSchema = z.object({
   schoolName: z.string().min(3, "School name must be at least 3 characters"),
-  schoolCode: z.string().min(3, "School code must be at least 3 characters"),
   regionId: z.string().min(1, "Region is required"),
   divisionId: z.string().optional(),
   address: z.string().optional(),

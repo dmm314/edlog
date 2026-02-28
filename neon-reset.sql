@@ -10,6 +10,7 @@ DROP TABLE IF EXISTS "LogbookEntry" CASCADE;
 DROP TABLE IF EXISTS "TimetableSlot" CASCADE;
 DROP TABLE IF EXISTS "TeacherAssignment" CASCADE;
 DROP TABLE IF EXISTS "PeriodSchedule" CASCADE;
+DROP TABLE IF EXISTS "ClassSubject" CASCADE;
 DROP TABLE IF EXISTS "SchoolSubject" CASCADE;
 DROP TABLE IF EXISTS "Topic" CASCADE;
 DROP TABLE IF EXISTS "Subject" CASCADE;
@@ -26,6 +27,7 @@ DROP TYPE IF EXISTS "Role" CASCADE;
 DROP TYPE IF EXISTS "CodeType" CASCADE;
 DROP TYPE IF EXISTS "SchoolStatus" CASCADE;
 DROP TYPE IF EXISTS "EngagementLevel" CASCADE;
+DROP TYPE IF EXISTS "Gender" CASCADE;
 DROP TYPE IF EXISTS "NotificationType" CASCADE;
 
 -- ============================================================
@@ -36,6 +38,7 @@ CREATE TYPE "Role" AS ENUM ('TEACHER', 'SCHOOL_ADMIN', 'REGIONAL_ADMIN');
 CREATE TYPE "CodeType" AS ENUM ('SCHOOL_REGISTRATION');
 CREATE TYPE "SchoolStatus" AS ENUM ('PENDING', 'ACTIVE', 'SUSPENDED');
 CREATE TYPE "EngagementLevel" AS ENUM ('LOW', 'MEDIUM', 'HIGH');
+CREATE TYPE "Gender" AS ENUM ('MALE', 'FEMALE');
 CREATE TYPE "NotificationType" AS ENUM ('LOG_REMINDER', 'WEEKLY_SUMMARY', 'COMPLIANCE_WARNING', 'LOG_REVIEWED', 'NEW_TEACHER', 'CURRICULUM_GAP', 'GENERAL');
 
 -- ============================================================
@@ -71,6 +74,9 @@ CREATE TABLE "User" (
     "phone" TEXT,
     "role" "Role" NOT NULL DEFAULT 'TEACHER',
     "isVerified" BOOLEAN NOT NULL DEFAULT false,
+    "dateOfBirth" TIMESTAMP(3),
+    "gender" "Gender",
+    "photoUrl" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "schoolId" TEXT,
@@ -113,6 +119,7 @@ CREATE TABLE "School" (
     "schoolType" TEXT,
     "principalName" TEXT,
     "principalPhone" TEXT,
+    "foundingDate" TIMESTAMP(3),
     "status" "SchoolStatus" NOT NULL DEFAULT 'ACTIVE',
     "profileComplete" BOOLEAN NOT NULL DEFAULT false,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -184,6 +191,14 @@ CREATE TABLE "SchoolSubject" (
 );
 CREATE UNIQUE INDEX "SchoolSubject_schoolId_subjectId_key" ON "SchoolSubject"("schoolId", "subjectId");
 
+CREATE TABLE "ClassSubject" (
+    "id" TEXT NOT NULL,
+    "classId" TEXT NOT NULL,
+    "subjectId" TEXT NOT NULL,
+    CONSTRAINT "ClassSubject_pkey" PRIMARY KEY ("id")
+);
+CREATE UNIQUE INDEX "ClassSubject_classId_subjectId_key" ON "ClassSubject"("classId", "subjectId");
+
 CREATE TABLE "TeacherAssignment" (
     "id" TEXT NOT NULL,
     "teacherId" TEXT NOT NULL,
@@ -217,6 +232,8 @@ CREATE TABLE "LogbookEntry" (
     "date" TIMESTAMP(3) NOT NULL,
     "period" INTEGER,
     "duration" INTEGER NOT NULL DEFAULT 60,
+    "moduleName" TEXT,
+    "topicText" TEXT,
     "notes" TEXT,
     "objectives" TEXT,
     "signatureData" TEXT,
@@ -270,10 +287,12 @@ ALTER TABLE "School" ADD CONSTRAINT "School_regionId_fkey" FOREIGN KEY ("regionI
 ALTER TABLE "School" ADD CONSTRAINT "School_divisionId_fkey" FOREIGN KEY ("divisionId") REFERENCES "Division"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE "School" ADD CONSTRAINT "School_adminId_fkey" FOREIGN KEY ("adminId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 ALTER TABLE "PeriodSchedule" ADD CONSTRAINT "PeriodSchedule_schoolId_fkey" FOREIGN KEY ("schoolId") REFERENCES "School"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-ALTER TABLE "Class" ADD CONSTRAINT "Class_schoolId_fkey" FOREIGN KEY ("schoolId") REFERENCES "Class"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Class" ADD CONSTRAINT "Class_schoolId_fkey" FOREIGN KEY ("schoolId") REFERENCES "School"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE "Topic" ADD CONSTRAINT "Topic_subjectId_fkey" FOREIGN KEY ("subjectId") REFERENCES "Subject"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE "SchoolSubject" ADD CONSTRAINT "SchoolSubject_schoolId_fkey" FOREIGN KEY ("schoolId") REFERENCES "School"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE "SchoolSubject" ADD CONSTRAINT "SchoolSubject_subjectId_fkey" FOREIGN KEY ("subjectId") REFERENCES "Subject"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "ClassSubject" ADD CONSTRAINT "ClassSubject_classId_fkey" FOREIGN KEY ("classId") REFERENCES "Class"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "ClassSubject" ADD CONSTRAINT "ClassSubject_subjectId_fkey" FOREIGN KEY ("subjectId") REFERENCES "Subject"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE "TeacherAssignment" ADD CONSTRAINT "TeacherAssignment_teacherId_fkey" FOREIGN KEY ("teacherId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE "TeacherAssignment" ADD CONSTRAINT "TeacherAssignment_classId_fkey" FOREIGN KEY ("classId") REFERENCES "Class"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE "TeacherAssignment" ADD CONSTRAINT "TeacherAssignment_subjectId_fkey" FOREIGN KEY ("subjectId") REFERENCES "Subject"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -287,28 +306,26 @@ ALTER TABLE "LogbookEntry" ADD CONSTRAINT "LogbookEntry_timetableSlotId_fkey" FO
 ALTER TABLE "Notification" ADD CONSTRAINT "Notification_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE "_EntryTopics" ADD CONSTRAINT "_EntryTopics_A_fkey" FOREIGN KEY ("A") REFERENCES "LogbookEntry"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 ALTER TABLE "_EntryTopics" ADD CONSTRAINT "_EntryTopics_B_fkey" FOREIGN KEY ("B") REFERENCES "Topic"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE "Class" DROP CONSTRAINT "Class_schoolId_fkey";
-ALTER TABLE "Class" ADD CONSTRAINT "Class_schoolId_fkey" FOREIGN KEY ("schoolId") REFERENCES "School"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- ============================================================
 -- STEP 5: Seed 10 Regions + Divisions
 -- ============================================================
 
 -- Adamawa
-INSERT INTO "Region" ("id", "name", "code", "capital") VALUES ('reg_ad', 'Adamawa', 'AD', 'Ngaoundéré');
-INSERT INTO "Division" ("id", "name", "regionId") VALUES ('div_ad_1', 'Djerem', 'reg_ad'), ('div_ad_2', 'Faro-et-Déo', 'reg_ad'), ('div_ad_3', 'Mayo-Banyo', 'reg_ad'), ('div_ad_4', 'Mbéré', 'reg_ad'), ('div_ad_5', 'Vina', 'reg_ad');
+INSERT INTO "Region" ("id", "name", "code", "capital") VALUES ('reg_ad', 'Adamawa', 'AD', 'Ngaoundere');
+INSERT INTO "Division" ("id", "name", "regionId") VALUES ('div_ad_1', 'Djerem', 'reg_ad'), ('div_ad_2', 'Faro-et-Deo', 'reg_ad'), ('div_ad_3', 'Mayo-Banyo', 'reg_ad'), ('div_ad_4', 'Mbere', 'reg_ad'), ('div_ad_5', 'Vina', 'reg_ad');
 
 -- Centre
-INSERT INTO "Region" ("id", "name", "code", "capital") VALUES ('reg_ce', 'Centre', 'CE', 'Yaoundé');
-INSERT INTO "Division" ("id", "name", "regionId") VALUES ('div_ce_1', 'Haute-Sanaga', 'reg_ce'), ('div_ce_2', 'Lekié', 'reg_ce'), ('div_ce_3', 'Mbam-et-Inoubou', 'reg_ce'), ('div_ce_4', 'Mbam-et-Kim', 'reg_ce'), ('div_ce_5', 'Méfou-et-Afamba', 'reg_ce'), ('div_ce_6', 'Méfou-et-Akono', 'reg_ce'), ('div_ce_7', 'Mfoundi', 'reg_ce'), ('div_ce_8', 'Nyong-et-Kellé', 'reg_ce'), ('div_ce_9', 'Nyong-et-Mfoumou', 'reg_ce'), ('div_ce_10', 'Nyong-et-So''o', 'reg_ce');
+INSERT INTO "Region" ("id", "name", "code", "capital") VALUES ('reg_ce', 'Centre', 'CE', 'Yaounde');
+INSERT INTO "Division" ("id", "name", "regionId") VALUES ('div_ce_1', 'Haute-Sanaga', 'reg_ce'), ('div_ce_2', 'Lekie', 'reg_ce'), ('div_ce_3', 'Mbam-et-Inoubou', 'reg_ce'), ('div_ce_4', 'Mbam-et-Kim', 'reg_ce'), ('div_ce_5', 'Mefou-et-Afamba', 'reg_ce'), ('div_ce_6', 'Mefou-et-Akono', 'reg_ce'), ('div_ce_7', 'Mfoundi', 'reg_ce'), ('div_ce_8', 'Nyong-et-Kelle', 'reg_ce'), ('div_ce_9', 'Nyong-et-Mfoumou', 'reg_ce'), ('div_ce_10', 'Nyong-et-Soo', 'reg_ce');
 
 -- East
 INSERT INTO "Region" ("id", "name", "code", "capital") VALUES ('reg_es', 'East', 'ES', 'Bertoua');
-INSERT INTO "Division" ("id", "name", "regionId") VALUES ('div_es_1', 'Boumba-et-Ngoko', 'reg_es'), ('div_es_2', 'Haut-Nyong', 'reg_es'), ('div_es_3', 'Kadey', 'reg_es'), ('div_es_4', 'Lom-et-Djérem', 'reg_es');
+INSERT INTO "Division" ("id", "name", "regionId") VALUES ('div_es_1', 'Boumba-et-Ngoko', 'reg_es'), ('div_es_2', 'Haut-Nyong', 'reg_es'), ('div_es_3', 'Kadey', 'reg_es'), ('div_es_4', 'Lom-et-Djerem', 'reg_es');
 
 -- Far North
 INSERT INTO "Region" ("id", "name", "code", "capital") VALUES ('reg_fn', 'Far North', 'FN', 'Maroua');
-INSERT INTO "Division" ("id", "name", "regionId") VALUES ('div_fn_1', 'Diamaré', 'reg_fn'), ('div_fn_2', 'Logone-et-Chari', 'reg_fn'), ('div_fn_3', 'Mayo-Danay', 'reg_fn'), ('div_fn_4', 'Mayo-Kani', 'reg_fn'), ('div_fn_5', 'Mayo-Sava', 'reg_fn'), ('div_fn_6', 'Mayo-Tsanaga', 'reg_fn');
+INSERT INTO "Division" ("id", "name", "regionId") VALUES ('div_fn_1', 'Diamare', 'reg_fn'), ('div_fn_2', 'Logone-et-Chari', 'reg_fn'), ('div_fn_3', 'Mayo-Danay', 'reg_fn'), ('div_fn_4', 'Mayo-Kani', 'reg_fn'), ('div_fn_5', 'Mayo-Sava', 'reg_fn'), ('div_fn_6', 'Mayo-Tsanaga', 'reg_fn');
 
 -- Littoral
 INSERT INTO "Region" ("id", "name", "code", "capital") VALUES ('reg_lt', 'Littoral', 'LT', 'Douala');
@@ -316,7 +333,7 @@ INSERT INTO "Division" ("id", "name", "regionId") VALUES ('div_lt_1', 'Moungo', 
 
 -- North
 INSERT INTO "Region" ("id", "name", "code", "capital") VALUES ('reg_no', 'North', 'NO', 'Garoua');
-INSERT INTO "Division" ("id", "name", "regionId") VALUES ('div_no_1', 'Bénoué', 'reg_no'), ('div_no_2', 'Faro', 'reg_no'), ('div_no_3', 'Mayo-Louti', 'reg_no'), ('div_no_4', 'Mayo-Rey', 'reg_no');
+INSERT INTO "Division" ("id", "name", "regionId") VALUES ('div_no_1', 'Benoue', 'reg_no'), ('div_no_2', 'Faro', 'reg_no'), ('div_no_3', 'Mayo-Louti', 'reg_no'), ('div_no_4', 'Mayo-Rey', 'reg_no');
 
 -- Northwest
 INSERT INTO "Region" ("id", "name", "code", "capital") VALUES ('reg_nw', 'Northwest', 'NW', 'Bamenda');
@@ -324,15 +341,15 @@ INSERT INTO "Division" ("id", "name", "regionId") VALUES ('div_nw_1', 'Boyo', 'r
 
 -- South
 INSERT INTO "Region" ("id", "name", "code", "capital") VALUES ('reg_su', 'South', 'SU', 'Ebolowa');
-INSERT INTO "Division" ("id", "name", "regionId") VALUES ('div_su_1', 'Dja-et-Lobo', 'reg_su'), ('div_su_2', 'Mvila', 'reg_su'), ('div_su_3', 'Océan', 'reg_su'), ('div_su_4', 'Vallée-du-Ntem', 'reg_su');
+INSERT INTO "Division" ("id", "name", "regionId") VALUES ('div_su_1', 'Dja-et-Lobo', 'reg_su'), ('div_su_2', 'Mvila', 'reg_su'), ('div_su_3', 'Ocean', 'reg_su'), ('div_su_4', 'Vallee-du-Ntem', 'reg_su');
 
 -- Southwest
 INSERT INTO "Region" ("id", "name", "code", "capital") VALUES ('reg_sw', 'Southwest', 'SW', 'Buea');
-INSERT INTO "Division" ("id", "name", "regionId") VALUES ('div_sw_1', 'Fako', 'reg_sw'), ('div_sw_2', 'Koupé-Manengouba', 'reg_sw'), ('div_sw_3', 'Lebialem', 'reg_sw'), ('div_sw_4', 'Manyu', 'reg_sw'), ('div_sw_5', 'Meme', 'reg_sw'), ('div_sw_6', 'Ndian', 'reg_sw');
+INSERT INTO "Division" ("id", "name", "regionId") VALUES ('div_sw_1', 'Fako', 'reg_sw'), ('div_sw_2', 'Koupe-Manengouba', 'reg_sw'), ('div_sw_3', 'Lebialem', 'reg_sw'), ('div_sw_4', 'Manyu', 'reg_sw'), ('div_sw_5', 'Meme', 'reg_sw'), ('div_sw_6', 'Ndian', 'reg_sw');
 
 -- West
 INSERT INTO "Region" ("id", "name", "code", "capital") VALUES ('reg_ou', 'West', 'OU', 'Bafoussam');
-INSERT INTO "Division" ("id", "name", "regionId") VALUES ('div_ou_1', 'Bamboutos', 'reg_ou'), ('div_ou_2', 'Haut-Nkam', 'reg_ou'), ('div_ou_3', 'Hauts-Plateaux', 'reg_ou'), ('div_ou_4', 'Koung-Khi', 'reg_ou'), ('div_ou_5', 'Menoua', 'reg_ou'), ('div_ou_6', 'Mifi', 'reg_ou'), ('div_ou_7', 'Ndé', 'reg_ou'), ('div_ou_8', 'Noun', 'reg_ou');
+INSERT INTO "Division" ("id", "name", "regionId") VALUES ('div_ou_1', 'Bamboutos', 'reg_ou'), ('div_ou_2', 'Haut-Nkam', 'reg_ou'), ('div_ou_3', 'Hauts-Plateaux', 'reg_ou'), ('div_ou_4', 'Koung-Khi', 'reg_ou'), ('div_ou_5', 'Menoua', 'reg_ou'), ('div_ou_6', 'Mifi', 'reg_ou'), ('div_ou_7', 'Nde', 'reg_ou'), ('div_ou_8', 'Noun', 'reg_ou');
 
 -- ============================================================
 -- STEP 6: Seed 10 Regional Admin accounts
