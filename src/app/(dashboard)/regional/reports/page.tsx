@@ -12,6 +12,13 @@ import {
   ChevronUp,
   Search,
   X,
+  Clock,
+  FileText,
+  Layers,
+  GraduationCap,
+  PenTool,
+  User,
+  Calendar,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -49,10 +56,16 @@ interface EntryItem {
   duration: number;
   status: string;
   notes: string | null;
+  objectives: string | null;
+  moduleName: string | null;
+  studentAttendance: number | null;
+  engagementLevel: string | null;
+  createdAt: string;
   teacher: { id: string; firstName: string; lastName: string; email: string };
   class: { id: string; name: string; level: string };
-  topics: { id: string; name: string; subject: { id: string; name: string; code: string } }[];
+  topics: { id: string; name: string; moduleName?: string | null; subject: { id: string; name: string; code: string } }[];
   assignment?: { subject: { name: string } } | null;
+  timetableSlot?: { periodLabel: string; startTime: string; endTime: string } | null;
 }
 
 export default function RegionalReportsPage() {
@@ -78,6 +91,16 @@ export default function RegionalReportsPage() {
   // View state
   const [activeTab, setActiveTab] = useState<"overview" | "entries">("overview");
   const [expandedSchool, setExpandedSchool] = useState<string | null>(null);
+  const [expandedEntryIds, setExpandedEntryIds] = useState<Set<string>>(new Set());
+
+  function toggleEntryExpand(id: string) {
+    setExpandedEntryIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
 
   useEffect(() => {
     async function fetchData() {
@@ -553,58 +576,199 @@ export default function RegionalReportsPage() {
                   Showing {entries.length} of {entriesTotal} entries
                 </p>
 
-                {/* Entry cards */}
+                {/* Entry cards - expandable */}
                 <div className="space-y-2">
                   {entries.map((entry) => {
                     const subjectName =
                       entry.assignment?.subject?.name ??
                       entry.topics?.[0]?.subject?.name ??
                       "—";
-                    const topicName = entry.topics?.[0]?.name ?? "—";
+                    const topicNames =
+                      entry.topics?.length > 0
+                        ? entry.topics.map((t) => t.name).join(", ")
+                        : "—";
                     const teacherName = `${entry.teacher.firstName} ${entry.teacher.lastName}`;
                     const entryDate = new Date(entry.date).toLocaleDateString(
                       "en-GB",
                       { day: "numeric", month: "short", year: "numeric" }
                     );
+                    const isExpanded = expandedEntryIds.has(entry.id);
 
                     return (
-                      <div key={entry.id} className="card p-3">
-                        <div className="flex items-start justify-between mb-1.5">
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <span className="text-xs font-medium bg-blue-50 text-blue-700 px-2 py-0.5 rounded">
-                              {subjectName}
-                            </span>
-                            <span className="text-xs font-medium bg-purple-50 text-purple-700 px-2 py-0.5 rounded">
-                              {entry.class.name}
-                            </span>
+                      <div key={entry.id} className="card overflow-hidden">
+                        <button
+                          onClick={() => toggleEntryExpand(entry.id)}
+                          className="w-full p-3 text-left"
+                        >
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="text-[10px] font-bold bg-blue-50 text-blue-700 px-1.5 py-0.5 rounded">
+                                  {subjectName}
+                                </span>
+                                <span className="text-[10px] font-medium bg-purple-50 text-purple-600 px-1.5 py-0.5 rounded">
+                                  {entry.class.name}
+                                </span>
+                                <span
+                                  className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${
+                                    entry.status === "VERIFIED"
+                                      ? "bg-green-50 text-green-700"
+                                      : entry.status === "FLAGGED"
+                                      ? "bg-red-50 text-red-700"
+                                      : "bg-slate-100 text-slate-500"
+                                  }`}
+                                >
+                                  {entry.status.charAt(0) + entry.status.slice(1).toLowerCase()}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-1.5 mt-2">
+                                <User className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
+                                <span className="text-sm font-semibold text-brand-950 truncate">
+                                  {teacherName}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-3 mt-1 text-xs text-slate-400">
+                                <span className="flex items-center gap-1">
+                                  <Calendar className="w-3 h-3" />
+                                  {entryDate}
+                                </span>
+                                {entry.period && (
+                                  <span className="flex items-center gap-1">
+                                    <Clock className="w-3 h-3" />
+                                    Period {entry.period}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                            <div className="flex-shrink-0 mt-1">
+                              {isExpanded ? (
+                                <ChevronUp className="w-4 h-4 text-slate-400" />
+                              ) : (
+                                <ChevronDown className="w-4 h-4 text-slate-400" />
+                              )}
+                            </div>
                           </div>
-                          <span
-                            className={`text-[10px] font-semibold uppercase px-1.5 py-0.5 rounded-full ${
-                              entry.status === "VERIFIED"
-                                ? "bg-green-50 text-green-700"
-                                : entry.status === "FLAGGED"
-                                ? "bg-red-50 text-red-700"
-                                : "bg-slate-100 text-slate-500"
-                            }`}
-                          >
-                            {entry.status}
-                          </span>
-                        </div>
-                        <p className="text-xs text-slate-700 font-medium truncate">
-                          {topicName}
-                        </p>
-                        <div className="flex items-center gap-3 mt-1.5 text-[11px] text-slate-400">
-                          <span>{teacherName}</span>
-                          <span>{entryDate}</span>
-                          {entry.period && (
-                            <span>Period {entry.period}</span>
-                          )}
-                          <span>{entry.duration} min</span>
-                        </div>
-                        {entry.notes && (
-                          <p className="text-[11px] text-slate-400 mt-1.5 line-clamp-2 italic">
-                            {entry.notes}
-                          </p>
+                        </button>
+
+                        {isExpanded && (
+                          <div className="px-3 pb-3 border-t border-slate-100">
+                            <div className="pt-3 space-y-3">
+                              {/* Topic */}
+                              <div className="flex items-start gap-2">
+                                <Layers className="w-4 h-4 text-slate-400 mt-0.5 flex-shrink-0" />
+                                <div>
+                                  <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400">
+                                    Topic
+                                  </p>
+                                  <p className="text-sm text-slate-700">
+                                    {topicNames}
+                                  </p>
+                                </div>
+                              </div>
+
+                              {/* Module */}
+                              {(entry.moduleName ||
+                                entry.topics?.some((t) => t.moduleName)) && (
+                                <div className="flex items-start gap-2">
+                                  <GraduationCap className="w-4 h-4 text-slate-400 mt-0.5 flex-shrink-0" />
+                                  <div>
+                                    <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400">
+                                      Module
+                                    </p>
+                                    <p className="text-sm text-slate-700">
+                                      {entry.moduleName ||
+                                        entry.topics
+                                          ?.map((t) => t.moduleName)
+                                          .filter(Boolean)
+                                          .join(", ") ||
+                                        "N/A"}
+                                    </p>
+                                  </div>
+                                </div>
+                              )}
+
+                              {/* Duration */}
+                              <div className="flex items-start gap-2">
+                                <Clock className="w-4 h-4 text-slate-400 mt-0.5 flex-shrink-0" />
+                                <div>
+                                  <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400">
+                                    Duration
+                                  </p>
+                                  <p className="text-sm text-slate-700">
+                                    {entry.duration} min
+                                    {entry.timetableSlot && (
+                                      <span className="text-slate-400 ml-2">
+                                        ({entry.timetableSlot.startTime} -{" "}
+                                        {entry.timetableSlot.endTime})
+                                      </span>
+                                    )}
+                                  </p>
+                                </div>
+                              </div>
+
+                              {/* Notes */}
+                              {entry.notes && (
+                                <div className="flex items-start gap-2">
+                                  <FileText className="w-4 h-4 text-slate-400 mt-0.5 flex-shrink-0" />
+                                  <div>
+                                    <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400">
+                                      Notes
+                                    </p>
+                                    <p className="text-sm text-slate-700 whitespace-pre-wrap">
+                                      {entry.notes}
+                                    </p>
+                                  </div>
+                                </div>
+                              )}
+
+                              {/* Objectives */}
+                              {entry.objectives && (
+                                <div className="flex items-start gap-2">
+                                  <PenTool className="w-4 h-4 text-slate-400 mt-0.5 flex-shrink-0" />
+                                  <div>
+                                    <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400">
+                                      Objectives
+                                    </p>
+                                    <p className="text-sm text-slate-700 whitespace-pre-wrap">
+                                      {entry.objectives}
+                                    </p>
+                                  </div>
+                                </div>
+                              )}
+
+                              {/* Attendance & Engagement */}
+                              {(entry.studentAttendance !== null ||
+                                entry.engagementLevel) && (
+                                <div className="flex gap-4">
+                                  {entry.studentAttendance !== null && (
+                                    <div>
+                                      <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400">
+                                        Attendance
+                                      </p>
+                                      <p className="text-sm font-medium text-slate-700">
+                                        {entry.studentAttendance} students
+                                      </p>
+                                    </div>
+                                  )}
+                                  {entry.engagementLevel && (
+                                    <div>
+                                      <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400">
+                                        Engagement
+                                      </p>
+                                      <p className="text-sm font-medium text-slate-700">
+                                        {entry.engagementLevel}
+                                      </p>
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+
+                              {/* Teacher info */}
+                              <div className="pt-2 border-t border-slate-100 text-xs text-slate-400">
+                                <span>{entry.teacher.email}</span>
+                              </div>
+                            </div>
+                          </div>
                         )}
                       </div>
                     );

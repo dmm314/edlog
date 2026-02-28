@@ -23,6 +23,7 @@ export default function SchoolRegisterPage() {
   const [step, setStep] = useState(1);
   const [form, setForm] = useState({
     schoolName: "",
+    registrationCode: "",
     regionId: "",
     divisionId: "",
     address: "",
@@ -88,6 +89,8 @@ export default function SchoolRegisterPage() {
 
   function validateStep1(): boolean {
     const errs: Record<string, string> = {};
+    if (!form.registrationCode.trim())
+      errs.registrationCode = "Registration code is required";
     if (form.schoolName.length < 3)
       errs.schoolName = "School name must be at least 3 characters";
     if (!form.regionId) errs.regionId = "Please select a region";
@@ -247,6 +250,27 @@ export default function SchoolRegisterPage() {
                 </h2>
                 <p className="text-sm text-slate-500 mb-4">
                   Enter your school details to get started
+                </p>
+              </div>
+
+              <div>
+                <label className="label-field">Registration Code</label>
+                <input
+                  type="text"
+                  value={form.registrationCode}
+                  onChange={(e) =>
+                    updateField("registrationCode", e.target.value.toUpperCase())
+                  }
+                  className={`input-field font-mono tracking-wider ${errors.registrationCode ? "border-red-300 focus:ring-red-500" : ""}`}
+                  placeholder="REG-XXXXXX"
+                />
+                {errors.registrationCode && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.registrationCode}
+                  </p>
+                )}
+                <p className="text-xs text-slate-400 mt-1">
+                  Get this code from your Regional Education Admin
                 </p>
               </div>
 

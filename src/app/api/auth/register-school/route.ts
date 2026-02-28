@@ -41,6 +41,7 @@ export async function POST(request: Request) {
 
     const {
       schoolName,
+      registrationCode,
       regionId,
       divisionId,
       adminFirstName,
@@ -48,6 +49,32 @@ export async function POST(request: Request) {
       adminEmail,
       adminPassword,
     } = parsed.data;
+
+    // Validate the registration code
+    const regCode = await db.registrationCode.findUnique({
+      where: { code: registrationCode },
+    });
+
+    if (!regCode) {
+      return NextResponse.json(
+        { error: "Invalid registration code. Please get a valid code from your Regional Education Admin." },
+        { status: 400 }
+      );
+    }
+
+    if (regCode.usedAt) {
+      return NextResponse.json(
+        { error: "This registration code has already been used." },
+        { status: 400 }
+      );
+    }
+
+    if (new Date() > regCode.expiresAt) {
+      return NextResponse.json(
+        { error: "This registration code has expired. Please request a new one from your Regional Admin." },
+        { status: 400 }
+      );
+    }
 
     // Check if admin email already exists
     const existingUser = await db.user.findUnique({
@@ -60,6 +87,9 @@ export async function POST(request: Request) {
       );
     }
 
+    // Use the region from the registration code to ensure consistency
+    const codeRegionId = regCode.regionId;
+
     // Verify region exists
     const region = await db.region.findUnique({
       where: { id: regionId },
@@ -67,6 +97,14 @@ export async function POST(request: Request) {
     if (!region) {
       return NextResponse.json(
         { error: "The selected region is invalid." },
+        { status: 400 }
+      );
+    }
+
+    // Verify the selected region matches the code's region
+    if (regionId !== codeRegionId) {
+      return NextResponse.json(
+        { error: "The selected region does not match the registration code's region. Please select the correct region." },
         { status: 400 }
       );
     }
@@ -120,6 +158,16 @@ export async function POST(request: Request) {
       await tx.school.update({
         where: { id: school.id },
         data: { adminId: user.id },
+      });
+
+      // Mark the registration code as used
+      await tx.registrationCode.update({
+        where: { id: regCode.id },
+        data: {
+          usedAt: new Date(),
+          usedById: user.id,
+          schoolId: school.id,
+        },
       });
 
       return { school, user };
