@@ -52,6 +52,7 @@ export async function GET() {
         email: t.email,
         phone: t.phone,
         gender: (t as Record<string, unknown>).gender as string | null,
+        photoUrl: (t as Record<string, unknown>).photoUrl as string | null,
         isVerified: t.isVerified,
         createdAt: t.createdAt.toISOString(),
         entryCount: t._count.entries,

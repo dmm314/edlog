@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import {
   ArrowLeft,
   CheckCircle,
@@ -12,6 +13,8 @@ import {
   Clock,
   Mail,
   Phone,
+  Layers,
+  GraduationCap,
 } from "lucide-react";
 import { formatDate } from "@/lib/utils";
 
@@ -21,6 +24,8 @@ interface TeacherDetail {
   lastName: string;
   email: string;
   phone: string | null;
+  gender: string | null;
+  photoUrl: string | null;
   isVerified: boolean;
   createdAt: string;
   totalEntries: number;
@@ -48,6 +53,27 @@ interface TeacherDetail {
   }[];
 }
 
+function getStatusColor(status: string) {
+  switch (status) {
+    case "VERIFIED": return "bg-emerald-50 text-emerald-700 border-emerald-100";
+    case "FLAGGED": return "bg-red-50 text-red-700 border-red-100";
+    case "DRAFT": return "bg-slate-50 text-slate-600 border-slate-100";
+    default: return "bg-blue-50 text-blue-700 border-blue-100";
+  }
+}
+
+function getSubjectColor(index: number): string {
+  const colors = [
+    "from-blue-500 to-indigo-600",
+    "from-emerald-500 to-teal-600",
+    "from-violet-500 to-purple-600",
+    "from-amber-500 to-orange-600",
+    "from-rose-500 to-pink-600",
+    "from-cyan-500 to-blue-600",
+  ];
+  return colors[index % colors.length];
+}
+
 export default function TeacherDetailPage() {
   const params = useParams();
   const [teacher, setTeacher] = useState<TeacherDetail | null>(null);
@@ -72,16 +98,23 @@ export default function TeacherDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 pb-24">
-        <div className="bg-gradient-to-br from-brand-950 to-brand-800 px-5 pt-10 pb-6 rounded-b-2xl">
-          <div className="max-w-lg mx-auto">
-            <div className="h-4 bg-white/20 rounded w-1/3 mb-3" />
-            <div className="h-6 bg-white/20 rounded w-1/2" />
+      <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100/50 pb-24">
+        <div className="bg-gradient-to-br from-brand-950 via-brand-900 to-brand-800 px-5 pt-10 pb-16 rounded-b-[2rem] shadow-elevated relative overflow-hidden">
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-brand-600/20 via-transparent to-transparent" />
+          <div className="max-w-lg mx-auto relative">
+            <div className="skeleton h-4 w-28 !bg-white/10 mb-4" />
+            <div className="flex items-center gap-4">
+              <div className="skeleton w-16 h-16 rounded-2xl !bg-white/10" />
+              <div>
+                <div className="skeleton h-6 w-40 !bg-white/15 mb-2" />
+                <div className="skeleton h-4 w-24 !bg-white/10" />
+              </div>
+            </div>
           </div>
         </div>
-        <div className="px-5 mt-4 max-w-lg mx-auto space-y-3">
+        <div className="px-5 -mt-6 max-w-lg mx-auto space-y-3">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="card p-4 animate-pulse">
+            <div key={i} className="card p-5 animate-pulse">
               <div className="h-4 bg-slate-200 rounded w-1/2 mb-2" />
               <div className="h-3 bg-slate-200 rounded w-1/3" />
             </div>
@@ -93,12 +126,13 @@ export default function TeacherDetailPage() {
 
   if (!teacher) {
     return (
-      <div className="min-h-screen bg-slate-50 pb-24">
-        <div className="bg-gradient-to-br from-brand-950 to-brand-800 px-5 pt-10 pb-6 rounded-b-2xl">
-          <div className="max-w-lg mx-auto">
+      <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100/50 pb-24">
+        <div className="bg-gradient-to-br from-brand-950 via-brand-900 to-brand-800 px-5 pt-10 pb-8 rounded-b-[2rem] shadow-elevated relative overflow-hidden">
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-brand-600/20 via-transparent to-transparent" />
+          <div className="max-w-lg mx-auto relative">
             <Link
               href="/admin/teachers"
-              className="inline-flex items-center gap-1 text-white/70 hover:text-white text-sm mb-3"
+              className="inline-flex items-center gap-1.5 text-white/70 hover:text-white text-sm mb-3 transition-colors"
             >
               <ArrowLeft className="w-4 h-4" />
               Back to Teachers
@@ -110,90 +144,160 @@ export default function TeacherDetailPage() {
     );
   }
 
+  const initials = `${teacher.firstName?.[0] || ""}${teacher.lastName?.[0] || ""}`.toUpperCase();
+  const verifiedCount = teacher.entries.filter((e) => e.status === "VERIFIED").length;
+  const verifiedRate = teacher.entries.length > 0 ? Math.round((verifiedCount / teacher.entries.length) * 100) : 0;
+
   return (
-    <div className="min-h-screen bg-slate-50 pb-24">
-      {/* Header */}
-      <div className="bg-gradient-to-br from-brand-950 to-brand-800 px-5 pt-10 pb-6 rounded-b-2xl">
-        <div className="max-w-lg mx-auto">
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100/50 pb-24">
+      {/* Header with teacher photo */}
+      <div className="bg-gradient-to-br from-brand-950 via-brand-900 to-brand-800 px-5 pt-10 pb-16 rounded-b-[2rem] shadow-elevated relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-brand-600/20 via-transparent to-transparent" />
+        <div className="absolute top-0 right-0 w-64 h-64 bg-brand-500/[0.07] rounded-full -translate-y-1/3 translate-x-1/4 blur-3xl" />
+
+        <div className="max-w-lg mx-auto relative">
           <Link
             href="/admin/teachers"
-            className="inline-flex items-center gap-1 text-white/70 hover:text-white text-sm mb-3"
+            className="inline-flex items-center gap-1.5 text-white/60 hover:text-white text-sm mb-5 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to Teachers
           </Link>
-          <div className="flex items-start justify-between">
-            <div>
-              <h1 className="text-xl font-bold text-white">
+
+          <div className="flex items-center gap-4">
+            {/* Teacher photo */}
+            <div className="relative flex-shrink-0">
+              {teacher.photoUrl ? (
+                <Image
+                  src={teacher.photoUrl}
+                  alt={`${teacher.firstName} ${teacher.lastName}`}
+                  width={72}
+                  height={72}
+                  className="w-[72px] h-[72px] rounded-2xl object-cover ring-2 ring-white/20 shadow-lg"
+                />
+              ) : (
+                <div className="w-[72px] h-[72px] rounded-2xl bg-gradient-to-br from-brand-600 to-brand-500 flex items-center justify-center ring-2 ring-white/20 shadow-lg">
+                  <span className="text-2xl font-bold text-white">{initials}</span>
+                </div>
+              )}
+              {teacher.isVerified && (
+                <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-emerald-500 rounded-lg flex items-center justify-center border-2 border-brand-900 shadow-sm">
+                  <CheckCircle className="w-3.5 h-3.5 text-white" />
+                </div>
+              )}
+            </div>
+
+            <div className="flex-1 min-w-0">
+              <h1 className="text-xl font-bold text-white truncate">
                 {teacher.firstName} {teacher.lastName}
               </h1>
-              <p className="text-brand-400 text-sm mt-0.5">
-                {teacher.totalEntries} logbook{" "}
-                {teacher.totalEntries === 1 ? "entry" : "entries"}
+              <p className="text-brand-400/80 text-sm mt-0.5 truncate">
+                {teacher.email}
               </p>
+              <div className="flex items-center gap-2 mt-2">
+                <span
+                  className={`flex items-center gap-1 text-[10px] font-bold rounded-full px-2.5 py-0.5 ${
+                    teacher.isVerified
+                      ? "bg-emerald-500/20 text-emerald-300"
+                      : "bg-amber-500/20 text-amber-300"
+                  }`}
+                >
+                  {teacher.isVerified ? (
+                    <><CheckCircle className="w-3 h-3" /> Verified</>
+                  ) : (
+                    <><XCircle className="w-3 h-3" /> Unverified</>
+                  )}
+                </span>
+                {teacher.gender && (
+                  <span className="text-[10px] font-medium bg-white/10 text-white/70 rounded-full px-2.5 py-0.5">
+                    {teacher.gender === "MALE" ? "Male" : "Female"}
+                  </span>
+                )}
+              </div>
             </div>
-            <span
-              className={`flex items-center gap-1 text-xs font-medium rounded-full px-2.5 py-1 ${
-                teacher.isVerified
-                  ? "bg-green-500/20 text-green-300"
-                  : "bg-amber-500/20 text-amber-300"
-              }`}
-            >
-              {teacher.isVerified ? (
-                <>
-                  <CheckCircle className="w-3.5 h-3.5" />
-                  Verified
-                </>
-              ) : (
-                <>
-                  <XCircle className="w-3.5 h-3.5" />
-                  Unverified
-                </>
-              )}
-            </span>
           </div>
         </div>
       </div>
 
-      <div className="px-5 mt-4 max-w-lg mx-auto space-y-4">
-        {/* Contact Info */}
-        <div className="card p-4 space-y-2">
-          <div className="flex items-center gap-2 text-sm text-slate-600">
-            <Mail className="w-4 h-4 text-slate-400" />
-            {teacher.email}
+      <div className="px-5 -mt-6 max-w-lg mx-auto space-y-4">
+        {/* Stats row */}
+        <div className="animate-slide-up grid grid-cols-3 gap-3">
+          <div className="card p-3.5 text-center">
+            <p className="text-xl font-bold text-brand-950">{teacher.totalEntries}</p>
+            <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mt-0.5">Entries</p>
           </div>
-          {teacher.phone && (
-            <div className="flex items-center gap-2 text-sm text-slate-600">
-              <Phone className="w-4 h-4 text-slate-400" />
-              {teacher.phone}
+          <div className="card p-3.5 text-center">
+            <p className="text-xl font-bold text-brand-950">{teacher.assignments.length}</p>
+            <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mt-0.5">Assignments</p>
+          </div>
+          <div className="card p-3.5 text-center">
+            <p className={`text-xl font-bold ${verifiedRate >= 70 ? "text-emerald-600" : verifiedRate >= 40 ? "text-amber-600" : "text-red-500"}`}>
+              {verifiedRate}%
+            </p>
+            <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mt-0.5">Verified</p>
+          </div>
+        </div>
+
+        {/* Contact Info */}
+        <div className="animate-slide-up animation-delay-75 card overflow-hidden">
+          <div className="px-5 pt-4 pb-2">
+            <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400">Contact Information</h3>
+          </div>
+          <div className="divide-y divide-slate-50">
+            <div className="flex items-center gap-3 px-5 py-3">
+              <div className="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center">
+                <Mail className="w-4 h-4 text-blue-500" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">Email</p>
+                <p className="text-sm font-medium text-slate-700 truncate">{teacher.email}</p>
+              </div>
             </div>
-          )}
-          <div className="flex items-center gap-2 text-sm text-slate-400">
-            <Calendar className="w-4 h-4" />
-            Joined {formatDate(teacher.createdAt)}
+            {teacher.phone && (
+              <div className="flex items-center gap-3 px-5 py-3">
+                <div className="w-8 h-8 bg-emerald-50 rounded-lg flex items-center justify-center">
+                  <Phone className="w-4 h-4 text-emerald-500" />
+                </div>
+                <div>
+                  <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">Phone</p>
+                  <p className="text-sm font-medium text-slate-700">{teacher.phone}</p>
+                </div>
+              </div>
+            )}
+            <div className="flex items-center gap-3 px-5 py-3">
+              <div className="w-8 h-8 bg-purple-50 rounded-lg flex items-center justify-center">
+                <Calendar className="w-4 h-4 text-purple-500" />
+              </div>
+              <div>
+                <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">Joined</p>
+                <p className="text-sm font-medium text-slate-700">{formatDate(teacher.createdAt)}</p>
+              </div>
+            </div>
           </div>
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-1 bg-slate-100 rounded-xl p-1">
+        <div className="animate-slide-up animation-delay-150 flex gap-1 bg-slate-100/80 rounded-2xl p-1.5 shadow-inner-glow">
           <button
             onClick={() => setTab("entries")}
-            className={`flex-1 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+            className={`flex-1 flex items-center justify-center gap-1.5 rounded-xl px-3 py-2.5 text-sm font-semibold transition-all duration-200 ${
               tab === "entries"
                 ? "bg-white text-slate-900 shadow-sm"
-                : "text-slate-500"
+                : "text-slate-500 hover:text-slate-700"
             }`}
           >
+            <BookOpen className="w-3.5 h-3.5" />
             Entries ({teacher.entries.length})
           </button>
           <button
             onClick={() => setTab("assignments")}
-            className={`flex-1 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+            className={`flex-1 flex items-center justify-center gap-1.5 rounded-xl px-3 py-2.5 text-sm font-semibold transition-all duration-200 ${
               tab === "assignments"
                 ? "bg-white text-slate-900 shadow-sm"
-                : "text-slate-500"
+                : "text-slate-500 hover:text-slate-700"
             }`}
           >
+            <Layers className="w-3.5 h-3.5" />
             Assignments ({teacher.assignments.length})
           </button>
         </div>
@@ -202,52 +306,51 @@ export default function TeacherDetailPage() {
         {tab === "entries" && (
           <>
             {teacher.entries.length === 0 ? (
-              <div className="text-center py-8">
-                <BookOpen className="w-10 h-10 text-slate-300 mx-auto mb-2" />
-                <p className="text-slate-500">No logbook entries yet</p>
+              <div className="text-center py-12 animate-fade-in">
+                <div className="w-16 h-16 bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-sm">
+                  <BookOpen className="w-8 h-8 text-slate-300" />
+                </div>
+                <p className="text-slate-600 font-semibold">No logbook entries yet</p>
+                <p className="text-sm text-slate-400 mt-1">This teacher hasn&apos;t submitted any entries</p>
               </div>
             ) : (
-              <div className="space-y-2">
-                {teacher.entries.map((entry) => (
-                  <div key={entry.id} className="card p-4">
-                    <div className="flex items-start justify-between mb-1">
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs font-medium bg-blue-50 text-blue-700 px-2 py-0.5 rounded">
+              <div className="space-y-2.5">
+                {teacher.entries.map((entry, i) => (
+                  <div
+                    key={entry.id}
+                    className="card p-4 hover:-translate-y-0.5 transition-all duration-200"
+                    style={{ animationDelay: `${i * 40}ms` }}
+                  >
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-[10px] font-bold bg-blue-50 text-blue-700 px-2 py-0.5 rounded-md border border-blue-100">
                           {entry.subject}
                         </span>
-                        <span className="text-xs font-medium bg-purple-50 text-purple-700 px-2 py-0.5 rounded">
+                        <span className="text-[10px] font-semibold bg-slate-50 text-slate-600 px-2 py-0.5 rounded-md border border-slate-100">
                           {entry.className}
                         </span>
                       </div>
-                      <span
-                        className={`text-[10px] font-medium px-1.5 py-0.5 rounded ${
-                          entry.status === "VERIFIED"
-                            ? "bg-green-50 text-green-700"
-                            : entry.status === "FLAGGED"
-                            ? "bg-red-50 text-red-700"
-                            : "bg-slate-100 text-slate-600"
-                        }`}
-                      >
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${getStatusColor(entry.status)}`}>
                         {entry.status}
                       </span>
                     </div>
                     {entry.topics.length > 0 && (
-                      <p className="text-sm text-slate-700 mt-1">
+                      <p className="text-sm text-slate-700 font-medium">
                         {entry.topics.join(", ")}
                       </p>
                     )}
                     {entry.notes && (
-                      <p className="text-xs text-slate-500 mt-1 line-clamp-2">
+                      <p className="text-xs text-slate-500 mt-1.5 line-clamp-2">
                         {entry.notes}
                       </p>
                     )}
-                    <div className="flex items-center gap-3 mt-2 text-xs text-slate-400">
+                    <div className="flex items-center gap-3 mt-2.5 text-[11px] text-slate-400">
                       <span className="flex items-center gap-1">
                         <Calendar className="w-3 h-3" />
                         {formatDate(entry.date)}
                       </span>
                       {entry.period && (
-                        <span>Period {entry.period}</span>
+                        <span className="font-medium text-slate-500">Period {entry.period}</span>
                       )}
                       <span className="flex items-center gap-1">
                         <Clock className="w-3 h-3" />
@@ -265,36 +368,43 @@ export default function TeacherDetailPage() {
         {tab === "assignments" && (
           <>
             {teacher.assignments.length === 0 ? (
-              <div className="text-center py-8">
-                <BookOpen className="w-10 h-10 text-slate-300 mx-auto mb-2" />
-                <p className="text-slate-500">No assignments yet</p>
+              <div className="text-center py-12 animate-fade-in">
+                <div className="w-16 h-16 bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-sm">
+                  <GraduationCap className="w-8 h-8 text-slate-300" />
+                </div>
+                <p className="text-slate-600 font-semibold">No assignments yet</p>
                 <Link
                   href="/admin/assignments"
-                  className="text-sm text-brand-600 font-medium mt-2 inline-block"
+                  className="inline-flex items-center gap-1.5 text-sm text-brand-600 font-semibold mt-2.5 hover:text-brand-700 transition-colors"
                 >
                   Assign teacher to classes
                 </Link>
               </div>
             ) : (
-              <div className="space-y-2">
-                {teacher.assignments.map((a) => (
-                  <div key={a.id} className="card p-4">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-xs font-medium bg-blue-50 text-blue-700 px-2 py-0.5 rounded">
-                        {a.subjectName}
-                      </span>
-                      <span className="text-xs font-medium bg-purple-50 text-purple-700 px-2 py-0.5 rounded">
-                        {a.className}
-                      </span>
+              <div className="space-y-2.5">
+                {teacher.assignments.map((a, i) => (
+                  <div
+                    key={a.id}
+                    className="card p-4 hover:-translate-y-0.5 transition-all duration-200"
+                    style={{ animationDelay: `${i * 40}ms` }}
+                  >
+                    <div className="flex items-center gap-3 mb-2.5">
+                      <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${getSubjectColor(i)} flex items-center justify-center shadow-sm`}>
+                        <span className="text-xs font-bold text-white">{a.subjectCode.slice(0, 3)}</span>
+                      </div>
+                      <div>
+                        <p className="text-sm font-bold text-slate-800">{a.subjectName}</p>
+                        <p className="text-[11px] text-slate-400 font-medium">{a.className} &middot; Level {a.classLevel}</p>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-3 mt-2 text-xs text-slate-400">
-                      <span className="flex items-center gap-1">
-                        <BookOpen className="w-3 h-3" />
-                        {a.entryCount} entries
+                    <div className="flex items-center gap-4 text-[11px] text-slate-400">
+                      <span className="flex items-center gap-1.5 bg-slate-50 rounded-lg px-2.5 py-1 border border-slate-100">
+                        <BookOpen className="w-3 h-3 text-brand-500" />
+                        <span className="font-semibold text-slate-600">{a.entryCount}</span> entries
                       </span>
-                      <span className="flex items-center gap-1">
-                        <Clock className="w-3 h-3" />
-                        {a.slotCount} timetable slots
+                      <span className="flex items-center gap-1.5 bg-slate-50 rounded-lg px-2.5 py-1 border border-slate-100">
+                        <Clock className="w-3 h-3 text-brand-500" />
+                        <span className="font-semibold text-slate-600">{a.slotCount}</span> slots
                       </span>
                     </div>
                   </div>

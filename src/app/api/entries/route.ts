@@ -17,6 +17,7 @@ export async function GET(request: NextRequest) {
     const subjectId = searchParams.get("subjectId");
     const classId = searchParams.get("classId");
     const moduleName = searchParams.get("moduleName");
+    const teacherId = searchParams.get("teacherId");
     const search = searchParams.get("search");
     const limit = parseInt(searchParams.get("limit") || "20");
     const offset = parseInt(searchParams.get("offset") || "0");
@@ -40,8 +41,38 @@ export async function GET(request: NextRequest) {
 
     if (classId) where.classId = classId;
 
+    // Support filtering by class name (for admin UI)
+    const className = searchParams.get("className");
+    if (className && !classId) {
+      where.class = { name: className };
+    }
+
+    // teacherId filter (for admin filtering by specific teacher)
+    if (teacherId && user.role !== "TEACHER") {
+      where.teacherId = teacherId;
+    }
+
+    // Use AND array for combining OR conditions safely
+    const andConditions: Record<string, unknown>[] = [];
+
     if (subjectId) {
-      where.topics = { some: { subjectId } };
+      andConditions.push({
+        OR: [
+          { topics: { some: { subjectId } } },
+          { assignment: { subjectId } },
+        ],
+      });
+    }
+
+    // Support filtering by subject name (for admin UI)
+    const subjectName = searchParams.get("subjectName");
+    if (subjectName && !subjectId) {
+      andConditions.push({
+        OR: [
+          { topics: { some: { subject: { name: subjectName } } } },
+          { assignment: { subject: { name: subjectName } } },
+        ],
+      });
     }
 
     if (moduleName) {
@@ -49,14 +80,21 @@ export async function GET(request: NextRequest) {
     }
 
     if (search) {
-      where.OR = [
-        { notes: { contains: search, mode: "insensitive" } },
-        { objectives: { contains: search, mode: "insensitive" } },
-        { topicText: { contains: search, mode: "insensitive" } },
-        { moduleName: { contains: search, mode: "insensitive" } },
-        { topics: { some: { name: { contains: search, mode: "insensitive" } } } },
-        { topics: { some: { subject: { name: { contains: search, mode: "insensitive" } } } } },
-      ];
+      andConditions.push({
+        OR: [
+          { notes: { contains: search, mode: "insensitive" } },
+          { objectives: { contains: search, mode: "insensitive" } },
+          { topicText: { contains: search, mode: "insensitive" } },
+          { moduleName: { contains: search, mode: "insensitive" } },
+          { topics: { some: { name: { contains: search, mode: "insensitive" } } } },
+          { topics: { some: { subject: { name: { contains: search, mode: "insensitive" } } } } },
+          { assignment: { subject: { name: { contains: search, mode: "insensitive" } } } },
+        ],
+      });
+    }
+
+    if (andConditions.length > 0) {
+      where.AND = andConditions;
     }
 
     const [entries, total] = await Promise.all([
@@ -73,6 +111,7 @@ export async function GET(request: NextRequest) {
               firstName: true,
               lastName: true,
               email: true,
+              photoUrl: true,
             },
           },
           assignment: {

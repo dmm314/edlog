@@ -47,6 +47,8 @@ export async function GET(
       lastName: teacher.lastName,
       email: teacher.email,
       phone: teacher.phone,
+      gender: (teacher as Record<string, unknown>).gender as string | null,
+      photoUrl: (teacher as Record<string, unknown>).photoUrl as string | null,
       isVerified: teacher.isVerified,
       createdAt: teacher.createdAt.toISOString(),
       totalEntries: teacher._count.entries,

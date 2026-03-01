@@ -61,6 +61,7 @@ export interface EntryWithRelations {
     firstName: string;
     lastName: string;
     email: string;
+    photoUrl?: string | null;
   };
   class: {
     id: string;
@@ -109,6 +110,7 @@ export interface TeacherWithStats {
   email: string;
   phone: string | null;
   gender: string | null;
+  photoUrl: string | null;
   isVerified: boolean;
   createdAt: string;
   entryCount: number;
