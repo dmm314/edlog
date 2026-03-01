@@ -119,7 +119,7 @@ export async function GET() {
       .sort((a, b) => b.complianceRate - a.complianceRate);
 
     // Fetch filter options for reports
-    const [regionSubjects, regionClasses] = await Promise.all([
+    const [regionSubjects, regionClasses, regionModules] = await Promise.all([
       db.subject.findMany({
         where: {
           schools: { some: { school: { regionId: user.regionId } } },
@@ -131,6 +131,15 @@ export async function GET() {
         where: { school: { regionId: user.regionId } },
         select: { id: true, name: true, level: true, school: { select: { name: true } } },
         orderBy: [{ level: "asc" }, { name: "asc" }],
+      }).catch(() => []),
+      db.logbookEntry.findMany({
+        where: {
+          teacher: { school: { regionId: user.regionId } },
+          moduleName: { not: null },
+        },
+        select: { moduleName: true },
+        distinct: ["moduleName"],
+        orderBy: { moduleName: "asc" },
       }).catch(() => []),
     ]);
 
@@ -152,6 +161,9 @@ export async function GET() {
           schoolName: c.school.name,
         })),
         schools: schools.map((s) => ({ id: s.id, name: s.name, code: s.code })),
+        modules: regionModules
+          .map((m) => m.moduleName as string)
+          .filter(Boolean),
       },
     });
   } catch (error) {

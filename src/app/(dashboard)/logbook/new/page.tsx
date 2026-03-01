@@ -108,6 +108,8 @@ export default function NewEntryPage() {
   const [duration, setDuration] = useState("60");
   const [notes, setNotes] = useState("");
   const [objectives, setObjectives] = useState("");
+  const [studentAttendance, setStudentAttendance] = useState("");
+  const [engagementLevel, setEngagementLevel] = useState("");
   const [signatureData, setSignatureData] = useState<string | null>(null);
   const [assignmentId, setAssignmentId] = useState<string | null>(null);
   const [timetableSlotId, setTimetableSlotId] = useState<string | null>(null);
@@ -128,6 +130,8 @@ export default function NewEntryPage() {
     duration: string;
     notes: string;
     objectives: string;
+    attendance: string;
+    engagement: string;
   } | null>(null);
 
   // Start timer
@@ -331,6 +335,8 @@ export default function NewEntryPage() {
         topicText: topicText.trim() || null,
         notes: notes || null,
         objectives: objectives || null,
+        studentAttendance: studentAttendance ? parseInt(studentAttendance) : null,
+        engagementLevel: engagementLevel || null,
         signatureData,
       };
 
@@ -368,6 +374,8 @@ export default function NewEntryPage() {
         duration: `${entry.duration} min`,
         notes: entry.notes || "",
         objectives: entry.objectives || "",
+        attendance: entry.studentAttendance ? `${entry.studentAttendance} students` : "",
+        engagement: entry.engagementLevel || "",
       });
       setSuccess(true);
       clearInterval(timerRef.current);
@@ -390,6 +398,8 @@ export default function NewEntryPage() {
     setDuration("60");
     setNotes("");
     setObjectives("");
+    setStudentAttendance("");
+    setEngagementLevel("");
     setSignatureData(null);
     setAssignmentId(null);
     setTimetableSlotId(null);
@@ -472,6 +482,28 @@ export default function NewEntryPage() {
                   </div>
                 </div>
               </div>
+
+              {/* Attendance & Engagement */}
+              {(submittedEntry.attendance || submittedEntry.engagement) && (
+                <div className="py-3">
+                  <div className="grid grid-cols-2 gap-3">
+                    {submittedEntry.attendance && (
+                      <div className="text-center bg-slate-50 rounded-xl py-2.5 px-2">
+                        <p className="text-[10px] text-slate-400 font-medium">Attendance</p>
+                        <p className="text-xs font-bold text-slate-800">{submittedEntry.attendance}</p>
+                      </div>
+                    )}
+                    {submittedEntry.engagement && (
+                      <div className="text-center bg-slate-50 rounded-xl py-2.5 px-2">
+                        <p className="text-[10px] text-slate-400 font-medium">Engagement</p>
+                        <p className="text-xs font-bold text-slate-800">
+                          {submittedEntry.engagement.charAt(0) + submittedEntry.engagement.slice(1).toLowerCase()}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
 
               {/* Notes & Objectives */}
               {(submittedEntry.notes || submittedEntry.objectives) && (
@@ -831,6 +863,39 @@ export default function NewEntryPage() {
                 maxLength={500}
               />
               <p className="text-xs text-slate-400 mt-1 text-right">{objectives.length}/500</p>
+            </div>
+
+            {/* Student Attendance & Engagement */}
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="label-field flex items-center gap-1.5">
+                  Student Population
+                </label>
+                <input
+                  type="number"
+                  value={studentAttendance}
+                  onChange={(e) => setStudentAttendance(e.target.value)}
+                  className="input-field"
+                  placeholder="# present"
+                  min="0"
+                  max="999"
+                />
+              </div>
+              <div>
+                <label className="label-field flex items-center gap-1.5">
+                  Student Engagement
+                </label>
+                <select
+                  value={engagementLevel}
+                  onChange={(e) => setEngagementLevel(e.target.value)}
+                  className="input-field"
+                >
+                  <option value="">Select level</option>
+                  <option value="HIGH">High</option>
+                  <option value="MEDIUM">Medium</option>
+                  <option value="LOW">Low</option>
+                </select>
+              </div>
             </div>
 
             {/* Signature */}

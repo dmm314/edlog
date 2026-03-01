@@ -360,6 +360,25 @@ export default function TimetableManagementPage() {
       </div>
 
       <div className="px-5 mt-4 max-w-lg mx-auto space-y-4">
+        {/* Error message */}
+        {error && (
+          <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 flex items-start gap-3">
+            <div className="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+              <X className="w-4 h-4 text-red-600" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-red-800">Scheduling Conflict</p>
+              <p className="text-sm text-red-700 mt-0.5">{error}</p>
+            </div>
+            <button
+              onClick={() => setError("")}
+              className="text-red-400 hover:text-red-600 flex-shrink-0 mt-1"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        )}
+
         {/* No assignments warning */}
         {classAssignments.length === 0 && (
           <div className="card p-4 border-l-4 border-amber-400">

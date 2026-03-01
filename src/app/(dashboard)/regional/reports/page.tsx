@@ -35,6 +35,7 @@ interface FilterOptions {
   subjects: { id: string; name: string; code: string }[];
   classes: { id: string; name: string; level: string; schoolName: string }[];
   schools: { id: string; name: string; code: string }[];
+  modules: string[];
 }
 
 interface RegionalReportData {
@@ -77,6 +78,7 @@ export default function RegionalReportsPage() {
   const [filterSchool, setFilterSchool] = useState("");
   const [filterSubject, setFilterSubject] = useState("");
   const [filterClass, setFilterClass] = useState("");
+  const [filterModule, setFilterModule] = useState("");
   const [filterFrom, setFilterFrom] = useState("");
   const [filterTo, setFilterTo] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
@@ -125,6 +127,7 @@ export default function RegionalReportsPage() {
       const params = new URLSearchParams();
       if (filterSubject) params.set("subjectId", filterSubject);
       if (filterClass) params.set("classId", filterClass);
+      if (filterModule) params.set("moduleName", filterModule);
       if (filterFrom) params.set("from", filterFrom);
       if (filterTo) params.set("to", filterTo);
       if (searchQuery) params.set("search", searchQuery);
@@ -143,7 +146,7 @@ export default function RegionalReportsPage() {
     } finally {
       setLoadingEntries(false);
     }
-  }, [filterSubject, filterClass, filterFrom, filterTo, searchQuery]);
+  }, [filterSubject, filterClass, filterModule, filterFrom, filterTo, searchQuery]);
 
   useEffect(() => {
     if (activeTab === "entries") {
@@ -161,12 +164,13 @@ export default function RegionalReportsPage() {
     return rankings;
   }, [data, filterSchool]);
 
-  const hasActiveFilters = filterSchool || filterSubject || filterClass || filterFrom || filterTo || searchQuery;
+  const hasActiveFilters = filterSchool || filterSubject || filterClass || filterModule || filterFrom || filterTo || searchQuery;
 
   function clearFilters() {
     setFilterSchool("");
     setFilterSubject("");
     setFilterClass("");
+    setFilterModule("");
     setFilterFrom("");
     setFilterTo("");
     setSearchQuery("");
@@ -326,6 +330,23 @@ export default function RegionalReportsPage() {
                       <option key={c.id} value={c.id}>
                         {c.name} ({c.schoolName})
                       </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              {/* Module filter */}
+              {data?.filterOptions?.modules && data.filterOptions.modules.length > 0 && (
+                <div>
+                  <label className="text-xs font-medium text-slate-500">Module</label>
+                  <select
+                    value={filterModule}
+                    onChange={(e) => setFilterModule(e.target.value)}
+                    className="input-field mt-1 text-sm"
+                  >
+                    <option value="">All modules</option>
+                    {data.filterOptions.modules.map((m) => (
+                      <option key={m} value={m}>{m}</option>
                     ))}
                   </select>
                 </div>

@@ -16,6 +16,7 @@ export async function GET(request: NextRequest) {
     const to = searchParams.get("to");
     const subjectId = searchParams.get("subjectId");
     const classId = searchParams.get("classId");
+    const moduleName = searchParams.get("moduleName");
     const search = searchParams.get("search");
     const limit = parseInt(searchParams.get("limit") || "20");
     const offset = parseInt(searchParams.get("offset") || "0");
@@ -41,6 +42,10 @@ export async function GET(request: NextRequest) {
 
     if (subjectId) {
       where.topics = { some: { subjectId } };
+    }
+
+    if (moduleName) {
+      where.moduleName = moduleName;
     }
 
     if (search) {

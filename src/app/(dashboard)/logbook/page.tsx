@@ -183,19 +183,19 @@ export default function LogbookPage() {
 
           {/* Quick Stats */}
           <div className="grid grid-cols-3 gap-2">
-            <div className="bg-white/10 rounded-xl px-3 py-2.5 text-center">
+            <div className="bg-white/10 rounded-xl px-3 py-2.5 text-center animate-count-up">
               <p className="text-xl font-bold text-white">{stats.today}</p>
               <p className="text-brand-400 text-[10px] uppercase tracking-wider font-semibold">
                 Today
               </p>
             </div>
-            <div className="bg-white/10 rounded-xl px-3 py-2.5 text-center">
+            <div className="bg-white/10 rounded-xl px-3 py-2.5 text-center animate-count-up animation-delay-75">
               <p className="text-xl font-bold text-white">{stats.thisWeek}</p>
               <p className="text-brand-400 text-[10px] uppercase tracking-wider font-semibold">
                 This Week
               </p>
             </div>
-            <div className="bg-white/10 rounded-xl px-3 py-2.5 text-center">
+            <div className="bg-white/10 rounded-xl px-3 py-2.5 text-center animate-count-up animation-delay-150">
               <p className="text-xl font-bold text-white">{stats.thisMonth}</p>
               <p className="text-brand-400 text-[10px] uppercase tracking-wider font-semibold">
                 This Month
