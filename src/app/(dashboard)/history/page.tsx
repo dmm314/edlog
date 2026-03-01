@@ -119,15 +119,30 @@ function getLevelColor(level: string): { bg: string; text: string; border: strin
   return { bg: "bg-slate-50", text: "text-slate-700", border: "border-slate-200" };
 }
 
+const HISTORY_STATE_KEY = "edlog_history_state";
+
+function saveHistoryState(state: { view: View; level: string; classId: string; className: string }) {
+  try { sessionStorage.setItem(HISTORY_STATE_KEY, JSON.stringify(state)); } catch {}
+}
+
+function loadHistoryState(): { view: View; level: string; classId: string; className: string } | null {
+  try {
+    const saved = sessionStorage.getItem(HISTORY_STATE_KEY);
+    if (saved) return JSON.parse(saved);
+  } catch {}
+  return null;
+}
+
 export default function HistoryPage() {
-  const [view, setView] = useState<View>("levels");
+  const saved = useMemo(() => loadHistoryState(), []);
+  const [view, setView] = useState<View>(saved?.view || "levels");
   const [levels, setLevels] = useState<ClassLevel[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Drill-down state
-  const [selectedLevel, setSelectedLevel] = useState<string>("");
-  const [selectedClassId, setSelectedClassId] = useState<string>("");
-  const [selectedClassName, setSelectedClassName] = useState<string>("");
+  const [selectedLevel, setSelectedLevel] = useState<string>(saved?.level || "");
+  const [selectedClassId, setSelectedClassId] = useState<string>(saved?.classId || "");
+  const [selectedClassName, setSelectedClassName] = useState<string>(saved?.className || "");
 
   // Timetable data
   const [periods, setPeriods] = useState<PeriodInfo[]>([]);
@@ -247,10 +262,11 @@ export default function HistoryPage() {
     return currentMonday.getTime() === today.getTime();
   }, [currentMonday]);
 
-  // Navigate drill-down
+  // Navigate drill-down (with session persistence)
   function selectLevel(level: string) {
     setSelectedLevel(level);
     setView("classes");
+    saveHistoryState({ view: "classes", level, classId: "", className: "" });
   }
 
   function selectClass(cls: { id: string; name: string }) {
@@ -258,6 +274,7 @@ export default function HistoryPage() {
     setSelectedClassName(cls.name);
     setCurrentMonday(getMonday(new Date()));
     setView("timetable");
+    saveHistoryState({ view: "timetable", level: selectedLevel, classId: cls.id, className: cls.name });
   }
 
   function goBack() {
@@ -267,9 +284,11 @@ export default function HistoryPage() {
       setPeriods([]);
       setSlots([]);
       setEntries([]);
+      saveHistoryState({ view: "classes", level: selectedLevel, classId: "", className: "" });
     } else if (view === "classes") {
       setView("levels");
       setSelectedLevel("");
+      saveHistoryState({ view: "levels", level: "", classId: "", className: "" });
     }
   }
 

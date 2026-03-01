@@ -366,7 +366,8 @@ export default function NewEntryPage() {
 
   const selectedDayName = date ? DAY_NAMES[getDayOfWeek(date)] || "" : "";
   const isWeekend = date ? getDayOfWeek(date) > 5 : false;
-  const isFormValid = date && classId && subjectId && topicText.trim().length > 0;
+  const hasTeachingOnDay = loadingSlots || timetableSlots.length > 0 || isWeekend;
+  const isFormValid = date && classId && subjectId && topicText.trim().length > 0 && hasTeachingOnDay;
   const hasMultiSlots = selectedSlotIds.length > 1;
 
   async function handleSubmit(e: React.FormEvent) {
@@ -695,8 +696,8 @@ export default function NewEntryPage() {
               {isWeekend && <p className="text-xs text-amber-600 mt-1">Weekend — no timetable slots available</p>}
             </div>
 
-            {/* Timetable Slot Picker — multi-select up to 2 */}
-            {!loadingSlots && timetableSlots.length > 0 && !classId && (
+            {/* Timetable Slot Picker — always visible, multi-select up to 2 */}
+            {!loadingSlots && timetableSlots.length > 0 && (
               <div>
                 <label className="label-field flex items-center gap-1.5">
                   <Calendar className="w-3.5 h-3.5 text-brand-500" />
@@ -739,7 +740,7 @@ export default function NewEntryPage() {
               </div>
             )}
 
-            {/* Class Selection */}
+            {/* Class Selection — only show when no slot selected */}
             {selectedSlotIds.length === 0 && (
               <div>
                 <label className="label-field">Class</label>
@@ -750,43 +751,14 @@ export default function NewEntryPage() {
               </div>
             )}
 
-            {/* Period picker for selected class + day — multi-select */}
-            {classId && selectedSlotIds.length === 0 && slotsForClassAndDay.length > 0 && (
-              <div>
-                <label className="label-field flex items-center gap-1.5">
-                  <Clock className="w-3.5 h-3.5 text-brand-500" />
-                  Your Periods for this Class on {selectedDayName}
-                </label>
-                <p className="text-[11px] text-slate-400 mb-2">Select up to 2 periods to fill at once</p>
-                <div className="flex gap-2 overflow-x-auto pb-1">
-                  {slotsForClassAndDay.map((slot) => {
-                    const isSelected = selectedSlotIds.includes(slot.id);
-                    return (
-                      <button key={slot.id} type="button" onClick={() => handleSlotToggle(slot)}
-                        className={`flex-shrink-0 rounded-xl border-2 px-3 py-2.5 text-left transition-all relative ${
-                          isSelected ? "border-brand-500 bg-brand-50 shadow-sm"
-                            : selectedSlotIds.length >= 2 ? "border-slate-100 bg-slate-50 opacity-50"
-                            : "border-slate-200 bg-white hover:border-brand-300"
-                        }`}>
-                        {isSelected && (
-                          <div className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-brand-600 rounded-full flex items-center justify-center shadow-sm">
-                            <Check className="w-3 h-3 text-white" />
-                          </div>
-                        )}
-                        <p className="text-xs font-bold text-slate-900">{slot.periodLabel}</p>
-                        <p className="text-[10px] text-slate-500 mt-0.5">{slot.startTime} - {slot.endTime}</p>
-                        <p className="text-[11px] font-semibold text-brand-700 mt-1">{slot.assignment.subjectName}</p>
-                      </button>
-                    );
-                  })}
+            {/* No timetable slots warning for selected day */}
+            {!loadingSlots && timetableSlots.length === 0 && !isWeekend && date && (
+              <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-xs text-red-700 flex items-start gap-2">
+                <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-semibold">You do not teach on {selectedDayName}</p>
+                  <p className="mt-0.5 text-red-600">No timetable slots found for this day. Please select a day you have classes.</p>
                 </div>
-              </div>
-            )}
-
-            {/* No timetable slots message */}
-            {classId && selectedSlotIds.length === 0 && slotsForClassAndDay.length === 0 && !isWeekend && !loadingSlots && (
-              <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 text-xs text-amber-700">
-                No timetable periods found for this class on {selectedDayName}. You can still fill the entry manually.
               </div>
             )}
 

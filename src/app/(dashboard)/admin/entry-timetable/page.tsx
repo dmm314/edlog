@@ -152,9 +152,24 @@ function getSubjectText(index: number): string {
   return colors[index % colors.length];
 }
 
+const ADMIN_ET_STATE_KEY = "edlog_admin_et_state";
+
+function saveAdminETState(classId: string | null) {
+  try { sessionStorage.setItem(ADMIN_ET_STATE_KEY, JSON.stringify({ classId })); } catch {}
+}
+
+function loadAdminETState(): { classId: string | null } | null {
+  try {
+    const saved = sessionStorage.getItem(ADMIN_ET_STATE_KEY);
+    if (saved) return JSON.parse(saved);
+  } catch {}
+  return null;
+}
+
 export default function EntryTimetablePage() {
+  const savedState = useMemo(() => loadAdminETState(), []);
   const [classes, setClasses] = useState<ClassOption[]>([]);
-  const [selectedClassId, setSelectedClassId] = useState<string | null>(null);
+  const [selectedClassId, setSelectedClassId] = useState<string | null>(savedState?.classId || null);
   const [weekStart, setWeekStart] = useState<Date>(() => getMonday(new Date()));
   const [loading, setLoading] = useState(true);
   const [loadingGrid, setLoadingGrid] = useState(false);
@@ -325,7 +340,7 @@ export default function EntryTimetablePage() {
               {classes.map((cls, i) => (
                 <button
                   key={cls.id}
-                  onClick={() => setSelectedClassId(cls.id)}
+                  onClick={() => { setSelectedClassId(cls.id); saveAdminETState(cls.id); }}
                   className="card p-4 w-full text-left flex items-center gap-3.5 hover:-translate-y-0.5 transition-all duration-200 group active:scale-[0.98]"
                   style={{ animationDelay: `${i * 50}ms` }}
                 >
@@ -360,7 +375,7 @@ export default function EntryTimetablePage() {
       <div className="bg-gradient-to-br from-brand-950 via-brand-900 to-brand-800 px-5 pt-10 pb-8 rounded-b-[2rem] shadow-elevated relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-brand-600/20 via-transparent to-transparent" />
         <div className="max-w-lg mx-auto relative">
-          <button onClick={() => { setSelectedClassId(null); setSelectedEntry(null); setSelectedSlot(null); }}
+          <button onClick={() => { setSelectedClassId(null); setSelectedEntry(null); setSelectedSlot(null); saveAdminETState(null); }}
             className="inline-flex items-center gap-1.5 text-white/60 hover:text-white text-sm mb-4 transition-colors">
             <ArrowLeft className="w-4 h-4" />All Classes
           </button>

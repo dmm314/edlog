@@ -19,28 +19,24 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const dayOfWeekParam = searchParams.get("dayOfWeek");
 
-    if (!dayOfWeekParam) {
-      return NextResponse.json(
-        { error: "dayOfWeek query parameter is required" },
-        { status: 400 }
-      );
-    }
+    // dayOfWeek is optional — if omitted, return all weekdays
+    const whereClause: Record<string, unknown> = {
+      assignment: { teacherId: user.id },
+    };
 
-    const dayOfWeek = parseInt(dayOfWeekParam);
-    if (isNaN(dayOfWeek) || dayOfWeek < 1 || dayOfWeek > 5) {
-      return NextResponse.json(
-        { error: "dayOfWeek must be between 1 (Monday) and 5 (Friday)" },
-        { status: 400 }
-      );
+    if (dayOfWeekParam) {
+      const dayOfWeek = parseInt(dayOfWeekParam);
+      if (isNaN(dayOfWeek) || dayOfWeek < 1 || dayOfWeek > 5) {
+        return NextResponse.json(
+          { error: "dayOfWeek must be between 1 (Monday) and 5 (Friday)" },
+          { status: 400 }
+        );
+      }
+      whereClause.dayOfWeek = dayOfWeek;
     }
 
     const slots = await db.timetableSlot.findMany({
-      where: {
-        dayOfWeek,
-        assignment: {
-          teacherId: user.id,
-        },
-      },
+      where: whereClause,
       include: {
         assignment: {
           include: {
