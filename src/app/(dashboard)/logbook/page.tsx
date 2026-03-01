@@ -39,6 +39,21 @@ interface TimetableSlotInfo {
   };
 }
 
+interface AllSlotInfo {
+  id: string;
+  dayOfWeek: number;
+  startTime: string;
+  endTime: string;
+  periodLabel: string;
+  assignment: {
+    id: string;
+    classId: string;
+    className: string;
+    subjectId: string;
+    subjectName: string;
+  };
+}
+
 function StatusBadge({ status }: { status: string }) {
   const map: Record<string, string> = {
     SUBMITTED: "badge-submitted",
@@ -92,6 +107,7 @@ function getSubjectBg(index: number): string {
 export default function LogbookPage() {
   const [entries, setEntries] = useState<EntryWithRelations[]>([]);
   const [todaySlots, setTodaySlots] = useState<TimetableSlotInfo[]>([]);
+  const [allSlots, setAllSlots] = useState<AllSlotInfo[]>([]);
   const [loading, setLoading] = useState(true);
 
   const today = useMemo(() => new Date(), []);
@@ -113,6 +129,7 @@ export default function LogbookPage() {
 
         const promises: Promise<Response>[] = [
           fetch(`/api/entries?${params}`),
+          fetch(`/api/timetable/slots`), // all weekday slots
         ];
 
         if (isWeekday) {
@@ -127,7 +144,12 @@ export default function LogbookPage() {
         }
 
         if (results[1]?.ok) {
-          const slotsData = await results[1].json();
+          const allSlotsData = await results[1].json();
+          setAllSlots(allSlotsData);
+        }
+
+        if (results[2]?.ok) {
+          const slotsData = await results[2].json();
           setTodaySlots(slotsData.slots || []);
         }
       } catch {
@@ -193,6 +215,92 @@ export default function LogbookPage() {
     });
     return map;
   }, [todaySlots, entries]);
+
+  // Smart next-class message
+  const nextClassInfo = useMemo(() => {
+    if (allSlots.length === 0) return null;
+
+    const now = new Date();
+    const currentHour = now.getHours();
+    const currentMin = now.getMinutes();
+    const currentDow = now.getDay(); // 0=Sun, 1=Mon, ..., 6=Sat
+
+    // Convert to 1=Mon format
+    const todayDow = currentDow === 0 ? 7 : currentDow;
+
+    // Find slots for today that haven't started yet
+    const todaySlotsAll = allSlots
+      .filter((s) => s.dayOfWeek === todayDow)
+      .sort((a, b) => a.startTime.localeCompare(b.startTime));
+
+    const upcomingToday = todaySlotsAll.filter((s) => {
+      const [h, m] = s.startTime.split(":").map(Number);
+      return h * 60 + m > currentHour * 60 + currentMin;
+    });
+
+    if (upcomingToday.length > 0) {
+      const next = upcomingToday[0];
+      const [h, m] = next.startTime.split(":").map(Number);
+      const diffMins = (h * 60 + m) - (currentHour * 60 + currentMin);
+
+      if (diffMins <= 120) {
+        // 2 hours or less — prep warning
+        const hrs = Math.floor(diffMins / 60);
+        const mins = diffMins % 60;
+        const timeStr = hrs > 0 ? `${hrs}h ${mins}m` : `${mins} minutes`;
+        return {
+          type: "prep" as const,
+          message: `Your next class is in ${timeStr}!`,
+          detail: `${next.assignment.subjectName} — ${next.assignment.className} at ${next.startTime}`,
+          hint: "Time to recheck everything and ensure you are prepped for class!",
+        };
+      } else {
+        // More than 2 hours away
+        const hrs = Math.floor(diffMins / 60);
+        const mins = diffMins % 60;
+        const timeStr = hrs > 0 ? `${hrs}h ${mins}m` : `${mins} minutes`;
+        return {
+          type: "rest-short" as const,
+          message: `Next class in ${timeStr}`,
+          detail: `${next.assignment.subjectName} — ${next.assignment.className} at ${next.startTime}`,
+          hint: "You have some time. Take a breather and prepare at your pace.",
+        };
+      }
+    }
+
+    // No more classes today — find next teaching day
+    const DAY_LABELS = ["", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+    const teachingDays = new Set(allSlots.map((s) => s.dayOfWeek));
+
+    for (let offset = 1; offset <= 7; offset++) {
+      let checkDow = todayDow + offset;
+      if (checkDow > 7) checkDow -= 7;
+      if (teachingDays.has(checkDow)) {
+        const nextDaySlots = allSlots
+          .filter((s) => s.dayOfWeek === checkDow)
+          .sort((a, b) => a.startTime.localeCompare(b.startTime));
+        const firstSlot = nextDaySlots[0];
+
+        if (offset === 1) {
+          return {
+            type: "rest-short" as const,
+            message: `Done for today! Next class is tomorrow`,
+            detail: `${firstSlot.assignment.subjectName} — ${firstSlot.assignment.className} at ${firstSlot.startTime}`,
+            hint: "Get some rest and come back refreshed!",
+          };
+        }
+
+        return {
+          type: "rest-long" as const,
+          message: `No more classes until ${DAY_LABELS[checkDow]}`,
+          detail: `${firstSlot.assignment.subjectName} — ${firstSlot.assignment.className} at ${firstSlot.startTime}`,
+          hint: `That's ${offset} days away. Enjoy your well-deserved rest!`,
+        };
+      }
+    }
+
+    return null;
+  }, [allSlots]);
 
   if (loading) {
     return (
@@ -367,8 +475,46 @@ export default function LogbookPage() {
           </div>
         )}
 
-        {/* Weekend notice */}
-        {!isWeekday && (
+        {/* Smart next-class card */}
+        {nextClassInfo && (
+          <div className={`animate-slide-up card overflow-hidden border-l-4 ${
+            nextClassInfo.type === "prep" ? "border-l-amber-500 bg-gradient-to-r from-amber-50/50 to-white" :
+            nextClassInfo.type === "rest-short" ? "border-l-blue-400 bg-gradient-to-r from-blue-50/50 to-white" :
+            "border-l-emerald-400 bg-gradient-to-r from-emerald-50/50 to-white"
+          }`}>
+            <div className="p-5">
+              <div className="flex items-start gap-3.5">
+                <div className={`w-11 h-11 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-sm ${
+                  nextClassInfo.type === "prep" ? "bg-gradient-to-br from-amber-400 to-amber-500" :
+                  nextClassInfo.type === "rest-short" ? "bg-gradient-to-br from-blue-400 to-blue-500" :
+                  "bg-gradient-to-br from-emerald-400 to-emerald-500"
+                }`}>
+                  {nextClassInfo.type === "prep" ? (
+                    <Zap className="w-5 h-5 text-white" />
+                  ) : (
+                    <Sun className="w-5 h-5 text-white" />
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className={`text-sm font-bold ${
+                    nextClassInfo.type === "prep" ? "text-amber-800" :
+                    nextClassInfo.type === "rest-short" ? "text-blue-800" :
+                    "text-emerald-800"
+                  }`}>{nextClassInfo.message}</p>
+                  <p className="text-xs text-slate-500 mt-0.5">{nextClassInfo.detail}</p>
+                  <p className={`text-[11px] font-medium mt-2 ${
+                    nextClassInfo.type === "prep" ? "text-amber-600" :
+                    nextClassInfo.type === "rest-short" ? "text-blue-600" :
+                    "text-emerald-600"
+                  }`}>{nextClassInfo.hint}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Weekend notice — only show if no nextClassInfo */}
+        {!isWeekday && !nextClassInfo && (
           <div className="animate-slide-up card p-6 flex items-center gap-4">
             <div className="w-14 h-14 bg-gradient-to-br from-slate-100 to-slate-50 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-sm">
               <Calendar className="w-7 h-7 text-slate-400" />

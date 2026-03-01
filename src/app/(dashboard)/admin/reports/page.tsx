@@ -111,11 +111,11 @@ export default function ReportsPage() {
           <>
             {/* Entries by Subject */}
             {stats && stats.entriesBySubject.length > 0 && (
-              <div className="card p-4">
+              <div className="card p-4 overflow-x-auto">
                 <h3 className="text-sm font-semibold text-slate-900 mb-3">
                   Entries by Subject
                 </h3>
-                <table className="w-full text-sm">
+                <table className="w-full text-sm min-w-0">
                   <thead>
                     <tr className="border-b border-slate-100">
                       <th className="text-left pb-2 text-slate-400 font-medium text-xs uppercase">
@@ -127,17 +127,28 @@ export default function ReportsPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {stats.entriesBySubject.map((s) => (
-                      <tr
-                        key={s.subject}
-                        className="border-b border-slate-50 last:border-0"
-                      >
-                        <td className="py-2 text-slate-700">{s.subject}</td>
-                        <td className="py-2 text-right font-medium text-slate-900">
-                          {s.count}
-                        </td>
-                      </tr>
-                    ))}
+                    {stats.entriesBySubject.map((s) => {
+                      const maxCount = Math.max(...stats.entriesBySubject.map((x) => x.count));
+                      const pct = maxCount > 0 ? (s.count / maxCount) * 100 : 0;
+                      return (
+                        <tr
+                          key={s.subject}
+                          className="border-b border-slate-50 last:border-0"
+                        >
+                          <td className="py-2.5 text-slate-700">
+                            <div className="flex items-center gap-2">
+                              <span className="truncate">{s.subject}</span>
+                            </div>
+                            <div className="h-1.5 bg-slate-100 rounded-full mt-1 overflow-hidden">
+                              <div className="h-full bg-gradient-to-r from-brand-600 to-brand-400 rounded-full" style={{ width: `${pct}%` }} />
+                            </div>
+                          </td>
+                          <td className="py-2.5 text-right font-bold text-slate-900 tabular-nums pl-3">
+                            {s.count}
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
@@ -149,25 +160,36 @@ export default function ReportsPage() {
                 <h3 className="text-sm font-semibold text-slate-900 mb-3">
                   Top Teachers by Entry Count
                 </h3>
-                <div className="space-y-2">
-                  {teachers.map((t, i) => (
-                    <div
-                      key={t.id}
-                      className="flex items-center justify-between py-1.5"
-                    >
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs text-slate-400 w-5">
-                          #{i + 1}
-                        </span>
-                        <span className="text-sm text-slate-700">
-                          {t.firstName} {t.lastName}
-                        </span>
+                <div className="space-y-1">
+                  {teachers.map((t, i) => {
+                    const maxCount = teachers.length > 0 ? teachers[0].entryCount : 1;
+                    const pct = maxCount > 0 ? (t.entryCount / maxCount) * 100 : 0;
+                    return (
+                      <div key={t.id} className="py-2">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <span className={`text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${
+                              i === 0 ? "bg-amber-100 text-amber-700" :
+                              i === 1 ? "bg-slate-200 text-slate-600" :
+                              i === 2 ? "bg-orange-100 text-orange-700" :
+                              "bg-slate-100 text-slate-400"
+                            }`}>
+                              {i + 1}
+                            </span>
+                            <span className="text-sm text-slate-700 truncate">
+                              {t.firstName} {t.lastName}
+                            </span>
+                          </div>
+                          <span className="text-sm font-bold text-slate-900 tabular-nums flex-shrink-0 ml-2">
+                            {t.entryCount}
+                          </span>
+                        </div>
+                        <div className="h-1.5 bg-slate-100 rounded-full mt-1.5 ml-8 overflow-hidden">
+                          <div className="h-full bg-gradient-to-r from-brand-600 to-brand-400 rounded-full transition-all" style={{ width: `${pct}%` }} />
+                        </div>
                       </div>
-                      <span className="text-sm font-medium text-slate-900">
-                        {t.entryCount}
-                      </span>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             )}
@@ -178,31 +200,33 @@ export default function ReportsPage() {
                 <h3 className="text-sm font-semibold text-slate-900 mb-3">
                   Weekly Trend
                 </h3>
-                <div className="flex items-end gap-3 h-28">
-                  {stats.entriesByWeek.map((w) => {
-                    const maxCount = Math.max(
-                      ...stats.entriesByWeek.map((x) => x.count)
-                    );
-                    const height =
-                      maxCount > 0 ? (w.count / maxCount) * 100 : 0;
-                    return (
-                      <div
-                        key={w.week}
-                        className="flex-1 flex flex-col items-center gap-1"
-                      >
-                        <span className="text-xs text-slate-600 font-semibold">
-                          {w.count}
-                        </span>
+                <div className="overflow-x-auto -mx-1 px-1">
+                  <div className="flex items-end gap-2 min-w-0" style={{ height: "140px", minWidth: `${Math.max(stats.entriesByWeek.length * 44, 200)}px` }}>
+                    {stats.entriesByWeek.map((w) => {
+                      const maxCount = Math.max(
+                        ...stats.entriesByWeek.map((x) => x.count)
+                      );
+                      const height =
+                        maxCount > 0 ? (w.count / maxCount) * 100 : 0;
+                      return (
                         <div
-                          className="w-full bg-gradient-to-t from-brand-800 to-brand-600 rounded-t"
-                          style={{ height: `${Math.max(height, 8)}%` }}
-                        />
-                        <span className="text-[10px] text-slate-400">
-                          W{w.week.split("-W")[1]}
-                        </span>
-                      </div>
-                    );
-                  })}
+                          key={w.week}
+                          className="flex-1 flex flex-col items-center gap-1 min-w-[36px]"
+                        >
+                          <span className="text-xs text-slate-600 font-semibold tabular-nums">
+                            {w.count}
+                          </span>
+                          <div
+                            className="w-full bg-gradient-to-t from-brand-800 to-brand-600 rounded-t min-h-[4px]"
+                            style={{ height: `${Math.max(height, 8)}%` }}
+                          />
+                          <span className="text-[9px] text-slate-400 whitespace-nowrap">
+                            W{w.week.split("-W")[1]}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
             )}
