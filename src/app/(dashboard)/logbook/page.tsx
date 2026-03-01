@@ -7,9 +7,17 @@ import {
   BookOpen,
   Calendar,
   Clock,
-  Target,
   Edit3,
   CheckCircle,
+  Sparkles,
+  ArrowRight,
+  Sun,
+  Moon,
+  CloudSun,
+  TrendingUp,
+  Zap,
+  Award,
+  BarChart3,
 } from "lucide-react";
 import { NotificationBell } from "@/components/NotificationBell";
 import type { EntryWithRelations } from "@/types";
@@ -32,16 +40,14 @@ interface TimetableSlotInfo {
 }
 
 function StatusBadge({ status }: { status: string }) {
-  const styles: Record<string, string> = {
-    SUBMITTED: "bg-blue-50 text-blue-700",
-    VERIFIED: "bg-green-50 text-green-700",
-    FLAGGED: "bg-red-50 text-red-700",
-    DRAFT: "bg-slate-100 text-slate-600",
+  const map: Record<string, string> = {
+    SUBMITTED: "badge-submitted",
+    VERIFIED: "badge-verified",
+    FLAGGED: "badge-flagged",
+    DRAFT: "badge-draft",
   };
   return (
-    <span
-      className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${styles[status] || styles.DRAFT}`}
-    >
+    <span className={map[status] || map.DRAFT}>
       {status.charAt(0) + status.slice(1).toLowerCase()}
     </span>
   );
@@ -52,20 +58,52 @@ function isEditable(entry: EntryWithRelations): boolean {
   return Date.now() - new Date(entry.createdAt).getTime() < oneHour;
 }
 
+function getGreeting(): { text: string; icon: React.ElementType } {
+  const hour = new Date().getHours();
+  if (hour < 12) return { text: "Good Morning", icon: Sun };
+  if (hour < 17) return { text: "Good Afternoon", icon: CloudSun };
+  return { text: "Good Evening", icon: Moon };
+}
+
+function getSubjectColor(index: number): string {
+  const colors = [
+    "from-blue-500 to-indigo-600",
+    "from-emerald-500 to-teal-600",
+    "from-violet-500 to-purple-600",
+    "from-amber-500 to-orange-600",
+    "from-rose-500 to-pink-600",
+    "from-cyan-500 to-blue-600",
+  ];
+  return colors[index % colors.length];
+}
+
+function getSubjectBg(index: number): string {
+  const colors = [
+    "bg-blue-50 text-blue-700 border-blue-100",
+    "bg-emerald-50 text-emerald-700 border-emerald-100",
+    "bg-violet-50 text-violet-700 border-violet-100",
+    "bg-amber-50 text-amber-700 border-amber-100",
+    "bg-rose-50 text-rose-700 border-rose-100",
+    "bg-cyan-50 text-cyan-700 border-cyan-100",
+  ];
+  return colors[index % colors.length];
+}
+
 export default function LogbookPage() {
   const [entries, setEntries] = useState<EntryWithRelations[]>([]);
   const [todaySlots, setTodaySlots] = useState<TimetableSlotInfo[]>([]);
   const [loading, setLoading] = useState(true);
 
   const today = useMemo(() => new Date(), []);
-  const dayOfWeek = today.getDay(); // 0=Sun, 1=Mon...
+  const dayOfWeek = today.getDay();
   const todayStr = today.toISOString().split("T")[0];
   const isWeekday = dayOfWeek >= 1 && dayOfWeek <= 5;
+  const greeting = getGreeting();
+  const GreetingIcon = greeting.icon;
 
   useEffect(() => {
     async function fetchData() {
       try {
-        // Fetch entries (last 30 days)
         const thirtyDaysAgo = new Date();
         thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
         const params = new URLSearchParams({
@@ -77,7 +115,6 @@ export default function LogbookPage() {
           fetch(`/api/entries?${params}`),
         ];
 
-        // Fetch today's timetable slots if weekday
         if (isWeekday) {
           promises.push(fetch(`/api/timetable/slots?dayOfWeek=${dayOfWeek}`));
         }
@@ -102,7 +139,6 @@ export default function LogbookPage() {
     fetchData();
   }, [dayOfWeek, isWeekday]);
 
-  // Compute stats
   const stats = useMemo(() => {
     const todayEntries = entries.filter(
       (e) => new Date(e.date).toISOString().split("T")[0] === todayStr
@@ -112,14 +148,10 @@ export default function LogbookPage() {
     const diff = today.getDay() === 0 ? -6 : 1 - today.getDay();
     startOfWeek.setDate(today.getDate() + diff);
     startOfWeek.setHours(0, 0, 0, 0);
-    const weekEntries = entries.filter(
-      (e) => new Date(e.date) >= startOfWeek
-    );
+    const weekEntries = entries.filter((e) => new Date(e.date) >= startOfWeek);
 
     const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-    const monthEntries = entries.filter(
-      (e) => new Date(e.date) >= startOfMonth
-    );
+    const monthEntries = entries.filter((e) => new Date(e.date) >= startOfMonth);
 
     const verified = entries.filter((e) => e.status === "VERIFIED").length;
     const total = entries.length;
@@ -134,7 +166,6 @@ export default function LogbookPage() {
     };
   }, [entries, todayStr, today]);
 
-  // Which slots haven't been filled today?
   const unfilledSlots = useMemo(() => {
     const filledPeriods = new Set(
       entries
@@ -145,20 +176,47 @@ export default function LogbookPage() {
     return todaySlots.filter((s) => !filledPeriods.has(s.periodNumber));
   }, [todaySlots, entries, todayStr]);
 
+  // Track unique subjects for coloring
+  const subjectColorMap = useMemo(() => {
+    const map = new Map<string, number>();
+    let idx = 0;
+    todaySlots.forEach((s) => {
+      if (!map.has(s.assignment.subject.name)) {
+        map.set(s.assignment.subject.name, idx++);
+      }
+    });
+    entries.forEach((e) => {
+      const name = e.topics?.[0]?.subject?.name;
+      if (name && !map.has(name)) {
+        map.set(name, idx++);
+      }
+    });
+    return map;
+  }, [todaySlots, entries]);
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 pb-24">
-        <div className="bg-gradient-to-br from-brand-950 to-brand-800 px-5 pt-10 pb-6 rounded-b-2xl">
-          <div className="max-w-lg mx-auto">
-            <h1 className="text-xl font-bold text-white">My Logbook</h1>
-            <p className="text-brand-400 text-sm mt-0.5">Loading...</p>
+      <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100/50 pb-24">
+        <div className="bg-gradient-to-br from-brand-950 via-brand-900 to-brand-800 px-5 pt-10 pb-10 rounded-b-[2rem] shadow-elevated relative overflow-hidden">
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-brand-600/20 via-transparent to-transparent" />
+          <div className="max-w-lg mx-auto relative">
+            <div className="skeleton h-5 w-32 !bg-white/10 mb-2" />
+            <div className="skeleton h-7 w-48 !bg-white/15 mb-6" />
+            <div className="grid grid-cols-3 gap-3">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="bg-white/[0.07] rounded-2xl px-3 py-4">
+                  <div className="skeleton h-8 w-10 mx-auto mb-2 !bg-white/10" />
+                  <div className="skeleton h-3 w-14 mx-auto !bg-white/[0.06]" />
+                </div>
+              ))}
+            </div>
           </div>
         </div>
-        <div className="px-5 mt-4 max-w-lg mx-auto space-y-3">
-          {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="card p-4 animate-pulse">
-              <div className="h-4 bg-slate-200 rounded w-2/3 mb-2" />
-              <div className="h-3 bg-slate-200 rounded w-1/2" />
+        <div className="px-5 mt-5 max-w-lg mx-auto space-y-4">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="card p-5">
+              <div className="skeleton h-5 w-2/3 mb-3" />
+              <div className="skeleton h-4 w-1/2" />
             </div>
           ))}
         </div>
@@ -167,103 +225,137 @@ export default function LogbookPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-24">
-      {/* Header */}
-      <div className="bg-gradient-to-br from-brand-950 to-brand-800 px-5 pt-10 pb-6 rounded-b-2xl">
-        <div className="max-w-lg mx-auto">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h1 className="text-xl font-bold text-white">My Logbook</h1>
-              <p className="text-brand-400 text-sm mt-0.5">
-                {DAY_NAMES[dayOfWeek]}, {formatDate(today)}
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100/50 pb-24">
+      {/* Hero Header */}
+      <div className="bg-gradient-to-br from-brand-950 via-brand-900 to-brand-800 px-5 pt-10 pb-10 rounded-b-[2rem] shadow-elevated relative overflow-hidden">
+        {/* Decorative elements */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-brand-600/20 via-transparent to-transparent" />
+        <div className="absolute top-0 right-0 w-64 h-64 bg-brand-500/[0.07] rounded-full -translate-y-1/3 translate-x-1/4 blur-3xl" />
+        <div className="absolute bottom-0 left-0 w-48 h-48 bg-brand-400/[0.05] rounded-full translate-y-1/3 -translate-x-1/4 blur-3xl" />
+
+        <div className="max-w-lg mx-auto relative">
+          {/* Greeting row */}
+          <div className="flex items-center justify-between mb-6">
+            <div className="animate-fade-in">
+              <div className="flex items-center gap-2 mb-1">
+                <GreetingIcon className="w-4 h-4 text-amber-400" />
+                <p className="text-brand-300 text-xs font-semibold uppercase tracking-wider">
+                  {greeting.text}
+                </p>
+              </div>
+              <h1 className="text-2xl font-bold text-white">
+                My Logbook
+              </h1>
+              <p className="text-brand-400/80 text-sm mt-0.5">
+                {DAY_NAMES[dayOfWeek]}, {today.toLocaleDateString("en-US", { month: "long", day: "numeric" })}
               </p>
             </div>
             <NotificationBell />
           </div>
 
-          {/* Quick Stats */}
-          <div className="grid grid-cols-3 gap-2">
-            <div className="bg-white/10 rounded-xl px-3 py-2.5 text-center animate-count-up">
-              <p className="text-xl font-bold text-white">{stats.today}</p>
-              <p className="text-brand-400 text-[10px] uppercase tracking-wider font-semibold">
-                Today
-              </p>
-            </div>
-            <div className="bg-white/10 rounded-xl px-3 py-2.5 text-center animate-count-up animation-delay-75">
-              <p className="text-xl font-bold text-white">{stats.thisWeek}</p>
-              <p className="text-brand-400 text-[10px] uppercase tracking-wider font-semibold">
-                This Week
-              </p>
-            </div>
-            <div className="bg-white/10 rounded-xl px-3 py-2.5 text-center animate-count-up animation-delay-150">
-              <p className="text-xl font-bold text-white">{stats.thisMonth}</p>
-              <p className="text-brand-400 text-[10px] uppercase tracking-wider font-semibold">
-                This Month
-              </p>
-            </div>
+          {/* Stats cards */}
+          <div className="grid grid-cols-3 gap-3">
+            {[
+              { label: "Today", value: stats.today, icon: Zap, color: "text-amber-400", delay: "" },
+              { label: "This Week", value: stats.thisWeek, icon: TrendingUp, color: "text-emerald-400", delay: "animation-delay-75" },
+              { label: "This Month", value: stats.thisMonth, icon: BarChart3, color: "text-blue-400", delay: "animation-delay-150" },
+            ].map((stat) => (
+              <div
+                key={stat.label}
+                className={`animate-count-up ${stat.delay} bg-white/[0.08] backdrop-blur-sm rounded-2xl px-3 py-4 text-center border border-white/[0.06] hover:bg-white/[0.12] transition-colors duration-300`}
+              >
+                <stat.icon className={`w-4 h-4 ${stat.color} mx-auto mb-1.5 opacity-80`} />
+                <p className="text-3xl font-bold text-white tabular-nums leading-none">
+                  {stat.value}
+                </p>
+                <p className="text-brand-400/70 text-[10px] uppercase tracking-wider font-semibold mt-1.5">
+                  {stat.label}
+                </p>
+              </div>
+            ))}
           </div>
         </div>
       </div>
 
-      <div className="px-5 mt-4 max-w-lg mx-auto space-y-4">
-        {/* New Entry Button */}
+      <div className="px-5 -mt-4 max-w-lg mx-auto space-y-4">
+        {/* New Entry CTA */}
         <Link
           href="/logbook/new"
-          className="btn-primary flex items-center justify-center gap-2"
+          className="animate-scale-in relative flex items-center justify-center gap-3 bg-gradient-to-r from-brand-700 via-brand-600 to-brand-500 text-white font-bold rounded-2xl py-4.5 px-6 shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group overflow-hidden"
         >
-          <Plus className="w-5 h-5" />
-          New Entry
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.08] to-transparent translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-700" />
+          <div className="w-8 h-8 bg-white/20 rounded-xl flex items-center justify-center">
+            <Plus className="w-5 h-5" />
+          </div>
+          <span className="text-base">New Entry</span>
+          <Sparkles className="w-4 h-4 opacity-50 group-hover:opacity-80 transition-opacity" />
         </Link>
 
-        {/* Today's Schedule - only on weekdays */}
+        {/* Today's Schedule */}
         {isWeekday && todaySlots.length > 0 && (
-          <div className="card overflow-hidden">
-            <div className="px-4 pt-3 pb-2 flex items-center gap-2">
-              <Calendar className="w-4 h-4 text-brand-600" />
-              <h3 className="text-sm font-semibold text-slate-900">
-                Today&apos;s Schedule
-              </h3>
+          <div className="animate-slide-up card overflow-hidden">
+            <div className="px-5 pt-4 pb-2.5 flex items-center gap-3">
+              <div className="w-9 h-9 bg-gradient-to-br from-brand-100 to-brand-50 rounded-xl flex items-center justify-center shadow-sm">
+                <Calendar className="w-4.5 h-4.5 text-brand-600" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-sm font-bold text-slate-900">
+                  Today&apos;s Schedule
+                </h3>
+                <p className="text-[11px] text-slate-400">
+                  {todaySlots.length} class{todaySlots.length !== 1 ? "es" : ""} scheduled
+                </p>
+              </div>
               {unfilledSlots.length > 0 && (
-                <span className="text-[10px] bg-amber-50 text-amber-700 font-semibold px-1.5 py-0.5 rounded-full ml-auto">
+                <span className="text-[10px] bg-gradient-to-r from-amber-50 to-orange-50 text-amber-700 font-bold px-2.5 py-1 rounded-full border border-amber-100 animate-pulse-subtle">
                   {unfilledSlots.length} pending
                 </span>
               )}
             </div>
-            <div className="divide-y divide-slate-50">
+            <div className="divide-y divide-slate-50/80">
               {todaySlots
                 .sort((a, b) => a.periodNumber - b.periodNumber)
-                .map((slot) => {
+                .map((slot, i) => {
                   const isFilled = entries.some(
                     (e) =>
                       new Date(e.date).toISOString().split("T")[0] === todayStr &&
                       e.period === slot.periodNumber
                   );
+                  const colorIdx = subjectColorMap.get(slot.assignment.subject.name) ?? i;
                   return (
                     <div
                       key={slot.id}
-                      className={`flex items-center gap-3 px-4 py-2.5 ${
-                        isFilled ? "bg-green-50/50" : ""
+                      className={`flex items-center gap-3.5 px-5 py-3.5 transition-all duration-200 ${
+                        isFilled ? "bg-emerald-50/40" : "hover:bg-slate-50/80"
                       }`}
                     >
-                      <div className="w-8 text-center">
-                        <span className="text-xs font-bold text-slate-400">
-                          P{slot.periodNumber}
-                        </span>
+                      <div
+                        className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold text-xs shadow-sm ${
+                          isFilled
+                            ? "bg-gradient-to-br from-emerald-400 to-emerald-500 text-white"
+                            : `bg-gradient-to-br ${getSubjectColor(colorIdx)} text-white opacity-80`
+                        }`}
+                      >
+                        P{slot.periodNumber}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-slate-800 truncate">
+                        <p className="text-sm font-semibold text-slate-800 truncate">
                           {slot.assignment.subject.name}
                         </p>
-                        <p className="text-[11px] text-slate-400">
+                        <p className="text-[11px] text-slate-400 flex items-center gap-1.5">
+                          <span className={`inline-block w-1.5 h-1.5 rounded-full ${isFilled ? "bg-emerald-400" : "bg-slate-300"}`} />
                           {slot.class.name} &middot; {slot.startTime} - {slot.endTime}
                         </p>
                       </div>
                       {isFilled ? (
-                        <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
+                        <div className="flex items-center gap-1.5 bg-emerald-50 text-emerald-600 rounded-lg px-2.5 py-1.5">
+                          <CheckCircle className="w-4 h-4" />
+                          <span className="text-[11px] font-semibold">Done</span>
+                        </div>
                       ) : (
                         <Link
                           href="/logbook/new"
-                          className="text-[11px] font-semibold text-brand-600 hover:text-brand-700 flex-shrink-0"
+                          className="text-xs font-bold text-white bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-500 hover:to-brand-400 rounded-xl px-4 py-2 flex-shrink-0 transition-all active:scale-95 shadow-sm"
                         >
                           Fill
                         </Link>
@@ -277,32 +369,40 @@ export default function LogbookPage() {
 
         {/* Weekend notice */}
         {!isWeekday && (
-          <div className="card p-4 flex items-center gap-3">
-            <div className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center flex-shrink-0">
-              <Calendar className="w-5 h-5 text-slate-400" />
+          <div className="animate-slide-up card p-6 flex items-center gap-4">
+            <div className="w-14 h-14 bg-gradient-to-br from-slate-100 to-slate-50 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-sm">
+              <Calendar className="w-7 h-7 text-slate-400" />
             </div>
             <div>
-              <p className="text-sm font-medium text-slate-700">Weekend</p>
-              <p className="text-xs text-slate-400">
-                No classes scheduled for today
+              <p className="text-base font-bold text-slate-700">Weekend Mode</p>
+              <p className="text-sm text-slate-400 mt-0.5">
+                No classes scheduled. Enjoy your rest!
               </p>
             </div>
           </div>
         )}
 
-        {/* Editable Entries (within 1 hour) */}
+        {/* Editable Entries */}
         {stats.editableEntries.length > 0 && (
-          <div className="card overflow-hidden">
-            <div className="px-4 pt-3 pb-2 flex items-center gap-2">
-              <Edit3 className="w-4 h-4 text-amber-600" />
-              <h3 className="text-sm font-semibold text-slate-900">
-                Editable Entries
-              </h3>
-              <span className="text-[10px] bg-amber-50 text-amber-700 font-semibold px-1.5 py-0.5 rounded-full ml-auto">
-                Edit within 1 hour
+          <div className="animate-slide-up card overflow-hidden border-amber-200/60 shadow-[0_0_0_1px_rgba(245,158,11,0.1),0_4px_16px_rgba(245,158,11,0.06)]">
+            <div className="px-5 pt-4 pb-2.5 flex items-center gap-3 bg-gradient-to-r from-amber-50/50 to-transparent">
+              <div className="w-9 h-9 bg-gradient-to-br from-amber-100 to-amber-50 rounded-xl flex items-center justify-center shadow-sm">
+                <Edit3 className="w-4 h-4 text-amber-600" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-sm font-bold text-slate-900">
+                  Editable Entries
+                </h3>
+                <p className="text-[11px] text-slate-400">
+                  Edit within the 1-hour window
+                </p>
+              </div>
+              <span className="text-[10px] bg-amber-100 text-amber-700 font-bold px-2.5 py-1 rounded-full border border-amber-200/60">
+                <Clock className="w-3 h-3 inline mr-0.5 -mt-px" />
+                1hr window
               </span>
             </div>
-            <div className="divide-y divide-slate-50">
+            <div className="divide-y divide-slate-50/80">
               {stats.editableEntries.map((entry) => {
                 const minutesLeft = Math.max(
                   0,
@@ -316,20 +416,20 @@ export default function LogbookPage() {
                   <Link
                     key={entry.id}
                     href={`/logbook/${entry.id}/edit`}
-                    className="flex items-center gap-3 px-4 py-2.5 hover:bg-slate-50 transition-colors"
+                    className="flex items-center gap-3.5 px-5 py-3.5 hover:bg-amber-50/30 transition-colors group"
                   >
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-slate-800 truncate">
+                      <p className="text-sm font-semibold text-slate-800 truncate group-hover:text-amber-800 transition-colors">
                         {entry.topics?.[0]?.subject?.name ?? "Entry"} &middot;{" "}
                         {entry.class.name}
                       </p>
-                      <p className="text-[11px] text-slate-400">
+                      <p className="text-[11px] text-slate-400 truncate">
                         {entry.topics?.[0]?.name ?? "—"}
                       </p>
                     </div>
-                    <div className="flex items-center gap-1.5 flex-shrink-0">
+                    <div className="flex items-center gap-2 bg-amber-50 rounded-xl px-3 py-1.5 flex-shrink-0 border border-amber-100">
                       <Clock className="w-3 h-3 text-amber-500" />
-                      <span className="text-[11px] text-amber-600 font-medium">
+                      <span className="text-[11px] text-amber-700 font-bold tabular-nums">
                         {minutesLeft}m left
                       </span>
                     </div>
@@ -341,100 +441,137 @@ export default function LogbookPage() {
         )}
 
         {/* Verification Rate */}
-        <div className="card p-4">
-          <div className="flex items-center gap-2 mb-2">
-            <Target className="w-4 h-4 text-brand-600" />
-            <h3 className="text-sm font-semibold text-slate-900">
-              Verification Rate
-            </h3>
-            <span className="text-sm font-bold text-slate-900 ml-auto">
+        <div className="animate-slide-up animation-delay-150 card p-5">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-9 h-9 bg-gradient-to-br from-brand-100 to-brand-50 rounded-xl flex items-center justify-center shadow-sm">
+              <Award className="w-4.5 h-4.5 text-brand-600" />
+            </div>
+            <div className="flex-1">
+              <h3 className="text-sm font-bold text-slate-900">
+                Verification Rate
+              </h3>
+              <p className="text-[11px] text-slate-400">
+                Last 30 days performance
+              </p>
+            </div>
+            <div className={`text-lg font-black tabular-nums ${
+              stats.verifiedRate >= 70
+                ? "text-emerald-600"
+                : stats.verifiedRate >= 40
+                ? "text-amber-600"
+                : "text-red-500"
+            }`}>
               {stats.verifiedRate}%
-            </span>
+            </div>
           </div>
-          <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+          <div className="h-3 bg-slate-100 rounded-full overflow-hidden shadow-inner">
             <div
-              className={`h-full rounded-full transition-all ${
+              className={`h-full rounded-full animate-progress-fill transition-all duration-500 ${
                 stats.verifiedRate >= 70
-                  ? "bg-green-500"
+                  ? "bg-gradient-to-r from-emerald-500 to-emerald-400 shadow-[0_0_8px_rgba(16,185,129,0.3)]"
                   : stats.verifiedRate >= 40
-                  ? "bg-amber-500"
-                  : "bg-red-500"
+                  ? "bg-gradient-to-r from-amber-500 to-yellow-400 shadow-[0_0_8px_rgba(245,158,11,0.3)]"
+                  : "bg-gradient-to-r from-red-500 to-rose-400 shadow-[0_0_8px_rgba(239,68,68,0.3)]"
               }`}
               style={{ width: `${stats.verifiedRate}%` }}
             />
           </div>
-          <p className="text-[11px] text-slate-400 mt-1.5">
-            Based on your last 30 days of entries
-          </p>
+          {stats.verifiedRate >= 70 && (
+            <p className="text-[11px] text-emerald-600 font-medium mt-2.5 flex items-center gap-1">
+              <CheckCircle className="w-3 h-3" />
+              Great progress! Keep it up
+            </p>
+          )}
         </div>
 
         {/* Recent Entries */}
         {stats.recentEntries.length > 0 && (
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <h3 className="text-xs font-semibold uppercase tracking-widest text-slate-400">
+          <div className="animate-slide-up animation-delay-225">
+            <div className="flex items-center justify-between mb-3 px-1">
+              <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400">
                 Recent Entries
               </h3>
               <Link
                 href="/history"
-                className="text-xs text-brand-600 font-medium"
+                className="text-xs text-brand-600 font-bold flex items-center gap-1 hover:gap-2 transition-all group"
               >
                 View All
+                <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
               </Link>
             </div>
-            <div className="space-y-2">
-              {stats.recentEntries.map((entry) => (
-                <div key={entry.id} className="card p-3">
-                  <div className="flex items-start justify-between mb-1">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-[10px] font-bold bg-blue-50 text-blue-700 px-1.5 py-0.5 rounded">
-                        {entry.topics?.[0]?.subject?.name ?? "—"}
-                      </span>
-                      <span className="text-[10px] font-medium bg-purple-50 text-purple-600 px-1.5 py-0.5 rounded">
-                        {entry.class.name}
-                      </span>
+            <div className="space-y-2.5">
+              {stats.recentEntries.map((entry, i) => {
+                const subjectName = entry.topics?.[0]?.subject?.name ?? "—";
+                const colorIdx = subjectColorMap.get(subjectName) ?? i;
+                return (
+                  <div
+                    key={entry.id}
+                    className="card p-4 hover:-translate-y-0.5 hover:shadow-card-hover transition-all duration-200 group"
+                    style={{ animationDelay: `${300 + i * 60}ms` }}
+                  >
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border ${getSubjectBg(colorIdx)}`}>
+                          {subjectName}
+                        </span>
+                        <span className="text-[10px] font-semibold bg-slate-50 text-slate-600 px-2 py-0.5 rounded-md border border-slate-100">
+                          {entry.class.name}
+                        </span>
+                      </div>
+                      <StatusBadge status={entry.status} />
                     </div>
-                    <StatusBadge status={entry.status} />
+                    <p className="text-sm text-slate-800 font-semibold truncate">
+                      {entry.topics?.[0]?.moduleName
+                        ? `${entry.topics[0].moduleName}: `
+                        : ""}
+                      {entry.topics?.[0]?.name ?? "—"}
+                    </p>
+                    <div className="flex items-center gap-2.5 mt-2.5 text-[11px] text-slate-400">
+                      <span className="flex items-center gap-1">
+                        <Calendar className="w-3 h-3" />
+                        {formatDate(entry.date)}
+                      </span>
+                      <span className="text-slate-200">&middot;</span>
+                      <span>{formatTime(entry.createdAt)}</span>
+                      {entry.period && (
+                        <>
+                          <span className="text-slate-200">&middot;</span>
+                          <span className="font-semibold text-slate-500">P{entry.period}</span>
+                        </>
+                      )}
+                      {isEditable(entry) && (
+                        <Link
+                          href={`/logbook/${entry.id}/edit`}
+                          className="ml-auto text-brand-600 font-bold flex items-center gap-0.5 hover:text-brand-700 transition-colors opacity-0 group-hover:opacity-100"
+                        >
+                          <Edit3 className="w-3 h-3" />
+                          Edit
+                        </Link>
+                      )}
+                    </div>
                   </div>
-                  <p className="text-sm text-slate-700 font-medium truncate">
-                    {entry.topics?.[0]?.moduleName
-                      ? `${entry.topics[0].moduleName}: `
-                      : ""}
-                    {entry.topics?.[0]?.name ?? "—"}
-                  </p>
-                  <div className="flex items-center gap-2 mt-1.5 text-[11px] text-slate-400">
-                    <span>{formatDate(entry.date)}</span>
-                    <span>&middot;</span>
-                    <span>{formatTime(entry.createdAt)}</span>
-                    {entry.period && (
-                      <>
-                        <span>&middot;</span>
-                        <span>Period {entry.period}</span>
-                      </>
-                    )}
-                    {isEditable(entry) && (
-                      <Link
-                        href={`/logbook/${entry.id}/edit`}
-                        className="ml-auto text-brand-600 font-medium flex items-center gap-0.5"
-                      >
-                        <Edit3 className="w-3 h-3" />
-                        Edit
-                      </Link>
-                    )}
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}
 
         {entries.length === 0 && (
-          <div className="text-center py-12">
-            <BookOpen className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-            <p className="text-slate-500 font-medium">No entries yet</p>
-            <p className="text-slate-400 text-sm mt-1">
-              Tap &quot;New Entry&quot; to get started
+          <div className="text-center py-20 animate-fade-in">
+            <div className="w-20 h-20 bg-gradient-to-br from-brand-50 to-brand-100 rounded-3xl flex items-center justify-center mx-auto mb-5 shadow-sm">
+              <BookOpen className="w-10 h-10 text-brand-400" />
+            </div>
+            <p className="text-slate-700 font-bold text-lg">No entries yet</p>
+            <p className="text-slate-400 text-sm mt-1.5 max-w-xs mx-auto">
+              Start recording your teaching activities by tapping the button above
             </p>
+            <Link
+              href="/logbook/new"
+              className="inline-flex items-center gap-2 mt-5 bg-brand-600 text-white font-semibold rounded-xl px-5 py-2.5 hover:bg-brand-700 active:scale-95 transition-all shadow-sm"
+            >
+              <Plus className="w-4 h-4" />
+              Create First Entry
+            </Link>
           </div>
         )}
       </div>
