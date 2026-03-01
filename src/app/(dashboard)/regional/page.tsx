@@ -81,7 +81,7 @@ export default function RegionalDashboardPage() {
         {stats && stats.pendingSchools > 0 && (
           <Link
             href="/regional/schools"
-            className="flex items-center gap-3 bg-amber-50 border border-amber-200 rounded-xl p-4"
+            className="animate-slide-up flex items-center gap-3 bg-amber-50 border border-amber-200 rounded-xl p-4 animate-pulse-subtle shadow-sm hover:shadow-md transition-shadow duration-300"
           >
             <Clock className="w-5 h-5 text-amber-600 flex-shrink-0" />
             <div className="flex-1">
@@ -95,8 +95,8 @@ export default function RegionalDashboardPage() {
         )}
 
         {/* Stats grid */}
-        <div className="grid grid-cols-2 gap-3">
-          <div className="card p-4">
+        <div className="animate-slide-up animation-delay-75 grid grid-cols-2 gap-3">
+          <div className="card p-4 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
             <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center mb-2">
               <Building2 className="w-5 h-5 text-blue-600" />
             </div>
@@ -106,7 +106,7 @@ export default function RegionalDashboardPage() {
             <p className="text-xs text-slate-400 mt-0.5">Total Schools</p>
           </div>
 
-          <div className="card p-4">
+          <div className="card p-4 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
             <div className="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center mb-2">
               <CheckCircle className="w-5 h-5 text-green-600" />
             </div>
@@ -116,7 +116,7 @@ export default function RegionalDashboardPage() {
             <p className="text-xs text-slate-400 mt-0.5">Active Schools</p>
           </div>
 
-          <div className="card p-4">
+          <div className="card p-4 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
             <div className="w-10 h-10 bg-purple-50 rounded-xl flex items-center justify-center mb-2">
               <Users className="w-5 h-5 text-purple-600" />
             </div>
@@ -126,7 +126,7 @@ export default function RegionalDashboardPage() {
             <p className="text-xs text-slate-400 mt-0.5">Total Teachers</p>
           </div>
 
-          <div className="card p-4">
+          <div className="card p-4 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
             <div className="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center mb-2">
               <BookOpen className="w-5 h-5 text-orange-600" />
             </div>
@@ -136,7 +136,7 @@ export default function RegionalDashboardPage() {
             <p className="text-xs text-slate-400 mt-0.5">Entries This Month</p>
           </div>
 
-          <div className="card p-4 col-span-2">
+          <div className="card p-4 col-span-2 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center">
                 <TrendingUp className="w-5 h-5 text-emerald-600" />
@@ -150,7 +150,7 @@ export default function RegionalDashboardPage() {
               <div className="flex-1">
                 <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-emerald-500 rounded-full transition-all"
+                    className="h-full bg-emerald-500 rounded-full transition-all duration-700 ease-out"
                     style={{ width: `${stats?.complianceRate ?? 0}%` }}
                   />
                 </div>
@@ -161,7 +161,7 @@ export default function RegionalDashboardPage() {
 
         {/* School Rankings */}
         {stats && stats.schoolRankings.length > 0 && (
-          <div className="card p-4">
+          <div className="animate-slide-up animation-delay-150 card p-4">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-sm font-semibold text-slate-900">
                 School Rankings
@@ -194,7 +194,7 @@ export default function RegionalDashboardPage() {
                 {stats.schoolRankings.slice(0, 10).map((school, i) => (
                   <tr
                     key={school.id}
-                    className="border-b border-slate-50 last:border-0"
+                    className="border-b border-slate-50 last:border-0 even:bg-slate-50/50 hover:bg-brand-50/40 transition-colors duration-150"
                   >
                     <td className="py-2.5">
                       <div className="flex items-center gap-2">
@@ -238,10 +238,10 @@ export default function RegionalDashboardPage() {
         )}
 
         {/* Quick Links */}
-        <div className="space-y-2">
+        <div className="animate-slide-up animation-delay-225 space-y-2">
           <Link
             href="/regional/schools"
-            className="card p-4 flex items-center justify-between"
+            className="card p-4 flex items-center justify-between border-l-2 border-l-transparent hover:border-l-brand-500 hover:bg-slate-50 transition-all duration-200"
           >
             <div className="flex items-center gap-3">
               <Building2 className="w-5 h-5 text-slate-400" />
@@ -249,11 +249,11 @@ export default function RegionalDashboardPage() {
                 Manage Schools
               </span>
             </div>
-            <ChevronRight className="w-4 h-4 text-slate-400" />
+            <ChevronRight className="w-4 h-4 text-slate-400 transition-transform duration-200 group-hover:translate-x-0.5" />
           </Link>
           <Link
             href="/regional/codes"
-            className="card p-4 flex items-center justify-between"
+            className="card p-4 flex items-center justify-between border-l-2 border-l-transparent hover:border-l-brand-500 hover:bg-slate-50 transition-all duration-200"
           >
             <div className="flex items-center gap-3">
               <Key className="w-5 h-5 text-slate-400" />
@@ -261,11 +261,11 @@ export default function RegionalDashboardPage() {
                 Registration Codes
               </span>
             </div>
-            <ChevronRight className="w-4 h-4 text-slate-400" />
+            <ChevronRight className="w-4 h-4 text-slate-400 transition-transform duration-200 group-hover:translate-x-0.5" />
           </Link>
           <Link
             href="/regional/reports"
-            className="card p-4 flex items-center justify-between"
+            className="card p-4 flex items-center justify-between border-l-2 border-l-transparent hover:border-l-brand-500 hover:bg-slate-50 transition-all duration-200"
           >
             <div className="flex items-center gap-3">
               <BarChart3 className="w-5 h-5 text-slate-400" />
@@ -273,7 +273,7 @@ export default function RegionalDashboardPage() {
                 View Reports
               </span>
             </div>
-            <ChevronRight className="w-4 h-4 text-slate-400" />
+            <ChevronRight className="w-4 h-4 text-slate-400 transition-transform duration-200 group-hover:translate-x-0.5" />
           </Link>
         </div>
       </div>
