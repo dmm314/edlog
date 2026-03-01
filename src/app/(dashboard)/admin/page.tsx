@@ -244,6 +244,7 @@ export default function AdminDashboardPage() {
           </h3>
           <div className="space-y-2">
             {[
+              { href: "/admin/entry-timetable", icon: BarChart3, label: "Entry Timetable", desc: "View entries by class timetable", color: "text-cyan-600", bg: "bg-cyan-50" },
               { href: "/admin/entries", icon: FileText, label: "View Entries", desc: "Browse all logbook entries", color: "text-brand-600", bg: "bg-brand-50" },
               { href: "/admin/teachers", icon: Users, label: "Manage Teachers", desc: "Verify and manage teachers", color: "text-blue-500", bg: "bg-blue-50" },
               { href: "/admin/classes", icon: GraduationCap, label: "Manage Classes", desc: "Add or edit classes", color: "text-violet-500", bg: "bg-violet-50" },
