@@ -361,10 +361,7 @@ VALUES
   (gen_random_uuid()::text, 'Physics',                'PHY', 'Science',   NOW()),
   (gen_random_uuid()::text, 'Biology',                'BIO', 'Science',   NOW()),
   (gen_random_uuid()::text, 'Computer Science',       'CSC', 'Science',   NOW()),
-  (gen_random_uuid()::text, 'Chemistry',              'CHE', 'Chemistry', NOW()),
-  (gen_random_uuid()::text, 'Physical Chemistry',     'PCH', 'Chemistry', NOW()),
-  (gen_random_uuid()::text, 'Organic Chemistry',      'OCH', 'Chemistry', NOW()),
-  (gen_random_uuid()::text, 'Inorganic Chemistry',    'ICH', 'Chemistry', NOW()),
+  (gen_random_uuid()::text, 'Chemistry',              'CHE', 'Science',   NOW()),
   (gen_random_uuid()::text, 'English Language',       'ENG', 'Language',  NOW()),
   (gen_random_uuid()::text, 'French',                 'FRE', 'Language',  NOW()),
   (gen_random_uuid()::text, 'Literature in English',  'LIT', 'Language',  NOW()),
@@ -529,7 +526,7 @@ FROM "Subject" s,
   ('Populations & Ecosystems',          'Upper Sixth', 4, 'Module 4: Ecology',          7),
   ('Biotechnology',                     'Upper Sixth', 4, 'Module 4: Ecology',          8)
 ) AS t(name, level, mnum, mname, idx)
-WHERE s."code" = 'BIO', 'EcoBio', 'GeBio', 'CooBio'
+WHERE s."code" = 'BIO'
 ON CONFLICT ("subjectId", "classLevel", "name") DO NOTHING;
 
 -- ── Chemistry (Form 1-5 + A-Level) ──────────────────────────
@@ -570,7 +567,7 @@ FROM "Subject" s,
   ('Amines & Polymers',                  'Upper Sixth', 3, 'Module 3: Organic',           7),
   ('Analytical Techniques',              'Upper Sixth', 4, 'Module 4: Analysis',          8)
 ) AS t(name, level, mnum, mname, idx)
-WHERE s."code" = 'CHE', 'PCH', 'OCH', 'ICH'
+WHERE s."code" = 'CHE'
 ON CONFLICT ("subjectId", "classLevel", "name") DO NOTHING;
 
 -- ── English Language (Form 1-5) ─────────────────────────────

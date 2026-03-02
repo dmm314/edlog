@@ -164,17 +164,14 @@ export async function POST(request: Request) {
       );
     }
 
-    // Double-booking prevention: check if this teacher already has a slot at this day/time
-    const teacherConflict = await db.timetableSlot.findFirst({
+    // Double/triple-booking check: find how many slots this teacher already has at this day/time
+    const teacherConflicts = await db.timetableSlot.findMany({
       where: {
         dayOfWeek: parseInt(dayOfWeek),
         assignment: { teacherId: assignment.teacherId },
         OR: [
-          // Overlapping time check: new slot starts during existing slot
           { AND: [{ startTime: { lte: startTime } }, { endTime: { gt: startTime } }] },
-          // New slot ends during existing slot
           { AND: [{ startTime: { lt: endTime } }, { endTime: { gte: endTime } }] },
-          // New slot fully contains existing slot
           { AND: [{ startTime: { gte: startTime } }, { endTime: { lte: endTime } }] },
         ],
       },
@@ -188,11 +185,27 @@ export async function POST(request: Request) {
       },
     });
 
-    if (teacherConflict) {
-      const conflictTeacher = teacherConflict.assignment;
+    // Triple-booking is never allowed
+    if (teacherConflicts.length >= 2) {
+      const existing = teacherConflicts.map((c) =>
+        `${c.assignment.subject.name} (${c.assignment.class.name}) at ${c.startTime}-${c.endTime}`
+      ).join("; ");
       return NextResponse.json(
         {
-          error: `Double-booking conflict: This teacher is already assigned to ${conflictTeacher.subject.name} (${conflictTeacher.class.name}) on ${DAYS[parseInt(dayOfWeek) - 1] || `Day ${dayOfWeek}`} at ${teacherConflict.startTime}-${teacherConflict.endTime}. A teacher cannot teach two classes at the same time.`,
+          error: `Triple-booking blocked: This teacher already has 2 classes at this time — ${existing}. A teacher cannot teach more than 2 classes simultaneously.`,
+        },
+        { status: 409 }
+      );
+    }
+
+    // Double-booking requires explicit confirmation (for joint classes)
+    const forceDoubleBook = body.forceDoubleBook === true;
+    if (teacherConflicts.length === 1 && !forceDoubleBook) {
+      const conflict = teacherConflicts[0].assignment;
+      return NextResponse.json(
+        {
+          warning: true,
+          error: `Double-booking: This teacher is already assigned to ${conflict.subject.name} (${conflict.class.name}) on ${DAYS[parseInt(dayOfWeek) - 1] || `Day ${dayOfWeek}`} at ${teacherConflicts[0].startTime}-${teacherConflicts[0].endTime}. This is allowed for joint classes. Do you want to proceed?`,
         },
         { status: 409 }
       );

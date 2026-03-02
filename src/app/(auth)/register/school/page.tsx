@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { BookOpen, Eye, EyeOff, ChevronRight, ChevronLeft } from "lucide-react";
+import { BookOpen, Eye, EyeOff, ChevronRight, ChevronLeft, Shield } from "lucide-react";
 
 interface Division {
   id: string;
@@ -157,42 +157,52 @@ export default function SchoolRegisterPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-8">
+    <div className="min-h-screen bg-white pb-8">
       {/* Header */}
-      <div className="bg-gradient-to-br from-brand-950 to-brand-800 px-5 pt-10 pb-8 rounded-b-3xl">
-        <div className="max-w-lg mx-auto text-center">
-          <div className="inline-flex items-center justify-center w-14 h-14 bg-white/10 rounded-2xl mb-3">
-            <BookOpen className="w-7 h-7 text-white" />
-          </div>
-          <h1 className="text-2xl font-bold text-white">Register Your School</h1>
-          <p className="text-brand-400 mt-1 text-sm">
-            Set up your school on Edlog
-          </p>
-
-          {/* Step Indicator */}
-          <div className="flex items-center justify-center gap-3 mt-4">
-            <div className="flex items-center gap-2">
-              <div
-                className={`w-2.5 h-2.5 rounded-full transition-colors duration-200 ${
-                  step >= 1 ? "bg-white" : "bg-white/30"
-                }`}
-              />
-              <div
-                className={`w-2.5 h-2.5 rounded-full transition-colors duration-200 ${
-                  step >= 2 ? "bg-white" : "bg-white/30"
-                }`}
-              />
+      <div className="bg-gradient-to-br from-brand-950 via-brand-900 to-brand-800 px-5 pt-14 pb-12 relative overflow-hidden">
+        <div className="absolute inset-0">
+          <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-emerald-500/[0.06] rounded-full -translate-y-1/2 translate-x-1/3 blur-3xl" />
+        </div>
+        <div className="max-w-lg mx-auto relative">
+          <Link href="/" className="inline-flex items-center gap-2.5 mb-8">
+            <div className="w-9 h-9 bg-white/10 backdrop-blur-sm rounded-xl flex items-center justify-center border border-white/[0.08]">
+              <BookOpen className="w-4.5 h-4.5 text-white" />
             </div>
-            <span className="text-white/70 text-xs font-medium">
-              Step {step} of 2
+            <span className="text-white font-bold text-base">Edlog</span>
+          </Link>
+
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 bg-emerald-500/20 rounded-xl flex items-center justify-center">
+              <Shield className="w-5 h-5 text-emerald-300" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-extrabold text-white tracking-tight">
+                Register Your School
+              </h1>
+              <p className="text-brand-300/80 text-sm mt-0.5">
+                Set up your school on Edlog
+              </p>
+            </div>
+          </div>
+
+          {/* Step indicator */}
+          <div className="flex items-center gap-2 mt-6">
+            <div className="flex-1 h-1 rounded-full bg-white/20 overflow-hidden">
+              <div className={`h-full rounded-full bg-white transition-all duration-300 ${step >= 1 ? "w-full" : "w-0"}`} />
+            </div>
+            <div className="flex-1 h-1 rounded-full bg-white/20 overflow-hidden">
+              <div className={`h-full rounded-full bg-white transition-all duration-300 ${step >= 2 ? "w-full" : "w-0"}`} />
+            </div>
+            <span className="text-white/50 text-xs font-medium ml-2">
+              {step}/2
             </span>
           </div>
         </div>
       </div>
 
       {/* Form */}
-      <div className="px-5 -mt-4 max-w-lg mx-auto">
-        <div className="card p-6">
+      <div className="px-5 -mt-5 max-w-lg mx-auto">
+        <div className="bg-white rounded-2xl shadow-lg shadow-slate-200/50 border border-slate-100 p-6">
           {/* Success: Show generated school code */}
           {registeredCode && (
             <div className="text-center space-y-4">

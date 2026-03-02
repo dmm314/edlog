@@ -703,19 +703,24 @@ export default function NewEntryPage() {
   // ───── Entry Form ─────
   return (
     <div className="min-h-screen bg-slate-50 pb-24">
-      <div className="bg-gradient-to-br from-brand-950 to-brand-800 px-5 pt-10 pb-6 rounded-b-2xl">
-        <div className="max-w-lg mx-auto">
+      <div className="bg-gradient-to-br from-brand-950 via-brand-900 to-brand-800 px-5 pt-10 pb-6 rounded-b-[1.5rem] relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-brand-600/15 via-transparent to-transparent" />
+        <div className="max-w-lg mx-auto relative">
           <div className="flex items-center justify-between mb-3">
-            <button onClick={() => router.back()} className="text-white/80 hover:text-white">
-              <ArrowLeft className="w-6 h-6" />
+            <button onClick={() => router.back()} className="w-9 h-9 bg-white/[0.08] rounded-xl flex items-center justify-center text-white/80 hover:text-white hover:bg-white/[0.12] transition-colors">
+              <ArrowLeft className="w-5 h-5" />
             </button>
-            <div className="flex items-center gap-2 bg-white/10 rounded-full px-3 py-1.5">
-              <Clock className="w-4 h-4 text-brand-400" />
-              <span className="text-sm font-mono font-medium text-white">{seconds}s</span>
+            <div className={`flex items-center gap-2 rounded-full px-3.5 py-1.5 border transition-colors ${
+              seconds > 60
+                ? "bg-amber-500/15 border-amber-400/20"
+                : "bg-white/[0.08] border-white/[0.06]"
+            }`}>
+              <Clock className={`w-3.5 h-3.5 ${seconds > 60 ? "text-amber-400" : "text-brand-400"}`} />
+              <span className={`text-sm font-mono font-bold tabular-nums ${seconds > 60 ? "text-amber-300" : "text-white"}`}>{seconds}s</span>
             </div>
           </div>
-          <h1 className="text-xl font-bold text-white">New Logbook Entry</h1>
-          <p className="text-brand-400 text-sm mt-0.5">Fill in under 60 seconds</p>
+          <h1 className="text-xl font-extrabold text-white tracking-tight">New Logbook Entry</h1>
+          <p className="text-brand-400/80 text-sm mt-0.5">Fill in under 60 seconds</p>
         </div>
       </div>
 

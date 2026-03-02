@@ -29,6 +29,19 @@ interface SubjectOption {
   linked: boolean;
 }
 
+// Pre-defined division templates for common subjects
+const DIVISION_TEMPLATES: Record<string, string[]> = {
+  CHE: ["Physical Chemistry", "Organic Chemistry", "Inorganic Chemistry"],
+  ENG: ["Directed Writing", "Composition", "Summary & Comprehension", "Grammar & Vocabulary"],
+  LIT: ["Prose", "Poetry", "Drama", "Literary Criticism"],
+  FRE: ["Expression Écrite", "Compréhension", "Grammaire", "Expression Orale"],
+  PHY: ["Mechanics", "Electricity & Magnetism", "Waves & Optics", "Modern Physics"],
+  BIO: ["Cell Biology", "Genetics", "Ecology", "Physiology"],
+  MAT: ["Pure Mathematics", "Mechanics", "Statistics"],
+  ECO: ["Microeconomics", "Macroeconomics"],
+  GEO: ["Physical Geography", "Human Geography"],
+};
+
 export default function DivisionsPage() {
   const [divisions, setDivisions] = useState<DivisionItem[]>([]);
   const [subjects, setSubjects] = useState<SubjectOption[]>([]);
@@ -143,6 +156,60 @@ export default function DivisionsPage() {
   const existingForSubject = formSubjectId
     ? divisions.filter((d) => d.subjectId === formSubjectId)
     : [];
+
+  // Template suggestions for the selected subject
+  const selectedSubjectCode = formSubjectId
+    ? subjects.find((s) => s.id === formSubjectId)?.code || ""
+    : "";
+  const templateSuggestions = DIVISION_TEMPLATES[selectedSubjectCode] || [];
+  const existingNames = new Set(existingForSubject.map((d) => d.name));
+  const availableTemplates = templateSuggestions.filter((t) => !existingNames.has(t));
+
+  const [addingTemplates, setAddingTemplates] = useState(false);
+
+  async function handleAddAllTemplates() {
+    if (!formSubjectId || availableTemplates.length === 0) return;
+    setAddingTemplates(true);
+    setError("");
+
+    for (const name of availableTemplates) {
+      try {
+        const res = await fetch("/api/admin/divisions", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ subjectId: formSubjectId, name }),
+        });
+        if (res.ok) {
+          const newDiv = await res.json();
+          setDivisions((prev) => [...prev, newDiv]);
+        }
+      } catch {
+        // continue with others
+      }
+    }
+    setAddingTemplates(false);
+  }
+
+  async function handleAddOneTemplate(name: string) {
+    if (!formSubjectId) return;
+    setError("");
+    try {
+      const res = await fetch("/api/admin/divisions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ subjectId: formSubjectId, name }),
+      });
+      if (res.ok) {
+        const newDiv = await res.json();
+        setDivisions((prev) => [...prev, newDiv]);
+      } else {
+        const data = await res.json();
+        setError(data.error || "Failed to add division");
+      }
+    } catch {
+      setError("Something went wrong");
+    }
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 pb-24">
@@ -261,6 +328,43 @@ export default function DivisionsPage() {
               </div>
             )}
 
+            {/* Template suggestions */}
+            {formSubjectId && availableTemplates.length > 0 && (
+              <div className="bg-blue-50 rounded-lg p-3 space-y-2">
+                <div className="flex items-center justify-between">
+                  <p className="text-[10px] font-semibold uppercase text-blue-500">
+                    Suggested divisions
+                  </p>
+                  <button
+                    type="button"
+                    onClick={handleAddAllTemplates}
+                    disabled={addingTemplates}
+                    className="text-[10px] font-semibold text-blue-600 hover:text-blue-700 underline"
+                  >
+                    {addingTemplates ? "Adding..." : "Add all"}
+                  </button>
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {availableTemplates.map((t) => (
+                    <button
+                      key={t}
+                      type="button"
+                      onClick={() => handleAddOneTemplate(t)}
+                      className="text-xs bg-white text-blue-700 px-2.5 py-1 rounded-lg font-medium border border-blue-200 hover:bg-blue-100 transition-colors flex items-center gap-1"
+                    >
+                      <Plus className="w-3 h-3" />
+                      {t}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="relative">
+              <div className="absolute inset-x-0 top-0 border-t border-slate-200" />
+              <p className="text-[10px] text-slate-400 text-center pt-2 pb-1">or add a custom division</p>
+            </div>
+
             <div>
               <label className="label-field">Division Name</label>
               <input
@@ -278,7 +382,7 @@ export default function DivisionsPage() {
               disabled={saving || !formSubjectId || !formName.trim()}
               className="btn-primary text-sm"
             >
-              {saving ? "Adding..." : "Add Division"}
+              {saving ? "Adding..." : "Add Custom Division"}
             </button>
           </form>
         )}
