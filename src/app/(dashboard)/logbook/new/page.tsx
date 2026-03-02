@@ -129,6 +129,7 @@ export default function NewEntryPage() {
   const [subjectId, setSubjectId] = useState("");
   const [moduleName, setModuleName] = useState("");
   const [topicText, setTopicText] = useState("");
+  const [selectedTopicIds, setSelectedTopicIds] = useState<string[]>([]);
   const [period, setPeriod] = useState("");
   const [duration, setDuration] = useState("60");
   const [notes, setNotes] = useState("");
@@ -148,6 +149,7 @@ export default function NewEntryPage() {
     subject: string;
     module: string;
     topic: string;
+    topics: string[];
     className: string;
     date: string;
     periods: { period: string; time: string; duration: string }[];
@@ -305,6 +307,21 @@ export default function NewEntryPage() {
     return Array.from(moduleMap.values());
   }, [subjects, subjectId, selectedClassLevel]);
 
+  // Get topics available for the selected module (or all topics for the subject+level)
+  const topicsForModule = useMemo(() => {
+    if (!subjectId) return [];
+    const subject = subjects.find((s) => s.id === subjectId);
+    if (!subject) return [];
+    // Filter by class level first
+    const filtered = subject.topics.filter((t) => t.classLevel === selectedClassLevel);
+    const topicsToUse = filtered.length > 0 ? filtered : subject.topics;
+    // If a module is selected, filter by module name
+    if (moduleName) {
+      return topicsToUse.filter((t) => t.moduleName === moduleName);
+    }
+    return topicsToUse;
+  }, [subjects, subjectId, selectedClassLevel, moduleName]);
+
   // Get selected slots data
   const selectedSlotsData = useMemo(() => {
     return selectedSlotIds
@@ -355,6 +372,7 @@ export default function NewEntryPage() {
             setTimetableSlotId(slot.id);
             setModuleName("");
             setTopicText("");
+            setSelectedTopicIds([]);
             const periodMatch = slot.periodLabel.match(/\d+/);
             if (periodMatch) setPeriod(periodMatch[0]);
             const [sh, sm] = slot.startTime.split(":").map(Number);
@@ -373,6 +391,7 @@ export default function NewEntryPage() {
         setAssignmentId(slot.assignment.id);
         setModuleName("");
         setTopicText("");
+        setSelectedTopicIds([]);
       }
       setTimetableSlotId(slot.id);
       const periodMatch = slot.periodLabel.match(/\d+/);
@@ -392,6 +411,7 @@ export default function NewEntryPage() {
     setSubjectId("");
     setModuleName("");
     setTopicText("");
+    setSelectedTopicIds([]);
     setAssignmentId(null);
     setSelectedSlotIds([]);
     setTimetableSlotId(null);
@@ -403,6 +423,7 @@ export default function NewEntryPage() {
   const handleSubjectChange = useCallback((value: string) => {
     setModuleName("");
     setTopicText("");
+    setSelectedTopicIds([]);
     // value may be an assignmentId (when divisions exist) or a subjectId
     const matchByAssignment = assignments.find((a) => a.id === value);
     if (matchByAssignment) {
@@ -424,7 +445,7 @@ export default function NewEntryPage() {
   const selectedDayName = date ? DAY_NAMES[getDayOfWeek(date)] || "" : "";
   const isWeekend = date ? getDayOfWeek(date) > 5 : false;
   const hasTeachingOnDay = !date || loadingSlots || timetableSlots.length > 0;
-  const isFormValid = date && classId && subjectId && topicText.trim().length > 0 && !isWeekend && hasTeachingOnDay;
+  const isFormValid = date && classId && subjectId && (selectedTopicIds.length > 0 || topicText.trim().length > 0) && !isWeekend && hasTeachingOnDay;
   const hasMultiSlots = selectedSlotIds.length > 1;
 
   async function handleSubmit(e: React.FormEvent) {
@@ -458,6 +479,11 @@ export default function NewEntryPage() {
           if (mins > 0) entryDuration = mins;
         }
 
+        // Build topicText from selected topics if not manually typed
+        const resolvedTopicText = topicText.trim()
+          || selectedTopicIds.map((id) => topicsForModule.find((t) => t.id === id)?.name).filter(Boolean).join("; ")
+          || null;
+
         const body: Record<string, unknown> = {
           date,
           classId,
@@ -466,7 +492,8 @@ export default function NewEntryPage() {
           period: entryPeriod,
           duration: entryDuration,
           moduleName: moduleName || null,
-          topicText: topicText.trim() || null,
+          topicIds: selectedTopicIds.length > 0 ? selectedTopicIds : undefined,
+          topicText: resolvedTopicText,
           notes: notes || null,
           objectives: objectives || null,
           studentAttendance: studentAttendance ? parseInt(studentAttendance) : null,
@@ -508,10 +535,16 @@ export default function NewEntryPage() {
         duration: `${entry.duration} min`,
       }));
 
+      // Get the topic names from selected IDs for display
+      const topicNames = selectedTopicIds
+        .map((id) => topicsForModule.find((t) => t.id === id)?.name)
+        .filter(Boolean) as string[];
+
       setSubmittedEntries({
         subject: subjectName,
         module: firstEntry.moduleName || "—",
         topic: firstEntry.topicText || firstEntry.topics?.[0]?.name || "—",
+        topics: topicNames.length > 0 ? topicNames : (firstEntry.topics || []).map((t: { name: string }) => t.name),
         className: firstEntry.class.name,
         date: entryDate,
         periods: periodsList,
@@ -537,6 +570,7 @@ export default function NewEntryPage() {
     setSubjectId("");
     setModuleName("");
     setTopicText("");
+    setSelectedTopicIds([]);
     setPeriod("");
     setDuration("60");
     setNotes("");
@@ -601,8 +635,21 @@ export default function NewEntryPage() {
                     <BookOpen className="w-4 h-4 text-purple-600" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400">Topic Covered</p>
-                    <p className="text-sm font-medium text-slate-800">{submittedEntries.topic}</p>
+                    <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400">
+                      {submittedEntries.topics.length > 1 ? `Topics Covered (${submittedEntries.topics.length})` : "Topic Covered"}
+                    </p>
+                    {submittedEntries.topics.length > 0 ? (
+                      <ul className="mt-1 space-y-1">
+                        {submittedEntries.topics.map((t, i) => (
+                          <li key={i} className="text-sm text-slate-800 flex items-start gap-2">
+                            <Check className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0 mt-0.5" />
+                            <span>{t}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="text-sm font-medium text-slate-800">{submittedEntries.topic}</p>
+                    )}
                   </div>
                 </div>
               </div>
@@ -892,26 +939,80 @@ export default function NewEntryPage() {
             )}
 
             {/* Module Picker */}
-            {subjectId && (
+            {subjectId && modules.length > 0 && (
               <div>
                 <label className="label-field flex items-center gap-1.5"><Layers className="w-3.5 h-3.5 text-indigo-500" />Module</label>
-                {modules.length > 0 ? (
-                  <select value={moduleName} onChange={(e) => setModuleName(e.target.value)} className="input-field">
-                    <option value="">Select module (optional)</option>
-                    {modules.map((m) => (<option key={m} value={m}>{m}</option>))}
-                  </select>
-                ) : (
-                  <div className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs text-slate-500">No modules defined for this subject yet. You can still type your topic below.</div>
-                )}
+                <select value={moduleName} onChange={(e) => { setModuleName(e.target.value); setSelectedTopicIds([]); }} className="input-field">
+                  <option value="">Select module</option>
+                  {modules.map((m) => (<option key={m} value={m}>{m}</option>))}
+                </select>
               </div>
             )}
 
-            {/* Topic */}
+            {/* Topic Multi-Select */}
+            {subjectId && topicsForModule.length > 0 && (
+              <div>
+                <label className="label-field flex items-center gap-1.5">
+                  <BookOpen className="w-3.5 h-3.5 text-emerald-500" />
+                  Topics Covered
+                  {selectedTopicIds.length > 0 && (
+                    <span className="ml-auto text-[10px] font-bold bg-brand-50 text-brand-700 px-2 py-0.5 rounded-full">
+                      {selectedTopicIds.length} selected
+                    </span>
+                  )}
+                </label>
+                <p className="text-[11px] text-slate-400 mb-2">Tap to select the topics you covered</p>
+                <div className="space-y-1.5 max-h-52 overflow-y-auto rounded-xl border border-slate-200 bg-white p-2">
+                  {topicsForModule.map((topic) => {
+                    const isSelected = selectedTopicIds.includes(topic.id);
+                    return (
+                      <button
+                        key={topic.id}
+                        type="button"
+                        onClick={() => {
+                          setSelectedTopicIds((prev) =>
+                            isSelected
+                              ? prev.filter((id) => id !== topic.id)
+                              : [...prev, topic.id]
+                          );
+                        }}
+                        className={`w-full text-left flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm transition-all ${
+                          isSelected
+                            ? "bg-brand-50 border border-brand-200 text-brand-800"
+                            : "bg-slate-50 border border-transparent text-slate-700 hover:bg-slate-100"
+                        }`}
+                      >
+                        <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center flex-shrink-0 transition-colors ${
+                          isSelected
+                            ? "bg-brand-600 border-brand-600"
+                            : "border-slate-300 bg-white"
+                        }`}>
+                          {isSelected && <Check className="w-3 h-3 text-white" />}
+                        </div>
+                        <span className={`flex-1 ${isSelected ? "font-medium" : ""}`}>{topic.name}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Free-text topic fallback — shown when no topics exist in DB or as an option */}
             {subjectId && (
               <div>
-                <label className="label-field flex items-center gap-1.5"><PenTool className="w-3.5 h-3.5 text-emerald-500" />Topic Covered</label>
-                <input type="text" value={topicText} onChange={(e) => setTopicText(e.target.value.slice(0, 300))} className="input-field" placeholder="Type the topic you taught..." required maxLength={300} />
-                <p className="text-xs text-slate-400 mt-1 text-right">{topicText.length}/300</p>
+                <label className="label-field flex items-center gap-1.5">
+                  <PenTool className="w-3.5 h-3.5 text-slate-400" />
+                  {topicsForModule.length > 0 ? "Additional Topic (Optional)" : "Topic Covered"}
+                </label>
+                <input
+                  type="text"
+                  value={topicText}
+                  onChange={(e) => setTopicText(e.target.value.slice(0, 300))}
+                  className="input-field"
+                  placeholder={topicsForModule.length > 0 ? "Type any additional topic not listed above..." : "Type the topic you taught..."}
+                  maxLength={300}
+                />
+                {topicText.length > 0 && <p className="text-xs text-slate-400 mt-1 text-right">{topicText.length}/300</p>}
               </div>
             )}
 
