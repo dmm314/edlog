@@ -30,6 +30,25 @@ const SignaturePad = dynamic(
   }
 );
 
+// Shorten class name: "Form 1 B" → "1B", "Form 5 A" → "5A", "Lower Sixth B" → "L6B"
+function shortClassName(name: string): string {
+  const lower = name.toLowerCase();
+  if (lower.startsWith("form ")) {
+    // "Form 1 B" → "1B"
+    return name.replace(/^Form\s+/i, "").replace(/\s+/g, "");
+  }
+  if (lower.includes("lower sixth")) {
+    const section = name.replace(/lower\s+sixth\s*/i, "").trim();
+    return `L6${section}`;
+  }
+  if (lower.includes("upper sixth")) {
+    const section = name.replace(/upper\s+sixth\s*/i, "").trim();
+    return `U6${section}`;
+  }
+  // Fallback: take last 3 chars
+  return name.length > 4 ? name.slice(-3).trim() : name;
+}
+
 interface TimetableSlot {
   id: string;
   dayOfWeek: number;
@@ -65,6 +84,7 @@ interface AssignmentItem {
   id: string;
   class: { id: string; name: string; level: string; stream: string | null };
   subject: { id: string; name: string; code: string };
+  division: { id: string; name: string } | null;
   timetableSlots: {
     id: string;
     day: number;
@@ -92,6 +112,8 @@ export default function NewEntryPage() {
   const [assignments, setAssignments] = useState<AssignmentItem[]>([]);
   const [subjects, setSubjects] = useState<SubjectWithTopics[]>([]);
   const [timetableSlots, setTimetableSlots] = useState<TimetableSlot[]>([]);
+  const [filledPeriods, setFilledPeriods] = useState<Set<number>>(new Set());
+  const [filledSlotIds, setFilledSlotIds] = useState<Set<string>>(new Set());
   const [loadingData, setLoadingData] = useState(true);
   const [loadingSlots, setLoadingSlots] = useState(false);
 
@@ -166,20 +188,36 @@ export default function NewEntryPage() {
     fetchData();
   }, []);
 
-  // Fetch timetable slots when date changes
+  // Fetch timetable slots and existing entries when date changes
   useEffect(() => {
     async function fetchSlots() {
       if (!date) return;
       const dayOfWeek = getDayOfWeek(date);
       if (dayOfWeek > 5) {
         setTimetableSlots([]);
+        setFilledPeriods(new Set());
+        setFilledSlotIds(new Set());
         return;
       }
       setLoadingSlots(true);
       try {
-        const res = await fetch(`/api/timetable/slots?dayOfWeek=${dayOfWeek}`);
-        if (res.ok) {
-          setTimetableSlots(await res.json());
+        const [slotsRes, entriesRes] = await Promise.all([
+          fetch(`/api/timetable/slots?dayOfWeek=${dayOfWeek}`),
+          fetch(`/api/entries?from=${date}&to=${date}&limit=20`),
+        ]);
+        if (slotsRes.ok) {
+          setTimetableSlots(await slotsRes.json());
+        }
+        if (entriesRes.ok) {
+          const data = await entriesRes.json();
+          const periods = new Set<number>();
+          const slotIds = new Set<string>();
+          for (const entry of data.entries || []) {
+            if (entry.period) periods.add(entry.period);
+            if (entry.timetableSlotId) slotIds.add(entry.timetableSlotId);
+          }
+          setFilledPeriods(periods);
+          setFilledSlotIds(slotIds);
         }
       } catch {
         // Silently fail
@@ -207,11 +245,18 @@ export default function NewEntryPage() {
   }, [assignments]);
 
   // Subjects available for the selected class (from assignments)
+  // When a subject has divisions, each division appears as a separate entry
+  // Uses assignmentId as the unique key since multiple divisions share the same subjectId
   const subjectsForClass = useMemo(() => {
     if (!classId) return [];
     return assignments
       .filter((a) => a.class.id === classId)
-      .map((a) => ({ id: a.subject.id, name: a.subject.name, code: a.subject.code, assignmentId: a.id }));
+      .map((a) => ({
+        id: a.subject.id,
+        name: a.division ? `${a.subject.name} (${a.division.name})` : a.subject.name,
+        code: a.subject.code,
+        assignmentId: a.id,
+      }));
   }, [assignments, classId]);
 
   // Timetable slots filtered by selected class + date's day of week
@@ -269,6 +314,11 @@ export default function NewEntryPage() {
 
   // Handle timetable slot toggle (multi-select up to 2)
   function handleSlotToggle(slot: TimetableSlot) {
+    // Block already-filled slots
+    const pm = slot.periodLabel.match(/\d+/);
+    const pNum = pm ? parseInt(pm[0]) : null;
+    if (filledSlotIds.has(slot.id) || (pNum !== null && filledPeriods.has(pNum))) return;
+
     setSelectedSlotIds((prev) => {
       const already = prev.includes(slot.id);
       if (already) {
@@ -350,14 +400,21 @@ export default function NewEntryPage() {
   }, []);
 
   // Handle subject change
-  const handleSubjectChange = useCallback((newSubjectId: string) => {
-    setSubjectId(newSubjectId);
+  const handleSubjectChange = useCallback((value: string) => {
     setModuleName("");
     setTopicText("");
-    const match = assignments.find(
-      (a) => a.class.id === classId && a.subject.id === newSubjectId
-    );
-    if (match) setAssignmentId(match.id);
+    // value may be an assignmentId (when divisions exist) or a subjectId
+    const matchByAssignment = assignments.find((a) => a.id === value);
+    if (matchByAssignment) {
+      setSubjectId(matchByAssignment.subject.id);
+      setAssignmentId(matchByAssignment.id);
+    } else {
+      setSubjectId(value);
+      const match = assignments.find(
+        (a) => a.class.id === classId && a.subject.id === value
+      );
+      if (match) setAssignmentId(match.id);
+    }
     if (selectedSlotIds.length > 0) {
       setSelectedSlotIds([]);
       setTimetableSlotId(null);
@@ -366,8 +423,8 @@ export default function NewEntryPage() {
 
   const selectedDayName = date ? DAY_NAMES[getDayOfWeek(date)] || "" : "";
   const isWeekend = date ? getDayOfWeek(date) > 5 : false;
-  const hasTeachingOnDay = loadingSlots || timetableSlots.length > 0 || isWeekend;
-  const isFormValid = date && classId && subjectId && topicText.trim().length > 0 && hasTeachingOnDay;
+  const hasTeachingOnDay = !date || loadingSlots || timetableSlots.length > 0;
+  const isFormValid = date && classId && subjectId && topicText.trim().length > 0 && !isWeekend && hasTeachingOnDay;
   const hasMultiSlots = selectedSlotIds.length > 1;
 
   async function handleSubmit(e: React.FormEvent) {
@@ -434,7 +491,9 @@ export default function NewEntryPage() {
       setCompletionTime(seconds);
 
       const firstEntry = createdEntries[0];
-      const subjectName = firstEntry.assignment?.subject?.name ?? firstEntry.topics?.[0]?.subject?.name ?? "—";
+      const baseSubjectName = firstEntry.assignment?.subject?.name ?? firstEntry.topics?.[0]?.subject?.name ?? "—";
+      const divisionName = firstEntry.assignment?.division?.name;
+      const subjectName = divisionName ? `${baseSubjectName} (${divisionName})` : baseSubjectName;
       const entryDate = new Date(firstEntry.date).toLocaleDateString("en-GB", {
         day: "numeric",
         month: "short",
@@ -644,19 +703,24 @@ export default function NewEntryPage() {
   // ───── Entry Form ─────
   return (
     <div className="min-h-screen bg-slate-50 pb-24">
-      <div className="bg-gradient-to-br from-brand-950 to-brand-800 px-5 pt-10 pb-6 rounded-b-2xl">
-        <div className="max-w-lg mx-auto">
+      <div className="bg-gradient-to-br from-brand-950 via-brand-900 to-brand-800 px-5 pt-10 pb-6 rounded-b-[1.5rem] relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-brand-600/15 via-transparent to-transparent" />
+        <div className="max-w-lg mx-auto relative">
           <div className="flex items-center justify-between mb-3">
-            <button onClick={() => router.back()} className="text-white/80 hover:text-white">
-              <ArrowLeft className="w-6 h-6" />
+            <button onClick={() => router.back()} className="w-9 h-9 bg-white/[0.08] rounded-xl flex items-center justify-center text-white/80 hover:text-white hover:bg-white/[0.12] transition-colors">
+              <ArrowLeft className="w-5 h-5" />
             </button>
-            <div className="flex items-center gap-2 bg-white/10 rounded-full px-3 py-1.5">
-              <Clock className="w-4 h-4 text-brand-400" />
-              <span className="text-sm font-mono font-medium text-white">{seconds}s</span>
+            <div className={`flex items-center gap-2 rounded-full px-3.5 py-1.5 border transition-colors ${
+              seconds > 60
+                ? "bg-amber-500/15 border-amber-400/20"
+                : "bg-white/[0.08] border-white/[0.06]"
+            }`}>
+              <Clock className={`w-3.5 h-3.5 ${seconds > 60 ? "text-amber-400" : "text-brand-400"}`} />
+              <span className={`text-sm font-mono font-bold tabular-nums ${seconds > 60 ? "text-amber-300" : "text-white"}`}>{seconds}s</span>
             </div>
           </div>
-          <h1 className="text-xl font-bold text-white">New Logbook Entry</h1>
-          <p className="text-brand-400 text-sm mt-0.5">Fill in under 60 seconds</p>
+          <h1 className="text-xl font-extrabold text-white tracking-tight">New Logbook Entry</h1>
+          <p className="text-brand-400/80 text-sm mt-0.5">Fill in under 60 seconds</p>
         </div>
       </div>
 
@@ -706,28 +770,38 @@ export default function NewEntryPage() {
                 <p className="text-[11px] text-slate-400 mb-2">Select up to 2 periods of the same subject to fill at once</p>
                 <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
                   {timetableSlots.map((slot) => {
+                    const periodMatch = slot.periodLabel.match(/\d+/);
+                    const periodNum = periodMatch ? parseInt(periodMatch[0]) : null;
+                    const isAlreadyFilled = filledSlotIds.has(slot.id) || (periodNum !== null && filledPeriods.has(periodNum));
                     const isSelected = selectedSlotIds.includes(slot.id);
-                    const canAdd = selectedSlotIds.length < 2 || isSelected;
+                    const canAdd = (selectedSlotIds.length < 2 || isSelected) && !isAlreadyFilled;
                     const isCompatible = selectedSlotIds.length === 0 || isSelected ||
                       (selectedSlotsData.length > 0 &&
                         slot.assignment.classId === selectedSlotsData[0].assignment.classId &&
                         slot.assignment.subjectId === selectedSlotsData[0].assignment.subjectId);
                     return (
-                      <button key={slot.id} type="button" onClick={() => handleSlotToggle(slot)}
+                      <button key={slot.id} type="button" onClick={() => !isAlreadyFilled && handleSlotToggle(slot)} disabled={isAlreadyFilled}
                         className={`flex-shrink-0 rounded-xl border-2 px-3 py-2.5 text-left transition-all relative ${
-                          isSelected ? "border-brand-500 bg-brand-50 shadow-sm"
+                          isAlreadyFilled ? "border-emerald-200 bg-emerald-50 opacity-70 cursor-not-allowed"
+                            : isSelected ? "border-brand-500 bg-brand-50 shadow-sm"
                             : !canAdd || !isCompatible ? "border-slate-100 bg-slate-50 opacity-50"
                             : "border-slate-200 bg-white hover:border-slate-300"
                         }`}>
-                        {isSelected && (
+                        {isAlreadyFilled && (
+                          <div className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center shadow-sm">
+                            <Check className="w-3 h-3 text-white" />
+                          </div>
+                        )}
+                        {isSelected && !isAlreadyFilled && (
                           <div className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-brand-600 rounded-full flex items-center justify-center shadow-sm">
                             <Check className="w-3 h-3 text-white" />
                           </div>
                         )}
-                        <p className="text-xs font-bold text-slate-900">{slot.periodLabel}</p>
+                        <p className={`text-xs font-bold ${isAlreadyFilled ? "text-emerald-700" : "text-slate-900"}`}>{slot.periodLabel}</p>
                         <p className="text-[10px] text-slate-500 mt-0.5 font-medium">{slot.startTime} - {slot.endTime}</p>
-                        <p className="text-[11px] font-semibold text-brand-700 mt-1.5">{slot.assignment.subjectName}</p>
-                        <p className="text-[10px] text-slate-400">{slot.assignment.className}</p>
+                        <p className={`text-[11px] font-semibold mt-1.5 ${isAlreadyFilled ? "text-emerald-600" : "text-brand-700"}`}>{slot.assignment.subjectName}</p>
+                        <p className="text-[10px] text-slate-400">{shortClassName(slot.assignment.className)}</p>
+                        {isAlreadyFilled && <p className="text-[9px] font-bold text-emerald-600 mt-1">Already filled</p>}
                       </button>
                     );
                   })}
@@ -796,7 +870,7 @@ export default function NewEntryPage() {
                   </div>
                   <div>
                     <label className="label-field">Subject</label>
-                    <div className="input-field bg-slate-50 text-slate-700 flex items-center text-sm">{subjectsForClass.find((s) => s.id === subjectId)?.name || "—"}</div>
+                    <div className="input-field bg-slate-50 text-slate-700 flex items-center text-sm">{subjectsForClass.find((s) => s.assignmentId === assignmentId || s.id === subjectId)?.name || "—"}</div>
                   </div>
                 </div>
               </>
@@ -809,9 +883,9 @@ export default function NewEntryPage() {
                 {subjectsForClass.length === 1 ? (
                   <div className="input-field bg-slate-50 text-slate-700 flex items-center">{subjectsForClass[0].name}</div>
                 ) : (
-                  <select value={subjectId} onChange={(e) => handleSubjectChange(e.target.value)} className="input-field" required>
+                  <select value={assignmentId || subjectId} onChange={(e) => handleSubjectChange(e.target.value)} className="input-field" required>
                     <option value="">Select subject</option>
-                    {subjectsForClass.map((s) => (<option key={s.id} value={s.id}>{s.name}</option>))}
+                    {subjectsForClass.map((s) => (<option key={s.assignmentId} value={s.assignmentId}>{s.name}</option>))}
                   </select>
                 )}
               </div>

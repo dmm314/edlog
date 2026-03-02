@@ -115,7 +115,7 @@ export async function GET(request: NextRequest) {
             },
           },
           assignment: {
-            include: { subject: true },
+            include: { subject: true, division: true },
           },
           timetableSlot: true,
         },
@@ -186,6 +186,71 @@ export async function POST(request: Request) {
       );
     }
 
+    // --- Server-side validation: teaching day & duplicate check ---
+    const entryDate = new Date(data.date);
+    const jsDay = entryDate.getUTCDay(); // 0=Sun ... 6=Sat
+    // Convert to 1=Mon format used in timetable
+    const timetableDow = jsDay === 0 ? 7 : jsDay;
+
+    // Block weekends
+    if (timetableDow > 5) {
+      return NextResponse.json(
+        { error: "You cannot submit entries on weekends" },
+        { status: 400 }
+      );
+    }
+
+    // Check teacher has a timetable slot on this day
+    const teacherSlotsOnDay = await db.timetableSlot.count({
+      where: {
+        dayOfWeek: timetableDow,
+        assignment: { teacherId: user.id },
+      },
+    });
+
+    if (teacherSlotsOnDay === 0) {
+      return NextResponse.json(
+        { error: "You do not have any classes scheduled on this day" },
+        { status: 400 }
+      );
+    }
+
+    // Prevent duplicate entries for the same teacher + date + period
+    if (data.period) {
+      const existingEntry = await db.logbookEntry.findFirst({
+        where: {
+          teacherId: user.id,
+          date: entryDate,
+          period: data.period,
+        },
+      });
+
+      if (existingEntry) {
+        return NextResponse.json(
+          { error: `You already have an entry for Period ${data.period} on this date. You cannot fill the same period twice.` },
+          { status: 409 }
+        );
+      }
+    }
+
+    // Also check by timetable slot ID to catch duplicates even without period
+    if (data.timetableSlotId) {
+      const existingBySlot = await db.logbookEntry.findFirst({
+        where: {
+          teacherId: user.id,
+          date: entryDate,
+          timetableSlotId: data.timetableSlotId,
+        },
+      });
+
+      if (existingBySlot) {
+        return NextResponse.json(
+          { error: "You already have an entry for this timetable slot on this date. You cannot fill the same slot twice." },
+          { status: 409 }
+        );
+      }
+    }
+
     const entry = await db.logbookEntry.create({
       data: {
         date: new Date(data.date),
@@ -213,7 +278,7 @@ export async function POST(request: Request) {
           include: { subject: true },
         },
         assignment: {
-          include: { subject: true },
+          include: { subject: true, division: true },
         },
         timetableSlot: true,
       },

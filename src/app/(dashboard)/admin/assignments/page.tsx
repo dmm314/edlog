@@ -11,13 +11,20 @@ import {
   BookOpen,
   Calendar,
   AlertCircle,
+  Layers,
 } from "lucide-react";
+
+interface DivisionOption {
+  id: string;
+  name: string;
+}
 
 interface AssignmentItem {
   id: string;
   teacher: { id: string; name: string };
   class: { id: string; name: string; level: string };
   subject: { id: string; name: string; code: string };
+  division: DivisionOption | null;
   entryCount: number;
   timetableSlots: number;
   createdAt: string;
@@ -49,6 +56,9 @@ export default function AssignmentsPage() {
   const [subjectsByClass, setSubjectsByClass] = useState<
     Record<string, SubjectOption[]>
   >({});
+  const [divisionsBySubject, setDivisionsBySubject] = useState<
+    Record<string, DivisionOption[]>
+  >({});
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -61,6 +71,7 @@ export default function AssignmentsPage() {
     teacherId: "",
     classId: "",
     subjectId: "",
+    divisionId: "",
   });
 
   useEffect(() => {
@@ -77,6 +88,7 @@ export default function AssignmentsPage() {
         setClasses(data.classes);
         setSubjects(data.subjects);
         setSubjectsByClass(data.subjectsByClass || {});
+        setDivisionsBySubject(data.divisionsBySubject || {});
       } else {
         console.error("Assignments API error:", data.error);
         setError(data.error || "Failed to load assignments data");
@@ -93,6 +105,13 @@ export default function AssignmentsPage() {
     e.preventDefault();
     if (!form.teacherId || !form.classId || !form.subjectId) return;
 
+    // If subject has divisions, a division must be selected
+    const subjectDivisions = divisionsBySubject[form.subjectId] || [];
+    if (subjectDivisions.length > 0 && !form.divisionId) {
+      setError("Please select a division for this subject");
+      return;
+    }
+
     setSaving(true);
     setError("");
 
@@ -100,13 +119,18 @@ export default function AssignmentsPage() {
       const res = await fetch("/api/admin/assignments", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({
+          teacherId: form.teacherId,
+          classId: form.classId,
+          subjectId: form.subjectId,
+          divisionId: form.divisionId || undefined,
+        }),
       });
 
       if (res.ok) {
         const newAssignment = await res.json();
         setAssignments((prev) => [...prev, newAssignment]);
-        setForm({ teacherId: "", classId: "", subjectId: "" });
+        setForm({ teacherId: "", classId: "", subjectId: "", divisionId: "" });
         setShowForm(false);
       } else {
         const data = await res.json();
@@ -142,11 +166,13 @@ export default function AssignmentsPage() {
   // Filter assignments
   const filteredAssignments = useMemo(() => {
     return assignments.filter((a) => {
+      const divisionName = a.division?.name || "";
       const searchMatch =
         !searchQuery ||
         a.teacher.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         a.class.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        a.subject.name.toLowerCase().includes(searchQuery.toLowerCase());
+        a.subject.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        divisionName.toLowerCase().includes(searchQuery.toLowerCase());
 
       const teacherMatch =
         !filterTeacher || a.teacher.id === filterTeacher;
@@ -177,6 +203,11 @@ export default function AssignmentsPage() {
     ? subjectsByClass[form.classId] || []
     : [];
 
+  // Divisions available for the selected subject
+  const availableDivisions = form.subjectId
+    ? divisionsBySubject[form.subjectId] || []
+    : [];
+
   const hasSetup = teachers.length > 0 && classes.length > 0 && subjects.length > 0;
 
   return (
@@ -201,18 +232,27 @@ export default function AssignmentsPage() {
                 {assignments.length !== 1 ? "s" : ""}
               </p>
             </div>
-            {hasSetup && (
-              <button
-                onClick={() => {
-                  setShowForm(!showForm);
-                  setError("");
-                }}
+            <div className="flex items-center gap-2">
+              <Link
+                href="/admin/divisions"
                 className="flex items-center gap-1.5 bg-white/10 hover:bg-white/20 text-white text-sm rounded-lg px-3 py-1.5"
               >
-                <Plus className="w-4 h-4" />
-                Assign
-              </button>
-            )}
+                <Layers className="w-4 h-4" />
+                Divisions
+              </Link>
+              {hasSetup && (
+                <button
+                  onClick={() => {
+                    setShowForm(!showForm);
+                    setError("");
+                  }}
+                  className="flex items-center gap-1.5 bg-white/10 hover:bg-white/20 text-white text-sm rounded-lg px-3 py-1.5"
+                >
+                  <Plus className="w-4 h-4" />
+                  Assign
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -309,6 +349,7 @@ export default function AssignmentsPage() {
                     ...prev,
                     classId: e.target.value,
                     subjectId: "",
+                    divisionId: "",
                   }))
                 }
                 className="input-field"
@@ -327,7 +368,11 @@ export default function AssignmentsPage() {
               <select
                 value={form.subjectId}
                 onChange={(e) =>
-                  setForm((prev) => ({ ...prev, subjectId: e.target.value }))
+                  setForm((prev) => ({
+                    ...prev,
+                    subjectId: e.target.value,
+                    divisionId: "",
+                  }))
                 }
                 className="input-field"
                 disabled={!form.classId}
@@ -358,13 +403,41 @@ export default function AssignmentsPage() {
               )}
             </div>
 
+            {/* Division picker — only shows when subject has divisions */}
+            {form.subjectId && availableDivisions.length > 0 && (
+              <div>
+                <label className="label-field">
+                  Division
+                  <span className="text-amber-600 ml-1">(required)</span>
+                </label>
+                <select
+                  value={form.divisionId}
+                  onChange={(e) =>
+                    setForm((prev) => ({ ...prev, divisionId: e.target.value }))
+                  }
+                  className="input-field"
+                >
+                  <option value="">Select division</option>
+                  {availableDivisions.map((d) => (
+                    <option key={d.id} value={d.id}>
+                      {d.name}
+                    </option>
+                  ))}
+                </select>
+                <p className="text-[10px] text-slate-400 mt-1">
+                  This subject has been divided into sections. Each teacher should be assigned to a specific division.
+                </p>
+              </div>
+            )}
+
             <button
               type="submit"
               disabled={
                 saving ||
                 !form.teacherId ||
                 !form.classId ||
-                !form.subjectId
+                !form.subjectId ||
+                (availableDivisions.length > 0 && !form.divisionId)
               }
               className="btn-primary text-sm"
             >
@@ -434,10 +507,15 @@ export default function AssignmentsPage() {
                   <div key={a.id} className="card p-3">
                     <div className="flex items-center justify-between">
                       <div className="flex-1">
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 flex-wrap">
                           <span className="text-xs font-medium bg-blue-50 text-blue-700 px-2 py-0.5 rounded">
                             {a.subject.name}
                           </span>
+                          {a.division && (
+                            <span className="text-xs font-medium bg-amber-50 text-amber-700 px-2 py-0.5 rounded">
+                              {a.division.name}
+                            </span>
+                          )}
                           <span className="text-xs font-medium bg-purple-50 text-purple-700 px-2 py-0.5 rounded">
                             {a.class.name}
                           </span>

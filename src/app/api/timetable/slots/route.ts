@@ -42,6 +42,7 @@ export async function GET(request: NextRequest) {
           include: {
             class: true,
             subject: true,
+            division: true,
           },
         },
       },
@@ -59,7 +60,11 @@ export async function GET(request: NextRequest) {
         classId: slot.assignment.classId,
         className: slot.assignment.class.name,
         subjectId: slot.assignment.subjectId,
-        subjectName: slot.assignment.subject.name,
+        subjectName: slot.assignment.division
+          ? `${slot.assignment.subject.name} (${slot.assignment.division.name})`
+          : slot.assignment.subject.name,
+        divisionId: slot.assignment.divisionId,
+        divisionName: slot.assignment.division?.name || null,
       },
     }));
 

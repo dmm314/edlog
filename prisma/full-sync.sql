@@ -173,11 +173,21 @@ CREATE TABLE IF NOT EXISTS "ClassSubject" (
     CONSTRAINT "ClassSubject_pkey" PRIMARY KEY ("id")
 );
 
+CREATE TABLE IF NOT EXISTS "SubjectDivision" (
+    "id" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "subjectId" TEXT NOT NULL,
+    "schoolId" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "SubjectDivision_pkey" PRIMARY KEY ("id")
+);
+
 CREATE TABLE IF NOT EXISTS "TeacherAssignment" (
     "id" TEXT NOT NULL,
     "teacherId" TEXT NOT NULL,
     "classId" TEXT NOT NULL,
     "subjectId" TEXT NOT NULL,
+    "divisionId" TEXT,
     "schoolId" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -252,7 +262,9 @@ CREATE UNIQUE INDEX IF NOT EXISTS "Subject_code_key" ON "Subject"("code");
 CREATE UNIQUE INDEX IF NOT EXISTS "Topic_subjectId_classLevel_name_key" ON "Topic"("subjectId", "classLevel", "name");
 CREATE UNIQUE INDEX IF NOT EXISTS "SchoolSubject_schoolId_subjectId_key" ON "SchoolSubject"("schoolId", "subjectId");
 CREATE UNIQUE INDEX IF NOT EXISTS "ClassSubject_classId_subjectId_key" ON "ClassSubject"("classId", "subjectId");
-CREATE UNIQUE INDEX IF NOT EXISTS "TeacherAssignment_teacherId_classId_subjectId_key" ON "TeacherAssignment"("teacherId", "classId", "subjectId");
+CREATE UNIQUE INDEX IF NOT EXISTS "SubjectDivision_schoolId_subjectId_name_key" ON "SubjectDivision"("schoolId", "subjectId", "name");
+CREATE INDEX IF NOT EXISTS "SubjectDivision_schoolId_subjectId_idx" ON "SubjectDivision"("schoolId", "subjectId");
+CREATE UNIQUE INDEX IF NOT EXISTS "TeacherAssignment_teacherId_classId_subjectId_divisionId_key" ON "TeacherAssignment"("teacherId", "classId", "subjectId", "divisionId");
 CREATE UNIQUE INDEX IF NOT EXISTS "_EntryTopics_AB_unique" ON "_EntryTopics"("A", "B");
 
 -- ── REGULAR INDEXES ─────────────────────────────────────────
@@ -289,9 +301,12 @@ DO $$ BEGIN ALTER TABLE "SchoolSubject" ADD CONSTRAINT "SchoolSubject_schoolId_f
 DO $$ BEGIN ALTER TABLE "SchoolSubject" ADD CONSTRAINT "SchoolSubject_subjectId_fkey" FOREIGN KEY ("subjectId") REFERENCES "Subject"("id") ON DELETE RESTRICT ON UPDATE CASCADE; EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 DO $$ BEGIN ALTER TABLE "ClassSubject" ADD CONSTRAINT "ClassSubject_classId_fkey" FOREIGN KEY ("classId") REFERENCES "Class"("id") ON DELETE CASCADE ON UPDATE CASCADE; EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 DO $$ BEGIN ALTER TABLE "ClassSubject" ADD CONSTRAINT "ClassSubject_subjectId_fkey" FOREIGN KEY ("subjectId") REFERENCES "Subject"("id") ON DELETE RESTRICT ON UPDATE CASCADE; EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+DO $$ BEGIN ALTER TABLE "SubjectDivision" ADD CONSTRAINT "SubjectDivision_subjectId_fkey" FOREIGN KEY ("subjectId") REFERENCES "Subject"("id") ON DELETE RESTRICT ON UPDATE CASCADE; EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+DO $$ BEGIN ALTER TABLE "SubjectDivision" ADD CONSTRAINT "SubjectDivision_schoolId_fkey" FOREIGN KEY ("schoolId") REFERENCES "School"("id") ON DELETE RESTRICT ON UPDATE CASCADE; EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 DO $$ BEGIN ALTER TABLE "TeacherAssignment" ADD CONSTRAINT "TeacherAssignment_teacherId_fkey" FOREIGN KEY ("teacherId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE; EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 DO $$ BEGIN ALTER TABLE "TeacherAssignment" ADD CONSTRAINT "TeacherAssignment_classId_fkey" FOREIGN KEY ("classId") REFERENCES "Class"("id") ON DELETE RESTRICT ON UPDATE CASCADE; EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 DO $$ BEGIN ALTER TABLE "TeacherAssignment" ADD CONSTRAINT "TeacherAssignment_subjectId_fkey" FOREIGN KEY ("subjectId") REFERENCES "Subject"("id") ON DELETE RESTRICT ON UPDATE CASCADE; EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+DO $$ BEGIN ALTER TABLE "TeacherAssignment" ADD CONSTRAINT "TeacherAssignment_divisionId_fkey" FOREIGN KEY ("divisionId") REFERENCES "SubjectDivision"("id") ON DELETE SET NULL ON UPDATE CASCADE; EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 DO $$ BEGIN ALTER TABLE "TeacherAssignment" ADD CONSTRAINT "TeacherAssignment_schoolId_fkey" FOREIGN KEY ("schoolId") REFERENCES "School"("id") ON DELETE RESTRICT ON UPDATE CASCADE; EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 DO $$ BEGIN ALTER TABLE "TimetableSlot" ADD CONSTRAINT "TimetableSlot_assignmentId_fkey" FOREIGN KEY ("assignmentId") REFERENCES "TeacherAssignment"("id") ON DELETE CASCADE ON UPDATE CASCADE; EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 DO $$ BEGIN ALTER TABLE "TimetableSlot" ADD CONSTRAINT "TimetableSlot_schoolId_fkey" FOREIGN KEY ("schoolId") REFERENCES "School"("id") ON DELETE RESTRICT ON UPDATE CASCADE; EXCEPTION WHEN duplicate_object THEN NULL; END $$;
@@ -330,6 +345,9 @@ ALTER TABLE "LogbookEntry" ADD COLUMN IF NOT EXISTS "engagementLevel" "Engagemen
 ALTER TABLE "LogbookEntry" ADD COLUMN IF NOT EXISTS "assignmentId" TEXT;
 ALTER TABLE "LogbookEntry" ADD COLUMN IF NOT EXISTS "timetableSlotId" TEXT;
 
+-- TeacherAssignment: subject divisions
+ALTER TABLE "TeacherAssignment" ADD COLUMN IF NOT EXISTS "divisionId" TEXT;
+
 -- ── SEED SUBJECTS (skip duplicates) ─────────────────────────
 
 INSERT INTO "Subject" ("id", "name", "code", "category", "createdAt")
@@ -343,10 +361,7 @@ VALUES
   (gen_random_uuid()::text, 'Physics',                'PHY', 'Science',   NOW()),
   (gen_random_uuid()::text, 'Biology',                'BIO', 'Science',   NOW()),
   (gen_random_uuid()::text, 'Computer Science',       'CSC', 'Science',   NOW()),
-  (gen_random_uuid()::text, 'Chemistry',              'CHE', 'Chemistry', NOW()),
-  (gen_random_uuid()::text, 'Physical Chemistry',     'PCH', 'Chemistry', NOW()),
-  (gen_random_uuid()::text, 'Organic Chemistry',      'OCH', 'Chemistry', NOW()),
-  (gen_random_uuid()::text, 'Inorganic Chemistry',    'ICH', 'Chemistry', NOW()),
+  (gen_random_uuid()::text, 'Chemistry',              'CHE', 'Science',   NOW()),
   (gen_random_uuid()::text, 'English Language',       'ENG', 'Language',  NOW()),
   (gen_random_uuid()::text, 'French',                 'FRE', 'Language',  NOW()),
   (gen_random_uuid()::text, 'Literature in English',  'LIT', 'Language',  NOW()),
@@ -511,7 +526,7 @@ FROM "Subject" s,
   ('Populations & Ecosystems',          'Upper Sixth', 4, 'Module 4: Ecology',          7),
   ('Biotechnology',                     'Upper Sixth', 4, 'Module 4: Ecology',          8)
 ) AS t(name, level, mnum, mname, idx)
-WHERE s."code" = 'BIO', 'EcoBio', 'GeBio', 'CooBio'
+WHERE s."code" = 'BIO'
 ON CONFLICT ("subjectId", "classLevel", "name") DO NOTHING;
 
 -- ── Chemistry (Form 1-5 + A-Level) ──────────────────────────
@@ -552,7 +567,7 @@ FROM "Subject" s,
   ('Amines & Polymers',                  'Upper Sixth', 3, 'Module 3: Organic',           7),
   ('Analytical Techniques',              'Upper Sixth', 4, 'Module 4: Analysis',          8)
 ) AS t(name, level, mnum, mname, idx)
-WHERE s."code" = 'CHE', 'PCH', 'OCH', 'ICH'
+WHERE s."code" = 'CHE'
 ON CONFLICT ("subjectId", "classLevel", "name") DO NOTHING;
 
 -- ── English Language (Form 1-5) ─────────────────────────────

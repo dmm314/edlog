@@ -26,11 +26,8 @@ const SUBJECTS: SubjectDef[] = [
   { name: "Biology", code: "BIO", category: "Science" },
   { name: "Computer Science", code: "CSC", category: "Science" },
 
-  // Chemistry branch
-  { name: "Chemistry", code: "CHE", category: "Chemistry" },
-  { name: "Physical Chemistry", code: "PCH", category: "Chemistry" },
-  { name: "Organic Chemistry", code: "OCH", category: "Chemistry" },
-  { name: "Inorganic Chemistry", code: "ICH", category: "Chemistry" },
+  // Chemistry (divisions like Physical/Organic/Inorganic are school-managed)
+  { name: "Chemistry", code: "CHE", category: "Science" },
 
   // Language
   { name: "English Language", code: "ENG", category: "Language" },

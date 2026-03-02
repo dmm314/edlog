@@ -125,6 +125,16 @@ export const DEMO_ENTRIES = [
   { teacherEmail: "brayan@edlog.cm", className: "Lower Sixth Science A", subjectCode: "BIO", daysAgo: 7, period: 4, moduleName: "Cell Biology Foundations", topicNames: ["Cell Ultrastructure"], notes: "Detailed study of organelles: mitochondria, ER, Golgi apparatus, lysosomes.", objectives: "Students can identify and describe cell organelles", engagement: "HIGH" as const, attendance: 36, status: "VERIFIED" as const },
 ];
 
+// Subject divisions (school-specific sub-subjects)
+// These are created per-school so teachers can be assigned to specific divisions
+export const DEMO_DIVISIONS = [
+  { subjectCode: "CHE", name: "Physical Chemistry" },
+  { subjectCode: "CHE", name: "Organic Chemistry" },
+  { subjectCode: "CHE", name: "Inorganic Chemistry" },
+  { subjectCode: "ENG", name: "Directed Writing" },
+  { subjectCode: "ENG", name: "Composition" },
+];
+
 export const DEMO_NOTIFICATIONS = [
   { teacherEmail: "darren@edlog.cm", type: "WEEKLY_SUMMARY" as const, title: "Weekly Summary", message: "You logged 6 entries this week across 3 classes. Great consistency!", isRead: false },
   { teacherEmail: "darren@edlog.cm", type: "LOG_REVIEWED" as const, title: "Entry Verified", message: "Your Physics entry for Form 3A on density applications has been verified by the school admin.", isRead: true, link: "/history" },

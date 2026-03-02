@@ -113,54 +113,134 @@ export default function TimetableManagementPage() {
     });
   }
 
+  // Double-booking confirmation
+  const [doubleBookWarning, setDoubleBookWarning] = useState<{
+    message: string;
+    pendingPeriods: number[];
+    processedSlots: TimetableSlot[];
+    currentPeriodIndex: number;
+  } | null>(null);
+
+  async function createSlotForPeriod(
+    periodNum: number,
+    forceDoubleBook = false
+  ): Promise<{ slot?: TimetableSlot; warning?: string; error?: string }> {
+    const period = periods.find((p) => p.periodNum === periodNum);
+    if (!period) return { error: "Period not found" };
+
+    const res = await fetch("/api/admin/timetable", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        assignmentId: form.assignmentId,
+        dayOfWeek: form.dayOfWeek,
+        periodNum,
+        startTime: period.startTime,
+        endTime: period.endTime,
+        periodLabel: period.label,
+        forceDoubleBook,
+      }),
+    });
+
+    const data = await res.json();
+    if (res.ok) return { slot: data };
+    if (data.warning) return { warning: data.error };
+    return { error: data.error };
+  }
+
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault();
     if (!form.assignmentId || form.selectedPeriods.length === 0) return;
 
     setSaving(true);
     setError("");
+    setDoubleBookWarning(null);
+
     try {
       const newSlots: TimetableSlot[] = [];
-      let hadError = false;
-      for (const periodNum of form.selectedPeriods) {
-        const period = periods.find((p) => p.periodNum === periodNum);
-        if (!period) continue;
+      for (let i = 0; i < form.selectedPeriods.length; i++) {
+        const periodNum = form.selectedPeriods[i];
+        const result = await createSlotForPeriod(periodNum);
 
-        const res = await fetch("/api/admin/timetable", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            assignmentId: form.assignmentId,
-            dayOfWeek: form.dayOfWeek,
-            periodNum,
-            startTime: period.startTime,
-            endTime: period.endTime,
-            periodLabel: period.label,
-          }),
-        });
-
-        const data = await res.json();
-        if (res.ok) {
-          newSlots.push(data);
+        if (result.slot) {
+          newSlots.push(result.slot);
+        } else if (result.warning) {
+          // Pause and ask for confirmation
+          setDoubleBookWarning({
+            message: result.warning,
+            pendingPeriods: form.selectedPeriods.slice(i),
+            processedSlots: newSlots,
+            currentPeriodIndex: i,
+          });
+          setSaving(false);
+          return;
         } else {
-          setError(data.error || `Failed to add slot for ${period.label}`);
-          hadError = true;
+          setError(result.error || "Failed to add slot");
+          break;
         }
       }
+
       if (newSlots.length > 0) {
         setSlots((prev) => [...prev, ...newSlots]);
-        setForm({
-          assignmentId: "",
-          dayOfWeek: form.dayOfWeek,
-          selectedPeriods: [],
-        });
-        if (!hadError) setShowForm(false);
+        setForm({ assignmentId: "", dayOfWeek: form.dayOfWeek, selectedPeriods: [] });
+        setShowForm(false);
       }
     } catch {
       setError("Failed to connect to server");
     } finally {
       setSaving(false);
     }
+  }
+
+  async function handleDoubleBookConfirm() {
+    if (!doubleBookWarning) return;
+    setSaving(true);
+    setError("");
+
+    try {
+      const allNewSlots = [...doubleBookWarning.processedSlots];
+      const remaining = doubleBookWarning.pendingPeriods;
+
+      for (let i = 0; i < remaining.length; i++) {
+        const isFirst = i === 0; // first one needs force
+        const result = await createSlotForPeriod(remaining[i], isFirst);
+
+        if (result.slot) {
+          allNewSlots.push(result.slot);
+        } else if (result.warning && !isFirst) {
+          setDoubleBookWarning({
+            message: result.warning,
+            pendingPeriods: remaining.slice(i),
+            processedSlots: allNewSlots,
+            currentPeriodIndex: i,
+          });
+          setSaving(false);
+          return;
+        } else if (result.error) {
+          setError(result.error);
+          break;
+        }
+      }
+
+      if (allNewSlots.length > 0) {
+        setSlots((prev) => [...prev, ...allNewSlots]);
+        setForm({ assignmentId: "", dayOfWeek: form.dayOfWeek, selectedPeriods: [] });
+        setShowForm(false);
+      }
+    } catch {
+      setError("Failed to connect to server");
+    } finally {
+      setDoubleBookWarning(null);
+      setSaving(false);
+    }
+  }
+
+  function handleDoubleBookCancel() {
+    // Keep any already-created slots
+    if (doubleBookWarning && doubleBookWarning.processedSlots.length > 0) {
+      setSlots((prev) => [...prev, ...doubleBookWarning.processedSlots]);
+    }
+    setDoubleBookWarning(null);
   }
 
   async function handleDelete(slotId: string) {
@@ -376,6 +456,36 @@ export default function TimetableManagementPage() {
             >
               <X className="w-4 h-4" />
             </button>
+          </div>
+        )}
+
+        {/* Double-booking confirmation dialog */}
+        {doubleBookWarning && (
+          <div className="bg-amber-50 border-2 border-amber-300 rounded-xl px-4 py-4 space-y-3">
+            <div className="flex items-start gap-3">
+              <div className="w-8 h-8 bg-amber-100 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+                <Calendar className="w-4 h-4 text-amber-600" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-bold text-amber-800">Joint Class Detected</p>
+                <p className="text-sm text-amber-700 mt-1">{doubleBookWarning.message}</p>
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={handleDoubleBookCancel}
+                className="btn-secondary text-sm flex-1"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDoubleBookConfirm}
+                disabled={saving}
+                className="flex-1 bg-amber-600 hover:bg-amber-700 text-white font-semibold text-sm rounded-xl py-2.5 px-4 transition-colors"
+              >
+                {saving ? "Adding..." : "Yes, Allow Double-Book"}
+              </button>
+            </div>
           </div>
         )}
 

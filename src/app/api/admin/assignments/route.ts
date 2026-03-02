@@ -17,7 +17,7 @@ export async function GET() {
     }
 
     // Run queries individually so one failure doesn't break everything
-    const [assignments, teachers, classes, classSubjects] = await Promise.all([
+    const [assignments, teachers, classes, classSubjects, divisions] = await Promise.all([
       db.teacherAssignment.findMany({
         where: { schoolId: user.schoolId },
         include: {
@@ -29,6 +29,9 @@ export async function GET() {
           },
           subject: {
             select: { id: true, name: true, code: true },
+          },
+          division: {
+            select: { id: true, name: true },
           },
           _count: {
             select: { entries: true, periods: true },
@@ -61,6 +64,11 @@ export async function GET() {
           subject: { select: { id: true, name: true, code: true } },
         },
       }).catch((e) => { console.error("classSubjects query failed:", e); return []; }),
+      db.subjectDivision.findMany({
+        where: { schoolId: user.schoolId },
+        select: { id: true, name: true, subjectId: true },
+        orderBy: { name: "asc" },
+      }).catch((e) => { console.error("divisions query failed:", e); return []; }),
     ]);
 
     // Build a map of classId -> subjects for the frontend
@@ -68,6 +76,13 @@ export async function GET() {
     for (const cs of classSubjects) {
       if (!subjectsByClass[cs.classId]) subjectsByClass[cs.classId] = [];
       subjectsByClass[cs.classId].push(cs.subject);
+    }
+
+    // Build a map of subjectId -> divisions
+    const divisionsBySubject: Record<string, { id: string; name: string }[]> = {};
+    for (const d of divisions) {
+      if (!divisionsBySubject[d.subjectId]) divisionsBySubject[d.subjectId] = [];
+      divisionsBySubject[d.subjectId].push({ id: d.id, name: d.name });
     }
 
     // Dedupe all subjects across classes for backward compat
@@ -93,6 +108,7 @@ export async function GET() {
           name: a.subject.name,
           code: a.subject.code,
         },
+        division: a.division ? { id: a.division.id, name: a.division.name } : null,
         entryCount: a._count.entries,
         timetableSlots: a._count.periods,
         createdAt: a.createdAt.toISOString(),
@@ -101,6 +117,7 @@ export async function GET() {
       classes,
       subjects: Array.from(allSubjectMap.values()),
       subjectsByClass,
+      divisionsBySubject,
     });
   } catch (error) {
     console.error("GET /api/admin/assignments error:", error);
@@ -126,7 +143,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { teacherId, classId, subjectId } = body;
+    const { teacherId, classId, subjectId, divisionId } = body;
 
     if (!teacherId || !classId || !subjectId) {
       return NextResponse.json(
@@ -157,13 +174,26 @@ export async function POST(request: Request) {
       );
     }
 
-    // Check for duplicate
+    // Verify division belongs to this subject & school (if provided)
+    if (divisionId) {
+      const division = await db.subjectDivision.findFirst({
+        where: { id: divisionId, subjectId, schoolId: user.schoolId },
+      });
+      if (!division) {
+        return NextResponse.json(
+          { error: "Division not found for this subject" },
+          { status: 404 }
+        );
+      }
+    }
+
+    // Check for duplicate (same teacher + class + subject + division)
     const existing = await db.teacherAssignment.findFirst({
-      where: { teacherId, classId, subjectId },
+      where: { teacherId, classId, subjectId, divisionId: divisionId || null },
     });
     if (existing) {
       return NextResponse.json(
-        { error: "This teacher is already assigned to this class and subject" },
+        { error: "This teacher is already assigned to this class and subject" + (divisionId ? " division" : "") },
         { status: 409 }
       );
     }
@@ -173,12 +203,14 @@ export async function POST(request: Request) {
         teacherId,
         classId,
         subjectId,
+        divisionId: divisionId || null,
         schoolId: user.schoolId,
       },
       include: {
         teacher: { select: { id: true, firstName: true, lastName: true } },
         class: { select: { id: true, name: true, level: true } },
         subject: { select: { id: true, name: true, code: true } },
+        division: { select: { id: true, name: true } },
       },
     });
 
@@ -198,6 +230,7 @@ export async function POST(request: Request) {
         name: assignment.subject.name,
         code: assignment.subject.code,
       },
+      division: assignment.division ? { id: assignment.division.id, name: assignment.division.name } : null,
       entryCount: 0,
       timetableSlots: 0,
       createdAt: assignment.createdAt.toISOString(),

@@ -18,6 +18,9 @@ export async function GET() {
         subject: {
           select: { id: true, name: true, code: true },
         },
+        division: {
+          select: { id: true, name: true },
+        },
         periods: {
           select: {
             id: true,
@@ -40,6 +43,7 @@ export async function GET() {
         id: a.id,
         class: a.class,
         subject: a.subject,
+        division: a.division,
         entryCount: a._count.entries,
         timetableSlots: a.periods.map((p) => ({
           id: p.id,
