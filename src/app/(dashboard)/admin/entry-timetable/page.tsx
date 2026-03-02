@@ -560,7 +560,7 @@ export default function EntryTimetablePage() {
         {/* Entry Detail Modal */}
         {(selectedEntry || selectedSlot) && (
           <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 backdrop-blur-sm" onClick={() => { setSelectedEntry(null); setSelectedSlot(null); }}>
-            <div className="w-full max-w-lg bg-white rounded-t-3xl shadow-2xl max-h-[80vh] overflow-y-auto animate-slide-up" onClick={(e) => e.stopPropagation()}>
+            <div className="w-full max-w-lg bg-white rounded-t-3xl shadow-2xl max-h-[85vh] overflow-y-auto animate-slide-up" onClick={(e) => e.stopPropagation()}>
               <div className="sticky top-0 bg-white z-10 px-5 pt-4 pb-3 border-b border-slate-100 flex items-center justify-between">
                 <h3 className="text-base font-bold text-slate-900">
                   {selectedEntry ? "Entry Details" : "Slot Details"}
@@ -571,7 +571,7 @@ export default function EntryTimetablePage() {
                 </button>
               </div>
 
-              <div className="p-5 space-y-4">
+              <div className="p-5 pb-24 space-y-4">
                 {/* Teacher info */}
                 {(selectedEntry?.teacher || selectedSlot?.teacher) && (() => {
                   const teacher = selectedEntry?.teacher || selectedSlot!.teacher;

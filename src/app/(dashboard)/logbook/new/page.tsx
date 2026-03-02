@@ -92,6 +92,8 @@ export default function NewEntryPage() {
   const [assignments, setAssignments] = useState<AssignmentItem[]>([]);
   const [subjects, setSubjects] = useState<SubjectWithTopics[]>([]);
   const [timetableSlots, setTimetableSlots] = useState<TimetableSlot[]>([]);
+  const [filledPeriods, setFilledPeriods] = useState<Set<number>>(new Set());
+  const [filledSlotIds, setFilledSlotIds] = useState<Set<string>>(new Set());
   const [loadingData, setLoadingData] = useState(true);
   const [loadingSlots, setLoadingSlots] = useState(false);
 
@@ -166,20 +168,36 @@ export default function NewEntryPage() {
     fetchData();
   }, []);
 
-  // Fetch timetable slots when date changes
+  // Fetch timetable slots and existing entries when date changes
   useEffect(() => {
     async function fetchSlots() {
       if (!date) return;
       const dayOfWeek = getDayOfWeek(date);
       if (dayOfWeek > 5) {
         setTimetableSlots([]);
+        setFilledPeriods(new Set());
+        setFilledSlotIds(new Set());
         return;
       }
       setLoadingSlots(true);
       try {
-        const res = await fetch(`/api/timetable/slots?dayOfWeek=${dayOfWeek}`);
-        if (res.ok) {
-          setTimetableSlots(await res.json());
+        const [slotsRes, entriesRes] = await Promise.all([
+          fetch(`/api/timetable/slots?dayOfWeek=${dayOfWeek}`),
+          fetch(`/api/entries?from=${date}&to=${date}&limit=20`),
+        ]);
+        if (slotsRes.ok) {
+          setTimetableSlots(await slotsRes.json());
+        }
+        if (entriesRes.ok) {
+          const data = await entriesRes.json();
+          const periods = new Set<number>();
+          const slotIds = new Set<string>();
+          for (const entry of data.entries || []) {
+            if (entry.period) periods.add(entry.period);
+            if (entry.timetableSlotId) slotIds.add(entry.timetableSlotId);
+          }
+          setFilledPeriods(periods);
+          setFilledSlotIds(slotIds);
         }
       } catch {
         // Silently fail
@@ -269,6 +287,11 @@ export default function NewEntryPage() {
 
   // Handle timetable slot toggle (multi-select up to 2)
   function handleSlotToggle(slot: TimetableSlot) {
+    // Block already-filled slots
+    const pm = slot.periodLabel.match(/\d+/);
+    const pNum = pm ? parseInt(pm[0]) : null;
+    if (filledSlotIds.has(slot.id) || (pNum !== null && filledPeriods.has(pNum))) return;
+
     setSelectedSlotIds((prev) => {
       const already = prev.includes(slot.id);
       if (already) {
@@ -366,8 +389,8 @@ export default function NewEntryPage() {
 
   const selectedDayName = date ? DAY_NAMES[getDayOfWeek(date)] || "" : "";
   const isWeekend = date ? getDayOfWeek(date) > 5 : false;
-  const hasTeachingOnDay = loadingSlots || timetableSlots.length > 0 || isWeekend;
-  const isFormValid = date && classId && subjectId && topicText.trim().length > 0 && hasTeachingOnDay;
+  const hasTeachingOnDay = !date || loadingSlots || timetableSlots.length > 0;
+  const isFormValid = date && classId && subjectId && topicText.trim().length > 0 && !isWeekend && hasTeachingOnDay;
   const hasMultiSlots = selectedSlotIds.length > 1;
 
   async function handleSubmit(e: React.FormEvent) {
@@ -706,28 +729,38 @@ export default function NewEntryPage() {
                 <p className="text-[11px] text-slate-400 mb-2">Select up to 2 periods of the same subject to fill at once</p>
                 <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
                   {timetableSlots.map((slot) => {
+                    const periodMatch = slot.periodLabel.match(/\d+/);
+                    const periodNum = periodMatch ? parseInt(periodMatch[0]) : null;
+                    const isAlreadyFilled = filledSlotIds.has(slot.id) || (periodNum !== null && filledPeriods.has(periodNum));
                     const isSelected = selectedSlotIds.includes(slot.id);
-                    const canAdd = selectedSlotIds.length < 2 || isSelected;
+                    const canAdd = (selectedSlotIds.length < 2 || isSelected) && !isAlreadyFilled;
                     const isCompatible = selectedSlotIds.length === 0 || isSelected ||
                       (selectedSlotsData.length > 0 &&
                         slot.assignment.classId === selectedSlotsData[0].assignment.classId &&
                         slot.assignment.subjectId === selectedSlotsData[0].assignment.subjectId);
                     return (
-                      <button key={slot.id} type="button" onClick={() => handleSlotToggle(slot)}
+                      <button key={slot.id} type="button" onClick={() => !isAlreadyFilled && handleSlotToggle(slot)} disabled={isAlreadyFilled}
                         className={`flex-shrink-0 rounded-xl border-2 px-3 py-2.5 text-left transition-all relative ${
-                          isSelected ? "border-brand-500 bg-brand-50 shadow-sm"
+                          isAlreadyFilled ? "border-emerald-200 bg-emerald-50 opacity-70 cursor-not-allowed"
+                            : isSelected ? "border-brand-500 bg-brand-50 shadow-sm"
                             : !canAdd || !isCompatible ? "border-slate-100 bg-slate-50 opacity-50"
                             : "border-slate-200 bg-white hover:border-slate-300"
                         }`}>
-                        {isSelected && (
+                        {isAlreadyFilled && (
+                          <div className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center shadow-sm">
+                            <Check className="w-3 h-3 text-white" />
+                          </div>
+                        )}
+                        {isSelected && !isAlreadyFilled && (
                           <div className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-brand-600 rounded-full flex items-center justify-center shadow-sm">
                             <Check className="w-3 h-3 text-white" />
                           </div>
                         )}
-                        <p className="text-xs font-bold text-slate-900">{slot.periodLabel}</p>
+                        <p className={`text-xs font-bold ${isAlreadyFilled ? "text-emerald-700" : "text-slate-900"}`}>{slot.periodLabel}</p>
                         <p className="text-[10px] text-slate-500 mt-0.5 font-medium">{slot.startTime} - {slot.endTime}</p>
-                        <p className="text-[11px] font-semibold text-brand-700 mt-1.5">{slot.assignment.subjectName}</p>
+                        <p className={`text-[11px] font-semibold mt-1.5 ${isAlreadyFilled ? "text-emerald-600" : "text-brand-700"}`}>{slot.assignment.subjectName}</p>
                         <p className="text-[10px] text-slate-400">{slot.assignment.className}</p>
+                        {isAlreadyFilled && <p className="text-[9px] font-bold text-emerald-600 mt-1">Already filled</p>}
                       </button>
                     );
                   })}

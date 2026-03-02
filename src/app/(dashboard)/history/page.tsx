@@ -723,8 +723,8 @@ export default function HistoryPage() {
               )}
             </div>
 
-            {/* Bottom padding for safe area */}
-            <div className="h-6" />
+            {/* Bottom padding for safe area + bottom nav clearance */}
+            <div className="h-24" />
           </div>
         </div>
       )}
