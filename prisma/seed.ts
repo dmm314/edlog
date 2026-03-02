@@ -9,6 +9,7 @@ import {
   DEFAULT_PERIOD_SCHEDULE,
   DEMO_TIMETABLE,
   DEMO_ENTRIES,
+  DEMO_DIVISIONS,
   DEMO_NOTIFICATIONS,
 } from "./seed/demo-data";
 
@@ -87,7 +88,7 @@ async function main() {
 
   try {
     const { CHEMISTRY_CURRICULUM } = await import("./seed/curriculum-chemistry");
-    allSubjects.push({ name: "Chemistry", code: "CHE", category: "Chemistry", levels: CHEMISTRY_CURRICULUM });
+    allSubjects.push({ name: "Chemistry", code: "CHE", category: "Science", levels: CHEMISTRY_CURRICULUM });
   } catch { console.log("  ⚠ Chemistry curriculum file not found, skipping"); }
 
   try {
@@ -187,7 +188,16 @@ async function main() {
       data: { schoolId: school.id, subjectId: subjectMap[code] },
     });
   }
-  console.log(`  ✓ School: ${school.name} (${school.code})\n`);
+  // Create subject divisions for the demo school
+  for (const div of DEMO_DIVISIONS) {
+    const sId = subjectMap[div.subjectCode];
+    if (sId) {
+      await prisma.subjectDivision.create({
+        data: { name: div.name, subjectId: sId, schoolId: school.id },
+      });
+    }
+  }
+  console.log(`  ✓ School: ${school.name} (${school.code}), ${DEMO_DIVISIONS.length} subject divisions\n`);
 
   // ── 5. Classes ─────────────────────────────────────────
   console.log("📋 Creating classes...");

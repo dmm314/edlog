@@ -115,7 +115,7 @@ export async function GET(request: NextRequest) {
             },
           },
           assignment: {
-            include: { subject: true },
+            include: { subject: true, division: true },
           },
           timetableSlot: true,
         },
@@ -278,7 +278,7 @@ export async function POST(request: Request) {
           include: { subject: true },
         },
         assignment: {
-          include: { subject: true },
+          include: { subject: true, division: true },
         },
         timetableSlot: true,
       },

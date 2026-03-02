@@ -24,6 +24,7 @@ export async function GET() {
             teacher: { select: { firstName: true, lastName: true } },
             class: { select: { id: true, name: true } },
             subject: { select: { name: true } },
+            division: { select: { name: true } },
           },
         },
       },
@@ -37,6 +38,7 @@ export async function GET() {
         teacher: { select: { id: true, firstName: true, lastName: true } },
         class: { select: { id: true, name: true } },
         subject: { select: { id: true, name: true } },
+        division: { select: { id: true, name: true } },
       },
       orderBy: [{ teacher: { lastName: "asc" } }],
     });
@@ -88,7 +90,9 @@ export async function GET() {
       teacher: `${slot.assignment.teacher.firstName} ${slot.assignment.teacher.lastName}`,
       className: slot.assignment.class.name,
       classId: slot.assignment.class.id,
-      subject: slot.assignment.subject.name,
+      subject: slot.assignment.division
+        ? `${slot.assignment.subject.name} (${slot.assignment.division.name})`
+        : slot.assignment.subject.name,
     }));
 
     const assignmentOptions = assignments.map((a) => ({
@@ -96,7 +100,9 @@ export async function GET() {
       teacher: `${a.teacher.firstName} ${a.teacher.lastName}`,
       className: a.class.name,
       classId: a.class.id,
-      subject: a.subject.name,
+      subject: a.division
+        ? `${a.subject.name} (${a.division.name})`
+        : a.subject.name,
     }));
 
     const classOptions = classes.map((c) => ({
@@ -238,6 +244,7 @@ export async function POST(request: Request) {
             teacher: { select: { firstName: true, lastName: true } },
             class: { select: { id: true, name: true } },
             subject: { select: { name: true } },
+            division: { select: { name: true } },
           },
         },
       },
@@ -253,7 +260,9 @@ export async function POST(request: Request) {
       teacher: `${slot.assignment.teacher.firstName} ${slot.assignment.teacher.lastName}`,
       className: slot.assignment.class.name,
       classId: slot.assignment.class.id,
-      subject: slot.assignment.subject.name,
+      subject: slot.assignment.division
+        ? `${slot.assignment.subject.name} (${slot.assignment.division.name})`
+        : slot.assignment.subject.name,
     }, { status: 201 });
   } catch (error) {
     console.error("POST /api/admin/timetable error:", error);

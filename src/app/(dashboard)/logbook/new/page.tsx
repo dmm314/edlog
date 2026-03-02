@@ -84,6 +84,7 @@ interface AssignmentItem {
   id: string;
   class: { id: string; name: string; level: string; stream: string | null };
   subject: { id: string; name: string; code: string };
+  division: { id: string; name: string } | null;
   timetableSlots: {
     id: string;
     day: number;
@@ -244,11 +245,18 @@ export default function NewEntryPage() {
   }, [assignments]);
 
   // Subjects available for the selected class (from assignments)
+  // When a subject has divisions, each division appears as a separate entry
+  // Uses assignmentId as the unique key since multiple divisions share the same subjectId
   const subjectsForClass = useMemo(() => {
     if (!classId) return [];
     return assignments
       .filter((a) => a.class.id === classId)
-      .map((a) => ({ id: a.subject.id, name: a.subject.name, code: a.subject.code, assignmentId: a.id }));
+      .map((a) => ({
+        id: a.subject.id,
+        name: a.division ? `${a.subject.name} (${a.division.name})` : a.subject.name,
+        code: a.subject.code,
+        assignmentId: a.id,
+      }));
   }, [assignments, classId]);
 
   // Timetable slots filtered by selected class + date's day of week
@@ -392,14 +400,21 @@ export default function NewEntryPage() {
   }, []);
 
   // Handle subject change
-  const handleSubjectChange = useCallback((newSubjectId: string) => {
-    setSubjectId(newSubjectId);
+  const handleSubjectChange = useCallback((value: string) => {
     setModuleName("");
     setTopicText("");
-    const match = assignments.find(
-      (a) => a.class.id === classId && a.subject.id === newSubjectId
-    );
-    if (match) setAssignmentId(match.id);
+    // value may be an assignmentId (when divisions exist) or a subjectId
+    const matchByAssignment = assignments.find((a) => a.id === value);
+    if (matchByAssignment) {
+      setSubjectId(matchByAssignment.subject.id);
+      setAssignmentId(matchByAssignment.id);
+    } else {
+      setSubjectId(value);
+      const match = assignments.find(
+        (a) => a.class.id === classId && a.subject.id === value
+      );
+      if (match) setAssignmentId(match.id);
+    }
     if (selectedSlotIds.length > 0) {
       setSelectedSlotIds([]);
       setTimetableSlotId(null);
@@ -476,7 +491,9 @@ export default function NewEntryPage() {
       setCompletionTime(seconds);
 
       const firstEntry = createdEntries[0];
-      const subjectName = firstEntry.assignment?.subject?.name ?? firstEntry.topics?.[0]?.subject?.name ?? "—";
+      const baseSubjectName = firstEntry.assignment?.subject?.name ?? firstEntry.topics?.[0]?.subject?.name ?? "—";
+      const divisionName = firstEntry.assignment?.division?.name;
+      const subjectName = divisionName ? `${baseSubjectName} (${divisionName})` : baseSubjectName;
       const entryDate = new Date(firstEntry.date).toLocaleDateString("en-GB", {
         day: "numeric",
         month: "short",
@@ -848,7 +865,7 @@ export default function NewEntryPage() {
                   </div>
                   <div>
                     <label className="label-field">Subject</label>
-                    <div className="input-field bg-slate-50 text-slate-700 flex items-center text-sm">{subjectsForClass.find((s) => s.id === subjectId)?.name || "—"}</div>
+                    <div className="input-field bg-slate-50 text-slate-700 flex items-center text-sm">{subjectsForClass.find((s) => s.assignmentId === assignmentId || s.id === subjectId)?.name || "—"}</div>
                   </div>
                 </div>
               </>
@@ -861,9 +878,9 @@ export default function NewEntryPage() {
                 {subjectsForClass.length === 1 ? (
                   <div className="input-field bg-slate-50 text-slate-700 flex items-center">{subjectsForClass[0].name}</div>
                 ) : (
-                  <select value={subjectId} onChange={(e) => handleSubjectChange(e.target.value)} className="input-field" required>
+                  <select value={assignmentId || subjectId} onChange={(e) => handleSubjectChange(e.target.value)} className="input-field" required>
                     <option value="">Select subject</option>
-                    {subjectsForClass.map((s) => (<option key={s.id} value={s.id}>{s.name}</option>))}
+                    {subjectsForClass.map((s) => (<option key={s.assignmentId} value={s.assignmentId}>{s.name}</option>))}
                   </select>
                 )}
               </div>

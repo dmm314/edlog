@@ -168,6 +168,7 @@ model School {
   teachers       User[]              @relation("SchoolTeachers")
   classes        Class[]
   subjects       SchoolSubject[]
+  divisions      SubjectDivision[]
   assignments    TeacherAssignment[]
   timetableSlots TimetableSlot[]
   periodSchedule PeriodSchedule[]
@@ -221,6 +222,7 @@ model Subject {
   schools   SchoolSubject[]
   classes   ClassSubject[]
   assignments TeacherAssignment[]
+  divisions   SubjectDivision[]
 }
 
 model Topic {
@@ -260,25 +262,44 @@ model ClassSubject {
   @@unique([classId, subjectId])
 }
 
-// ── TEACHER ASSIGNMENTS & TIMETABLE ──────────────────────
+// ── SUBJECT DIVISIONS (school-specific sub-subjects) ─────
 
-model TeacherAssignment {
+model SubjectDivision {
   id        String   @id @default(cuid())
-  teacherId String
-  teacher   User     @relation(fields: [teacherId], references: [id])
-  classId   String
-  class     Class    @relation(fields: [classId], references: [id])
+  name      String   // "Physical Chemistry", "Directed Writing"
   subjectId String
   subject   Subject  @relation(fields: [subjectId], references: [id])
   schoolId  String
   school    School   @relation(fields: [schoolId], references: [id])
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+
+  assignments TeacherAssignment[]
+
+  @@unique([schoolId, subjectId, name])
+  @@index([schoolId, subjectId])
+}
+
+// ── TEACHER ASSIGNMENTS & TIMETABLE ──────────────────────
+
+model TeacherAssignment {
+  id         String   @id @default(cuid())
+  teacherId  String
+  teacher    User     @relation(fields: [teacherId], references: [id])
+  classId    String
+  class      Class    @relation(fields: [classId], references: [id])
+  subjectId  String
+  subject    Subject  @relation(fields: [subjectId], references: [id])
+  divisionId String?
+  division   SubjectDivision? @relation(fields: [divisionId], references: [id])
+  schoolId   String
+  school     School   @relation(fields: [schoolId], references: [id])
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   periods TimetableSlot[]
   entries LogbookEntry[]
 
-  @@unique([teacherId, classId, subjectId])
+  @@unique([teacherId, classId, subjectId, divisionId])
   @@index([teacherId])
   @@index([schoolId])
 }
