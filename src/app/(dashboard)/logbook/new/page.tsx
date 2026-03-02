@@ -30,6 +30,25 @@ const SignaturePad = dynamic(
   }
 );
 
+// Shorten class name: "Form 1 B" → "1B", "Form 5 A" → "5A", "Lower Sixth B" → "L6B"
+function shortClassName(name: string): string {
+  const lower = name.toLowerCase();
+  if (lower.startsWith("form ")) {
+    // "Form 1 B" → "1B"
+    return name.replace(/^Form\s+/i, "").replace(/\s+/g, "");
+  }
+  if (lower.includes("lower sixth")) {
+    const section = name.replace(/lower\s+sixth\s*/i, "").trim();
+    return `L6${section}`;
+  }
+  if (lower.includes("upper sixth")) {
+    const section = name.replace(/upper\s+sixth\s*/i, "").trim();
+    return `U6${section}`;
+  }
+  // Fallback: take last 3 chars
+  return name.length > 4 ? name.slice(-3).trim() : name;
+}
+
 interface TimetableSlot {
   id: string;
   dayOfWeek: number;
@@ -759,7 +778,7 @@ export default function NewEntryPage() {
                         <p className={`text-xs font-bold ${isAlreadyFilled ? "text-emerald-700" : "text-slate-900"}`}>{slot.periodLabel}</p>
                         <p className="text-[10px] text-slate-500 mt-0.5 font-medium">{slot.startTime} - {slot.endTime}</p>
                         <p className={`text-[11px] font-semibold mt-1.5 ${isAlreadyFilled ? "text-emerald-600" : "text-brand-700"}`}>{slot.assignment.subjectName}</p>
-                        <p className="text-[10px] text-slate-400">{slot.assignment.className}</p>
+                        <p className="text-[10px] text-slate-400">{shortClassName(slot.assignment.className)}</p>
                         {isAlreadyFilled && <p className="text-[9px] font-bold text-emerald-600 mt-1">Already filled</p>}
                       </button>
                     );
