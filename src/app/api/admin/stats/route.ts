@@ -17,29 +17,42 @@ export async function GET() {
     const startOfWeek = getStartOfWeek();
     const startOfMonth = getStartOfMonth();
 
+    // Try TeacherSchool-based counts, fall back to direct schoolId
+    let totalTeachers = 0;
+    let pendingTeachers = 0;
+
+    try {
+      [totalTeachers, pendingTeachers] = await Promise.all([
+        db.teacherSchool.count({
+          where: { schoolId: user.schoolId!, status: "ACTIVE" },
+        }),
+        db.teacherSchool.count({
+          where: { schoolId: user.schoolId!, status: "PENDING" },
+        }),
+      ]);
+      // If TeacherSchool returns 0, also check direct schoolId
+      if (totalTeachers === 0) {
+        const directCount = await db.user.count({
+          where: { schoolId: user.schoolId, role: "TEACHER" },
+        });
+        totalTeachers = Math.max(totalTeachers, directCount);
+      }
+    } catch {
+      // TeacherSchool table doesn't exist — use direct count
+      totalTeachers = await db.user.count({
+        where: { schoolId: user.schoolId, role: "TEACHER" },
+      });
+      pendingTeachers = 0;
+    }
+
     const [
-      totalTeachers,
       verifiedTeachers,
-      pendingTeachers,
       totalEntries,
       entriesThisMonth,
       entriesThisWeek,
     ] = await Promise.all([
-      // Count all teachers linked via TeacherSchool (ACTIVE)
-      db.teacherSchool.count({
-        where: { schoolId: user.schoolId!, status: "ACTIVE" },
-      }),
       db.user.count({
-        where: {
-          OR: [
-            { schoolId: user.schoolId, role: "TEACHER", isVerified: true },
-            { teacherSchools: { some: { schoolId: user.schoolId!, status: "ACTIVE" } }, role: "TEACHER", isVerified: true },
-          ],
-        },
-      }),
-      // Count pending teacher requests
-      db.teacherSchool.count({
-        where: { schoolId: user.schoolId!, status: "PENDING" },
+        where: { schoolId: user.schoolId, role: "TEACHER", isVerified: true },
       }),
       db.logbookEntry.count({
         where: { teacher: { schoolId: user.schoolId } },
@@ -60,38 +73,44 @@ export async function GET() {
 
     const unverifiedTeachers = totalTeachers - verifiedTeachers;
 
-    // Entries by subject (use assignment's subject, fall back to topics)
-    const entries = await db.logbookEntry.findMany({
-      where: { teacher: { schoolId: user.schoolId } },
-      include: {
-        assignment: { include: { subject: true } },
-        topics: { include: { subject: true } },
-      },
-    });
+    // Entries by subject — try with assignment, handle gracefully
+    let entriesBySubject: { subject: string; count: number }[] = [];
+    let entriesByWeek: { week: string; count: number }[] = [];
 
-    const subjectCounts: Record<string, number> = {};
-    const weekCounts: Record<string, number> = {};
+    try {
+      const entries = await db.logbookEntry.findMany({
+        where: { teacher: { schoolId: user.schoolId } },
+        include: {
+          assignment: { include: { subject: true } },
+          topics: { include: { subject: true } },
+        },
+      });
 
-    for (const entry of entries) {
-      // Prefer assignment subject, fall back to topics
-      const subjectName = entry.assignment?.subject?.name
-        || entry.topics?.[0]?.subject?.name;
-      if (subjectName) {
-        subjectCounts[subjectName] = (subjectCounts[subjectName] || 0) + 1;
+      const subjectCounts: Record<string, number> = {};
+      const weekCounts: Record<string, number> = {};
+
+      for (const entry of entries) {
+        const subjectName = entry.assignment?.subject?.name
+          || entry.topics?.[0]?.subject?.name;
+        if (subjectName) {
+          subjectCounts[subjectName] = (subjectCounts[subjectName] || 0) + 1;
+        }
+
+        const week = getWeekNumber(entry.date);
+        weekCounts[week] = (weekCounts[week] || 0) + 1;
       }
 
-      const week = getWeekNumber(entry.date);
-      weekCounts[week] = (weekCounts[week] || 0) + 1;
+      entriesBySubject = Object.entries(subjectCounts)
+        .map(([subject, count]) => ({ subject, count }))
+        .sort((a, b) => b.count - a.count);
+
+      entriesByWeek = Object.entries(weekCounts)
+        .map(([week, count]) => ({ week, count }))
+        .sort((a, b) => a.week.localeCompare(b.week))
+        .slice(-4);
+    } catch (e) {
+      console.warn("Entry stats query failed:", (e as Error).message);
     }
-
-    const entriesBySubject = Object.entries(subjectCounts)
-      .map(([subject, count]) => ({ subject, count }))
-      .sort((a, b) => b.count - a.count);
-
-    const entriesByWeek = Object.entries(weekCounts)
-      .map(([week, count]) => ({ week, count }))
-      .sort((a, b) => a.week.localeCompare(b.week))
-      .slice(-4);
 
     const expectedPerTeacher = 20;
     const complianceRate = totalTeachers > 0

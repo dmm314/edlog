@@ -79,14 +79,19 @@ export async function POST(request: Request) {
     });
 
     // Create TeacherSchool record as PENDING — admin must approve
-    await db.teacherSchool.create({
-      data: {
-        teacherId: user.id,
-        schoolId: school.id,
-        status: "PENDING",
-        isPrimary: true,
-      },
-    });
+    try {
+      await db.teacherSchool.create({
+        data: {
+          teacherId: user.id,
+          schoolId: school.id,
+          status: "PENDING",
+          isPrimary: true,
+        },
+      });
+    } catch (e) {
+      // TeacherSchool table may not exist yet — don't fail registration
+      console.warn("TeacherSchool create failed (table may not exist):", (e as Error).message);
+    }
 
     // Notify school admin about the new teacher request
     if (school.adminId) {

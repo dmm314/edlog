@@ -149,17 +149,20 @@ SELECT
   'ts-' || substr(md5(u.id || u."schoolId"), 1, 20),
   u.id,
   u."schoolId",
-  'ACTIVE'::"TeacherSchoolStatus",
+  CASE WHEN u."isVerified" THEN 'ACTIVE'::"TeacherSchoolStatus" ELSE 'PENDING'::"TeacherSchoolStatus" END,
   true,
-  u."createdAt",
+  CASE WHEN u."isVerified" THEN u."createdAt" ELSE NULL END,
   CURRENT_TIMESTAMP
 FROM "User" u
 WHERE u.role = 'TEACHER'
   AND u."schoolId" IS NOT NULL
+  -- Only insert if the school actually exists (prevents FK violation)
+  AND EXISTS (SELECT 1 FROM "School" s WHERE s.id = u."schoolId")
   AND NOT EXISTS (
     SELECT 1 FROM "TeacherSchool" ts
     WHERE ts."teacherId" = u.id AND ts."schoolId" = u."schoolId"
-  );
+  )
+ON CONFLICT DO NOTHING;
 
 COMMIT;
 

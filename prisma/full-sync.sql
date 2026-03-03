@@ -789,9 +789,197 @@ FROM "Subject" s,
 WHERE s."code" = 'LIT'
 ON CONFLICT ("subjectId", "classLevel", "name") DO NOTHING;
 
+-- ══════════════════════════════════════════════════════════════
+-- SEED REGIONS — All 10 Cameroon Regions
+-- ══════════════════════════════════════════════════════════════
+
+INSERT INTO "Region" ("id", "name", "code", "capital", "createdAt") VALUES
+  ('reg-centre',    'Centre',        'CE', 'Yaoundé',     NOW()),
+  ('reg-littoral',  'Littoral',      'LT', 'Douala',      NOW()),
+  ('reg-west',      'West',          'WE', 'Bafoussam',   NOW()),
+  ('reg-northwest', 'North-West',    'NW', 'Bamenda',     NOW()),
+  ('reg-southwest', 'South-West',    'SW', 'Buea',        NOW()),
+  ('reg-south',     'South',         'SU', 'Ebolowa',     NOW()),
+  ('reg-east',      'East',          'ES', 'Bertoua',     NOW()),
+  ('reg-adamawa',   'Adamawa',       'AD', 'Ngaoundéré',  NOW()),
+  ('reg-north',     'North',         'NO', 'Garoua',      NOW()),
+  ('reg-farnorth',  'Far North',     'FN', 'Maroua',      NOW())
+ON CONFLICT DO NOTHING;
+
+-- ══════════════════════════════════════════════════════════════
+-- SEED DIVISIONS — Key divisions for each region
+-- ══════════════════════════════════════════════════════════════
+
+INSERT INTO "Division" ("id", "name", "regionId", "createdAt") VALUES
+  -- Centre
+  ('div-ce-mfoundi',  'Mfoundi',      'reg-centre',    NOW()),
+  ('div-ce-lekie',    'Lekié',        'reg-centre',    NOW()),
+  ('div-ce-mefou',    'Mefou-et-Afamba','reg-centre',  NOW()),
+  ('div-ce-nyong',    'Nyong-et-So''o','reg-centre',   NOW()),
+  ('div-ce-mbam',     'Mbam-et-Inoubou','reg-centre',  NOW()),
+  -- Littoral
+  ('div-lt-wouri',    'Wouri',        'reg-littoral',  NOW()),
+  ('div-lt-sanaga',   'Sanaga-Maritime','reg-littoral', NOW()),
+  ('div-lt-moungo',   'Moungo',       'reg-littoral',  NOW()),
+  ('div-lt-nkam',     'Nkam',         'reg-littoral',  NOW()),
+  -- West
+  ('div-we-mifi',     'Mifi',         'reg-west',      NOW()),
+  ('div-we-menoua',   'Menoua',       'reg-west',      NOW()),
+  ('div-we-bamboutos','Bamboutos',    'reg-west',      NOW()),
+  ('div-we-noun',     'Noun',         'reg-west',      NOW()),
+  ('div-we-nde',      'Ndé',          'reg-west',      NOW()),
+  -- North-West
+  ('div-nw-mezam',    'Mezam',        'reg-northwest', NOW()),
+  ('div-nw-bui',      'Bui',          'reg-northwest', NOW()),
+  ('div-nw-boyo',     'Boyo',         'reg-northwest', NOW()),
+  ('div-nw-menchum',  'Menchum',      'reg-northwest', NOW()),
+  ('div-nw-donga',    'Donga-Mantung','reg-northwest', NOW()),
+  ('div-nw-ngoket',   'Ngo-Ketunjia', 'reg-northwest', NOW()),
+  ('div-nw-momo',     'Momo',         'reg-northwest', NOW()),
+  -- South-West
+  ('div-sw-fako',     'Fako',         'reg-southwest', NOW()),
+  ('div-sw-meme',     'Meme',         'reg-southwest', NOW()),
+  ('div-sw-ndian',    'Ndian',        'reg-southwest', NOW()),
+  ('div-sw-manyu',    'Manyu',        'reg-southwest', NOW()),
+  ('div-sw-kupe',     'Kupe-Muanenguba','reg-southwest',NOW()),
+  ('div-sw-lebialem', 'Lebialem',     'reg-southwest', NOW()),
+  -- South
+  ('div-su-ocean',    'Océan',        'reg-south',     NOW()),
+  ('div-su-mvila',    'Mvila',        'reg-south',     NOW()),
+  ('div-su-dja',      'Dja-et-Lobo',  'reg-south',    NOW()),
+  ('div-su-vallee',   'Vallée-du-Ntem','reg-south',    NOW()),
+  -- East
+  ('div-es-lom',      'Lom-et-Djérem','reg-east',     NOW()),
+  ('div-es-kadey',    'Kadey',        'reg-east',      NOW()),
+  ('div-es-boumba',   'Boumba-et-Ngoko','reg-east',   NOW()),
+  ('div-es-haut',     'Haut-Nyong',   'reg-east',     NOW()),
+  -- Adamawa
+  ('div-ad-vina',     'Vina',         'reg-adamawa',   NOW()),
+  ('div-ad-mbere',    'Mbéré',        'reg-adamawa',   NOW()),
+  ('div-ad-mayo',     'Mayo-Banyo',   'reg-adamawa',   NOW()),
+  ('div-ad-faro',     'Faro-et-Déo',  'reg-adamawa',  NOW()),
+  ('div-ad-djerem',   'Djérem',       'reg-adamawa',   NOW()),
+  -- North
+  ('div-no-benoue',   'Bénoué',       'reg-north',     NOW()),
+  ('div-no-mayo-rey', 'Mayo-Rey',     'reg-north',     NOW()),
+  ('div-no-mayo-louti','Mayo-Louti',  'reg-north',     NOW()),
+  ('div-no-faro',     'Faro',         'reg-north',     NOW()),
+  -- Far North
+  ('div-fn-diamare',  'Diamaré',      'reg-farnorth',  NOW()),
+  ('div-fn-logone',   'Logone-et-Chari','reg-farnorth',NOW()),
+  ('div-fn-mayo-dna', 'Mayo-Danay',   'reg-farnorth',  NOW()),
+  ('div-fn-mayo-tsa', 'Mayo-Tsanaga', 'reg-farnorth',  NOW()),
+  ('div-fn-mayo-ska', 'Mayo-Sava',    'reg-farnorth',  NOW())
+ON CONFLICT DO NOTHING;
+
+-- ══════════════════════════════════════════════════════════════
+-- SEED REGIONAL ADMIN ACCOUNTS
+-- Password for all seed accounts: EdlogAdmin2024!
+-- bcrypt hash ($2b$12): $2b$12$XQ4jmnmFVEMr6/l3Sx.xuuvgm1AIzMgNGdEgKFdAk3QQyGAURog/.
+-- ══════════════════════════════════════════════════════════════
+
+-- Regional Admin for South-West (primary demo account)
+INSERT INTO "User" ("id", "email", "passwordHash", "firstName", "lastName", "role", "isVerified", "regionId", "createdAt", "updatedAt")
+VALUES (
+  'user-regional-sw',
+  'regional.sw@edlog.cm',
+  '$2b$12$XQ4jmnmFVEMr6/l3Sx.xuuvgm1AIzMgNGdEgKFdAk3QQyGAURog/.',
+  'Regional', 'Admin SW',
+  'REGIONAL_ADMIN', true,
+  'reg-southwest',
+  NOW(), NOW()
+) ON CONFLICT ("email") DO NOTHING;
+
+-- Regional Admin for Centre
+INSERT INTO "User" ("id", "email", "passwordHash", "firstName", "lastName", "role", "isVerified", "regionId", "createdAt", "updatedAt")
+VALUES (
+  'user-regional-ce',
+  'regional.ce@edlog.cm',
+  '$2b$12$XQ4jmnmFVEMr6/l3Sx.xuuvgm1AIzMgNGdEgKFdAk3QQyGAURog/.',
+  'Regional', 'Admin Centre',
+  'REGIONAL_ADMIN', true,
+  'reg-centre',
+  NOW(), NOW()
+) ON CONFLICT ("email") DO NOTHING;
+
+-- Regional Admin for North-West
+INSERT INTO "User" ("id", "email", "passwordHash", "firstName", "lastName", "role", "isVerified", "regionId", "createdAt", "updatedAt")
+VALUES (
+  'user-regional-nw',
+  'regional.nw@edlog.cm',
+  '$2b$12$XQ4jmnmFVEMr6/l3Sx.xuuvgm1AIzMgNGdEgKFdAk3QQyGAURog/.',
+  'Regional', 'Admin NW',
+  'REGIONAL_ADMIN', true,
+  'reg-northwest',
+  NOW(), NOW()
+) ON CONFLICT ("email") DO NOTHING;
+
+-- Regional Admin for Littoral
+INSERT INTO "User" ("id", "email", "passwordHash", "firstName", "lastName", "role", "isVerified", "regionId", "createdAt", "updatedAt")
+VALUES (
+  'user-regional-lt',
+  'regional.lt@edlog.cm',
+  '$2b$12$XQ4jmnmFVEMr6/l3Sx.xuuvgm1AIzMgNGdEgKFdAk3QQyGAURog/.',
+  'Regional', 'Admin Littoral',
+  'REGIONAL_ADMIN', true,
+  'reg-littoral',
+  NOW(), NOW()
+) ON CONFLICT ("email") DO NOTHING;
+
+-- Regional Admin for West
+INSERT INTO "User" ("id", "email", "passwordHash", "firstName", "lastName", "role", "isVerified", "regionId", "createdAt", "updatedAt")
+VALUES (
+  'user-regional-we',
+  'regional.we@edlog.cm',
+  '$2b$12$XQ4jmnmFVEMr6/l3Sx.xuuvgm1AIzMgNGdEgKFdAk3QQyGAURog/.',
+  'Regional', 'Admin West',
+  'REGIONAL_ADMIN', true,
+  'reg-west',
+  NOW(), NOW()
+) ON CONFLICT ("email") DO NOTHING;
+
+-- ══════════════════════════════════════════════════════════════
+-- SYNC EXISTING TEACHERS → TeacherSchool
+-- Creates TeacherSchool records for any teacher with a direct
+-- schoolId but missing from TeacherSchool table.
+-- Safe to run multiple times.
+-- ══════════════════════════════════════════════════════════════
+
+INSERT INTO "TeacherSchool" ("id", "teacherId", "schoolId", "status", "isPrimary", "joinedAt", "createdAt")
+SELECT
+  'ts-' || substr(md5(u.id || u."schoolId"), 1, 20),
+  u.id,
+  u."schoolId",
+  CASE WHEN u."isVerified" THEN 'ACTIVE'::"TeacherSchoolStatus" ELSE 'PENDING'::"TeacherSchoolStatus" END,
+  true,
+  CASE WHEN u."isVerified" THEN u."createdAt" ELSE NULL END,
+  CURRENT_TIMESTAMP
+FROM "User" u
+WHERE u.role = 'TEACHER'
+  AND u."schoolId" IS NOT NULL
+  AND NOT EXISTS (
+    SELECT 1 FROM "TeacherSchool" ts
+    WHERE ts."teacherId" = u.id AND ts."schoolId" = u."schoolId"
+  )
+ON CONFLICT DO NOTHING;
+
 -- ── DONE ────────────────────────────────────────────────────
--- All tables (including TeacherSchool, HeadOfDepartment),
--- columns (including teacherCode, regionId, divisionId),
--- indexes, foreign keys, enums (Gender, TeacherSchoolStatus,
--- SCHOOL_INVITATION), seed subjects, and seed topics
--- (Form 1–5 + Lower/Upper Sixth) are now in sync.
+-- Everything is now in sync:
+--   ✓ All tables, indexes, foreign keys, enums
+--   ✓ 25 subjects with Form 1-5 + A-Level topics
+--   ✓ All 10 Cameroon regions with divisions
+--   ✓ Regional admin accounts (password: EdlogAdmin2024!)
+--   ✓ Teacher-school membership sync
+--
+-- LOGIN CREDENTIALS (after running this script):
+--   South-West:  regional.sw@edlog.cm  / EdlogAdmin2024!
+--   Centre:      regional.ce@edlog.cm  / EdlogAdmin2024!
+--   North-West:  regional.nw@edlog.cm  / EdlogAdmin2024!
+--   Littoral:    regional.lt@edlog.cm  / EdlogAdmin2024!
+--   West:        regional.we@edlog.cm  / EdlogAdmin2024!
+--
+-- NEXT STEPS:
+--   1. Log in as a Regional Admin
+--   2. Generate a Registration Code
+--   3. Register a School using that code
+--   4. Teachers can then register with the school code

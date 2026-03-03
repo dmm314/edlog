@@ -15,33 +15,96 @@ export async function GET() {
       return NextResponse.json({ error: "No school assigned" }, { status: 400 });
     }
 
-    // Get all timetable slots for the school
-    const slots = await db.timetableSlot.findMany({
-      where: { schoolId: user.schoolId },
-      include: {
-        assignment: {
-          include: {
-            teacher: { select: { firstName: true, lastName: true } },
-            class: { select: { id: true, name: true } },
-            subject: { select: { name: true } },
-            division: { select: { name: true } },
+    // Try fetching slots and assignments with division, fall back without if table missing
+    let slots: Array<{
+      id: string;
+      dayOfWeek: number;
+      startTime: string;
+      endTime: string;
+      periodLabel: string;
+      assignmentId: string;
+      assignment: {
+        teacher: { firstName: string; lastName: string };
+        class: { id: string; name: string };
+        subject: { name: string };
+        division?: { name: string } | null;
+      };
+    }> = [];
+
+    let assignments: Array<{
+      id: string;
+      teacher: { id: string; firstName: string; lastName: string };
+      class: { id: string; name: string };
+      subject: { id: string; name: string };
+      division?: { id: string; name: string } | null;
+    }> = [];
+
+    try {
+      slots = await db.timetableSlot.findMany({
+        where: { schoolId: user.schoolId },
+        include: {
+          assignment: {
+            include: {
+              teacher: { select: { firstName: true, lastName: true } },
+              class: { select: { id: true, name: true } },
+              subject: { select: { name: true } },
+              division: { select: { name: true } },
+            },
           },
         },
-      },
-      orderBy: [{ dayOfWeek: "asc" }, { startTime: "asc" }],
-    });
+        orderBy: [{ dayOfWeek: "asc" }, { startTime: "asc" }],
+      });
 
-    // Get all assignments for creating new slots
-    const assignments = await db.teacherAssignment.findMany({
-      where: { schoolId: user.schoolId },
-      include: {
-        teacher: { select: { id: true, firstName: true, lastName: true } },
-        class: { select: { id: true, name: true } },
-        subject: { select: { id: true, name: true } },
-        division: { select: { id: true, name: true } },
-      },
-      orderBy: [{ teacher: { lastName: "asc" } }],
-    });
+      assignments = await db.teacherAssignment.findMany({
+        where: { schoolId: user.schoolId },
+        include: {
+          teacher: { select: { id: true, firstName: true, lastName: true } },
+          class: { select: { id: true, name: true } },
+          subject: { select: { id: true, name: true } },
+          division: { select: { id: true, name: true } },
+        },
+        orderBy: [{ teacher: { lastName: "asc" } }],
+      });
+    } catch (e) {
+      // Division table might not exist — retry without division include
+      console.warn("Timetable query with division failed, retrying without:", (e as Error).message);
+      try {
+        const rawSlots = await db.timetableSlot.findMany({
+          where: { schoolId: user.schoolId },
+          include: {
+            assignment: {
+              include: {
+                teacher: { select: { firstName: true, lastName: true } },
+                class: { select: { id: true, name: true } },
+                subject: { select: { name: true } },
+              },
+            },
+          },
+          orderBy: [{ dayOfWeek: "asc" }, { startTime: "asc" }],
+        });
+        slots = rawSlots.map((s) => ({
+          ...s,
+          assignment: { ...s.assignment, division: null },
+        }));
+
+        const rawAssignments = await db.teacherAssignment.findMany({
+          where: { schoolId: user.schoolId },
+          include: {
+            teacher: { select: { id: true, firstName: true, lastName: true } },
+            class: { select: { id: true, name: true } },
+            subject: { select: { id: true, name: true } },
+          },
+          orderBy: [{ teacher: { lastName: "asc" } }],
+        });
+        assignments = rawAssignments.map((a) => ({
+          ...a,
+          division: null,
+        }));
+      } catch (e2) {
+        console.error("Timetable query fallback also failed:", (e2 as Error).message);
+        // Continue with empty arrays — at least show classes
+      }
+    }
 
     // Get period schedule — auto-seed defaults if none exist
     let periods = await db.periodSchedule.findMany({
@@ -72,15 +135,25 @@ export async function GET() {
     }
 
     // Get all classes with counts
-    const classes = await db.class.findMany({
-      where: { schoolId: user.schoolId },
-      include: {
-        _count: { select: { assignments: true } },
-      },
-      orderBy: [{ level: "asc" }, { name: "asc" }],
-    });
+    let classes;
+    try {
+      classes = await db.class.findMany({
+        where: { schoolId: user.schoolId },
+        include: {
+          _count: { select: { assignments: true } },
+        },
+        orderBy: [{ level: "asc" }, { name: "asc" }],
+      });
+    } catch {
+      // Assignments count might fail if table has issues — fetch without count
+      const rawClasses = await db.class.findMany({
+        where: { schoolId: user.schoolId },
+        orderBy: [{ level: "asc" }, { name: "asc" }],
+      });
+      classes = rawClasses.map((c) => ({ ...c, _count: { assignments: 0 } }));
+    }
 
-    const result = slots.map((slot) => ({
+    const slotsResult = slots.map((slot) => ({
       id: slot.id,
       dayOfWeek: slot.dayOfWeek,
       startTime: slot.startTime,
@@ -108,13 +181,13 @@ export async function GET() {
     const classOptions = classes.map((c) => ({
       id: c.id,
       name: c.name,
-      level: c.level,
-      slotCount: result.filter((s) => s.classId === c.id).length,
+      level: (c as Record<string, unknown>).level as string,
+      slotCount: slotsResult.filter((s) => s.classId === c.id).length,
       teacherCount: c._count.assignments,
     }));
 
     return NextResponse.json({
-      slots: result,
+      slots: slotsResult,
       assignments: assignmentOptions,
       periods,
       classes: classOptions,
@@ -122,7 +195,7 @@ export async function GET() {
   } catch (error) {
     console.error("GET /api/admin/timetable error:", error);
     return NextResponse.json(
-      { error: "Failed to fetch timetable" },
+      { error: "Failed to fetch timetable data. Please ensure the database schema is up to date." },
       { status: 500 }
     );
   }
@@ -164,7 +237,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // Double/triple-booking check: find how many slots this teacher already has at this day/time
+    // Double/triple-booking check
     const teacherConflicts = await db.timetableSlot.findMany({
       where: {
         dayOfWeek: parseInt(dayOfWeek),
@@ -185,7 +258,6 @@ export async function POST(request: Request) {
       },
     });
 
-    // Triple-booking is never allowed
     if (teacherConflicts.length >= 2) {
       const existing = teacherConflicts.map((c) =>
         `${c.assignment.subject.name} (${c.assignment.class.name}) at ${c.startTime}-${c.endTime}`
@@ -198,7 +270,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // Double-booking requires explicit confirmation (for joint classes)
     const forceDoubleBook = body.forceDoubleBook === true;
     if (teacherConflicts.length === 1 && !forceDoubleBook) {
       const conflict = teacherConflicts[0].assignment;
@@ -211,7 +282,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // Also check if the same class already has a slot at this time
+    // Class conflict check
     const classConflict = await db.timetableSlot.findFirst({
       where: {
         dayOfWeek: parseInt(dayOfWeek),
@@ -257,7 +328,6 @@ export async function POST(request: Request) {
             teacher: { select: { firstName: true, lastName: true } },
             class: { select: { id: true, name: true } },
             subject: { select: { name: true } },
-            division: { select: { name: true } },
           },
         },
       },
@@ -273,9 +343,7 @@ export async function POST(request: Request) {
       teacher: `${slot.assignment.teacher.firstName} ${slot.assignment.teacher.lastName}`,
       className: slot.assignment.class.name,
       classId: slot.assignment.class.id,
-      subject: slot.assignment.division
-        ? `${slot.assignment.subject.name} (${slot.assignment.division.name})`
-        : slot.assignment.subject.name,
+      subject: slot.assignment.subject.name,
     }, { status: 201 });
   } catch (error) {
     console.error("POST /api/admin/timetable error:", error);
@@ -304,7 +372,6 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: "Slot ID is required" }, { status: 400 });
     }
 
-    // Verify slot belongs to this school
     const slot = await db.timetableSlot.findFirst({
       where: { id: slotId, schoolId: user.schoolId },
     });
