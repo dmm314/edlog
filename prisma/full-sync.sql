@@ -938,6 +938,66 @@ VALUES (
   NOW(), NOW()
 ) ON CONFLICT ("email") DO NOTHING;
 
+-- Regional Admin for South
+INSERT INTO "User" ("id", "email", "passwordHash", "firstName", "lastName", "role", "isVerified", "regionId", "createdAt", "updatedAt")
+VALUES (
+  'user-regional-su',
+  'regional.su@edlog.cm',
+  '$2b$12$XQ4jmnmFVEMr6/l3Sx.xuuvgm1AIzMgNGdEgKFdAk3QQyGAURog/.',
+  'Regional', 'Admin South',
+  'REGIONAL_ADMIN', true,
+  'reg-south',
+  NOW(), NOW()
+) ON CONFLICT ("email") DO NOTHING;
+
+-- Regional Admin for East
+INSERT INTO "User" ("id", "email", "passwordHash", "firstName", "lastName", "role", "isVerified", "regionId", "createdAt", "updatedAt")
+VALUES (
+  'user-regional-es',
+  'regional.es@edlog.cm',
+  '$2b$12$XQ4jmnmFVEMr6/l3Sx.xuuvgm1AIzMgNGdEgKFdAk3QQyGAURog/.',
+  'Regional', 'Admin East',
+  'REGIONAL_ADMIN', true,
+  'reg-east',
+  NOW(), NOW()
+) ON CONFLICT ("email") DO NOTHING;
+
+-- Regional Admin for Adamawa
+INSERT INTO "User" ("id", "email", "passwordHash", "firstName", "lastName", "role", "isVerified", "regionId", "createdAt", "updatedAt")
+VALUES (
+  'user-regional-ad',
+  'regional.ad@edlog.cm',
+  '$2b$12$XQ4jmnmFVEMr6/l3Sx.xuuvgm1AIzMgNGdEgKFdAk3QQyGAURog/.',
+  'Regional', 'Admin Adamawa',
+  'REGIONAL_ADMIN', true,
+  'reg-adamawa',
+  NOW(), NOW()
+) ON CONFLICT ("email") DO NOTHING;
+
+-- Regional Admin for North
+INSERT INTO "User" ("id", "email", "passwordHash", "firstName", "lastName", "role", "isVerified", "regionId", "createdAt", "updatedAt")
+VALUES (
+  'user-regional-no',
+  'regional.no@edlog.cm',
+  '$2b$12$XQ4jmnmFVEMr6/l3Sx.xuuvgm1AIzMgNGdEgKFdAk3QQyGAURog/.',
+  'Regional', 'Admin North',
+  'REGIONAL_ADMIN', true,
+  'reg-north',
+  NOW(), NOW()
+) ON CONFLICT ("email") DO NOTHING;
+
+-- Regional Admin for Far North
+INSERT INTO "User" ("id", "email", "passwordHash", "firstName", "lastName", "role", "isVerified", "regionId", "createdAt", "updatedAt")
+VALUES (
+  'user-regional-fn',
+  'regional.fn@edlog.cm',
+  '$2b$12$XQ4jmnmFVEMr6/l3Sx.xuuvgm1AIzMgNGdEgKFdAk3QQyGAURog/.',
+  'Regional', 'Admin Far North',
+  'REGIONAL_ADMIN', true,
+  'reg-farnorth',
+  NOW(), NOW()
+) ON CONFLICT ("email") DO NOTHING;
+
 -- ══════════════════════════════════════════════════════════════
 -- SYNC EXISTING TEACHERS → TeacherSchool
 -- Creates TeacherSchool records for any teacher with a direct
@@ -957,6 +1017,8 @@ SELECT
 FROM "User" u
 WHERE u.role = 'TEACHER'
   AND u."schoolId" IS NOT NULL
+  -- Only insert if the school actually exists (prevents FK violation)
+  AND EXISTS (SELECT 1 FROM "School" s WHERE s.id = u."schoolId")
   AND NOT EXISTS (
     SELECT 1 FROM "TeacherSchool" ts
     WHERE ts."teacherId" = u.id AND ts."schoolId" = u."schoolId"
@@ -967,8 +1029,8 @@ ON CONFLICT DO NOTHING;
 -- Everything is now in sync:
 --   ✓ All tables, indexes, foreign keys, enums
 --   ✓ 25 subjects with Form 1-5 + A-Level topics
---   ✓ All 10 Cameroon regions with divisions
---   ✓ Regional admin accounts (password: EdlogAdmin2024!)
+--   ✓ All 10 Cameroon regions with 49 divisions
+--   ✓ 10 Regional admin accounts (one per region)
 --   ✓ Teacher-school membership sync
 --
 -- LOGIN CREDENTIALS (after running this script):
@@ -977,6 +1039,11 @@ ON CONFLICT DO NOTHING;
 --   North-West:  regional.nw@edlog.cm  / EdlogAdmin2024!
 --   Littoral:    regional.lt@edlog.cm  / EdlogAdmin2024!
 --   West:        regional.we@edlog.cm  / EdlogAdmin2024!
+--   South:       regional.su@edlog.cm  / EdlogAdmin2024!
+--   East:        regional.es@edlog.cm  / EdlogAdmin2024!
+--   Adamawa:     regional.ad@edlog.cm  / EdlogAdmin2024!
+--   North:       regional.no@edlog.cm  / EdlogAdmin2024!
+--   Far North:   regional.fn@edlog.cm  / EdlogAdmin2024!
 --
 -- NEXT STEPS:
 --   1. Log in as a Regional Admin
