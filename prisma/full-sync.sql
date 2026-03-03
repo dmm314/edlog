@@ -875,129 +875,150 @@ ON CONFLICT DO NOTHING;
 
 -- ══════════════════════════════════════════════════════════════
 -- SEED REGIONAL ADMIN ACCOUNTS
--- Password for all seed accounts: EdlogAdmin2024!
--- bcrypt hash ($2b$12): $2b$12$XQ4jmnmFVEMr6/l3Sx.xuuvgm1AIzMgNGdEgKFdAk3QQyGAURog/.
+-- Each region has a unique password (see table at bottom of file).
+-- Uses ON CONFLICT … DO UPDATE so re-running ALWAYS resets the
+-- password hash, role, regionId, and isVerified to known-good values.
 -- ══════════════════════════════════════════════════════════════
 
--- Regional Admin for South-West (primary demo account)
+-- South-West  (password: SouthWest@2024)
 INSERT INTO "User" ("id", "email", "passwordHash", "firstName", "lastName", "role", "isVerified", "regionId", "createdAt", "updatedAt")
 VALUES (
-  'user-regional-sw',
-  'regional.sw@edlog.cm',
-  '$2b$12$XQ4jmnmFVEMr6/l3Sx.xuuvgm1AIzMgNGdEgKFdAk3QQyGAURog/.',
+  'user-regional-sw', 'regional.sw@edlog.cm',
+  '$2b$12$Ma/MqEZieYeL3zlZqMFzfurKNOUDeClzhsD8pzYSzMeU/qmpOWqRW',
   'Regional', 'Admin SW',
-  'REGIONAL_ADMIN', true,
-  'reg-southwest',
-  NOW(), NOW()
-) ON CONFLICT ("email") DO NOTHING;
+  'REGIONAL_ADMIN', true, 'reg-southwest', NOW(), NOW()
+) ON CONFLICT ("email") DO UPDATE SET
+  "passwordHash" = EXCLUDED."passwordHash",
+  "role"         = EXCLUDED."role",
+  "isVerified"   = EXCLUDED."isVerified",
+  "regionId"     = EXCLUDED."regionId",
+  "updatedAt"    = NOW();
 
--- Regional Admin for Centre
+-- Centre  (password: Centre@2024)
 INSERT INTO "User" ("id", "email", "passwordHash", "firstName", "lastName", "role", "isVerified", "regionId", "createdAt", "updatedAt")
 VALUES (
-  'user-regional-ce',
-  'regional.ce@edlog.cm',
-  '$2b$12$XQ4jmnmFVEMr6/l3Sx.xuuvgm1AIzMgNGdEgKFdAk3QQyGAURog/.',
+  'user-regional-ce', 'regional.ce@edlog.cm',
+  '$2b$12$9MJ/ZSY5MIPdyXYySd/xtuvFGiRWFfAQ8UDWD27hA28.y4dMmZxSS',
   'Regional', 'Admin Centre',
-  'REGIONAL_ADMIN', true,
-  'reg-centre',
-  NOW(), NOW()
-) ON CONFLICT ("email") DO NOTHING;
+  'REGIONAL_ADMIN', true, 'reg-centre', NOW(), NOW()
+) ON CONFLICT ("email") DO UPDATE SET
+  "passwordHash" = EXCLUDED."passwordHash",
+  "role"         = EXCLUDED."role",
+  "isVerified"   = EXCLUDED."isVerified",
+  "regionId"     = EXCLUDED."regionId",
+  "updatedAt"    = NOW();
 
--- Regional Admin for North-West
+-- North-West  (password: NorthWest@2024)
 INSERT INTO "User" ("id", "email", "passwordHash", "firstName", "lastName", "role", "isVerified", "regionId", "createdAt", "updatedAt")
 VALUES (
-  'user-regional-nw',
-  'regional.nw@edlog.cm',
-  '$2b$12$XQ4jmnmFVEMr6/l3Sx.xuuvgm1AIzMgNGdEgKFdAk3QQyGAURog/.',
+  'user-regional-nw', 'regional.nw@edlog.cm',
+  '$2b$12$12Yzm1FAjDuB7wdM2Nzw7ektcLoZgWTYZloeULLGT3kxzK/HPE1ve',
   'Regional', 'Admin NW',
-  'REGIONAL_ADMIN', true,
-  'reg-northwest',
-  NOW(), NOW()
-) ON CONFLICT ("email") DO NOTHING;
+  'REGIONAL_ADMIN', true, 'reg-northwest', NOW(), NOW()
+) ON CONFLICT ("email") DO UPDATE SET
+  "passwordHash" = EXCLUDED."passwordHash",
+  "role"         = EXCLUDED."role",
+  "isVerified"   = EXCLUDED."isVerified",
+  "regionId"     = EXCLUDED."regionId",
+  "updatedAt"    = NOW();
 
--- Regional Admin for Littoral
+-- Littoral  (password: Littoral@2024)
 INSERT INTO "User" ("id", "email", "passwordHash", "firstName", "lastName", "role", "isVerified", "regionId", "createdAt", "updatedAt")
 VALUES (
-  'user-regional-lt',
-  'regional.lt@edlog.cm',
-  '$2b$12$XQ4jmnmFVEMr6/l3Sx.xuuvgm1AIzMgNGdEgKFdAk3QQyGAURog/.',
+  'user-regional-lt', 'regional.lt@edlog.cm',
+  '$2b$12$U/DLqSCg/Fdkzk.d0bipRukYvTmr42fJ85kZ7wxCO9XRw13Wkhdti',
   'Regional', 'Admin Littoral',
-  'REGIONAL_ADMIN', true,
-  'reg-littoral',
-  NOW(), NOW()
-) ON CONFLICT ("email") DO NOTHING;
+  'REGIONAL_ADMIN', true, 'reg-littoral', NOW(), NOW()
+) ON CONFLICT ("email") DO UPDATE SET
+  "passwordHash" = EXCLUDED."passwordHash",
+  "role"         = EXCLUDED."role",
+  "isVerified"   = EXCLUDED."isVerified",
+  "regionId"     = EXCLUDED."regionId",
+  "updatedAt"    = NOW();
 
--- Regional Admin for West
+-- West  (password: West@2024)
 INSERT INTO "User" ("id", "email", "passwordHash", "firstName", "lastName", "role", "isVerified", "regionId", "createdAt", "updatedAt")
 VALUES (
-  'user-regional-we',
-  'regional.we@edlog.cm',
-  '$2b$12$XQ4jmnmFVEMr6/l3Sx.xuuvgm1AIzMgNGdEgKFdAk3QQyGAURog/.',
+  'user-regional-we', 'regional.we@edlog.cm',
+  '$2b$12$61XzOdiA41qH2PlOtMbs3OxEj8n90FjHAln7GrTSH1d3Iv4ASCqZi',
   'Regional', 'Admin West',
-  'REGIONAL_ADMIN', true,
-  'reg-west',
-  NOW(), NOW()
-) ON CONFLICT ("email") DO NOTHING;
+  'REGIONAL_ADMIN', true, 'reg-west', NOW(), NOW()
+) ON CONFLICT ("email") DO UPDATE SET
+  "passwordHash" = EXCLUDED."passwordHash",
+  "role"         = EXCLUDED."role",
+  "isVerified"   = EXCLUDED."isVerified",
+  "regionId"     = EXCLUDED."regionId",
+  "updatedAt"    = NOW();
 
--- Regional Admin for South
+-- South  (password: South@2024)
 INSERT INTO "User" ("id", "email", "passwordHash", "firstName", "lastName", "role", "isVerified", "regionId", "createdAt", "updatedAt")
 VALUES (
-  'user-regional-su',
-  'regional.su@edlog.cm',
-  '$2b$12$XQ4jmnmFVEMr6/l3Sx.xuuvgm1AIzMgNGdEgKFdAk3QQyGAURog/.',
+  'user-regional-su', 'regional.su@edlog.cm',
+  '$2b$12$fAFbGdWEBbsnLstZvkZkveKAS3CVRrB1C5Jd9Piz.m92SSHM0ncCm',
   'Regional', 'Admin South',
-  'REGIONAL_ADMIN', true,
-  'reg-south',
-  NOW(), NOW()
-) ON CONFLICT ("email") DO NOTHING;
+  'REGIONAL_ADMIN', true, 'reg-south', NOW(), NOW()
+) ON CONFLICT ("email") DO UPDATE SET
+  "passwordHash" = EXCLUDED."passwordHash",
+  "role"         = EXCLUDED."role",
+  "isVerified"   = EXCLUDED."isVerified",
+  "regionId"     = EXCLUDED."regionId",
+  "updatedAt"    = NOW();
 
--- Regional Admin for East
+-- East  (password: East@2024)
 INSERT INTO "User" ("id", "email", "passwordHash", "firstName", "lastName", "role", "isVerified", "regionId", "createdAt", "updatedAt")
 VALUES (
-  'user-regional-es',
-  'regional.es@edlog.cm',
-  '$2b$12$XQ4jmnmFVEMr6/l3Sx.xuuvgm1AIzMgNGdEgKFdAk3QQyGAURog/.',
+  'user-regional-es', 'regional.es@edlog.cm',
+  '$2b$12$4M4JToAeN6icKwqiFt2BNeJR5mMdMtFl/ujKFKItuWYy1tNz3Pzx2',
   'Regional', 'Admin East',
-  'REGIONAL_ADMIN', true,
-  'reg-east',
-  NOW(), NOW()
-) ON CONFLICT ("email") DO NOTHING;
+  'REGIONAL_ADMIN', true, 'reg-east', NOW(), NOW()
+) ON CONFLICT ("email") DO UPDATE SET
+  "passwordHash" = EXCLUDED."passwordHash",
+  "role"         = EXCLUDED."role",
+  "isVerified"   = EXCLUDED."isVerified",
+  "regionId"     = EXCLUDED."regionId",
+  "updatedAt"    = NOW();
 
--- Regional Admin for Adamawa
+-- Adamawa  (password: Adamawa@2024)
 INSERT INTO "User" ("id", "email", "passwordHash", "firstName", "lastName", "role", "isVerified", "regionId", "createdAt", "updatedAt")
 VALUES (
-  'user-regional-ad',
-  'regional.ad@edlog.cm',
-  '$2b$12$XQ4jmnmFVEMr6/l3Sx.xuuvgm1AIzMgNGdEgKFdAk3QQyGAURog/.',
+  'user-regional-ad', 'regional.ad@edlog.cm',
+  '$2b$12$0oKamY.JBjDnx74nwjfJRelF1ImB96NjSlngI5BPtDideRKtxe1lu',
   'Regional', 'Admin Adamawa',
-  'REGIONAL_ADMIN', true,
-  'reg-adamawa',
-  NOW(), NOW()
-) ON CONFLICT ("email") DO NOTHING;
+  'REGIONAL_ADMIN', true, 'reg-adamawa', NOW(), NOW()
+) ON CONFLICT ("email") DO UPDATE SET
+  "passwordHash" = EXCLUDED."passwordHash",
+  "role"         = EXCLUDED."role",
+  "isVerified"   = EXCLUDED."isVerified",
+  "regionId"     = EXCLUDED."regionId",
+  "updatedAt"    = NOW();
 
--- Regional Admin for North
+-- North  (password: North@2024)
 INSERT INTO "User" ("id", "email", "passwordHash", "firstName", "lastName", "role", "isVerified", "regionId", "createdAt", "updatedAt")
 VALUES (
-  'user-regional-no',
-  'regional.no@edlog.cm',
-  '$2b$12$XQ4jmnmFVEMr6/l3Sx.xuuvgm1AIzMgNGdEgKFdAk3QQyGAURog/.',
+  'user-regional-no', 'regional.no@edlog.cm',
+  '$2b$12$JUgdIS0eFsPA3tbO.VmXeO9CwbvzF6/TXzdRXrmBHgMumWEcf/GE6',
   'Regional', 'Admin North',
-  'REGIONAL_ADMIN', true,
-  'reg-north',
-  NOW(), NOW()
-) ON CONFLICT ("email") DO NOTHING;
+  'REGIONAL_ADMIN', true, 'reg-north', NOW(), NOW()
+) ON CONFLICT ("email") DO UPDATE SET
+  "passwordHash" = EXCLUDED."passwordHash",
+  "role"         = EXCLUDED."role",
+  "isVerified"   = EXCLUDED."isVerified",
+  "regionId"     = EXCLUDED."regionId",
+  "updatedAt"    = NOW();
 
--- Regional Admin for Far North
+-- Far North  (password: FarNorth@2024)
 INSERT INTO "User" ("id", "email", "passwordHash", "firstName", "lastName", "role", "isVerified", "regionId", "createdAt", "updatedAt")
 VALUES (
-  'user-regional-fn',
-  'regional.fn@edlog.cm',
-  '$2b$12$XQ4jmnmFVEMr6/l3Sx.xuuvgm1AIzMgNGdEgKFdAk3QQyGAURog/.',
+  'user-regional-fn', 'regional.fn@edlog.cm',
+  '$2b$12$OohATHOsON7mATMEoXBsu.HrVZUFXgxjivP/GuVjE/Zc8JE7tFpnW',
   'Regional', 'Admin Far North',
-  'REGIONAL_ADMIN', true,
-  'reg-farnorth',
-  NOW(), NOW()
-) ON CONFLICT ("email") DO NOTHING;
+  'REGIONAL_ADMIN', true, 'reg-farnorth', NOW(), NOW()
+) ON CONFLICT ("email") DO UPDATE SET
+  "passwordHash" = EXCLUDED."passwordHash",
+  "role"         = EXCLUDED."role",
+  "isVerified"   = EXCLUDED."isVerified",
+  "regionId"     = EXCLUDED."regionId",
+  "updatedAt"    = NOW();
 
 -- ══════════════════════════════════════════════════════════════
 -- SYNC EXISTING TEACHERS → TeacherSchool
@@ -1035,16 +1056,16 @@ ON CONFLICT DO NOTHING;
 --   ✓ Teacher-school membership sync
 --
 -- LOGIN CREDENTIALS (after running this script):
---   South-West:  regional.sw@edlog.cm  / EdlogAdmin2024!
---   Centre:      regional.ce@edlog.cm  / EdlogAdmin2024!
---   North-West:  regional.nw@edlog.cm  / EdlogAdmin2024!
---   Littoral:    regional.lt@edlog.cm  / EdlogAdmin2024!
---   West:        regional.we@edlog.cm  / EdlogAdmin2024!
---   South:       regional.su@edlog.cm  / EdlogAdmin2024!
---   East:        regional.es@edlog.cm  / EdlogAdmin2024!
---   Adamawa:     regional.ad@edlog.cm  / EdlogAdmin2024!
---   North:       regional.no@edlog.cm  / EdlogAdmin2024!
---   Far North:   regional.fn@edlog.cm  / EdlogAdmin2024!
+--   South-West:  regional.sw@edlog.cm  / SouthWest@2024
+--   Centre:      regional.ce@edlog.cm  / Centre@2024
+--   North-West:  regional.nw@edlog.cm  / NorthWest@2024
+--   Littoral:    regional.lt@edlog.cm  / Littoral@2024
+--   West:        regional.we@edlog.cm  / West@2024
+--   South:       regional.su@edlog.cm  / South@2024
+--   East:        regional.es@edlog.cm  / East@2024
+--   Adamawa:     regional.ad@edlog.cm  / Adamawa@2024
+--   North:       regional.no@edlog.cm  / North@2024
+--   Far North:   regional.fn@edlog.cm  / FarNorth@2024
 --
 -- NEXT STEPS:
 --   1. Log in as a Regional Admin
