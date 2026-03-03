@@ -316,6 +316,44 @@ CREATE INDEX IF NOT EXISTS "Notification_userId_isRead_idx" ON "Notification"("u
 CREATE INDEX IF NOT EXISTS "Notification_userId_createdAt_idx" ON "Notification"("userId", "createdAt");
 CREATE INDEX IF NOT EXISTS "_EntryTopics_B_index" ON "_EntryTopics"("B");
 
+-- ── NEW COLUMNS (add to existing tables if missing) ─────────
+-- MUST run before foreign keys so columns exist when FK references them.
+
+-- User: teacher code + profile fields
+ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "teacherCode" TEXT;
+ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "dateOfBirth" TIMESTAMP(3);
+ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "gender" "Gender";
+ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "photoUrl" TEXT;
+
+-- School: ensure regionId and divisionId exist (critical for old schemas)
+ALTER TABLE "School" ADD COLUMN IF NOT EXISTS "regionId" TEXT;
+ALTER TABLE "School" ADD COLUMN IF NOT EXISTS "divisionId" TEXT;
+ALTER TABLE "School" ADD COLUMN IF NOT EXISTS "adminId" TEXT;
+ALTER TABLE "School" ADD COLUMN IF NOT EXISTS "schoolType" TEXT;
+ALTER TABLE "School" ADD COLUMN IF NOT EXISTS "principalName" TEXT;
+ALTER TABLE "School" ADD COLUMN IF NOT EXISTS "principalPhone" TEXT;
+ALTER TABLE "School" ADD COLUMN IF NOT EXISTS "foundingDate" TIMESTAMP(3);
+ALTER TABLE "School" ADD COLUMN IF NOT EXISTS "profileComplete" BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE "School" ADD COLUMN IF NOT EXISTS "status" TEXT NOT NULL DEFAULT 'ACTIVE';
+
+-- LogbookEntry: module + free-text topic + assignment link
+ALTER TABLE "LogbookEntry" ADD COLUMN IF NOT EXISTS "moduleName" TEXT;
+ALTER TABLE "LogbookEntry" ADD COLUMN IF NOT EXISTS "topicText" TEXT;
+ALTER TABLE "LogbookEntry" ADD COLUMN IF NOT EXISTS "objectives" TEXT;
+ALTER TABLE "LogbookEntry" ADD COLUMN IF NOT EXISTS "signatureData" TEXT;
+ALTER TABLE "LogbookEntry" ADD COLUMN IF NOT EXISTS "studentAttendance" INTEGER;
+ALTER TABLE "LogbookEntry" ADD COLUMN IF NOT EXISTS "engagementLevel" "EngagementLevel";
+ALTER TABLE "LogbookEntry" ADD COLUMN IF NOT EXISTS "assignmentId" TEXT;
+ALTER TABLE "LogbookEntry" ADD COLUMN IF NOT EXISTS "timetableSlotId" TEXT;
+
+-- Class: additional fields
+ALTER TABLE "Class" ADD COLUMN IF NOT EXISTS "abbreviation" TEXT;
+ALTER TABLE "Class" ADD COLUMN IF NOT EXISTS "stream" TEXT;
+ALTER TABLE "Class" ADD COLUMN IF NOT EXISTS "section" TEXT;
+
+-- TeacherAssignment: subject divisions
+ALTER TABLE "TeacherAssignment" ADD COLUMN IF NOT EXISTS "divisionId" TEXT;
+
 -- ── FOREIGN KEYS (safe: skip if already exists) ─────────────
 
 DO $$ BEGIN ALTER TABLE "User" ADD CONSTRAINT "User_schoolId_fkey" FOREIGN KEY ("schoolId") REFERENCES "School"("id") ON DELETE SET NULL ON UPDATE CASCADE; EXCEPTION WHEN duplicate_object THEN NULL; END $$;
@@ -360,43 +398,6 @@ DO $$ BEGIN ALTER TABLE "TeacherSchool" ADD CONSTRAINT "TeacherSchool_schoolId_f
 DO $$ BEGIN ALTER TABLE "HeadOfDepartment" ADD CONSTRAINT "HeadOfDepartment_teacherId_fkey" FOREIGN KEY ("teacherId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE; EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 DO $$ BEGIN ALTER TABLE "HeadOfDepartment" ADD CONSTRAINT "HeadOfDepartment_subjectId_fkey" FOREIGN KEY ("subjectId") REFERENCES "Subject"("id") ON DELETE CASCADE ON UPDATE CASCADE; EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 DO $$ BEGIN ALTER TABLE "HeadOfDepartment" ADD CONSTRAINT "HeadOfDepartment_schoolId_fkey" FOREIGN KEY ("schoolId") REFERENCES "School"("id") ON DELETE CASCADE ON UPDATE CASCADE; EXCEPTION WHEN duplicate_object THEN NULL; END $$;
-
--- ── NEW COLUMNS (v3 — add to existing tables if missing) ────
-
--- User: teacher code + profile fields
-ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "teacherCode" TEXT;
-ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "dateOfBirth" TIMESTAMP(3);
-ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "gender" "Gender";
-ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "photoUrl" TEXT;
-
--- School: ensure regionId and divisionId exist (critical for old schemas)
-ALTER TABLE "School" ADD COLUMN IF NOT EXISTS "regionId" TEXT;
-ALTER TABLE "School" ADD COLUMN IF NOT EXISTS "divisionId" TEXT;
-ALTER TABLE "School" ADD COLUMN IF NOT EXISTS "adminId" TEXT;
-ALTER TABLE "School" ADD COLUMN IF NOT EXISTS "schoolType" TEXT;
-ALTER TABLE "School" ADD COLUMN IF NOT EXISTS "principalName" TEXT;
-ALTER TABLE "School" ADD COLUMN IF NOT EXISTS "principalPhone" TEXT;
-ALTER TABLE "School" ADD COLUMN IF NOT EXISTS "foundingDate" TIMESTAMP(3);
-ALTER TABLE "School" ADD COLUMN IF NOT EXISTS "profileComplete" BOOLEAN NOT NULL DEFAULT false;
-ALTER TABLE "School" ADD COLUMN IF NOT EXISTS "status" TEXT NOT NULL DEFAULT 'ACTIVE';
-
--- LogbookEntry: module + free-text topic + assignment link
-ALTER TABLE "LogbookEntry" ADD COLUMN IF NOT EXISTS "moduleName" TEXT;
-ALTER TABLE "LogbookEntry" ADD COLUMN IF NOT EXISTS "topicText" TEXT;
-ALTER TABLE "LogbookEntry" ADD COLUMN IF NOT EXISTS "objectives" TEXT;
-ALTER TABLE "LogbookEntry" ADD COLUMN IF NOT EXISTS "signatureData" TEXT;
-ALTER TABLE "LogbookEntry" ADD COLUMN IF NOT EXISTS "studentAttendance" INTEGER;
-ALTER TABLE "LogbookEntry" ADD COLUMN IF NOT EXISTS "engagementLevel" "EngagementLevel";
-ALTER TABLE "LogbookEntry" ADD COLUMN IF NOT EXISTS "assignmentId" TEXT;
-ALTER TABLE "LogbookEntry" ADD COLUMN IF NOT EXISTS "timetableSlotId" TEXT;
-
--- Class: additional fields
-ALTER TABLE "Class" ADD COLUMN IF NOT EXISTS "abbreviation" TEXT;
-ALTER TABLE "Class" ADD COLUMN IF NOT EXISTS "stream" TEXT;
-ALTER TABLE "Class" ADD COLUMN IF NOT EXISTS "section" TEXT;
-
--- TeacherAssignment: subject divisions
-ALTER TABLE "TeacherAssignment" ADD COLUMN IF NOT EXISTS "divisionId" TEXT;
 
 -- ── SEED SUBJECTS (skip duplicates) ─────────────────────────
 
