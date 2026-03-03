@@ -88,19 +88,41 @@ export const {
 });
 
 // Helper to get the session user with typed fields
+// Re-fetches from DB to ensure schoolId/role are always fresh
 export async function getSessionUser() {
   const session = await auth();
   if (!session?.user) return null;
 
   const user = session.user as unknown as Record<string, unknown>;
+  const userId = user.id as string;
+
+  // Always re-fetch from DB for fresh schoolId, role, etc.
+  // This prevents stale JWT data after DB changes
+  const dbUser = await db.user.findUnique({
+    where: { id: userId },
+    select: {
+      id: true,
+      email: true,
+      firstName: true,
+      lastName: true,
+      role: true,
+      schoolId: true,
+      regionId: true,
+      isVerified: true,
+    },
+  });
+
+  if (!dbUser) return null;
+
   return {
-    id: user.id as string,
-    email: user.email as string,
-    firstName: user.firstName as string,
-    lastName: user.lastName as string,
-    role: user.role as Role,
-    schoolId: user.schoolId as string | null,
-    regionId: user.regionId as string | null,
+    id: dbUser.id,
+    email: dbUser.email,
+    firstName: dbUser.firstName,
+    lastName: dbUser.lastName,
+    role: dbUser.role as Role,
+    schoolId: dbUser.schoolId,
+    regionId: dbUser.regionId,
+    isVerified: dbUser.isVerified,
   };
 }
 

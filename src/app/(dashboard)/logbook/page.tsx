@@ -18,6 +18,7 @@ import {
   Zap,
   Award,
   BarChart3,
+  Crown,
 } from "lucide-react";
 import { NotificationBell } from "@/components/NotificationBell";
 import type { EntryWithRelations } from "@/types";
@@ -45,6 +46,7 @@ interface AllSlotInfo {
   startTime: string;
   endTime: string;
   periodLabel: string;
+  schoolName?: string;
   assignment: {
     id: string;
     classId: string;
@@ -109,6 +111,8 @@ export default function LogbookPage() {
   const [todaySlots, setTodaySlots] = useState<TimetableSlotInfo[]>([]);
   const [allSlots, setAllSlots] = useState<AllSlotInfo[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isHOD, setIsHOD] = useState(false);
+  const [hodSubjects, setHodSubjects] = useState<string[]>([]);
 
   const today = useMemo(() => new Date(), []);
   const dayOfWeek = today.getDay();
@@ -151,6 +155,18 @@ export default function LogbookPage() {
         if (results[2]?.ok) {
           const slotsData = await results[2].json();
           setTodaySlots(slotsData.slots || []);
+        }
+
+        // Check if teacher is an HOD
+        try {
+          const hodRes = await fetch("/api/hod/stats");
+          if (hodRes.ok) {
+            const hodData = await hodRes.json();
+            setIsHOD(true);
+            setHodSubjects(hodData.hodSubjects.map((s: { name: string }) => s.name));
+          }
+        } catch {
+          // not an HOD, silently fail
         }
       } catch {
         // silently fail
@@ -216,6 +232,12 @@ export default function LogbookPage() {
     return map;
   }, [todaySlots, entries]);
 
+  // Check if teacher has multiple schools
+  const hasMultipleSchools = useMemo(() => {
+    const schools = new Set(allSlots.map((s) => s.schoolName).filter(Boolean));
+    return schools.size > 1;
+  }, [allSlots]);
+
   // Smart next-class message
   const nextClassInfo = useMemo(() => {
     if (allSlots.length === 0) return null;
@@ -248,20 +270,24 @@ export default function LogbookPage() {
         const hrs = Math.floor(diffMins / 60);
         const mins = diffMins % 60;
         const timeStr = hrs > 0 ? `${hrs}h ${mins}m` : `${mins} minutes`;
+        const schoolStr = hasMultipleSchools && next.schoolName ? ` at ${next.schoolName}` : "";
         return {
           type: "prep" as const,
-          message: `Your next class is in ${timeStr}!`,
+          message: `Your next class is in ${timeStr}!${schoolStr}`,
           detail: `${next.assignment.subjectName} — ${next.assignment.className} at ${next.startTime}`,
-          hint: "Time to recheck everything and ensure you are prepped for class!",
+          hint: hasMultipleSchools && next.schoolName
+            ? `Head to ${next.schoolName} and ensure you are prepped!`
+            : "Time to recheck everything and ensure you are prepped for class!",
         };
       } else {
         // More than 2 hours away
         const hrs = Math.floor(diffMins / 60);
         const mins = diffMins % 60;
         const timeStr = hrs > 0 ? `${hrs}h ${mins}m` : `${mins} minutes`;
+        const schoolStr = hasMultipleSchools && next.schoolName ? ` at ${next.schoolName}` : "";
         return {
           type: "rest-short" as const,
-          message: `Next class in ${timeStr}`,
+          message: `Next class in ${timeStr}${schoolStr}`,
           detail: `${next.assignment.subjectName} — ${next.assignment.className} at ${next.startTime}`,
           hint: "You have some time. Take a breather and prepare at your pace.",
         };
@@ -282,17 +308,19 @@ export default function LogbookPage() {
         const firstSlot = nextDaySlots[0];
 
         if (offset === 1) {
+          const schoolHint = hasMultipleSchools && firstSlot.schoolName ? ` at ${firstSlot.schoolName}` : "";
           return {
             type: "rest-short" as const,
-            message: `Done for today! Next class is tomorrow`,
+            message: `Done for today! Next class is tomorrow${schoolHint}`,
             detail: `${firstSlot.assignment.subjectName} — ${firstSlot.assignment.className} at ${firstSlot.startTime}`,
             hint: "Get some rest and come back refreshed!",
           };
         }
 
+        const schoolHint = hasMultipleSchools && firstSlot.schoolName ? ` at ${firstSlot.schoolName}` : "";
         return {
           type: "rest-long" as const,
-          message: `No more classes until ${DAY_LABELS[checkDow]}`,
+          message: `No more classes until ${DAY_LABELS[checkDow]}${schoolHint}`,
           detail: `${firstSlot.assignment.subjectName} — ${firstSlot.assignment.className} at ${firstSlot.startTime}`,
           hint: `That's ${offset} days away. Enjoy your well-deserved rest!`,
         };
@@ -300,7 +328,7 @@ export default function LogbookPage() {
     }
 
     return null;
-  }, [allSlots]);
+  }, [allSlots, hasMultipleSchools]);
 
   if (loading) {
     return (
@@ -398,6 +426,27 @@ export default function LogbookPage() {
           <span className="text-base">New Entry</span>
           <Sparkles className="w-4 h-4 opacity-50 group-hover:opacity-80 transition-opacity" />
         </Link>
+
+        {/* HOD Banner */}
+        {isHOD && (
+          <Link
+            href="/hod"
+            className="animate-slide-up flex items-center gap-3.5 bg-gradient-to-r from-amber-50 to-yellow-50 border border-amber-200/60 rounded-2xl p-4 shadow-sm hover:shadow-md active:scale-[0.98] transition-all duration-200 group"
+          >
+            <div className="w-11 h-11 bg-gradient-to-br from-amber-400 to-amber-600 rounded-xl flex items-center justify-center shadow-sm flex-shrink-0">
+              <Crown className="w-5 h-5 text-white" />
+            </div>
+            <div className="flex-1">
+              <p className="text-sm font-bold text-amber-900">
+                Head of Department
+              </p>
+              <p className="text-[11px] text-amber-600/80 mt-0.5">
+                {hodSubjects.join(", ")} — Tap to view department
+              </p>
+            </div>
+            <ArrowRight className="w-4 h-4 text-amber-400 group-hover:translate-x-0.5 transition-transform" />
+          </Link>
+        )}
 
         {/* Today's Schedule */}
         {isWeekday && todaySlots.length > 0 && (

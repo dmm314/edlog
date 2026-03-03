@@ -49,23 +49,24 @@ export async function GET() {
 
     const unverifiedTeachers = totalTeachers - verifiedTeachers;
 
-    // Entries by subject (using m2m topics)
+    // Entries by subject (use assignment's subject, fall back to topics)
     const entries = await db.logbookEntry.findMany({
       where: { teacher: { schoolId: user.schoolId } },
-      include: { topics: { include: { subject: true } } },
+      include: {
+        assignment: { include: { subject: true } },
+        topics: { include: { subject: true } },
+      },
     });
 
     const subjectCounts: Record<string, number> = {};
     const weekCounts: Record<string, number> = {};
 
     for (const entry of entries) {
-      const seenSubjects = new Set<string>();
-      for (const topic of entry.topics) {
-        const subjectName = topic.subject.name;
-        if (!seenSubjects.has(subjectName)) {
-          subjectCounts[subjectName] = (subjectCounts[subjectName] || 0) + 1;
-          seenSubjects.add(subjectName);
-        }
+      // Prefer assignment subject, fall back to topics
+      const subjectName = entry.assignment?.subject?.name
+        || entry.topics?.[0]?.subject?.name;
+      if (subjectName) {
+        subjectCounts[subjectName] = (subjectCounts[subjectName] || 0) + 1;
       }
 
       const week = getWeekNumber(entry.date);

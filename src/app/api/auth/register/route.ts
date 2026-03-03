@@ -3,6 +3,25 @@ import { hash } from "bcryptjs";
 import { db } from "@/lib/db";
 import { registerSchema } from "@/lib/validations";
 
+function generateTeacherCode(): string {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // No I/O/0/1 for readability
+  let code = "TCH-";
+  for (let i = 0; i < 6; i++) {
+    code += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return code;
+}
+
+async function uniqueTeacherCode(): Promise<string> {
+  for (let i = 0; i < 10; i++) {
+    const code = generateTeacherCode();
+    const exists = await db.user.findUnique({ where: { teacherCode: code } });
+    if (!exists) return code;
+  }
+  // Fallback with timestamp suffix
+  return `TCH-${Date.now().toString(36).toUpperCase().slice(-6)}`;
+}
+
 export async function POST(request: Request) {
   try {
     const body = await request.json();
@@ -40,6 +59,9 @@ export async function POST(request: Request) {
     // Auto-verify teachers registering at an ACTIVE school
     const autoVerify = school.status === "ACTIVE";
 
+    // Generate unique teacher code
+    const teacherCode = await uniqueTeacherCode();
+
     // Hash password and create user
     const passwordHash = await hash(password, 12);
     const user = await db.user.create({
@@ -52,8 +74,20 @@ export async function POST(request: Request) {
         role: "TEACHER",
         isVerified: autoVerify,
         schoolId: school.id,
+        teacherCode,
         dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : null,
         gender: gender || null,
+      },
+    });
+
+    // Create TeacherSchool record for the primary school
+    await db.teacherSchool.create({
+      data: {
+        teacherId: user.id,
+        schoolId: school.id,
+        status: "ACTIVE",
+        isPrimary: true,
+        joinedAt: new Date(),
       },
     });
 
@@ -65,6 +99,7 @@ export async function POST(request: Request) {
           email: user.email,
           firstName: user.firstName,
           lastName: user.lastName,
+          teacherCode: user.teacherCode,
         },
       },
       { status: 201 }

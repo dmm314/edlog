@@ -45,6 +45,13 @@ enum NotificationType {
   NEW_TEACHER
   CURRICULUM_GAP
   GENERAL
+  SCHOOL_INVITATION
+}
+
+enum TeacherSchoolStatus {
+  PENDING
+  ACTIVE
+  REMOVED
 }
 
 // ── USERS & AUTH ─────────────────────────────────────────
@@ -52,6 +59,7 @@ enum NotificationType {
 model User {
   id           String    @id @default(cuid())
   email        String    @unique
+  teacherCode  String?   @unique // Human-readable code, e.g., "TCH-A1B2C3"
   passwordHash String
   firstName    String
   lastName     String
@@ -64,10 +72,13 @@ model User {
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 
-  // School relationship (for TEACHER and SCHOOL_ADMIN)
+  // School relationship (primary school, for TEACHER and SCHOOL_ADMIN)
   school        School?        @relation("SchoolTeachers", fields: [schoolId], references: [id])
   schoolId      String?
   adminOfSchool School?        @relation("SchoolAdmin")
+
+  // Multi-school memberships (for teachers teaching at multiple schools)
+  teacherSchools TeacherSchool[]
 
   // Region relationship (for REGIONAL_ADMIN)
   regionAdmin  Region?  @relation("RegionalAdmins", fields: [regionId], references: [id])
@@ -82,6 +93,7 @@ model User {
   assignments  TeacherAssignment[]
   sessions     Session[]
   notifications Notification[]
+  hodSubjects  HeadOfDepartment[]
 }
 
 model Session {
@@ -166,12 +178,14 @@ model School {
 
   // Relations
   teachers       User[]              @relation("SchoolTeachers")
+  teacherSchools TeacherSchool[]
   classes        Class[]
   subjects       SchoolSubject[]
   divisions      SubjectDivision[]
   assignments    TeacherAssignment[]
   timetableSlots TimetableSlot[]
   periodSchedule PeriodSchedule[]
+  hods           HeadOfDepartment[]
 }
 
 // ── PERIOD SCHEDULE (school-wide bell times) ─────────────
@@ -187,6 +201,24 @@ model PeriodSchedule {
   createdAt  DateTime @default(now())
 
   @@unique([schoolId, periodNum])
+}
+
+// ── TEACHER-SCHOOL MEMBERSHIPS (multi-school support) ────
+
+model TeacherSchool {
+  id        String              @id @default(cuid())
+  teacherId String
+  teacher   User                @relation(fields: [teacherId], references: [id])
+  schoolId  String
+  school    School              @relation(fields: [schoolId], references: [id])
+  status    TeacherSchoolStatus @default(PENDING)
+  isPrimary Boolean             @default(false)
+  joinedAt  DateTime?
+  createdAt DateTime            @default(now())
+
+  @@unique([teacherId, schoolId])
+  @@index([teacherId])
+  @@index([schoolId])
 }
 
 // ── CLASSES ──────────────────────────────────────────────
@@ -223,6 +255,7 @@ model Subject {
   classes   ClassSubject[]
   assignments TeacherAssignment[]
   divisions   SubjectDivision[]
+  hods        HeadOfDepartment[]
 }
 
 model Topic {
@@ -277,6 +310,23 @@ model SubjectDivision {
 
   @@unique([schoolId, subjectId, name])
   @@index([schoolId, subjectId])
+}
+
+// ── HEAD OF DEPARTMENT (HOD) ─────────────────────────────
+
+model HeadOfDepartment {
+  id        String   @id @default(cuid())
+  teacherId String
+  teacher   User     @relation(fields: [teacherId], references: [id])
+  subjectId String
+  subject   Subject  @relation(fields: [subjectId], references: [id])
+  schoolId  String
+  school    School   @relation(fields: [schoolId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@unique([schoolId, subjectId])
+  @@index([teacherId])
+  @@index([schoolId])
 }
 
 // ── TEACHER ASSIGNMENTS & TIMETABLE ──────────────────────

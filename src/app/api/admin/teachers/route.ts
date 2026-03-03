@@ -9,26 +9,49 @@ export async function GET() {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const teachers = await db.user.findMany({
-      where: {
-        schoolId: user.schoolId,
-        role: "TEACHER",
-      },
-      include: {
-        entries: {
-          orderBy: { date: "desc" },
-          take: 1,
-          select: { date: true },
-        },
-        _count: { select: { entries: true } },
-        assignments: {
-          include: {
-            class: { select: { name: true } },
-            subject: { select: { name: true } },
+    // Get teachers both via direct schoolId AND via TeacherSchool membership
+    const [directTeachers, memberTeachers] = await Promise.all([
+      db.user.findMany({
+        where: { schoolId: user.schoolId, role: "TEACHER" },
+        include: {
+          entries: { orderBy: { date: "desc" }, take: 1, select: { date: true } },
+          _count: { select: { entries: true } },
+          assignments: {
+            include: {
+              class: { select: { name: true } },
+              subject: { select: { name: true } },
+            },
           },
         },
-      },
-      orderBy: { lastName: "asc" },
+        orderBy: { lastName: "asc" },
+      }),
+      db.user.findMany({
+        where: {
+          teacherSchools: { some: { schoolId: user.schoolId!, status: "ACTIVE" } },
+          role: "TEACHER",
+          NOT: { schoolId: user.schoolId },
+        },
+        include: {
+          entries: { orderBy: { date: "desc" }, take: 1, select: { date: true } },
+          _count: { select: { entries: true } },
+          assignments: {
+            where: { schoolId: user.schoolId! },
+            include: {
+              class: { select: { name: true } },
+              subject: { select: { name: true } },
+            },
+          },
+        },
+        orderBy: { lastName: "asc" },
+      }),
+    ]);
+
+    // Merge and deduplicate
+    const seenIds = new Set<string>();
+    const teachers = [...directTeachers, ...memberTeachers].filter((t) => {
+      if (seenIds.has(t.id)) return false;
+      seenIds.add(t.id);
+      return true;
     });
 
     const result = teachers.map((t) => {
