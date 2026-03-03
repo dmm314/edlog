@@ -176,29 +176,45 @@ export default function RegionalReportsPage() {
     setSearchQuery("");
   }
 
+  function escapeCSV(val: string | number | null | undefined): string {
+    if (val === null || val === undefined) return "";
+    const str = String(val);
+    if (str.includes(",") || str.includes('"') || str.includes("\n")) {
+      return `"${str.replace(/"/g, '""')}"`;
+    }
+    return str;
+  }
+
   function exportCSV() {
     if (!data) return;
 
-    let csv = "Category,Item,Value\n";
-    csv += `Overview,Total Schools,${data.totalSchools}\n`;
-    csv += `Overview,Active Schools,${data.activeSchools}\n`;
-    csv += `Overview,Pending Schools,${data.pendingSchools}\n`;
-    csv += `Overview,Total Teachers,${data.totalTeachers}\n`;
-    csv += `Overview,Total Entries,${data.totalEntries}\n`;
-    csv += `Overview,Entries This Month,${data.entriesThisMonth}\n`;
-    csv += `Overview,Compliance Rate,${data.complianceRate}%\n`;
+    const bom = "\uFEFF";
+    const date = new Date().toISOString().split("T")[0];
+
+    // Summary section
+    let csv = "REGIONAL REPORT\n";
+    csv += `Generated,${date}\n`;
+    csv += `Total Schools,${data.totalSchools}\n`;
+    csv += `Active Schools,${data.activeSchools}\n`;
+    csv += `Pending Schools,${data.pendingSchools}\n`;
+    csv += `Total Teachers,${data.totalTeachers}\n`;
+    csv += `Total Entries,${data.totalEntries}\n`;
+    csv += `Entries This Month,${data.entriesThisMonth}\n`;
+    csv += `Compliance Rate,${data.complianceRate}%\n`;
     csv += "\n";
-    csv += "School,Code,Teachers,Entries,Compliance\n";
 
-    for (const s of data.schoolRankings) {
-      csv += `"${s.name}",${s.code},${s.teacherCount},${s.entryCount},${s.complianceRate}%\n`;
-    }
+    // School rankings
+    csv += "SCHOOL RANKINGS\n";
+    csv += "Rank,School Name,School Code,Teachers,Total Entries,Compliance Rate\n";
+    data.schoolRankings.forEach((s, i) => {
+      csv += `${i + 1},${escapeCSV(s.name)},${s.code},${s.teacherCount},${s.entryCount},${s.complianceRate}%\n`;
+    });
 
-    const blob = new Blob([csv], { type: "text/csv" });
+    const blob = new Blob([bom + csv], { type: "text/csv;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `edlog-regional-report-${new Date().toISOString().split("T")[0]}.csv`;
+    a.download = `regional-report-${date}.csv`;
     a.click();
     URL.revokeObjectURL(url);
   }

@@ -12,6 +12,7 @@ import {
   ChevronRight,
   BarChart3,
   Key,
+  Layers,
 } from "lucide-react";
 import { NotificationBell } from "@/components/NotificationBell";
 import type { RegionalStats } from "@/types";
@@ -272,6 +273,23 @@ export default function RegionalDashboardPage() {
               <span className="font-medium text-slate-900">
                 View Reports
               </span>
+            </div>
+            <ChevronRight className="w-4 h-4 text-slate-400 transition-transform duration-200 group-hover:translate-x-0.5" />
+          </Link>
+          <Link
+            href="/regional/analysis"
+            className="card p-4 flex items-center justify-between border-l-2 border-l-transparent hover:border-l-brand-500 hover:bg-slate-50 transition-all duration-200"
+          >
+            <div className="flex items-center gap-3">
+              <Layers className="w-5 h-5 text-slate-400" />
+              <div>
+                <span className="font-medium text-slate-900 block">
+                  Deep Analysis
+                </span>
+                <span className="text-[11px] text-slate-400">
+                  Modules, subjects, HODs
+                </span>
+              </div>
             </div>
             <ChevronRight className="w-4 h-4 text-slate-400 transition-transform duration-200 group-hover:translate-x-0.5" />
           </Link>

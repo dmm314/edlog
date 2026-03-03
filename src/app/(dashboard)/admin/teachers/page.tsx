@@ -73,6 +73,9 @@ export default function ManageTeachersPage() {
   const [copiedCode, setCopiedCode] = useState(false);
   const [verifying, setVerifying] = useState<string | null>(null);
   const [schoolCode, setSchoolCode] = useState("");
+  const [inviteCode, setInviteCode] = useState("");
+  const [inviting, setInviting] = useState(false);
+  const [inviteMsg, setInviteMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
 
   // Search & filter state
   const [searchQuery, setSearchQuery] = useState("");
@@ -135,6 +138,31 @@ export default function ManageTeachersPage() {
     navigator.clipboard.writeText(schoolCode);
     setCopiedCode(true);
     setTimeout(() => setCopiedCode(false), 2000);
+  }
+
+  async function handleInviteByCode(e: React.FormEvent) {
+    e.preventDefault();
+    if (!inviteCode.trim()) return;
+    setInviting(true);
+    setInviteMsg(null);
+    try {
+      const res = await fetch("/api/admin/invitations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ teacherCode: inviteCode.trim() }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setInviteMsg({ type: "ok", text: `Invitation sent to ${data.teacher.firstName} ${data.teacher.lastName}!` });
+        setInviteCode("");
+      } else {
+        setInviteMsg({ type: "err", text: data.error || "Failed to invite" });
+      }
+    } catch {
+      setInviteMsg({ type: "err", text: "Connection error" });
+    } finally {
+      setInviting(false);
+    }
   }
 
   // Extract unique subjects and classes from all teachers
@@ -277,6 +305,42 @@ export default function ManageTeachersPage() {
             </p>
           </div>
         </div>
+
+        {/* Invite by Teacher Code */}
+        <form onSubmit={handleInviteByCode} className="animate-slide-up card p-5">
+          <div className="flex items-center gap-2 mb-3">
+            <Users className="w-4 h-4 text-brand-500" />
+            <p className="text-xs font-bold uppercase tracking-widest text-slate-400">
+              Add Existing Teacher
+            </p>
+          </div>
+          <p className="text-[11px] text-slate-400 mb-3">
+            Enter a teacher&apos;s unique ID to invite them to your school
+          </p>
+          <div className="flex items-center gap-2">
+            <input
+              type="text"
+              value={inviteCode}
+              onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
+              placeholder="e.g. TCH-A1B2C3"
+              className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 font-mono text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent tracking-wider"
+            />
+            <button
+              type="submit"
+              disabled={inviting || !inviteCode.trim()}
+              className="px-4 py-2.5 bg-brand-600 text-white text-sm font-semibold rounded-xl hover:bg-brand-700 transition-colors active:scale-95 disabled:opacity-50"
+            >
+              {inviting ? "..." : "Invite"}
+            </button>
+          </div>
+          {inviteMsg && (
+            <p className={`text-xs mt-2 font-medium ${
+              inviteMsg.type === "ok" ? "text-emerald-600" : "text-red-500"
+            }`}>
+              {inviteMsg.text}
+            </p>
+          )}
+        </form>
 
         {/* Search Bar */}
         <div className="animate-slide-up animation-delay-75 flex gap-2">

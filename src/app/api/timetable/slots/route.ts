@@ -38,6 +38,7 @@ export async function GET(request: NextRequest) {
     const slots = await db.timetableSlot.findMany({
       where: whereClause,
       include: {
+        school: { select: { id: true, name: true, code: true } },
         assignment: {
           include: {
             class: true,
@@ -55,6 +56,9 @@ export async function GET(request: NextRequest) {
       startTime: slot.startTime,
       endTime: slot.endTime,
       periodLabel: slot.periodLabel,
+      schoolId: slot.school.id,
+      schoolName: slot.school.name,
+      schoolCode: slot.school.code,
       assignment: {
         id: slot.assignment.id,
         classId: slot.assignment.classId,

@@ -16,7 +16,11 @@ import {
   X,
   Building2,
   Phone,
+  Copy,
+  Check,
+  ChevronRight,
 } from "lucide-react";
+import Link from "next/link";
 import { formatDate } from "@/lib/utils";
 
 interface ProfileData {
@@ -31,7 +35,14 @@ interface ProfileData {
   gender: string | null;
   photoUrl: string | null;
   createdAt: string;
+  teacherCode: string | null;
   school: { name: string; code: string; foundingDate: string | null } | null;
+  teacherSchools?: {
+    id: string;
+    status: string;
+    isPrimary: boolean;
+    school: { id: string; name: string; code: string };
+  }[];
 }
 
 interface ProfileStats {
@@ -49,6 +60,7 @@ export default function ProfilePage() {
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState("");
+  const [copiedTC, setCopiedTC] = useState(false);
 
   // Edit form state
   const [editPhone, setEditPhone] = useState("");
@@ -298,6 +310,62 @@ export default function ProfilePage() {
               </div>
             ) : null}
           </>
+        )}
+
+        {/* Teacher Code & Schools (teachers only) */}
+        {!isSchoolAdmin && profile?.teacherCode && (
+          <div className="card mt-4 p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <p className="text-xs font-bold uppercase tracking-widest text-slate-400">
+                Your Teacher ID
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <code className="flex-1 bg-gradient-to-r from-brand-50 to-slate-50 border border-brand-100 rounded-xl px-4 py-2.5 font-mono text-lg text-brand-950 font-black tracking-widest">
+                {profile.teacherCode}
+              </code>
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(profile.teacherCode!);
+                  setCopiedTC(true);
+                  setTimeout(() => setCopiedTC(false), 2000);
+                }}
+                className={`p-3 rounded-xl transition-all active:scale-95 shadow-sm ${
+                  copiedTC
+                    ? "bg-emerald-500 text-white"
+                    : "bg-brand-600 text-white hover:bg-brand-700"
+                }`}
+              >
+                {copiedTC ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
+              </button>
+            </div>
+            <p className="text-[11px] text-slate-400 mt-2">
+              Share this ID with school admins so they can add you to their school
+            </p>
+          </div>
+        )}
+
+        {/* Schools membership link (teachers only) */}
+        {!isSchoolAdmin && (
+          <Link
+            href="/invitations"
+            className="card mt-3 p-4 flex items-center justify-between group hover:bg-slate-50 transition-colors"
+          >
+            <div className="flex items-center gap-3">
+              <Building2 className="w-5 h-5 text-slate-400" />
+              <div>
+                <p className="text-sm font-semibold text-slate-900">My Schools</p>
+                <p className="text-[11px] text-slate-400">
+                  {profile?.teacherSchools
+                    ? `${profile.teacherSchools.filter((ts) => ts.status === "ACTIVE").length} active school(s)`
+                    : "View invitations"}
+                  {profile?.teacherSchools?.some((ts) => ts.status === "PENDING") &&
+                    " · New invitation!"}
+                </p>
+              </div>
+            </div>
+            <ChevronRight className="w-4 h-4 text-slate-400 group-hover:translate-x-0.5 transition-transform" />
+          </Link>
         )}
 
         {/* Info Card */}

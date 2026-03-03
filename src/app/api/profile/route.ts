@@ -24,7 +24,17 @@ export async function GET() {
         photoUrl: true,
         createdAt: true,
         schoolId: true,
+        teacherCode: true,
         school: { select: { name: true, code: true, foundingDate: true } },
+        teacherSchools: {
+          where: { status: { in: ["PENDING", "ACTIVE"] } },
+          include: {
+            school: {
+              select: { id: true, name: true, code: true },
+            },
+          },
+          orderBy: [{ isPrimary: "desc" }, { createdAt: "asc" }],
+        },
       },
     });
 
