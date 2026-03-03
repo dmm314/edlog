@@ -29,59 +29,127 @@ export async function POST(
       );
     }
 
-    // Find the TeacherSchool membership
-    const membership = await db.teacherSchool.findFirst({
-      where: {
-        teacherId,
-        schoolId: user.schoolId,
-        status: "PENDING",
-      },
-      include: {
-        teacher: { select: { firstName: true, lastName: true } },
-      },
+    // Verify the teacher exists and belongs to this school
+    const teacher = await db.user.findFirst({
+      where: { id: teacherId, role: "TEACHER", schoolId: user.schoolId },
+      select: { id: true, firstName: true, lastName: true, isVerified: true },
     });
 
-    if (!membership) {
+    if (!teacher) {
       return NextResponse.json(
-        { error: "No pending request found for this teacher" },
+        { error: "Teacher not found in your school" },
         { status: 404 }
       );
     }
 
-    if (action === "approve") {
-      // Approve: set membership to ACTIVE, verify the teacher, set joinedAt
-      await db.$transaction([
-        db.teacherSchool.update({
-          where: { id: membership.id },
-          data: { status: "ACTIVE", joinedAt: new Date() },
-        }),
-        db.user.update({
+    // Try TeacherSchool-based approval first
+    let usedTeacherSchool = false;
+    try {
+      const membership = await db.teacherSchool.findFirst({
+        where: {
+          teacherId,
+          schoolId: user.schoolId,
+          status: "PENDING",
+        },
+      });
+
+      if (membership) {
+        usedTeacherSchool = true;
+        if (action === "approve") {
+          await db.$transaction([
+            db.teacherSchool.update({
+              where: { id: membership.id },
+              data: { status: "ACTIVE", joinedAt: new Date() },
+            }),
+            db.user.update({
+              where: { id: teacherId },
+              data: { isVerified: true },
+            }),
+            db.notification.create({
+              data: {
+                userId: teacherId,
+                type: "GENERAL",
+                title: "Registration Approved",
+                message: "Your registration has been approved. You can now use all features.",
+                link: "/logbook",
+              },
+            }),
+          ]);
+        } else {
+          await db.$transaction([
+            db.teacherSchool.update({
+              where: { id: membership.id },
+              data: { status: "REMOVED" },
+            }),
+            db.notification.create({
+              data: {
+                userId: teacherId,
+                type: "GENERAL",
+                title: "Registration Not Approved",
+                message: "Your registration request was not approved. Please contact your school administrator.",
+                link: "/profile",
+              },
+            }),
+          ]);
+        }
+      }
+    } catch (e) {
+      // TeacherSchool table might not exist — fall through to direct approach
+      console.warn("TeacherSchool approve query failed:", (e as Error).message);
+    }
+
+    // Fallback: direct approval without TeacherSchool
+    if (!usedTeacherSchool) {
+      if (action === "approve") {
+        await db.user.update({
           where: { id: teacherId },
           data: { isVerified: true },
-        }),
-        db.notification.create({
+        });
+
+        // Try creating/updating TeacherSchool record
+        try {
+          await db.teacherSchool.upsert({
+            where: {
+              teacherId_schoolId: { teacherId, schoolId: user.schoolId! },
+            },
+            update: { status: "ACTIVE", joinedAt: new Date() },
+            create: {
+              teacherId,
+              schoolId: user.schoolId!,
+              status: "ACTIVE",
+              isPrimary: true,
+              joinedAt: new Date(),
+            },
+          });
+        } catch {
+          // TeacherSchool table may not exist — that's OK
+        }
+
+        await db.notification.create({
           data: {
             userId: teacherId,
             type: "GENERAL",
             title: "Registration Approved",
             message: "Your registration has been approved. You can now use all features.",
-            link: "/dashboard",
+            link: "/logbook",
           },
-        }),
-      ]);
+        }).catch(() => {});
+      } else {
+        await db.user.update({
+          where: { id: teacherId },
+          data: { isVerified: false },
+        });
 
-      return NextResponse.json({
-        success: true,
-        message: `${membership.teacher.firstName} ${membership.teacher.lastName} has been approved`,
-      });
-    } else {
-      // Reject: set membership to REMOVED, keep user unverified
-      await db.$transaction([
-        db.teacherSchool.update({
-          where: { id: membership.id },
-          data: { status: "REMOVED" },
-        }),
-        db.notification.create({
+        try {
+          await db.teacherSchool.updateMany({
+            where: { teacherId, schoolId: user.schoolId! },
+            data: { status: "REMOVED" },
+          });
+        } catch {
+          // TeacherSchool table may not exist
+        }
+
+        await db.notification.create({
           data: {
             userId: teacherId,
             type: "GENERAL",
@@ -89,14 +157,15 @@ export async function POST(
             message: "Your registration request was not approved. Please contact your school administrator.",
             link: "/profile",
           },
-        }),
-      ]);
-
-      return NextResponse.json({
-        success: true,
-        message: `${membership.teacher.firstName} ${membership.teacher.lastName} has been rejected`,
-      });
+        }).catch(() => {});
+      }
     }
+
+    const actionWord = action === "approve" ? "approved" : "rejected";
+    return NextResponse.json({
+      success: true,
+      message: `${teacher.firstName} ${teacher.lastName} has been ${actionWord}`,
+    });
   } catch (error) {
     console.error("POST /api/admin/teachers/[id]/approve error:", error);
     return NextResponse.json(

@@ -15,62 +15,95 @@ export async function GET() {
       return NextResponse.json({ error: "No school assigned" }, { status: 400 });
     }
 
-    const hods = await db.headOfDepartment.findMany({
-      where: { schoolId: user.schoolId },
-      include: {
-        teacher: {
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            email: true,
-            photoUrl: true,
+    // Try to fetch HODs — table may not exist yet
+    let hods: Array<{
+      id: string;
+      teacher: { id: string; firstName: string; lastName: string; email: string; photoUrl: string | null };
+      subject: { id: string; name: string; code: string };
+    }> = [];
+
+    try {
+      hods = await db.headOfDepartment.findMany({
+        where: { schoolId: user.schoolId },
+        include: {
+          teacher: {
+            select: { id: true, firstName: true, lastName: true, email: true, photoUrl: true },
+          },
+          subject: {
+            select: { id: true, name: true, code: true },
           },
         },
-        subject: {
-          select: { id: true, name: true, code: true },
-        },
-      },
-      orderBy: { subject: { name: "asc" } },
-    });
+        orderBy: { subject: { name: "asc" } },
+      });
+    } catch (e) {
+      console.warn("HeadOfDepartment query failed (table may not exist):", (e as Error).message);
+    }
 
-    // Fetch verified, ACTIVE teachers in this school (via TeacherSchool OR direct schoolId)
-    const [directTeachers, memberTeachers] = await Promise.all([
-      db.user.findMany({
+    // Fetch teachers — try TeacherSchool first, fall back to direct schoolId
+    let teachers: Array<{ id: string; firstName: string; lastName: string; email: string }> = [];
+
+    try {
+      // Get both direct + TeacherSchool members
+      const [directTeachers, memberTeachers] = await Promise.all([
+        db.user.findMany({
+          where: { schoolId: user.schoolId, role: "TEACHER", isVerified: true },
+          select: { id: true, firstName: true, lastName: true, email: true },
+          orderBy: { lastName: "asc" },
+        }),
+        db.user.findMany({
+          where: {
+            teacherSchools: { some: { schoolId: user.schoolId!, status: "ACTIVE" } },
+            role: "TEACHER",
+            isVerified: true,
+            NOT: { schoolId: user.schoolId },
+          },
+          select: { id: true, firstName: true, lastName: true, email: true },
+          orderBy: { lastName: "asc" },
+        }).catch(() => [] as Array<{ id: string; firstName: string; lastName: string; email: string }>),
+      ]);
+
+      const seenIds = new Set<string>();
+      teachers = [...directTeachers, ...memberTeachers].filter((t) => {
+        if (seenIds.has(t.id)) return false;
+        seenIds.add(t.id);
+        return true;
+      });
+    } catch {
+      // Fall back to just direct schoolId teachers
+      teachers = await db.user.findMany({
         where: { schoolId: user.schoolId, role: "TEACHER", isVerified: true },
         select: { id: true, firstName: true, lastName: true, email: true },
         orderBy: { lastName: "asc" },
-      }),
-      db.user.findMany({
-        where: {
-          teacherSchools: { some: { schoolId: user.schoolId!, status: "ACTIVE" } },
-          role: "TEACHER",
-          isVerified: true,
-          NOT: { schoolId: user.schoolId },
-        },
-        select: { id: true, firstName: true, lastName: true, email: true },
-        orderBy: { lastName: "asc" },
-      }),
-    ]);
+      });
+    }
 
-    // Deduplicate teachers
-    const seenIds = new Set<string>();
-    const teachers = [...directTeachers, ...memberTeachers].filter((t) => {
-      if (seenIds.has(t.id)) return false;
-      seenIds.add(t.id);
-      return true;
-    });
+    // Fetch subjects — try SchoolSubject first, fall back to assignments, then all subjects
+    let subjects: Array<{ id: string; name: string; code: string }> = [];
 
-    // Fetch subjects linked to this school (via SchoolSubject)
-    const schoolSubjects = await db.schoolSubject.findMany({
-      where: { schoolId: user.schoolId },
-      include: {
-        subject: { select: { id: true, name: true, code: true } },
-      },
-      orderBy: { subject: { name: "asc" } },
-    });
+    try {
+      const schoolSubjects = await db.schoolSubject.findMany({
+        where: { schoolId: user.schoolId },
+        include: { subject: { select: { id: true, name: true, code: true } } },
+        orderBy: { subject: { name: "asc" } },
+      });
 
-    const subjects = schoolSubjects.map((ss) => ss.subject);
+      if (schoolSubjects.length > 0) {
+        subjects = schoolSubjects.map((ss) => ss.subject);
+      } else {
+        // No school subjects linked — try subjects with assignments
+        subjects = await db.subject.findMany({
+          where: { assignments: { some: { schoolId: user.schoolId! } } },
+          select: { id: true, name: true, code: true },
+          orderBy: { name: "asc" },
+        });
+      }
+    } catch {
+      // Fall back to all subjects
+      subjects = await db.subject.findMany({
+        select: { id: true, name: true, code: true },
+        orderBy: { name: "asc" },
+      });
+    }
 
     return NextResponse.json({ hods, teachers, subjects });
   } catch (error) {
@@ -104,17 +137,26 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Verify teacher belongs to this school (either directly or via TeacherSchool)
-    const teacher = await db.user.findFirst({
-      where: {
-        id: teacherId,
-        role: "TEACHER",
-        OR: [
-          { schoolId: user.schoolId },
-          { teacherSchools: { some: { schoolId: user.schoolId!, status: "ACTIVE" } } },
-        ],
-      },
-    });
+    // Verify teacher belongs to this school (directly or via TeacherSchool)
+    let teacher;
+    try {
+      teacher = await db.user.findFirst({
+        where: {
+          id: teacherId,
+          role: "TEACHER",
+          OR: [
+            { schoolId: user.schoolId },
+            { teacherSchools: { some: { schoolId: user.schoolId!, status: "ACTIVE" } } },
+          ],
+        },
+      });
+    } catch {
+      // TeacherSchool may not exist — fall back to direct check
+      teacher = await db.user.findFirst({
+        where: { id: teacherId, schoolId: user.schoolId, role: "TEACHER" },
+      });
+    }
+
     if (!teacher) {
       return NextResponse.json(
         { error: "Teacher not found in your school" },
@@ -133,7 +175,6 @@ export async function POST(request: NextRequest) {
     });
 
     if (existing) {
-      // Update the existing HOD assignment
       const updated = await db.headOfDepartment.update({
         where: { id: existing.id },
         data: { teacherId },
