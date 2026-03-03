@@ -876,8 +876,7 @@ ON CONFLICT DO NOTHING;
 -- ══════════════════════════════════════════════════════════════
 -- SEED REGIONAL ADMIN ACCOUNTS
 -- Each region has a unique password (see table at bottom of file).
--- Uses ON CONFLICT … DO UPDATE so re-running ALWAYS resets the
--- password hash, role, regionId, and isVerified to known-good values.
+-- bcrypt cost: 12 rounds, generated with bcryptjs and verified.
 -- ══════════════════════════════════════════════════════════════
 
 -- South-West  (password: SouthWest@2024)
@@ -887,12 +886,7 @@ VALUES (
   '$2b$12$Ma/MqEZieYeL3zlZqMFzfurKNOUDeClzhsD8pzYSzMeU/qmpOWqRW',
   'Regional', 'Admin SW',
   'REGIONAL_ADMIN', true, 'reg-southwest', NOW(), NOW()
-) ON CONFLICT ("email") DO UPDATE SET
-  "passwordHash" = EXCLUDED."passwordHash",
-  "role"         = EXCLUDED."role",
-  "isVerified"   = EXCLUDED."isVerified",
-  "regionId"     = EXCLUDED."regionId",
-  "updatedAt"    = NOW();
+) ON CONFLICT ("email") DO NOTHING;
 
 -- Centre  (password: Centre@2024)
 INSERT INTO "User" ("id", "email", "passwordHash", "firstName", "lastName", "role", "isVerified", "regionId", "createdAt", "updatedAt")
@@ -901,12 +895,7 @@ VALUES (
   '$2b$12$9MJ/ZSY5MIPdyXYySd/xtuvFGiRWFfAQ8UDWD27hA28.y4dMmZxSS',
   'Regional', 'Admin Centre',
   'REGIONAL_ADMIN', true, 'reg-centre', NOW(), NOW()
-) ON CONFLICT ("email") DO UPDATE SET
-  "passwordHash" = EXCLUDED."passwordHash",
-  "role"         = EXCLUDED."role",
-  "isVerified"   = EXCLUDED."isVerified",
-  "regionId"     = EXCLUDED."regionId",
-  "updatedAt"    = NOW();
+) ON CONFLICT ("email") DO NOTHING;
 
 -- North-West  (password: NorthWest@2024)
 INSERT INTO "User" ("id", "email", "passwordHash", "firstName", "lastName", "role", "isVerified", "regionId", "createdAt", "updatedAt")
@@ -915,12 +904,7 @@ VALUES (
   '$2b$12$12Yzm1FAjDuB7wdM2Nzw7ektcLoZgWTYZloeULLGT3kxzK/HPE1ve',
   'Regional', 'Admin NW',
   'REGIONAL_ADMIN', true, 'reg-northwest', NOW(), NOW()
-) ON CONFLICT ("email") DO UPDATE SET
-  "passwordHash" = EXCLUDED."passwordHash",
-  "role"         = EXCLUDED."role",
-  "isVerified"   = EXCLUDED."isVerified",
-  "regionId"     = EXCLUDED."regionId",
-  "updatedAt"    = NOW();
+) ON CONFLICT ("email") DO NOTHING;
 
 -- Littoral  (password: Littoral@2024)
 INSERT INTO "User" ("id", "email", "passwordHash", "firstName", "lastName", "role", "isVerified", "regionId", "createdAt", "updatedAt")
@@ -929,12 +913,7 @@ VALUES (
   '$2b$12$U/DLqSCg/Fdkzk.d0bipRukYvTmr42fJ85kZ7wxCO9XRw13Wkhdti',
   'Regional', 'Admin Littoral',
   'REGIONAL_ADMIN', true, 'reg-littoral', NOW(), NOW()
-) ON CONFLICT ("email") DO UPDATE SET
-  "passwordHash" = EXCLUDED."passwordHash",
-  "role"         = EXCLUDED."role",
-  "isVerified"   = EXCLUDED."isVerified",
-  "regionId"     = EXCLUDED."regionId",
-  "updatedAt"    = NOW();
+) ON CONFLICT ("email") DO NOTHING;
 
 -- West  (password: West@2024)
 INSERT INTO "User" ("id", "email", "passwordHash", "firstName", "lastName", "role", "isVerified", "regionId", "createdAt", "updatedAt")
@@ -943,12 +922,7 @@ VALUES (
   '$2b$12$61XzOdiA41qH2PlOtMbs3OxEj8n90FjHAln7GrTSH1d3Iv4ASCqZi',
   'Regional', 'Admin West',
   'REGIONAL_ADMIN', true, 'reg-west', NOW(), NOW()
-) ON CONFLICT ("email") DO UPDATE SET
-  "passwordHash" = EXCLUDED."passwordHash",
-  "role"         = EXCLUDED."role",
-  "isVerified"   = EXCLUDED."isVerified",
-  "regionId"     = EXCLUDED."regionId",
-  "updatedAt"    = NOW();
+) ON CONFLICT ("email") DO NOTHING;
 
 -- South  (password: South@2024)
 INSERT INTO "User" ("id", "email", "passwordHash", "firstName", "lastName", "role", "isVerified", "regionId", "createdAt", "updatedAt")
@@ -957,12 +931,7 @@ VALUES (
   '$2b$12$fAFbGdWEBbsnLstZvkZkveKAS3CVRrB1C5Jd9Piz.m92SSHM0ncCm',
   'Regional', 'Admin South',
   'REGIONAL_ADMIN', true, 'reg-south', NOW(), NOW()
-) ON CONFLICT ("email") DO UPDATE SET
-  "passwordHash" = EXCLUDED."passwordHash",
-  "role"         = EXCLUDED."role",
-  "isVerified"   = EXCLUDED."isVerified",
-  "regionId"     = EXCLUDED."regionId",
-  "updatedAt"    = NOW();
+) ON CONFLICT ("email") DO NOTHING;
 
 -- East  (password: East@2024)
 INSERT INTO "User" ("id", "email", "passwordHash", "firstName", "lastName", "role", "isVerified", "regionId", "createdAt", "updatedAt")
@@ -971,12 +940,7 @@ VALUES (
   '$2b$12$4M4JToAeN6icKwqiFt2BNeJR5mMdMtFl/ujKFKItuWYy1tNz3Pzx2',
   'Regional', 'Admin East',
   'REGIONAL_ADMIN', true, 'reg-east', NOW(), NOW()
-) ON CONFLICT ("email") DO UPDATE SET
-  "passwordHash" = EXCLUDED."passwordHash",
-  "role"         = EXCLUDED."role",
-  "isVerified"   = EXCLUDED."isVerified",
-  "regionId"     = EXCLUDED."regionId",
-  "updatedAt"    = NOW();
+) ON CONFLICT ("email") DO NOTHING;
 
 -- Adamawa  (password: Adamawa@2024)
 INSERT INTO "User" ("id", "email", "passwordHash", "firstName", "lastName", "role", "isVerified", "regionId", "createdAt", "updatedAt")
@@ -985,12 +949,7 @@ VALUES (
   '$2b$12$0oKamY.JBjDnx74nwjfJRelF1ImB96NjSlngI5BPtDideRKtxe1lu',
   'Regional', 'Admin Adamawa',
   'REGIONAL_ADMIN', true, 'reg-adamawa', NOW(), NOW()
-) ON CONFLICT ("email") DO UPDATE SET
-  "passwordHash" = EXCLUDED."passwordHash",
-  "role"         = EXCLUDED."role",
-  "isVerified"   = EXCLUDED."isVerified",
-  "regionId"     = EXCLUDED."regionId",
-  "updatedAt"    = NOW();
+) ON CONFLICT ("email") DO NOTHING;
 
 -- North  (password: North@2024)
 INSERT INTO "User" ("id", "email", "passwordHash", "firstName", "lastName", "role", "isVerified", "regionId", "createdAt", "updatedAt")
@@ -999,12 +958,7 @@ VALUES (
   '$2b$12$JUgdIS0eFsPA3tbO.VmXeO9CwbvzF6/TXzdRXrmBHgMumWEcf/GE6',
   'Regional', 'Admin North',
   'REGIONAL_ADMIN', true, 'reg-north', NOW(), NOW()
-) ON CONFLICT ("email") DO UPDATE SET
-  "passwordHash" = EXCLUDED."passwordHash",
-  "role"         = EXCLUDED."role",
-  "isVerified"   = EXCLUDED."isVerified",
-  "regionId"     = EXCLUDED."regionId",
-  "updatedAt"    = NOW();
+) ON CONFLICT ("email") DO NOTHING;
 
 -- Far North  (password: FarNorth@2024)
 INSERT INTO "User" ("id", "email", "passwordHash", "firstName", "lastName", "role", "isVerified", "regionId", "createdAt", "updatedAt")
@@ -1013,12 +967,7 @@ VALUES (
   '$2b$12$OohATHOsON7mATMEoXBsu.HrVZUFXgxjivP/GuVjE/Zc8JE7tFpnW',
   'Regional', 'Admin Far North',
   'REGIONAL_ADMIN', true, 'reg-farnorth', NOW(), NOW()
-) ON CONFLICT ("email") DO UPDATE SET
-  "passwordHash" = EXCLUDED."passwordHash",
-  "role"         = EXCLUDED."role",
-  "isVerified"   = EXCLUDED."isVerified",
-  "regionId"     = EXCLUDED."regionId",
-  "updatedAt"    = NOW();
+) ON CONFLICT ("email") DO NOTHING;
 
 -- ══════════════════════════════════════════════════════════════
 -- SYNC EXISTING TEACHERS → TeacherSchool

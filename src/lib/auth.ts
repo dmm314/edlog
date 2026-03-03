@@ -25,37 +25,48 @@ export const {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
+        try {
+          if (!credentials?.email || !credentials?.password) {
+            console.log("[AUTH] Missing email or password");
+            return null;
+          }
+
+          const email = credentials.email as string;
+          const password = credentials.password as string;
+          console.log("[AUTH] Login attempt for:", email);
+
+          const user = await db.user.findUnique({
+            where: { email },
+          });
+
+          if (!user) {
+            console.log("[AUTH] No user found for:", email);
+            return null;
+          }
+
+          console.log("[AUTH] User found:", { id: user.id, role: user.role, regionId: user.regionId });
+
+          const isPasswordValid = await compare(password, user.passwordHash);
+          if (!isPasswordValid) {
+            console.log("[AUTH] Invalid password for:", email);
+            return null;
+          }
+
+          console.log("[AUTH] Login successful for:", email);
+          return {
+            id: user.id,
+            email: user.email,
+            name: `${user.firstName} ${user.lastName}`,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            role: user.role,
+            schoolId: user.schoolId,
+            regionId: user.regionId,
+          } as unknown as { id: string; email: string; name: string };
+        } catch (err) {
+          console.error("[AUTH] Unexpected error in authorize:", err);
           return null;
         }
-
-        const email = credentials.email as string;
-        const password = credentials.password as string;
-
-        const user = await db.user.findUnique({
-          where: { email },
-          include: { school: true, regionAdmin: true },
-        });
-
-        if (!user) {
-          return null;
-        }
-
-        const isPasswordValid = await compare(password, user.passwordHash);
-        if (!isPasswordValid) {
-          return null;
-        }
-
-        return {
-          id: user.id,
-          email: user.email,
-          name: `${user.firstName} ${user.lastName}`,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          role: user.role,
-          schoolId: user.schoolId,
-          regionId: user.regionId,
-        } as unknown as { id: string; email: string; name: string };
       },
     }),
   ],
