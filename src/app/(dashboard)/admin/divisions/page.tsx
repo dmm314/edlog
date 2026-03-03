@@ -69,10 +69,8 @@ export default function DivisionsPage() {
 
       if (divRes.ok) setDivisions(divData.divisions);
       if (subRes.ok) {
-        // Only show subjects that the school has linked
-        setSubjects(
-          (subData.subjects || []).filter((s: SubjectOption) => s.linked)
-        );
+        // Show ALL subjects (divisions can be created for any subject)
+        setSubjects(subData.subjects || []);
       }
     } catch {
       setError("Failed to load data");

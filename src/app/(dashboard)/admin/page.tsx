@@ -16,6 +16,7 @@ import {
   Sparkles,
   BarChart3,
   Zap,
+  Layers,
 } from "lucide-react";
 import { NotificationBell } from "@/components/NotificationBell";
 import type { AdminStats } from "@/types";
@@ -237,35 +238,34 @@ export default function AdminDashboardPage() {
           </div>
         )}
 
-        {/* Quick Links */}
+        {/* Quick Actions — 2-column grid */}
         <div className="animate-slide-up animation-delay-300">
           <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-3 px-1">
             Quick Actions
           </h3>
-          <div className="space-y-2">
+          <div className="grid grid-cols-2 gap-3">
             {[
-              { href: "/admin/entry-timetable", icon: BarChart3, label: "Entry Timetable", desc: "View entries by class timetable", color: "text-cyan-600", bg: "bg-cyan-50" },
-              { href: "/admin/entries", icon: FileText, label: "View Entries", desc: "Browse all logbook entries", color: "text-brand-600", bg: "bg-brand-50" },
-              { href: "/admin/teachers", icon: Users, label: "Manage Teachers", desc: "Verify and manage teachers", color: "text-blue-500", bg: "bg-blue-50" },
-              { href: "/admin/classes", icon: GraduationCap, label: "Manage Classes", desc: "Add or edit classes", color: "text-violet-500", bg: "bg-violet-50" },
-              { href: "/admin/assignments", icon: UserCheck, label: "Assign Teachers", desc: "Assign subjects and classes", color: "text-emerald-500", bg: "bg-emerald-50" },
-              { href: "/admin/timetable", icon: Calendar, label: "Manage Timetable", desc: "Set up timetable slots", color: "text-amber-500", bg: "bg-amber-50" },
-              { href: "/admin/school", icon: Building2, label: "School Profile", desc: "Update school information", color: "text-slate-500", bg: "bg-slate-50" },
-              { href: "/admin/reports", icon: TrendingUp, label: "View Reports", desc: "Analytics and insights", color: "text-orange-500", bg: "bg-orange-50" },
-            ].map(({ href, icon: Icon, label, desc, color, bg }) => (
+              { href: "/admin/entry-timetable", icon: BarChart3, label: "Entry Timetable", desc: "View by timetable", gradient: "from-cyan-500 to-blue-600" },
+              { href: "/admin/entries", icon: FileText, label: "All Entries", desc: "Browse entries", gradient: "from-brand-500 to-brand-700" },
+              { href: "/admin/teachers", icon: Users, label: "Teachers", desc: "Verify & manage", gradient: "from-blue-500 to-indigo-600" },
+              { href: "/admin/classes", icon: GraduationCap, label: "Classes", desc: "Add & edit classes", gradient: "from-violet-500 to-purple-600" },
+              { href: "/admin/assignments", icon: UserCheck, label: "Assignments", desc: "Assign teachers", gradient: "from-emerald-500 to-teal-600" },
+              { href: "/admin/timetable", icon: Calendar, label: "Timetable", desc: "Set up slots", gradient: "from-amber-500 to-orange-600" },
+              { href: "/admin/divisions", icon: Layers, label: "Divisions", desc: "Subject sub-sections", gradient: "from-rose-500 to-pink-600" },
+              { href: "/admin/hods", icon: UserCheck, label: "HODs", desc: "Dept. heads", gradient: "from-amber-500 to-yellow-600" },
+              { href: "/admin/reports", icon: TrendingUp, label: "Reports", desc: "Analytics & export", gradient: "from-orange-500 to-red-600" },
+              { href: "/admin/school", icon: Building2, label: "School Profile", desc: "School settings", gradient: "from-slate-500 to-slate-700" },
+            ].map(({ href, icon: Icon, label, desc, gradient }) => (
               <Link
                 key={href}
                 href={href}
-                className="card p-4 flex items-center gap-3.5 group hover:-translate-y-0.5 transition-all duration-200 active:scale-[0.98]"
+                className="relative overflow-hidden rounded-2xl border border-slate-100 p-4 group hover:-translate-y-1 transition-all duration-200 active:scale-[0.97] shadow-sm bg-white"
               >
-                <div className={`w-10 h-10 ${bg} rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-200`}>
-                  <Icon className={`w-5 h-5 ${color}`} />
+                <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${gradient} flex items-center justify-center mb-3 shadow-sm`}>
+                  <Icon className="w-5 h-5 text-white" />
                 </div>
-                <div className="flex-1 min-w-0">
-                  <span className="font-semibold text-slate-900 text-sm">{label}</span>
-                  <p className="text-[11px] text-slate-400 mt-0.5">{desc}</p>
-                </div>
-                <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-500 group-hover:translate-x-0.5 transition-all duration-200 flex-shrink-0" />
+                <p className="font-bold text-slate-900 text-sm">{label}</p>
+                <p className="text-[11px] text-slate-400 mt-0.5">{desc}</p>
               </Link>
             ))}
           </div>
