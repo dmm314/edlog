@@ -95,6 +95,7 @@ export interface AdminStats {
   totalTeachers: number;
   verifiedTeachers: number;
   unverifiedTeachers: number;
+  pendingTeachers?: number;
   totalEntries: number;
   entriesThisMonth: number;
   entriesThisWeek: number;
@@ -112,6 +113,8 @@ export interface TeacherWithStats {
   gender: string | null;
   photoUrl: string | null;
   isVerified: boolean;
+  membershipStatus: "PENDING" | "ACTIVE";
+  membershipId: string | null;
   createdAt: string;
   entryCount: number;
   lastEntry: string | null;

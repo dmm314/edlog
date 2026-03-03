@@ -56,13 +56,11 @@ export async function POST(request: Request) {
       );
     }
 
-    // Auto-verify teachers registering at an ACTIVE school
-    const autoVerify = school.status === "ACTIVE";
-
     // Generate unique teacher code
     const teacherCode = await uniqueTeacherCode();
 
     // Hash password and create user
+    // Teachers start unverified — admin must approve them
     const passwordHash = await hash(password, 12);
     const user = await db.user.create({
       data: {
@@ -72,7 +70,7 @@ export async function POST(request: Request) {
         phone: phone || null,
         passwordHash,
         role: "TEACHER",
-        isVerified: autoVerify,
+        isVerified: false,
         schoolId: school.id,
         teacherCode,
         dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : null,
@@ -80,16 +78,28 @@ export async function POST(request: Request) {
       },
     });
 
-    // Create TeacherSchool record for the primary school
+    // Create TeacherSchool record as PENDING — admin must approve
     await db.teacherSchool.create({
       data: {
         teacherId: user.id,
         schoolId: school.id,
-        status: "ACTIVE",
+        status: "PENDING",
         isPrimary: true,
-        joinedAt: new Date(),
       },
     });
+
+    // Notify school admin about the new teacher request
+    if (school.adminId) {
+      await db.notification.create({
+        data: {
+          userId: school.adminId,
+          type: "NEW_TEACHER",
+          title: "New Teacher Registration",
+          message: `${firstName} ${lastName} has registered and is awaiting your approval.`,
+          link: "/admin/teachers",
+        },
+      }).catch(() => {}); // Don't fail registration if notification fails
+    }
 
     return NextResponse.json(
       {

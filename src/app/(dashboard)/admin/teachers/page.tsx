@@ -16,10 +16,31 @@ import {
   Calendar,
   Users,
   Share2,
+  Clock,
+  UserCheck,
+  UserX,
 } from "lucide-react";
 import Link from "next/link";
 import { formatDate } from "@/lib/utils";
-import type { TeacherWithStats } from "@/types";
+
+interface TeacherWithStats {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string | null;
+  gender: string | null;
+  photoUrl: string | null;
+  isVerified: boolean;
+  membershipStatus: "PENDING" | "ACTIVE";
+  membershipId: string | null;
+  createdAt: string;
+  entryCount: number;
+  lastEntry: string | null;
+  subjects: string[];
+  classes: string[];
+  subjectClasses: { subject: string; classes: string[] }[];
+}
 
 function TeacherAvatar({
   teacher,
@@ -29,7 +50,7 @@ function TeacherAvatar({
   size?: "sm" | "md" | "lg";
 }) {
   const dims = size === "sm" ? "w-8 h-8" : size === "lg" ? "w-14 h-14" : "w-10 h-10";
-  const radius = size === "lg" ? "rounded-xl" : "rounded-xl";
+  const radius = "rounded-xl";
   const textSize = size === "sm" ? "text-xs" : size === "lg" ? "text-lg" : "text-sm";
   const imgDim = size === "lg" ? 56 : size === "sm" ? 32 : 40;
   const initials = `${teacher.firstName?.[0] || ""}${teacher.lastName?.[0] || ""}`.toUpperCase();
@@ -76,6 +97,7 @@ export default function ManageTeachersPage() {
   const [inviteCode, setInviteCode] = useState("");
   const [inviting, setInviting] = useState(false);
   const [inviteMsg, setInviteMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
+  const [approving, setApproving] = useState<string | null>(null);
 
   // Search & filter state
   const [searchQuery, setSearchQuery] = useState("");
@@ -133,6 +155,35 @@ export default function ManageTeachersPage() {
     }
   }
 
+  async function handleApproveReject(teacherId: string, action: "approve" | "reject") {
+    setApproving(teacherId);
+    try {
+      const res = await fetch(`/api/admin/teachers/${teacherId}/approve`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action }),
+      });
+      if (res.ok) {
+        if (action === "approve") {
+          setTeachers((prev) =>
+            prev.map((t) =>
+              t.id === teacherId
+                ? { ...t, membershipStatus: "ACTIVE", isVerified: true }
+                : t
+            )
+          );
+        } else {
+          // Remove rejected teacher from list
+          setTeachers((prev) => prev.filter((t) => t.id !== teacherId));
+        }
+      }
+    } catch {
+      // silently fail
+    } finally {
+      setApproving(null);
+    }
+  }
+
   function copySchoolCode() {
     if (!schoolCode) return;
     navigator.clipboard.writeText(schoolCode);
@@ -165,24 +216,34 @@ export default function ManageTeachersPage() {
     }
   }
 
-  // Extract unique subjects and classes from all teachers
+  // Split teachers by status
+  const pendingTeachers = useMemo(() =>
+    teachers.filter((t) => t.membershipStatus === "PENDING"),
+    [teachers]
+  );
+  const activeTeachers = useMemo(() =>
+    teachers.filter((t) => t.membershipStatus === "ACTIVE"),
+    [teachers]
+  );
+
+  // Extract unique subjects and classes from active teachers
   const allSubjects = useMemo(() => {
     const set = new Set<string>();
-    teachers.forEach((t) => t.subjects?.forEach((s) => set.add(s)));
+    activeTeachers.forEach((t) => t.subjects?.forEach((s) => set.add(s)));
     return Array.from(set).sort();
-  }, [teachers]);
+  }, [activeTeachers]);
 
   const allClasses = useMemo(() => {
     const set = new Set<string>();
-    teachers.forEach((t) => t.classes?.forEach((c) => set.add(c)));
+    activeTeachers.forEach((t) => t.classes?.forEach((c) => set.add(c)));
     return Array.from(set).sort();
-  }, [teachers]);
+  }, [activeTeachers]);
 
   // Dynamic classes based on selected subject
   const filteredClassOptions = useMemo(() => {
     if (!filterSubject) return allClasses;
     const set = new Set<string>();
-    teachers.forEach((t) => {
+    activeTeachers.forEach((t) => {
       t.subjectClasses?.forEach((sc) => {
         if (sc.subject === filterSubject) {
           sc.classes.forEach((c) => set.add(c));
@@ -190,11 +251,11 @@ export default function ManageTeachersPage() {
       });
     });
     return Array.from(set).sort();
-  }, [teachers, filterSubject, allClasses]);
+  }, [activeTeachers, filterSubject, allClasses]);
 
-  // Fixed filter: use subjectClasses for combo filtering
+  // Filter active teachers
   const filteredTeachers = useMemo(() => {
-    return teachers.filter((t) => {
+    return activeTeachers.filter((t) => {
       const nameMatch =
         !searchQuery ||
         `${t.firstName} ${t.lastName}`
@@ -202,28 +263,21 @@ export default function ManageTeachersPage() {
           .includes(searchQuery.toLowerCase()) ||
         t.email.toLowerCase().includes(searchQuery.toLowerCase());
 
-      // When BOTH subject and class are selected, check the combo
       if (filterSubject && filterClass) {
         const comboMatch = t.subjectClasses?.some(
-          (sc) =>
-            sc.subject === filterSubject && sc.classes.includes(filterClass)
+          (sc) => sc.subject === filterSubject && sc.classes.includes(filterClass)
         );
         return nameMatch && comboMatch;
       }
-
-      // When only subject is selected
       if (filterSubject) {
         return nameMatch && t.subjects?.includes(filterSubject);
       }
-
-      // When only class is selected
       if (filterClass) {
         return nameMatch && t.classes?.includes(filterClass);
       }
-
       return nameMatch;
     });
-  }, [teachers, searchQuery, filterSubject, filterClass]);
+  }, [activeTeachers, searchQuery, filterSubject, filterClass]);
 
   const hasActiveFilters = filterSubject || filterClass;
 
@@ -233,7 +287,6 @@ export default function ManageTeachersPage() {
     setSearchQuery("");
   }
 
-  // Build a subject color map for consistent coloring
   const subjectColorMap = useMemo(() => {
     const map = new Map<string, number>();
     let idx = 0;
@@ -263,7 +316,8 @@ export default function ManageTeachersPage() {
                 Manage Teachers
               </h1>
               <p className="text-brand-400/70 text-sm mt-0.5">
-                {teachers.length} teacher{teachers.length !== 1 ? "s" : ""} registered
+                {activeTeachers.length} active
+                {pendingTeachers.length > 0 && ` / ${pendingTeachers.length} pending`}
               </p>
             </div>
           </div>
@@ -293,11 +347,7 @@ export default function ManageTeachersPage() {
                     : "bg-brand-600 text-white hover:bg-brand-700"
                 }`}
               >
-                {copiedCode ? (
-                  <Check className="w-5 h-5" />
-                ) : (
-                  <Copy className="w-5 h-5" />
-                )}
+                {copiedCode ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
               </button>
             </div>
             <p className="text-[11px] text-slate-400 mt-2.5">
@@ -342,32 +392,97 @@ export default function ManageTeachersPage() {
           )}
         </form>
 
-        {/* Search Bar */}
-        <div className="animate-slide-up animation-delay-75 flex gap-2">
-          <div className="relative flex-1">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-            <input
-              type="text"
-              placeholder="Search by name or email..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent shadow-sm transition-all"
-            />
+        {/* ── PENDING TEACHERS SECTION ── */}
+        {pendingTeachers.length > 0 && (
+          <div className="animate-slide-up">
+            <div className="flex items-center gap-2 mb-3">
+              <Clock className="w-4 h-4 text-amber-500" />
+              <h3 className="text-xs font-bold uppercase tracking-widest text-amber-600">
+                Pending Approval ({pendingTeachers.length})
+              </h3>
+            </div>
+            <div className="space-y-2">
+              {pendingTeachers.map((teacher) => (
+                <div
+                  key={teacher.id}
+                  className="card overflow-hidden border-l-4 border-amber-400"
+                >
+                  <div className="p-4">
+                    <div className="flex items-start gap-3">
+                      <TeacherAvatar teacher={teacher} size="md" />
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-bold text-slate-900 text-sm truncate">
+                          {teacher.firstName} {teacher.lastName}
+                        </h4>
+                        <p className="text-[11px] text-slate-400 truncate">
+                          {teacher.email}
+                        </p>
+                        <p className="text-[10px] text-amber-600 font-medium mt-1">
+                          Registered {formatDate(teacher.createdAt)}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 mt-3">
+                      <button
+                        onClick={() => handleApproveReject(teacher.id, "approve")}
+                        disabled={approving === teacher.id}
+                        className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-emerald-600 text-white text-xs font-semibold rounded-xl hover:bg-emerald-700 transition-colors active:scale-95 disabled:opacity-50"
+                      >
+                        <UserCheck className="w-3.5 h-3.5" />
+                        {approving === teacher.id ? "..." : "Approve"}
+                      </button>
+                      <button
+                        onClick={() => handleApproveReject(teacher.id, "reject")}
+                        disabled={approving === teacher.id}
+                        className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-white text-red-600 text-xs font-semibold rounded-xl border border-red-200 hover:bg-red-50 transition-colors active:scale-95 disabled:opacity-50"
+                      >
+                        <UserX className="w-3.5 h-3.5" />
+                        Reject
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
-          <button
-            onClick={() => setShowFilters(!showFilters)}
-            className={`flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl text-sm font-semibold border transition-all active:scale-95 shadow-sm ${
-              hasActiveFilters
-                ? "bg-brand-50 border-brand-200 text-brand-700"
-                : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
-            }`}
-          >
-            <Filter className="w-4 h-4" />
-            {hasActiveFilters && (
-              <span className="w-2 h-2 bg-brand-600 rounded-full" />
-            )}
-          </button>
-        </div>
+        )}
+
+        {/* ── ACTIVE TEACHERS SECTION ── */}
+        {(activeTeachers.length > 0 || pendingTeachers.length > 0) && (
+          <div className="flex items-center gap-2 mt-2">
+            <UserCheck className="w-4 h-4 text-emerald-500" />
+            <h3 className="text-xs font-bold uppercase tracking-widest text-emerald-600">
+              Active Teachers ({activeTeachers.length})
+            </h3>
+          </div>
+        )}
+
+        {/* Search Bar */}
+        {activeTeachers.length > 0 && (
+          <div className="animate-slide-up animation-delay-75 flex gap-2">
+            <div className="relative flex-1">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <input
+                type="text"
+                placeholder="Search by name or email..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent shadow-sm transition-all"
+              />
+            </div>
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className={`flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl text-sm font-semibold border transition-all active:scale-95 shadow-sm ${
+                hasActiveFilters
+                  ? "bg-brand-50 border-brand-200 text-brand-700"
+                  : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
+              }`}
+            >
+              <Filter className="w-4 h-4" />
+              {hasActiveFilters && <span className="w-2 h-2 bg-brand-600 rounded-full" />}
+            </button>
+          </div>
+        )}
 
         {/* Filter Dropdowns */}
         {showFilters && (
@@ -392,25 +507,21 @@ export default function ManageTeachersPage() {
                   setFilterSubject(e.target.value);
                   if (filterClass && e.target.value) {
                     const validClasses = new Set<string>();
-                    teachers.forEach((t) => {
+                    activeTeachers.forEach((t) => {
                       t.subjectClasses?.forEach((sc) => {
                         if (sc.subject === e.target.value) {
                           sc.classes.forEach((c) => validClasses.add(c));
                         }
                       });
                     });
-                    if (!validClasses.has(filterClass)) {
-                      setFilterClass("");
-                    }
+                    if (!validClasses.has(filterClass)) setFilterClass("");
                   }
                 }}
                 className="input-field"
               >
                 <option value="">All subjects</option>
                 {allSubjects.map((s) => (
-                  <option key={s} value={s}>
-                    {s}
-                  </option>
+                  <option key={s} value={s}>{s}</option>
                 ))}
               </select>
             </div>
@@ -423,9 +534,7 @@ export default function ManageTeachersPage() {
               >
                 <option value="">All classes</option>
                 {filteredClassOptions.map((c) => (
-                  <option key={c} value={c}>
-                    {c}
-                  </option>
+                  <option key={c} value={c}>{c}</option>
                 ))}
               </select>
             </div>
@@ -441,8 +550,8 @@ export default function ManageTeachersPage() {
         {/* Results count */}
         {(searchQuery || hasActiveFilters) && (
           <p className="text-xs text-slate-400 font-medium px-1">
-            Showing {filteredTeachers.length} of {teachers.length} teacher
-            {teachers.length !== 1 ? "s" : ""}
+            Showing {filteredTeachers.length} of {activeTeachers.length} teacher
+            {activeTeachers.length !== 1 ? "s" : ""}
           </p>
         )}
 
@@ -469,11 +578,17 @@ export default function ManageTeachersPage() {
             <p className="text-slate-600 font-semibold">
               {teachers.length === 0
                 ? "No teachers registered yet"
+                : activeTeachers.length === 0
+                ? "No active teachers yet"
                 : "No teachers match your search"}
             </p>
             {teachers.length === 0 ? (
               <p className="text-sm text-slate-400 mt-1.5">
                 Share the school code above with your teachers
+              </p>
+            ) : activeTeachers.length === 0 ? (
+              <p className="text-sm text-slate-400 mt-1.5">
+                Approve pending teachers above to get started
               </p>
             ) : (
               <button
@@ -494,12 +609,10 @@ export default function ManageTeachersPage() {
               >
                 <div className="p-4">
                   <div className="flex items-start gap-3.5">
-                    {/* Avatar - larger with photo */}
                     <Link href={`/admin/teachers/${teacher.id}`} className="flex-shrink-0">
                       <TeacherAvatar teacher={teacher} size="lg" />
                     </Link>
 
-                    {/* Info */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">
                         <Link
@@ -536,41 +649,30 @@ export default function ManageTeachersPage() {
                         </button>
                       </div>
 
-                      {/* Subject → Classes mapping */}
-                      {teacher.subjectClasses &&
-                        teacher.subjectClasses.length > 0 && (
-                          <div className="mt-2.5 space-y-1.5">
-                            {teacher.subjectClasses.map(
-                              (sc: {
-                                subject: string;
-                                classes: string[];
-                              }) => {
-                                const colorIdx = subjectColorMap.get(sc.subject) ?? 0;
-                                return (
-                                  <div
-                                    key={sc.subject}
-                                    className="flex items-center gap-1.5 flex-wrap"
+                      {/* Subject -> Classes mapping */}
+                      {teacher.subjectClasses && teacher.subjectClasses.length > 0 && (
+                        <div className="mt-2.5 space-y-1.5">
+                          {teacher.subjectClasses.map((sc) => {
+                            const colorIdx = subjectColorMap.get(sc.subject) ?? 0;
+                            return (
+                              <div key={sc.subject} className="flex items-center gap-1.5 flex-wrap">
+                                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border ${getSubjectBg(colorIdx)}`}>
+                                  {sc.subject}
+                                </span>
+                                <span className="text-slate-300 text-[10px]">&rarr;</span>
+                                {sc.classes.map((c) => (
+                                  <span
+                                    key={c}
+                                    className="text-[10px] font-semibold bg-slate-50 text-slate-600 px-2 py-0.5 rounded-md border border-slate-100"
                                   >
-                                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border ${getSubjectBg(colorIdx)}`}>
-                                      {sc.subject}
-                                    </span>
-                                    <span className="text-slate-300 text-[10px]">
-                                      &rarr;
-                                    </span>
-                                    {sc.classes.map((c: string) => (
-                                      <span
-                                        key={c}
-                                        className="text-[10px] font-semibold bg-slate-50 text-slate-600 px-2 py-0.5 rounded-md border border-slate-100"
-                                      >
-                                        {c}
-                                      </span>
-                                    ))}
-                                  </div>
-                                );
-                              }
-                            )}
-                          </div>
-                        )}
+                                    {c}
+                                  </span>
+                                ))}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
 
                       {/* Stats row */}
                       <div className="flex items-center gap-3 mt-2.5 text-[11px] text-slate-400">
