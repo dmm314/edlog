@@ -122,8 +122,8 @@ export default function AdminDashboardPage() {
           </div>
         )}
 
-        {/* Alert for unverified teachers */}
-        {stats && stats.unverifiedTeachers > 0 && (
+        {/* Alert for pending teacher approvals */}
+        {stats && (stats.pendingTeachers ?? 0) > 0 && (
           <Link
             href="/admin/teachers"
             className="animate-slide-up flex items-center gap-3.5 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200/60 rounded-2xl p-4 shadow-sm hover:shadow-md active:scale-[0.98] transition-all duration-200 group"
@@ -133,10 +133,10 @@ export default function AdminDashboardPage() {
             </div>
             <div className="flex-1">
               <p className="text-sm font-bold text-amber-900">
-                {stats.unverifiedTeachers} teacher
-                {stats.unverifiedTeachers > 1 ? "s" : ""} awaiting verification
+                {stats.pendingTeachers} teacher
+                {(stats.pendingTeachers ?? 0) > 1 ? "s" : ""} awaiting approval
               </p>
-              <p className="text-xs text-amber-600/80 mt-0.5">Tap to review and verify</p>
+              <p className="text-xs text-amber-600/80 mt-0.5">Tap to review and approve</p>
             </div>
             <ChevronRight className="w-4 h-4 text-amber-400 group-hover:translate-x-0.5 transition-transform" />
           </Link>

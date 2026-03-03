@@ -11,8 +11,12 @@ export async function GET() {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    if (!user.schoolId) {
+      return NextResponse.json({ error: "No school assigned" }, { status: 400 });
+    }
+
     const hods = await db.headOfDepartment.findMany({
-      where: { schoolId: user.schoolId! },
+      where: { schoolId: user.schoolId },
       include: {
         teacher: {
           select: {
@@ -30,21 +34,43 @@ export async function GET() {
       orderBy: { subject: { name: "asc" } },
     });
 
-    // Also fetch available teachers (teachers in this school)
-    const teachers = await db.user.findMany({
-      where: { schoolId: user.schoolId, role: "TEACHER", isVerified: true },
-      select: { id: true, firstName: true, lastName: true, email: true },
-      orderBy: { lastName: "asc" },
+    // Fetch verified, ACTIVE teachers in this school (via TeacherSchool OR direct schoolId)
+    const [directTeachers, memberTeachers] = await Promise.all([
+      db.user.findMany({
+        where: { schoolId: user.schoolId, role: "TEACHER", isVerified: true },
+        select: { id: true, firstName: true, lastName: true, email: true },
+        orderBy: { lastName: "asc" },
+      }),
+      db.user.findMany({
+        where: {
+          teacherSchools: { some: { schoolId: user.schoolId!, status: "ACTIVE" } },
+          role: "TEACHER",
+          isVerified: true,
+          NOT: { schoolId: user.schoolId },
+        },
+        select: { id: true, firstName: true, lastName: true, email: true },
+        orderBy: { lastName: "asc" },
+      }),
+    ]);
+
+    // Deduplicate teachers
+    const seenIds = new Set<string>();
+    const teachers = [...directTeachers, ...memberTeachers].filter((t) => {
+      if (seenIds.has(t.id)) return false;
+      seenIds.add(t.id);
+      return true;
     });
 
-    // Fetch subjects that have assignments in this school
-    const subjects = await db.subject.findMany({
-      where: {
-        assignments: { some: { schoolId: user.schoolId! } },
+    // Fetch subjects linked to this school (via SchoolSubject)
+    const schoolSubjects = await db.schoolSubject.findMany({
+      where: { schoolId: user.schoolId },
+      include: {
+        subject: { select: { id: true, name: true, code: true } },
       },
-      select: { id: true, name: true, code: true },
-      orderBy: { name: "asc" },
+      orderBy: { subject: { name: "asc" } },
     });
+
+    const subjects = schoolSubjects.map((ss) => ss.subject);
 
     return NextResponse.json({ hods, teachers, subjects });
   } catch (error) {
@@ -64,6 +90,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    if (!user.schoolId) {
+      return NextResponse.json({ error: "No school assigned" }, { status: 400 });
+    }
+
     const body = await request.json();
     const { teacherId, subjectId } = body;
 
@@ -74,9 +104,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Verify teacher belongs to this school
+    // Verify teacher belongs to this school (either directly or via TeacherSchool)
     const teacher = await db.user.findFirst({
-      where: { id: teacherId, schoolId: user.schoolId, role: "TEACHER" },
+      where: {
+        id: teacherId,
+        role: "TEACHER",
+        OR: [
+          { schoolId: user.schoolId },
+          { teacherSchools: { some: { schoolId: user.schoolId!, status: "ACTIVE" } } },
+        ],
+      },
     });
     if (!teacher) {
       return NextResponse.json(

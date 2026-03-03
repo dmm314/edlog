@@ -32,7 +32,18 @@ EXCEPTION WHEN duplicate_object THEN NULL;
 END $$;
 
 DO $$ BEGIN
-  CREATE TYPE "NotificationType" AS ENUM ('LOG_REMINDER', 'WEEKLY_SUMMARY', 'COMPLIANCE_WARNING', 'LOG_REVIEWED', 'NEW_TEACHER', 'CURRICULUM_GAP', 'GENERAL');
+  CREATE TYPE "NotificationType" AS ENUM ('LOG_REMINDER', 'WEEKLY_SUMMARY', 'COMPLIANCE_WARNING', 'LOG_REVIEWED', 'NEW_TEACHER', 'CURRICULUM_GAP', 'GENERAL', 'SCHOOL_INVITATION');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+
+-- Add SCHOOL_INVITATION if enum already exists but value is missing
+DO $$ BEGIN
+  ALTER TYPE "NotificationType" ADD VALUE IF NOT EXISTS 'SCHOOL_INVITATION';
+EXCEPTION WHEN others THEN NULL;
+END $$;
+
+DO $$ BEGIN
+  CREATE TYPE "TeacherSchoolStatus" AS ENUM ('PENDING', 'ACTIVE', 'REMOVED');
 EXCEPTION WHEN duplicate_object THEN NULL;
 END $$;
 
@@ -240,6 +251,26 @@ CREATE TABLE IF NOT EXISTS "Notification" (
     CONSTRAINT "Notification_pkey" PRIMARY KEY ("id")
 );
 
+CREATE TABLE IF NOT EXISTS "TeacherSchool" (
+    "id" TEXT NOT NULL,
+    "teacherId" TEXT NOT NULL,
+    "schoolId" TEXT NOT NULL,
+    "status" "TeacherSchoolStatus" NOT NULL DEFAULT 'PENDING',
+    "isPrimary" BOOLEAN NOT NULL DEFAULT false,
+    "joinedAt" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "TeacherSchool_pkey" PRIMARY KEY ("id")
+);
+
+CREATE TABLE IF NOT EXISTS "HeadOfDepartment" (
+    "id" TEXT NOT NULL,
+    "teacherId" TEXT NOT NULL,
+    "subjectId" TEXT NOT NULL,
+    "schoolId" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "HeadOfDepartment_pkey" PRIMARY KEY ("id")
+);
+
 CREATE TABLE IF NOT EXISTS "_EntryTopics" (
     "A" TEXT NOT NULL,
     "B" TEXT NOT NULL
@@ -265,6 +296,9 @@ CREATE UNIQUE INDEX IF NOT EXISTS "ClassSubject_classId_subjectId_key" ON "Class
 CREATE UNIQUE INDEX IF NOT EXISTS "SubjectDivision_schoolId_subjectId_name_key" ON "SubjectDivision"("schoolId", "subjectId", "name");
 CREATE INDEX IF NOT EXISTS "SubjectDivision_schoolId_subjectId_idx" ON "SubjectDivision"("schoolId", "subjectId");
 CREATE UNIQUE INDEX IF NOT EXISTS "TeacherAssignment_teacherId_classId_subjectId_divisionId_key" ON "TeacherAssignment"("teacherId", "classId", "subjectId", "divisionId");
+CREATE UNIQUE INDEX IF NOT EXISTS "User_teacherCode_key" ON "User"("teacherCode");
+CREATE UNIQUE INDEX IF NOT EXISTS "TeacherSchool_teacherId_schoolId_key" ON "TeacherSchool"("teacherId", "schoolId");
+CREATE UNIQUE INDEX IF NOT EXISTS "HeadOfDepartment_schoolId_subjectId_key" ON "HeadOfDepartment"("schoolId", "subjectId");
 CREATE UNIQUE INDEX IF NOT EXISTS "_EntryTopics_AB_unique" ON "_EntryTopics"("A", "B");
 
 -- ── REGULAR INDEXES ─────────────────────────────────────────
@@ -318,32 +352,48 @@ DO $$ BEGIN ALTER TABLE "Notification" ADD CONSTRAINT "Notification_userId_fkey"
 DO $$ BEGIN ALTER TABLE "_EntryTopics" ADD CONSTRAINT "_EntryTopics_A_fkey" FOREIGN KEY ("A") REFERENCES "LogbookEntry"("id") ON DELETE CASCADE ON UPDATE CASCADE; EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 DO $$ BEGIN ALTER TABLE "_EntryTopics" ADD CONSTRAINT "_EntryTopics_B_fkey" FOREIGN KEY ("B") REFERENCES "Topic"("id") ON DELETE CASCADE ON UPDATE CASCADE; EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
--- ── NEW COLUMNS (v2 — add to existing tables if missing) ────
+-- TeacherSchool foreign keys
+DO $$ BEGIN ALTER TABLE "TeacherSchool" ADD CONSTRAINT "TeacherSchool_teacherId_fkey" FOREIGN KEY ("teacherId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE; EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+DO $$ BEGIN ALTER TABLE "TeacherSchool" ADD CONSTRAINT "TeacherSchool_schoolId_fkey" FOREIGN KEY ("schoolId") REFERENCES "School"("id") ON DELETE CASCADE ON UPDATE CASCADE; EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
--- User: new profile fields
+-- HeadOfDepartment foreign keys
+DO $$ BEGIN ALTER TABLE "HeadOfDepartment" ADD CONSTRAINT "HeadOfDepartment_teacherId_fkey" FOREIGN KEY ("teacherId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE; EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+DO $$ BEGIN ALTER TABLE "HeadOfDepartment" ADD CONSTRAINT "HeadOfDepartment_subjectId_fkey" FOREIGN KEY ("subjectId") REFERENCES "Subject"("id") ON DELETE CASCADE ON UPDATE CASCADE; EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+DO $$ BEGIN ALTER TABLE "HeadOfDepartment" ADD CONSTRAINT "HeadOfDepartment_schoolId_fkey" FOREIGN KEY ("schoolId") REFERENCES "School"("id") ON DELETE CASCADE ON UPDATE CASCADE; EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+-- ── NEW COLUMNS (v3 — add to existing tables if missing) ────
+
+-- User: teacher code + profile fields
+ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "teacherCode" TEXT;
 ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "dateOfBirth" TIMESTAMP(3);
 ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "gender" "Gender";
 ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "photoUrl" TEXT;
 
--- LogbookEntry: module + free-text topic
-ALTER TABLE "LogbookEntry" ADD COLUMN IF NOT EXISTS "moduleName" TEXT;
-ALTER TABLE "LogbookEntry" ADD COLUMN IF NOT EXISTS "topicText" TEXT;
-
--- Existing missing columns (carried over from v1)
+-- School: ensure regionId and divisionId exist (critical for old schemas)
+ALTER TABLE "School" ADD COLUMN IF NOT EXISTS "regionId" TEXT;
+ALTER TABLE "School" ADD COLUMN IF NOT EXISTS "divisionId" TEXT;
+ALTER TABLE "School" ADD COLUMN IF NOT EXISTS "adminId" TEXT;
 ALTER TABLE "School" ADD COLUMN IF NOT EXISTS "schoolType" TEXT;
 ALTER TABLE "School" ADD COLUMN IF NOT EXISTS "principalName" TEXT;
 ALTER TABLE "School" ADD COLUMN IF NOT EXISTS "principalPhone" TEXT;
 ALTER TABLE "School" ADD COLUMN IF NOT EXISTS "foundingDate" TIMESTAMP(3);
 ALTER TABLE "School" ADD COLUMN IF NOT EXISTS "profileComplete" BOOLEAN NOT NULL DEFAULT false;
-ALTER TABLE "Class" ADD COLUMN IF NOT EXISTS "abbreviation" TEXT;
-ALTER TABLE "Class" ADD COLUMN IF NOT EXISTS "stream" TEXT;
-ALTER TABLE "Class" ADD COLUMN IF NOT EXISTS "section" TEXT;
+ALTER TABLE "School" ADD COLUMN IF NOT EXISTS "status" TEXT NOT NULL DEFAULT 'ACTIVE';
+
+-- LogbookEntry: module + free-text topic + assignment link
+ALTER TABLE "LogbookEntry" ADD COLUMN IF NOT EXISTS "moduleName" TEXT;
+ALTER TABLE "LogbookEntry" ADD COLUMN IF NOT EXISTS "topicText" TEXT;
 ALTER TABLE "LogbookEntry" ADD COLUMN IF NOT EXISTS "objectives" TEXT;
 ALTER TABLE "LogbookEntry" ADD COLUMN IF NOT EXISTS "signatureData" TEXT;
 ALTER TABLE "LogbookEntry" ADD COLUMN IF NOT EXISTS "studentAttendance" INTEGER;
 ALTER TABLE "LogbookEntry" ADD COLUMN IF NOT EXISTS "engagementLevel" "EngagementLevel";
 ALTER TABLE "LogbookEntry" ADD COLUMN IF NOT EXISTS "assignmentId" TEXT;
 ALTER TABLE "LogbookEntry" ADD COLUMN IF NOT EXISTS "timetableSlotId" TEXT;
+
+-- Class: additional fields
+ALTER TABLE "Class" ADD COLUMN IF NOT EXISTS "abbreviation" TEXT;
+ALTER TABLE "Class" ADD COLUMN IF NOT EXISTS "stream" TEXT;
+ALTER TABLE "Class" ADD COLUMN IF NOT EXISTS "section" TEXT;
 
 -- TeacherAssignment: subject divisions
 ALTER TABLE "TeacherAssignment" ADD COLUMN IF NOT EXISTS "divisionId" TEXT;
@@ -740,6 +790,8 @@ WHERE s."code" = 'LIT'
 ON CONFLICT ("subjectId", "classLevel", "name") DO NOTHING;
 
 -- ── DONE ────────────────────────────────────────────────────
--- All tables, columns, indexes, foreign keys, Gender enum,
--- seed subjects, and seed topics (Form 1–5 + Lower/Upper Sixth)
--- are now in sync.
+-- All tables (including TeacherSchool, HeadOfDepartment),
+-- columns (including teacherCode, regionId, divisionId),
+-- indexes, foreign keys, enums (Gender, TeacherSchoolStatus,
+-- SCHOOL_INVITATION), seed subjects, and seed topics
+-- (Form 1–5 + Lower/Upper Sixth) are now in sync.

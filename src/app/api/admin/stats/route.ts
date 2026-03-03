@@ -20,15 +20,26 @@ export async function GET() {
     const [
       totalTeachers,
       verifiedTeachers,
+      pendingTeachers,
       totalEntries,
       entriesThisMonth,
       entriesThisWeek,
     ] = await Promise.all([
-      db.user.count({
-        where: { schoolId: user.schoolId, role: "TEACHER" },
+      // Count all teachers linked via TeacherSchool (ACTIVE)
+      db.teacherSchool.count({
+        where: { schoolId: user.schoolId!, status: "ACTIVE" },
       }),
       db.user.count({
-        where: { schoolId: user.schoolId, role: "TEACHER", isVerified: true },
+        where: {
+          OR: [
+            { schoolId: user.schoolId, role: "TEACHER", isVerified: true },
+            { teacherSchools: { some: { schoolId: user.schoolId!, status: "ACTIVE" } }, role: "TEACHER", isVerified: true },
+          ],
+        },
+      }),
+      // Count pending teacher requests
+      db.teacherSchool.count({
+        where: { schoolId: user.schoolId!, status: "PENDING" },
       }),
       db.logbookEntry.count({
         where: { teacher: { schoolId: user.schoolId } },
@@ -91,6 +102,7 @@ export async function GET() {
       totalTeachers,
       verifiedTeachers,
       unverifiedTeachers,
+      pendingTeachers,
       totalEntries,
       entriesThisMonth,
       entriesThisWeek,
