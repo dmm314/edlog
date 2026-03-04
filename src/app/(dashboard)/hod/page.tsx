@@ -17,7 +17,12 @@ import {
 } from "lucide-react";
 
 interface HODStats {
-  hodSubjects: { id: string; name: string; code: string }[];
+  hodSubjects: {
+    id: string;
+    name: string;
+    code: string;
+    divisions?: { id: string; name: string }[];
+  }[];
   teachersInDept: number;
   totalEntries: number;
   entriesThisMonth: number;
@@ -27,6 +32,7 @@ interface HODStats {
     name: string;
     totalEntries: number;
     monthlyEntries: number;
+    classes?: { className: string; subject: string; division: string | null }[];
   }[];
 }
 
@@ -194,6 +200,11 @@ export default function HODDashboard() {
                 className="text-[10px] font-bold bg-white/10 text-white px-2.5 py-1 rounded-lg"
               >
                 {s.name}
+                {s.divisions && s.divisions.length > 0 && (
+                  <span className="text-white/60 ml-1">
+                    ({s.divisions.length} div.)
+                  </span>
+                )}
               </span>
             ))}
           </div>
@@ -321,6 +332,18 @@ export default function HODDashboard() {
                         style={{ width: `${Math.max(pct, 3)}%` }}
                       />
                     </div>
+                    {t.classes && t.classes.length > 0 && (
+                      <div className="flex flex-wrap gap-1 mt-1.5 ml-8">
+                        {t.classes.map((c, ci) => (
+                          <span
+                            key={ci}
+                            className="text-[9px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded font-medium"
+                          >
+                            {c.className}{c.division ? ` · ${c.division}` : ""}
+                          </span>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 );
               })}
