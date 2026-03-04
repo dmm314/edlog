@@ -30,9 +30,15 @@ export async function GET() {
       orderBy: [{ isPrimary: "desc" }, { createdAt: "desc" }],
     });
 
+    // Fetch the actual teacherCode from DB
+    const fullUser = await db.user.findUnique({
+      where: { id: user.id },
+      select: { teacherCode: true },
+    });
+
     return NextResponse.json({
       memberships,
-      teacherCode: user.id, // We'll fetch the actual teacherCode below
+      teacherCode: fullUser?.teacherCode ?? null,
     });
   } catch (error) {
     console.error("GET /api/teacher/invitations error:", error);
