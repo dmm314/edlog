@@ -31,6 +31,7 @@ interface TimetableSlot {
   className: string;
   classId: string;
   subject: string;
+  jointWith?: string[];
 }
 
 interface AssignmentOption {
@@ -644,13 +645,18 @@ export default function TimetableManagementPage() {
                             className="px-1 py-1.5 align-top"
                           >
                             {slot ? (
-                              <div className="bg-brand-50 border border-brand-100 rounded-lg p-1.5 relative group">
-                                <p className="font-medium text-brand-800 text-[10px] leading-tight truncate">
+                              <div className={`${slot.jointWith && slot.jointWith.length > 0 ? "bg-amber-50 border-amber-200" : "bg-brand-50 border-brand-100"} border rounded-lg p-1.5 relative group`}>
+                                <p className={`font-medium text-[10px] leading-tight truncate ${slot.jointWith && slot.jointWith.length > 0 ? "text-amber-800" : "text-brand-800"}`}>
                                   {slot.subject}
                                 </p>
-                                <p className="text-[9px] text-brand-500 truncate mt-0.5">
+                                <p className={`text-[9px] truncate mt-0.5 ${slot.jointWith && slot.jointWith.length > 0 ? "text-amber-500" : "text-brand-500"}`}>
                                   {slot.teacher.split(" ")[0]}
                                 </p>
+                                {slot.jointWith && slot.jointWith.length > 0 && (
+                                  <p className="text-[8px] text-amber-600 font-semibold truncate mt-0.5">
+                                    + {slot.jointWith.join(", ")}
+                                  </p>
+                                )}
                                 <button
                                   onClick={() => handleDelete(slot.id)}
                                   disabled={deleting === slot.id}
@@ -718,6 +724,11 @@ export default function TimetableManagementPage() {
                         <p className="text-xs text-slate-500 mt-0.5">
                           {slot.teacher}
                         </p>
+                        {slot.jointWith && slot.jointWith.length > 0 && (
+                          <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-2 py-1 mt-1.5 font-medium">
+                            Joint class with {slot.jointWith.join(" & ")}
+                          </p>
+                        )}
                       </div>
                       <button
                         onClick={() => handleDelete(slot.id)}

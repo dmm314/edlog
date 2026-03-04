@@ -23,6 +23,7 @@ interface TimetableSlot {
   endTime: string;
   periodLabel: string;
   assignment: SlotAssignment;
+  jointWith?: string[];
 }
 
 /* ------------------------------------------------------------------ */
@@ -177,6 +178,13 @@ function SlotCard({ slot }: { slot: TimetableSlot }) {
             {slot.assignment.className}
           </span>
         </div>
+
+        {/* Joint class indicator */}
+        {slot.jointWith && slot.jointWith.length > 0 && (
+          <div className="mt-2 text-[11px] font-semibold text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-2 py-1">
+            Joint class with {slot.jointWith.join(" & ")}
+          </div>
+        )}
       </div>
     </div>
   );
