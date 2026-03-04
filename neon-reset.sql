@@ -9,14 +9,17 @@ DROP TABLE IF EXISTS "Notification" CASCADE;
 DROP TABLE IF EXISTS "LogbookEntry" CASCADE;
 DROP TABLE IF EXISTS "TimetableSlot" CASCADE;
 DROP TABLE IF EXISTS "TeacherAssignment" CASCADE;
+DROP TABLE IF EXISTS "HeadOfDepartment" CASCADE;
+DROP TABLE IF EXISTS "SubjectDivision" CASCADE;
+DROP TABLE IF EXISTS "TeacherSchool" CASCADE;
 DROP TABLE IF EXISTS "PeriodSchedule" CASCADE;
 DROP TABLE IF EXISTS "ClassSubject" CASCADE;
 DROP TABLE IF EXISTS "SchoolSubject" CASCADE;
 DROP TABLE IF EXISTS "Topic" CASCADE;
 DROP TABLE IF EXISTS "Subject" CASCADE;
 DROP TABLE IF EXISTS "Class" CASCADE;
-DROP TABLE IF EXISTS "Session" CASCADE;
 DROP TABLE IF EXISTS "RegistrationCode" CASCADE;
+DROP TABLE IF EXISTS "Session" CASCADE;
 DROP TABLE IF EXISTS "User" CASCADE;
 DROP TABLE IF EXISTS "School" CASCADE;
 DROP TABLE IF EXISTS "Division" CASCADE;
@@ -29,6 +32,7 @@ DROP TYPE IF EXISTS "SchoolStatus" CASCADE;
 DROP TYPE IF EXISTS "EngagementLevel" CASCADE;
 DROP TYPE IF EXISTS "Gender" CASCADE;
 DROP TYPE IF EXISTS "NotificationType" CASCADE;
+DROP TYPE IF EXISTS "TeacherSchoolStatus" CASCADE;
 
 -- ============================================================
 -- STEP 2: Create enums
@@ -39,7 +43,8 @@ CREATE TYPE "CodeType" AS ENUM ('SCHOOL_REGISTRATION');
 CREATE TYPE "SchoolStatus" AS ENUM ('PENDING', 'ACTIVE', 'SUSPENDED');
 CREATE TYPE "EngagementLevel" AS ENUM ('LOW', 'MEDIUM', 'HIGH');
 CREATE TYPE "Gender" AS ENUM ('MALE', 'FEMALE');
-CREATE TYPE "NotificationType" AS ENUM ('LOG_REMINDER', 'WEEKLY_SUMMARY', 'COMPLIANCE_WARNING', 'LOG_REVIEWED', 'NEW_TEACHER', 'CURRICULUM_GAP', 'GENERAL');
+CREATE TYPE "NotificationType" AS ENUM ('LOG_REMINDER', 'WEEKLY_SUMMARY', 'COMPLIANCE_WARNING', 'LOG_REVIEWED', 'NEW_TEACHER', 'CURRICULUM_GAP', 'GENERAL', 'SCHOOL_INVITATION');
+CREATE TYPE "TeacherSchoolStatus" AS ENUM ('PENDING', 'ACTIVE', 'REMOVED');
 
 -- ============================================================
 -- STEP 3: Create tables
@@ -68,6 +73,7 @@ CREATE UNIQUE INDEX "Division_regionId_name_key" ON "Division"("regionId", "name
 CREATE TABLE "User" (
     "id" TEXT NOT NULL,
     "email" TEXT NOT NULL,
+    "teacherCode" TEXT,
     "passwordHash" TEXT NOT NULL,
     "firstName" TEXT NOT NULL,
     "lastName" TEXT NOT NULL,
@@ -84,6 +90,7 @@ CREATE TABLE "User" (
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
 );
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
+CREATE UNIQUE INDEX "User_teacherCode_key" ON "User"("teacherCode");
 
 CREATE TABLE "Session" (
     "id" TEXT NOT NULL,
@@ -144,6 +151,20 @@ CREATE TABLE "PeriodSchedule" (
 );
 CREATE UNIQUE INDEX "PeriodSchedule_schoolId_periodNum_key" ON "PeriodSchedule"("schoolId", "periodNum");
 
+CREATE TABLE "TeacherSchool" (
+    "id" TEXT NOT NULL,
+    "teacherId" TEXT NOT NULL,
+    "schoolId" TEXT NOT NULL,
+    "status" "TeacherSchoolStatus" NOT NULL DEFAULT 'PENDING',
+    "isPrimary" BOOLEAN NOT NULL DEFAULT false,
+    "joinedAt" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "TeacherSchool_pkey" PRIMARY KEY ("id")
+);
+CREATE UNIQUE INDEX "TeacherSchool_teacherId_schoolId_key" ON "TeacherSchool"("teacherId", "schoolId");
+CREATE INDEX "TeacherSchool_teacherId_idx" ON "TeacherSchool"("teacherId");
+CREATE INDEX "TeacherSchool_schoolId_idx" ON "TeacherSchool"("schoolId");
+
 CREATE TABLE "Class" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
@@ -199,11 +220,35 @@ CREATE TABLE "ClassSubject" (
 );
 CREATE UNIQUE INDEX "ClassSubject_classId_subjectId_key" ON "ClassSubject"("classId", "subjectId");
 
+CREATE TABLE "SubjectDivision" (
+    "id" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "subjectId" TEXT NOT NULL,
+    "schoolId" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "SubjectDivision_pkey" PRIMARY KEY ("id")
+);
+CREATE UNIQUE INDEX "SubjectDivision_schoolId_subjectId_name_key" ON "SubjectDivision"("schoolId", "subjectId", "name");
+CREATE INDEX "SubjectDivision_schoolId_subjectId_idx" ON "SubjectDivision"("schoolId", "subjectId");
+
+CREATE TABLE "HeadOfDepartment" (
+    "id" TEXT NOT NULL,
+    "teacherId" TEXT NOT NULL,
+    "subjectId" TEXT NOT NULL,
+    "schoolId" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "HeadOfDepartment_pkey" PRIMARY KEY ("id")
+);
+CREATE UNIQUE INDEX "HeadOfDepartment_schoolId_subjectId_key" ON "HeadOfDepartment"("schoolId", "subjectId");
+CREATE INDEX "HeadOfDepartment_teacherId_idx" ON "HeadOfDepartment"("teacherId");
+CREATE INDEX "HeadOfDepartment_schoolId_idx" ON "HeadOfDepartment"("schoolId");
+
 CREATE TABLE "TeacherAssignment" (
     "id" TEXT NOT NULL,
     "teacherId" TEXT NOT NULL,
     "classId" TEXT NOT NULL,
     "subjectId" TEXT NOT NULL,
+    "divisionId" TEXT,
     "schoolId" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -211,7 +256,7 @@ CREATE TABLE "TeacherAssignment" (
 );
 CREATE INDEX "TeacherAssignment_teacherId_idx" ON "TeacherAssignment"("teacherId");
 CREATE INDEX "TeacherAssignment_schoolId_idx" ON "TeacherAssignment"("schoolId");
-CREATE UNIQUE INDEX "TeacherAssignment_teacherId_classId_subjectId_key" ON "TeacherAssignment"("teacherId", "classId", "subjectId");
+CREATE UNIQUE INDEX "TeacherAssignment_teacherId_classId_subjectId_divisionId_key" ON "TeacherAssignment"("teacherId", "classId", "subjectId", "divisionId");
 
 CREATE TABLE "TimetableSlot" (
     "id" TEXT NOT NULL,
@@ -287,15 +332,23 @@ ALTER TABLE "School" ADD CONSTRAINT "School_regionId_fkey" FOREIGN KEY ("regionI
 ALTER TABLE "School" ADD CONSTRAINT "School_divisionId_fkey" FOREIGN KEY ("divisionId") REFERENCES "Division"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE "School" ADD CONSTRAINT "School_adminId_fkey" FOREIGN KEY ("adminId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 ALTER TABLE "PeriodSchedule" ADD CONSTRAINT "PeriodSchedule_schoolId_fkey" FOREIGN KEY ("schoolId") REFERENCES "School"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "TeacherSchool" ADD CONSTRAINT "TeacherSchool_teacherId_fkey" FOREIGN KEY ("teacherId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "TeacherSchool" ADD CONSTRAINT "TeacherSchool_schoolId_fkey" FOREIGN KEY ("schoolId") REFERENCES "School"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE "Class" ADD CONSTRAINT "Class_schoolId_fkey" FOREIGN KEY ("schoolId") REFERENCES "School"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE "Topic" ADD CONSTRAINT "Topic_subjectId_fkey" FOREIGN KEY ("subjectId") REFERENCES "Subject"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE "SchoolSubject" ADD CONSTRAINT "SchoolSubject_schoolId_fkey" FOREIGN KEY ("schoolId") REFERENCES "School"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE "SchoolSubject" ADD CONSTRAINT "SchoolSubject_subjectId_fkey" FOREIGN KEY ("subjectId") REFERENCES "Subject"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE "ClassSubject" ADD CONSTRAINT "ClassSubject_classId_fkey" FOREIGN KEY ("classId") REFERENCES "Class"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 ALTER TABLE "ClassSubject" ADD CONSTRAINT "ClassSubject_subjectId_fkey" FOREIGN KEY ("subjectId") REFERENCES "Subject"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "SubjectDivision" ADD CONSTRAINT "SubjectDivision_subjectId_fkey" FOREIGN KEY ("subjectId") REFERENCES "Subject"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "SubjectDivision" ADD CONSTRAINT "SubjectDivision_schoolId_fkey" FOREIGN KEY ("schoolId") REFERENCES "School"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "HeadOfDepartment" ADD CONSTRAINT "HeadOfDepartment_teacherId_fkey" FOREIGN KEY ("teacherId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "HeadOfDepartment" ADD CONSTRAINT "HeadOfDepartment_subjectId_fkey" FOREIGN KEY ("subjectId") REFERENCES "Subject"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "HeadOfDepartment" ADD CONSTRAINT "HeadOfDepartment_schoolId_fkey" FOREIGN KEY ("schoolId") REFERENCES "School"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE "TeacherAssignment" ADD CONSTRAINT "TeacherAssignment_teacherId_fkey" FOREIGN KEY ("teacherId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE "TeacherAssignment" ADD CONSTRAINT "TeacherAssignment_classId_fkey" FOREIGN KEY ("classId") REFERENCES "Class"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE "TeacherAssignment" ADD CONSTRAINT "TeacherAssignment_subjectId_fkey" FOREIGN KEY ("subjectId") REFERENCES "Subject"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "TeacherAssignment" ADD CONSTRAINT "TeacherAssignment_divisionId_fkey" FOREIGN KEY ("divisionId") REFERENCES "SubjectDivision"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 ALTER TABLE "TeacherAssignment" ADD CONSTRAINT "TeacherAssignment_schoolId_fkey" FOREIGN KEY ("schoolId") REFERENCES "School"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE "TimetableSlot" ADD CONSTRAINT "TimetableSlot_assignmentId_fkey" FOREIGN KEY ("assignmentId") REFERENCES "TeacherAssignment"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 ALTER TABLE "TimetableSlot" ADD CONSTRAINT "TimetableSlot_schoolId_fkey" FOREIGN KEY ("schoolId") REFERENCES "School"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
