@@ -406,19 +406,31 @@ INSERT INTO "Division" ("id", "name", "regionId") VALUES ('div_ou_1', 'Bamboutos
 
 -- ============================================================
 -- STEP 6: Seed 10 Regional Admin accounts
+-- Passwords: {RegionName}@2024  (e.g. Centre@2024, SouthWest@2024)
+-- All hashes verified with bcryptjs round-trip.
 -- ============================================================
 
 INSERT INTO "User" ("id", "email", "passwordHash", "firstName", "lastName", "role", "isVerified", "updatedAt", "regionId") VALUES
-  ('usr_ad', 'adamawa@edlog.cm',   '$2b$12$NR9O8dGCyQaT/9Bem6/QIujECNuyXKmE0HaREkp82Ti4yrJ7wBk9y', 'Regional', 'Admin — Adamawa',   'REGIONAL_ADMIN', true, CURRENT_TIMESTAMP, 'reg_ad'),
-  ('usr_ce', 'centre@edlog.cm',    '$2b$12$Hau0b8sxyGJBYHBbw0vBju2YzG.F8vKM28Gvwfei5T0IXa6TUHbB2', 'Regional', 'Admin — Centre',    'REGIONAL_ADMIN', true, CURRENT_TIMESTAMP, 'reg_ce'),
-  ('usr_es', 'east@edlog.cm',      '$2b$12$QI2UjIrJnQe1T1bb72L9YOpV0vg2xDa/xzSEl377i8iS7I5zHH59S', 'Regional', 'Admin — East',      'REGIONAL_ADMIN', true, CURRENT_TIMESTAMP, 'reg_es'),
-  ('usr_fn', 'farnorth@edlog.cm',  '$2b$12$Q/yKU7KxCx86L0oYhpX./OCWJXE6aXz5qFefDpJnCxbM2qPJd1iYq', 'Regional', 'Admin — Far North', 'REGIONAL_ADMIN', true, CURRENT_TIMESTAMP, 'reg_fn'),
-  ('usr_lt', 'littoral@edlog.cm',  '$2b$12$GFtNbyWOY7lvts4TZgIPeOcnYxIpoGZk4N8xZfgqutf.VU0fU8dUu', 'Regional', 'Admin — Littoral',  'REGIONAL_ADMIN', true, CURRENT_TIMESTAMP, 'reg_lt'),
-  ('usr_no', 'north@edlog.cm',     '$2b$12$tTisp0ecmqdpmDU.lKdBpeTW/i9PhG6JxFJ2zTaIX8.bCHZM6gCQq', 'Regional', 'Admin — North',     'REGIONAL_ADMIN', true, CURRENT_TIMESTAMP, 'reg_no'),
-  ('usr_nw', 'northwest@edlog.cm', '$2b$12$9LuOSbIXOJZXWBkpEywvVu.0.CnYd.GSq9SdRvSxtOxblIMyMALJ2', 'Regional', 'Admin — Northwest', 'REGIONAL_ADMIN', true, CURRENT_TIMESTAMP, 'reg_nw'),
-  ('usr_su', 'south@edlog.cm',     '$2b$12$RITUuUs8NdNzNtSvvG47xe1FLCuzPmM7bRiCSiV1k6uaE4/LoOvCy', 'Regional', 'Admin — South',     'REGIONAL_ADMIN', true, CURRENT_TIMESTAMP, 'reg_su'),
-  ('usr_sw', 'southwest@edlog.cm', '$2b$12$4TcJrKlrkf3cHHaVLDl7me3aImwmOgL8Y83HgAjN1RjKD/h0FUKTW', 'Regional', 'Admin — Southwest', 'REGIONAL_ADMIN', true, CURRENT_TIMESTAMP, 'reg_sw'),
-  ('usr_ou', 'west@edlog.cm',      '$2b$12$4rU/9k8CaW9v03tJk8A/qeDczoRCwgPdy8SUi9NoRAhRlMvzP7hmC', 'Regional', 'Admin — West',      'REGIONAL_ADMIN', true, CURRENT_TIMESTAMP, 'reg_ou');
+  -- Adamawa@2024
+  ('usr_ad', 'adamawa@edlog.cm',   '$2b$12$3Bw9WLAxSeywG.wcjs4AkeFGk2A9X4.28gKdDrsCtD3MhTFdQAJzu', 'Regional', 'Admin — Adamawa',   'REGIONAL_ADMIN', true, CURRENT_TIMESTAMP, 'reg_ad'),
+  -- Centre@2024
+  ('usr_ce', 'centre@edlog.cm',    '$2b$12$XpLoBsEDsld.ZjXM0K.ApeeDkEOVxp7uC9QsWDBjIXp9qo3aJE5lK', 'Regional', 'Admin — Centre',    'REGIONAL_ADMIN', true, CURRENT_TIMESTAMP, 'reg_ce'),
+  -- East@2024
+  ('usr_es', 'east@edlog.cm',      '$2b$12$DQVC0TdZTMk1fhyFU.MzFudALnR2kMe5y7ZCLzm3wWQDvrhcWsYwW', 'Regional', 'Admin — East',      'REGIONAL_ADMIN', true, CURRENT_TIMESTAMP, 'reg_es'),
+  -- FarNorth@2024
+  ('usr_fn', 'farnorth@edlog.cm',  '$2b$12$TdKMORfn245MHgOgSv04BurDr5G1TnAaBfB/hJjpsWVf95sh0janq', 'Regional', 'Admin — Far North', 'REGIONAL_ADMIN', true, CURRENT_TIMESTAMP, 'reg_fn'),
+  -- Littoral@2024
+  ('usr_lt', 'littoral@edlog.cm',  '$2b$12$ELS.GMDA7Ea0tVsIAoLfD.qy.EKRfTduxv6tm8JW8zBRCfM.ip/EK', 'Regional', 'Admin — Littoral',  'REGIONAL_ADMIN', true, CURRENT_TIMESTAMP, 'reg_lt'),
+  -- North@2024
+  ('usr_no', 'north@edlog.cm',     '$2b$12$c01Tf6luTGBi9V5lrtQ.ne1ktL8pEDKuQjpYEjdyv8ZqmnmkblmnO', 'Regional', 'Admin — North',     'REGIONAL_ADMIN', true, CURRENT_TIMESTAMP, 'reg_no'),
+  -- NorthWest@2024
+  ('usr_nw', 'northwest@edlog.cm', '$2b$12$9ogdZJ7HEAhIAXyqnsBdcONfJzR4emIGUI1U1J9nnp2T0ABoCxZCq', 'Regional', 'Admin — Northwest', 'REGIONAL_ADMIN', true, CURRENT_TIMESTAMP, 'reg_nw'),
+  -- South@2024
+  ('usr_su', 'south@edlog.cm',     '$2b$12$ppQvCgOZHIMuGMFUD1n8M.HnWrcqs1XGMqg1ur9B3Fo1koqpRDesa', 'Regional', 'Admin — South',     'REGIONAL_ADMIN', true, CURRENT_TIMESTAMP, 'reg_su'),
+  -- SouthWest@2024
+  ('usr_sw', 'southwest@edlog.cm', '$2b$12$rAyxzd06QxwzcmYNOYwXjuuIZxcu6K.XA8mFFrWW52IQFxWi.cEuy', 'Regional', 'Admin — Southwest', 'REGIONAL_ADMIN', true, CURRENT_TIMESTAMP, 'reg_sw'),
+  -- West@2024
+  ('usr_ou', 'west@edlog.cm',      '$2b$12$hQ3KNDJeQQCIGF2i5003uuGnfyHg.OrgwZl31laek8EnVMHCIgdoW', 'Regional', 'Admin — West',      'REGIONAL_ADMIN', true, CURRENT_TIMESTAMP, 'reg_ou');
 
 -- ============================================================
 -- DONE! Database is clean with 10 regions and 10 regional admins.

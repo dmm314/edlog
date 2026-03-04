@@ -46,7 +46,7 @@ INSERT INTO "User" ("id", "email", "passwordHash", "firstName", "lastName", "pho
 VALUES (
   'user-admin-001',
   'admin@edlog.cm',
-  '$2b$12$y.uwUXpuvKfQQmTmfQh9KeE/KH4P4x3vXRZhrACIXouF7WBcjqlKS',
+  '$2b$12$Zspf7AJDtIx7KKLJJc1fsuD1ZLd4DoO6dyJE01lvTUG5EdfECZ7nC',
   'Brayan',
   'Lontchi',
   NULL,
@@ -68,7 +68,7 @@ INSERT INTO "User" ("id", "email", "passwordHash", "firstName", "lastName", "pho
 VALUES (
   'user-regional-001',
   'regional@edlog.cm',
-  '$2b$12$y.uwUXpuvKfQQmTmfQh9KeE/KH4P4x3vXRZhrACIXouF7WBcjqlKS',
+  '$2b$12$Zspf7AJDtIx7KKLJJc1fsuD1ZLd4DoO6dyJE01lvTUG5EdfECZ7nC',
   'Marie',
   'Nkomo',
   NULL,
@@ -86,7 +86,7 @@ VALUES (
   'user-teacher-001',
   'teacher@edlog.cm',
   'TCH-D3M0T1',
-  '$2b$12$y.uwUXpuvKfQQmTmfQh9KeE/KH4P4x3vXRZhrACIXouF7WBcjqlKS',
+  '$2b$12$Zspf7AJDtIx7KKLJJc1fsuD1ZLd4DoO6dyJE01lvTUG5EdfECZ7nC',
   'Darren',
   'Monyongo',
   NULL,
