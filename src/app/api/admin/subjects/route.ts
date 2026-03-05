@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { schoolDb } from "@/lib/dbSchool";
 import { getSessionUser } from "@/lib/auth";
 
 export async function GET() {
