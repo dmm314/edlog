@@ -2,12 +2,12 @@
 -- neon-subjects.sql  —  Populate the global Subject catalogue
 -- and Topics for the Cameroon GCE O/A Level curriculum.
 --
--- Safe to run multiple times (ON CONFLICT DO NOTHING).
+-- Safe to run multiple times (id-based UPSERT via ON CONFLICT DO UPDATE).
 -- Run AFTER neon-reset.sql (tables must exist).
 -- ============================================================
 
 -- ============================================================
--- SUBJECTS  (22 subjects across 4 categories)
+-- SUBJECTS  (24 subjects across 4 categories)
 -- ============================================================
 
 INSERT INTO "Subject" ("id", "name", "code", "category", "createdAt") VALUES
@@ -33,6 +33,8 @@ INSERT INTO "Subject" ("id", "name", "code", "category", "createdAt") VALUES
   ('subj-geo', 'Geography',             'GEO', 'Humanities', CURRENT_TIMESTAMP),
   ('subj-eco', 'Economics',             'ECO', 'Humanities', CURRENT_TIMESTAMP),
   ('subj-rel', 'Religious Studies',     'REL', 'Humanities', CURRENT_TIMESTAMP),
+  ('subj-log', 'Logic',                'LOG', 'Humanities', CURRENT_TIMESTAMP),
+  ('subj-phi', 'Philosophy',           'PHI', 'Humanities', CURRENT_TIMESTAMP),
 
   -- ── General ──
   ('subj-cit', 'Citizenship',           'CIT', 'General',    CURRENT_TIMESTAMP),
@@ -40,7 +42,10 @@ INSERT INTO "Subject" ("id", "name", "code", "category", "createdAt") VALUES
   ('subj-phe', 'Physical Education',    'PHE', 'General',    CURRENT_TIMESTAMP),
   ('subj-spo', 'Sports',               'SPO', 'General',    CURRENT_TIMESTAMP),
   ('subj-mla', 'Manual Labour',         'MLA', 'General',    CURRENT_TIMESTAMP)
-ON CONFLICT ("id") DO NOTHING;
+ON CONFLICT ("id") DO UPDATE
+SET "name" = EXCLUDED."name",
+    "code" = EXCLUDED."code",
+    "category" = EXCLUDED."category";
 
 
 -- ============================================================
@@ -277,7 +282,196 @@ INSERT INTO "Topic" ("id", "name", "classLevel", "moduleName", "moduleNum", "ord
   ('t-rel-005', 'Philosophy of Religion',            'Upper Sixth', 'Philosophy',           4,  5,  CURRENT_TIMESTAMP, 'subj-rel'),
   ('t-rel-006', 'Religion & Society',                'Upper Sixth', 'Applied',              5,  6,  CURRENT_TIMESTAMP, 'subj-rel')
 
-ON CONFLICT ("id") DO NOTHING;
+   -- ════════════════════════════════════════════════════════════
+  -- LOGIC  (O Level — Form 5)
+  -- ════════════════════════════════════════════════════════════
+  -- Form 5
+  ('t-log-001', 'Propositions & Logical Connectives','Form 5',      'Formal Logic',         1,  1,  CURRENT_TIMESTAMP, 'subj-log'),
+  ('t-log-002', 'Truth Tables',                      'Form 5',      'Formal Logic',         1,  2,  CURRENT_TIMESTAMP, 'subj-log'),
+  ('t-log-003', 'Logical Equivalence & Implication',  'Form 5',      'Formal Logic',         1,  3,  CURRENT_TIMESTAMP, 'subj-log'),
+  ('t-log-004', 'Syllogisms & Deductive Reasoning',  'Form 5',      'Reasoning',            2,  4,  CURRENT_TIMESTAMP, 'subj-log'),
+  ('t-log-005', 'Fallacies & Invalid Arguments',     'Form 5',      'Reasoning',            2,  5,  CURRENT_TIMESTAMP, 'subj-log'),
+  ('t-log-006', 'Sets, Venn Diagrams & Logic',       'Form 5',      'Applied Logic',        3,  6,  CURRENT_TIMESTAMP, 'subj-log'),
+  ('t-log-007', 'Inductive Reasoning',               'Form 5',      'Reasoning',            2,  7,  CURRENT_TIMESTAMP, 'subj-log'),
+
+  -- ════════════════════════════════════════════════════════════
+  -- PHILOSOPHY  (A Level — Logic at A Level)
+  -- ════════════════════════════════════════════════════════════
+  -- Lower Sixth
+  ('t-phi-001', 'Introduction to Philosophy',        'Lower Sixth', 'Foundations',          1,  1,  CURRENT_TIMESTAMP, 'subj-phi'),
+  ('t-phi-002', 'Epistemology (Theory of Knowledge)','Lower Sixth', 'Foundations',          1,  2,  CURRENT_TIMESTAMP, 'subj-phi'),
+  ('t-phi-003', 'Propositional & Predicate Logic',   'Lower Sixth', 'Logic',                2,  3,  CURRENT_TIMESTAMP, 'subj-phi'),
+  ('t-phi-004', 'Formal Proofs & Derivations',       'Lower Sixth', 'Logic',                2,  4,  CURRENT_TIMESTAMP, 'subj-phi'),
+  ('t-phi-005', 'Ethics & Moral Philosophy',         'Lower Sixth', 'Ethics',               3,  5,  CURRENT_TIMESTAMP, 'subj-phi'),
+  ('t-phi-006', 'Philosophy of Mind',                'Lower Sixth', 'Metaphysics',          4,  6,  CURRENT_TIMESTAMP, 'subj-phi'),
+  -- Upper Sixth
+  ('t-phi-007', 'Metaphysics',                       'Upper Sixth', 'Metaphysics',          4,  7,  CURRENT_TIMESTAMP, 'subj-phi'),
+  ('t-phi-008', 'Political Philosophy',              'Upper Sixth', 'Applied Philosophy',   5,  8,  CURRENT_TIMESTAMP, 'subj-phi'),
+  ('t-phi-009', 'Philosophy of Science',             'Upper Sixth', 'Applied Philosophy',   5,  9,  CURRENT_TIMESTAMP, 'subj-phi'),
+  ('t-phi-010', 'Symbolic Logic & Modal Logic',      'Upper Sixth', 'Advanced Logic',       6,  10, CURRENT_TIMESTAMP, 'subj-phi'),
+  ('t-phi-011', 'Existentialism & Phenomenology',    'Upper Sixth', 'Modern Philosophy',    7,  11, CURRENT_TIMESTAMP, 'subj-phi'),
+  ('t-phi-012', 'Philosophy of Religion',            'Upper Sixth', 'Applied Philosophy',   5,  12, CURRENT_TIMESTAMP, 'subj-phi')
+
+ON CONFLICT ("id") DO UPDATE
+SET "name" = EXCLUDED."name",
+    "classLevel" = EXCLUDED."classLevel",
+    "moduleName" = EXCLUDED."moduleName",
+    "moduleNum" = EXCLUDED."moduleNum",
+    "orderIndex" = EXCLUDED."orderIndex",
+    "subjectId" = EXCLUDED."subjectId";
+-- ============================================================
+-- REVISION & CORRECTION modules for ALL subjects at ALL levels
+-- Every subject gets "Revision for Exams" and "Correction of Exams"
+-- at every class level it has topics for.
+-- ============================================================
+
+INSERT INTO "Topic" ("id", "name", "classLevel", "moduleName", "moduleNum", "orderIndex", "createdAt", "subjectId") VALUES
+  -- Physics
+  ('t-phy-rev-f5',  'Revision for Exams',    'Form 5',       'Revision & Exams', 99, 97, CURRENT_TIMESTAMP, 'subj-phy'),
+  ('t-phy-cor-f5',  'Correction of Exams',   'Form 5',       'Revision & Exams', 99, 98, CURRENT_TIMESTAMP, 'subj-phy'),
+  ('t-phy-rev-ls',  'Revision for Exams',    'Lower Sixth',  'Revision & Exams', 99, 97, CURRENT_TIMESTAMP, 'subj-phy'),
+  ('t-phy-cor-ls',  'Correction of Exams',   'Lower Sixth',  'Revision & Exams', 99, 98, CURRENT_TIMESTAMP, 'subj-phy'),
+  ('t-phy-rev-us',  'Revision for Exams',    'Upper Sixth',  'Revision & Exams', 99, 97, CURRENT_TIMESTAMP, 'subj-phy'),
+  ('t-phy-cor-us',  'Correction of Exams',   'Upper Sixth',  'Revision & Exams', 99, 98, CURRENT_TIMESTAMP, 'subj-phy'),
+
+  -- Mathematics
+  ('t-mat-rev-f5',  'Revision for Exams',    'Form 5',       'Revision & Exams', 99, 97, CURRENT_TIMESTAMP, 'subj-mat'),
+  ('t-mat-cor-f5',  'Correction of Exams',   'Form 5',       'Revision & Exams', 99, 98, CURRENT_TIMESTAMP, 'subj-mat'),
+  ('t-mat-rev-ls',  'Revision for Exams',    'Lower Sixth',  'Revision & Exams', 99, 97, CURRENT_TIMESTAMP, 'subj-mat'),
+  ('t-mat-cor-ls',  'Correction of Exams',   'Lower Sixth',  'Revision & Exams', 99, 98, CURRENT_TIMESTAMP, 'subj-mat'),
+  ('t-mat-rev-us',  'Revision for Exams',    'Upper Sixth',  'Revision & Exams', 99, 97, CURRENT_TIMESTAMP, 'subj-mat'),
+  ('t-mat-cor-us',  'Correction of Exams',   'Upper Sixth',  'Revision & Exams', 99, 98, CURRENT_TIMESTAMP, 'subj-mat'),
+
+  -- Chemistry
+  ('t-che-rev-f5',  'Revision for Exams',    'Form 5',       'Revision & Exams', 99, 97, CURRENT_TIMESTAMP, 'subj-che'),
+  ('t-che-cor-f5',  'Correction of Exams',   'Form 5',       'Revision & Exams', 99, 98, CURRENT_TIMESTAMP, 'subj-che'),
+  ('t-che-rev-ls',  'Revision for Exams',    'Lower Sixth',  'Revision & Exams', 99, 97, CURRENT_TIMESTAMP, 'subj-che'),
+  ('t-che-cor-ls',  'Correction of Exams',   'Lower Sixth',  'Revision & Exams', 99, 98, CURRENT_TIMESTAMP, 'subj-che'),
+  ('t-che-rev-us',  'Revision for Exams',    'Upper Sixth',  'Revision & Exams', 99, 97, CURRENT_TIMESTAMP, 'subj-che'),
+  ('t-che-cor-us',  'Correction of Exams',   'Upper Sixth',  'Revision & Exams', 99, 98, CURRENT_TIMESTAMP, 'subj-che'),
+
+  -- Biology
+  ('t-bio-rev-f5',  'Revision for Exams',    'Form 5',       'Revision & Exams', 99, 97, CURRENT_TIMESTAMP, 'subj-bio'),
+  ('t-bio-cor-f5',  'Correction of Exams',   'Form 5',       'Revision & Exams', 99, 98, CURRENT_TIMESTAMP, 'subj-bio'),
+  ('t-bio-rev-ls',  'Revision for Exams',    'Lower Sixth',  'Revision & Exams', 99, 97, CURRENT_TIMESTAMP, 'subj-bio'),
+  ('t-bio-cor-ls',  'Correction of Exams',   'Lower Sixth',  'Revision & Exams', 99, 98, CURRENT_TIMESTAMP, 'subj-bio'),
+  ('t-bio-rev-us',  'Revision for Exams',    'Upper Sixth',  'Revision & Exams', 99, 97, CURRENT_TIMESTAMP, 'subj-bio'),
+  ('t-bio-cor-us',  'Correction of Exams',   'Upper Sixth',  'Revision & Exams', 99, 98, CURRENT_TIMESTAMP, 'subj-bio'),
+
+  -- Additional Mathematics
+  ('t-ama-rev-f5',  'Revision for Exams',    'Form 5',       'Revision & Exams', 99, 97, CURRENT_TIMESTAMP, 'subj-ama'),
+  ('t-ama-cor-f5',  'Correction of Exams',   'Form 5',       'Revision & Exams', 99, 98, CURRENT_TIMESTAMP, 'subj-ama'),
+
+  -- Pure Mathematics
+  ('t-pma-rev-ls',  'Revision for Exams',    'Lower Sixth',  'Revision & Exams', 99, 97, CURRENT_TIMESTAMP, 'subj-pma'),
+  ('t-pma-cor-ls',  'Correction of Exams',   'Lower Sixth',  'Revision & Exams', 99, 98, CURRENT_TIMESTAMP, 'subj-pma'),
+  ('t-pma-rev-us',  'Revision for Exams',    'Upper Sixth',  'Revision & Exams', 99, 97, CURRENT_TIMESTAMP, 'subj-pma'),
+  ('t-pma-cor-us',  'Correction of Exams',   'Upper Sixth',  'Revision & Exams', 99, 98, CURRENT_TIMESTAMP, 'subj-pma'),
+
+  -- Further Mathematics
+  ('t-fma-rev-ls',  'Revision for Exams',    'Lower Sixth',  'Revision & Exams', 99, 97, CURRENT_TIMESTAMP, 'subj-fma'),
+  ('t-fma-cor-ls',  'Correction of Exams',   'Lower Sixth',  'Revision & Exams', 99, 98, CURRENT_TIMESTAMP, 'subj-fma'),
+  ('t-fma-rev-us',  'Revision for Exams',    'Upper Sixth',  'Revision & Exams', 99, 97, CURRENT_TIMESTAMP, 'subj-fma'),
+  ('t-fma-cor-us',  'Correction of Exams',   'Upper Sixth',  'Revision & Exams', 99, 98, CURRENT_TIMESTAMP, 'subj-fma'),
+
+  -- Statistics
+  ('t-sta-rev-ls',  'Revision for Exams',    'Lower Sixth',  'Revision & Exams', 99, 97, CURRENT_TIMESTAMP, 'subj-sta'),
+  ('t-sta-cor-ls',  'Correction of Exams',   'Lower Sixth',  'Revision & Exams', 99, 98, CURRENT_TIMESTAMP, 'subj-sta'),
+  ('t-sta-rev-us',  'Revision for Exams',    'Upper Sixth',  'Revision & Exams', 99, 97, CURRENT_TIMESTAMP, 'subj-sta'),
+  ('t-sta-cor-us',  'Correction of Exams',   'Upper Sixth',  'Revision & Exams', 99, 98, CURRENT_TIMESTAMP, 'subj-sta'),
+
+  -- Mechanics
+  ('t-mec-rev-ls',  'Revision for Exams',    'Lower Sixth',  'Revision & Exams', 99, 97, CURRENT_TIMESTAMP, 'subj-mec'),
+  ('t-mec-cor-ls',  'Correction of Exams',   'Lower Sixth',  'Revision & Exams', 99, 98, CURRENT_TIMESTAMP, 'subj-mec'),
+  ('t-mec-rev-us',  'Revision for Exams',    'Upper Sixth',  'Revision & Exams', 99, 97, CURRENT_TIMESTAMP, 'subj-mec'),
+  ('t-mec-cor-us',  'Correction of Exams',   'Upper Sixth',  'Revision & Exams', 99, 98, CURRENT_TIMESTAMP, 'subj-mec'),
+
+  -- Computer Science
+  ('t-csc-rev-f5',  'Revision for Exams',    'Form 5',       'Revision & Exams', 99, 97, CURRENT_TIMESTAMP, 'subj-csc'),
+  ('t-csc-cor-f5',  'Correction of Exams',   'Form 5',       'Revision & Exams', 99, 98, CURRENT_TIMESTAMP, 'subj-csc'),
+  ('t-csc-rev-ls',  'Revision for Exams',    'Lower Sixth',  'Revision & Exams', 99, 97, CURRENT_TIMESTAMP, 'subj-csc'),
+  ('t-csc-cor-ls',  'Correction of Exams',   'Lower Sixth',  'Revision & Exams', 99, 98, CURRENT_TIMESTAMP, 'subj-csc'),
+  ('t-csc-rev-us',  'Revision for Exams',    'Upper Sixth',  'Revision & Exams', 99, 97, CURRENT_TIMESTAMP, 'subj-csc'),
+  ('t-csc-cor-us',  'Correction of Exams',   'Upper Sixth',  'Revision & Exams', 99, 98, CURRENT_TIMESTAMP, 'subj-csc'),
+
+  -- English Language
+  ('t-eng-rev-f5',  'Revision for Exams',    'Form 5',       'Revision & Exams', 99, 97, CURRENT_TIMESTAMP, 'subj-eng'),
+  ('t-eng-cor-f5',  'Correction of Exams',   'Form 5',       'Revision & Exams', 99, 98, CURRENT_TIMESTAMP, 'subj-eng'),
+  ('t-eng-rev-ls',  'Revision for Exams',    'Lower Sixth',  'Revision & Exams', 99, 97, CURRENT_TIMESTAMP, 'subj-eng'),
+  ('t-eng-cor-ls',  'Correction of Exams',   'Lower Sixth',  'Revision & Exams', 99, 98, CURRENT_TIMESTAMP, 'subj-eng'),
+  ('t-eng-rev-us',  'Revision for Exams',    'Upper Sixth',  'Revision & Exams', 99, 97, CURRENT_TIMESTAMP, 'subj-eng'),
+  ('t-eng-cor-us',  'Correction of Exams',   'Upper Sixth',  'Revision & Exams', 99, 98, CURRENT_TIMESTAMP, 'subj-eng'),
+
+  -- French
+  ('t-fre-rev-f5',  'Revision for Exams',    'Form 5',       'Revision & Exams', 99, 97, CURRENT_TIMESTAMP, 'subj-fre'),
+  ('t-fre-cor-f5',  'Correction of Exams',   'Form 5',       'Revision & Exams', 99, 98, CURRENT_TIMESTAMP, 'subj-fre'),
+  ('t-fre-rev-ls',  'Revision for Exams',    'Lower Sixth',  'Revision & Exams', 99, 97, CURRENT_TIMESTAMP, 'subj-fre'),
+  ('t-fre-cor-ls',  'Correction of Exams',   'Lower Sixth',  'Revision & Exams', 99, 98, CURRENT_TIMESTAMP, 'subj-fre'),
+  ('t-fre-rev-us',  'Revision for Exams',    'Upper Sixth',  'Revision & Exams', 99, 97, CURRENT_TIMESTAMP, 'subj-fre'),
+  ('t-fre-cor-us',  'Correction of Exams',   'Upper Sixth',  'Revision & Exams', 99, 98, CURRENT_TIMESTAMP, 'subj-fre'),
+
+  -- Literature in English
+  ('t-lit-rev-ls',  'Revision for Exams',    'Lower Sixth',  'Revision & Exams', 99, 97, CURRENT_TIMESTAMP, 'subj-lit'),
+  ('t-lit-cor-ls',  'Correction of Exams',   'Lower Sixth',  'Revision & Exams', 99, 98, CURRENT_TIMESTAMP, 'subj-lit'),
+  ('t-lit-rev-us',  'Revision for Exams',    'Upper Sixth',  'Revision & Exams', 99, 97, CURRENT_TIMESTAMP, 'subj-lit'),
+  ('t-lit-cor-us',  'Correction of Exams',   'Upper Sixth',  'Revision & Exams', 99, 98, CURRENT_TIMESTAMP, 'subj-lit'),
+
+  -- History
+  ('t-his-rev-f5',  'Revision for Exams',    'Form 5',       'Revision & Exams', 99, 97, CURRENT_TIMESTAMP, 'subj-his'),
+  ('t-his-cor-f5',  'Correction of Exams',   'Form 5',       'Revision & Exams', 99, 98, CURRENT_TIMESTAMP, 'subj-his'),
+  ('t-his-rev-ls',  'Revision for Exams',    'Lower Sixth',  'Revision & Exams', 99, 97, CURRENT_TIMESTAMP, 'subj-his'),
+  ('t-his-cor-ls',  'Correction of Exams',   'Lower Sixth',  'Revision & Exams', 99, 98, CURRENT_TIMESTAMP, 'subj-his'),
+  ('t-his-rev-us',  'Revision for Exams',    'Upper Sixth',  'Revision & Exams', 99, 97, CURRENT_TIMESTAMP, 'subj-his'),
+  ('t-his-cor-us',  'Correction of Exams',   'Upper Sixth',  'Revision & Exams', 99, 98, CURRENT_TIMESTAMP, 'subj-his'),
+
+  -- Geography
+  ('t-geo-rev-f5',  'Revision for Exams',    'Form 5',       'Revision & Exams', 99, 97, CURRENT_TIMESTAMP, 'subj-geo'),
+  ('t-geo-cor-f5',  'Correction of Exams',   'Form 5',       'Revision & Exams', 99, 98, CURRENT_TIMESTAMP, 'subj-geo'),
+  ('t-geo-rev-ls',  'Revision for Exams',    'Lower Sixth',  'Revision & Exams', 99, 97, CURRENT_TIMESTAMP, 'subj-geo'),
+  ('t-geo-cor-ls',  'Correction of Exams',   'Lower Sixth',  'Revision & Exams', 99, 98, CURRENT_TIMESTAMP, 'subj-geo'),
+  ('t-geo-rev-us',  'Revision for Exams',    'Upper Sixth',  'Revision & Exams', 99, 97, CURRENT_TIMESTAMP, 'subj-geo'),
+  ('t-geo-cor-us',  'Correction of Exams',   'Upper Sixth',  'Revision & Exams', 99, 98, CURRENT_TIMESTAMP, 'subj-geo'),
+
+  -- Economics
+  ('t-eco-rev-ls',  'Revision for Exams',    'Lower Sixth',  'Revision & Exams', 99, 97, CURRENT_TIMESTAMP, 'subj-eco'),
+  ('t-eco-cor-ls',  'Correction of Exams',   'Lower Sixth',  'Revision & Exams', 99, 98, CURRENT_TIMESTAMP, 'subj-eco'),
+  ('t-eco-rev-us',  'Revision for Exams',    'Upper Sixth',  'Revision & Exams', 99, 97, CURRENT_TIMESTAMP, 'subj-eco'),
+  ('t-eco-cor-us',  'Correction of Exams',   'Upper Sixth',  'Revision & Exams', 99, 98, CURRENT_TIMESTAMP, 'subj-eco'),
+
+  -- Religious Studies
+  ('t-rel-rev-f5',  'Revision for Exams',    'Form 5',       'Revision & Exams', 99, 97, CURRENT_TIMESTAMP, 'subj-rel'),
+  ('t-rel-cor-f5',  'Correction of Exams',   'Form 5',       'Revision & Exams', 99, 98, CURRENT_TIMESTAMP, 'subj-rel'),
+  ('t-rel-rev-ls',  'Revision for Exams',    'Lower Sixth',  'Revision & Exams', 99, 97, CURRENT_TIMESTAMP, 'subj-rel'),
+  ('t-rel-cor-ls',  'Correction of Exams',   'Lower Sixth',  'Revision & Exams', 99, 98, CURRENT_TIMESTAMP, 'subj-rel'),
+  ('t-rel-rev-us',  'Revision for Exams',    'Upper Sixth',  'Revision & Exams', 99, 97, CURRENT_TIMESTAMP, 'subj-rel'),
+  ('t-rel-cor-us',  'Correction of Exams',   'Upper Sixth',  'Revision & Exams', 99, 98, CURRENT_TIMESTAMP, 'subj-rel'),
+
+  -- Logic
+  ('t-log-rev-f5',  'Revision for Exams',    'Form 5',       'Revision & Exams', 99, 97, CURRENT_TIMESTAMP, 'subj-log'),
+  ('t-log-cor-f5',  'Correction of Exams',   'Form 5',       'Revision & Exams', 99, 98, CURRENT_TIMESTAMP, 'subj-log'),
+
+  -- Philosophy
+  ('t-phi-rev-ls',  'Revision for Exams',    'Lower Sixth',  'Revision & Exams', 99, 97, CURRENT_TIMESTAMP, 'subj-phi'),
+  ('t-phi-cor-ls',  'Correction of Exams',   'Lower Sixth',  'Revision & Exams', 99, 98, CURRENT_TIMESTAMP, 'subj-phi'),
+  ('t-phi-rev-us',  'Revision for Exams',    'Upper Sixth',  'Revision & Exams', 99, 97, CURRENT_TIMESTAMP, 'subj-phi'),
+  ('t-phi-cor-us',  'Correction of Exams',   'Upper Sixth',  'Revision & Exams', 99, 98, CURRENT_TIMESTAMP, 'subj-phi'),
+
+  -- General subjects (Citizenship, Arts, PE, Sports, Manual Labour)
+  ('t-cit-rev-f5',  'Revision for Exams',    'Form 5',       'Revision & Exams', 99, 97, CURRENT_TIMESTAMP, 'subj-cit'),
+  ('t-cit-cor-f5',  'Correction of Exams',   'Form 5',       'Revision & Exams', 99, 98, CURRENT_TIMESTAMP, 'subj-cit'),
+  ('t-arc-rev-f5',  'Revision for Exams',    'Form 5',       'Revision & Exams', 99, 97, CURRENT_TIMESTAMP, 'subj-arc'),
+  ('t-arc-cor-f5',  'Correction of Exams',   'Form 5',       'Revision & Exams', 99, 98, CURRENT_TIMESTAMP, 'subj-arc'),
+  ('t-phe-rev-f5',  'Revision for Exams',    'Form 5',       'Revision & Exams', 99, 97, CURRENT_TIMESTAMP, 'subj-phe'),
+  ('t-phe-cor-f5',  'Correction of Exams',   'Form 5',       'Revision & Exams', 99, 98, CURRENT_TIMESTAMP, 'subj-phe')
+
+ON CONFLICT ("id") DO UPDATE
+SET "name" = EXCLUDED."name",
+    "classLevel" = EXCLUDED."classLevel",
+    "moduleName" = EXCLUDED."moduleName",
+    "moduleNum" = EXCLUDED."moduleNum",
+    "orderIndex" = EXCLUDED."orderIndex",
+    "subjectId" = EXCLUDED."subjectId";
+
 
 -- ============================================================
 -- Done! Subjects and topics have been seeded.
