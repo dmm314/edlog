@@ -244,10 +244,10 @@ export default function AdminDashboardPage() {
           </h3>
           <div className="grid grid-cols-2 gap-3">
             {[
-              { href: "/admin/entries", icon: FileText, label: "All Entries", desc: "Browse entries", gradient: "from-brand-500 to-brand-700" },
-              { href: "/admin/classes", icon: GraduationCap, label: "Classes", desc: "Add & edit classes", gradient: "from-violet-500 to-purple-600" },
+              { href: "/admin/entry-timetable", icon: FileText, label: "Entry Grid", desc: "Entries by class/week", gradient: "from-brand-500 to-brand-700" },
+              { href: "/admin/classes", icon: GraduationCap, label: "Classes", desc: "Subjects & divisions", gradient: "from-violet-500 to-purple-600" },
               { href: "/admin/assignments", icon: UserCheck, label: "Assignments", desc: "Assign teachers", gradient: "from-emerald-500 to-teal-600" },
-              { href: "/admin/divisions", icon: Layers, label: "Divisions", desc: "Subject sub-sections", gradient: "from-rose-500 to-pink-600" },
+              { href: "/admin/entries", icon: Layers, label: "All Entries", desc: "Browse all entries", gradient: "from-rose-500 to-pink-600" },
               { href: "/admin/hods", icon: UserCheck, label: "HODs", desc: "Dept. heads", gradient: "from-amber-500 to-yellow-600" },
               { href: "/admin/reports", icon: TrendingUp, label: "Reports", desc: "Analytics & export", gradient: "from-orange-500 to-red-600" },
             ].map(({ href, icon: Icon, label, desc, gradient }) => (
