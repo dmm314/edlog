@@ -20,6 +20,10 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Not an HOD" }, { status: 403 });
     }
 
+    if (!user.schoolId) {
+      return NextResponse.json({ error: "No school assigned" }, { status: 400 });
+    }
+
     const { searchParams } = new URL(request.url);
     const subjectId = searchParams.get("subjectId");
     const from = searchParams.get("from");
@@ -114,7 +118,7 @@ export async function GET(request: NextRequest) {
     });
 
     // Build unique class levels for filtering
-    const classLevels = [...new Set(classesInDept.map((c) => c.level).filter(Boolean))].sort();
+    const classLevels = Array.from(new Set(classesInDept.map((c) => c.level).filter(Boolean))).sort();
 
     return NextResponse.json({
       entries,
