@@ -51,17 +51,20 @@ export async function GET(
 
     const linkedIds = new Set(classSubjects.map((cs) => cs.subjectId));
 
-    // Get divisions for each subject (school-specific)
+    // Get divisions for each subject (school-specific), filtered by class level
     const divisions = await db.subjectDivision.findMany({
       where: { schoolId: user.schoolId },
-      select: { id: true, name: true, subjectId: true },
+      select: { id: true, name: true, subjectId: true, levels: true },
       orderBy: { name: "asc" },
-    }).catch(() => [] as { id: string; name: string; subjectId: string }[]);
+    }).catch(() => [] as { id: string; name: string; subjectId: string; levels: string[] }[]);
 
-    const divisionsBySubject: Record<string, { id: string; name: string }[]> = {};
+    const divisionsBySubject: Record<string, { id: string; name: string; levels: string[] }[]> = {};
     for (const d of divisions) {
-      if (!divisionsBySubject[d.subjectId]) divisionsBySubject[d.subjectId] = [];
-      divisionsBySubject[d.subjectId].push({ id: d.id, name: d.name });
+      // Only include divisions that apply to this class's level (empty levels = all levels)
+      if (d.levels.length === 0 || d.levels.includes(cls.level)) {
+        if (!divisionsBySubject[d.subjectId]) divisionsBySubject[d.subjectId] = [];
+        divisionsBySubject[d.subjectId].push({ id: d.id, name: d.name, levels: d.levels });
+      }
     }
 
     // Get other classes in this school (for "copy from" feature)

@@ -26,8 +26,9 @@ export async function GET(request: NextRequest) {
     const from = searchParams.get("from");
     const to = searchParams.get("to");
     const teacherId = searchParams.get("teacherId");
-    const classLevel = searchParams.get("classLevel"); // Filter by form level e.g. "Form 1", "Form 2"
+    const classLevel = searchParams.get("classLevel");
     const classId = searchParams.get("classId");
+    const moduleName = searchParams.get("moduleName");
     const limit = parseInt(searchParams.get("limit") || "20");
     const offset = parseInt(searchParams.get("offset") || "0");
 
@@ -61,6 +62,10 @@ export async function GET(request: NextRequest) {
 
     if (classId) {
       where.classId = classId;
+    }
+
+    if (moduleName) {
+      where.moduleName = moduleName;
     }
 
     const [entries, total] = await Promise.all([
@@ -117,6 +122,43 @@ export async function GET(request: NextRequest) {
     // Build unique class levels for filtering
     const classLevels = Array.from(new Set(classesInDept.map((c) => c.level).filter(Boolean))).sort();
 
+    // Get unique module names from the HOD's subjects for filtering
+    const modules = await db.topic.findMany({
+      where: {
+        subjectId: { in: hodSubjectIds },
+        moduleName: { not: null },
+      },
+      select: {
+        moduleName: true,
+        classLevel: true,
+      },
+      distinct: ["moduleName"],
+      orderBy: { moduleName: "asc" },
+    });
+
+    // Also get distinct moduleName values from entries themselves
+    const entryModules = await db.logbookEntry.findMany({
+      where: {
+        teacher: { schoolId: user.schoolId },
+        moduleName: { not: null },
+        OR: [
+          { topics: { some: { subjectId: { in: hodSubjectIds } } } },
+          { assignment: { subjectId: { in: hodSubjectIds } } },
+        ],
+      },
+      select: { moduleName: true },
+      distinct: ["moduleName"],
+      orderBy: { moduleName: "asc" },
+    });
+
+    // Merge module names from topics and entries
+    const allModuleNames = Array.from(
+      new Set([
+        ...modules.map((m) => m.moduleName).filter(Boolean),
+        ...entryModules.map((e) => e.moduleName).filter(Boolean),
+      ])
+    ).sort() as string[];
+
     return NextResponse.json({
       entries,
       total,
@@ -135,6 +177,7 @@ export async function GET(request: NextRequest) {
       })),
       classes: classesInDept,
       classLevels,
+      modules: allModuleNames,
     });
   } catch (error) {
     console.error("GET /api/hod/entries error:", error);

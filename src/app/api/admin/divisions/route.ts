@@ -31,6 +31,7 @@ export async function GET() {
         subjectId: d.subjectId,
         subjectName: d.subject.name,
         subjectCode: d.subject.code,
+        levels: d.levels,
         assignmentCount: d._count.assignments,
         createdAt: d.createdAt.toISOString(),
       })),
@@ -54,7 +55,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { subjectId, name } = body;
+    const { subjectId, name, levels } = body;
 
     if (!subjectId || !name?.trim()) {
       return NextResponse.json(
@@ -87,6 +88,7 @@ export async function POST(request: Request) {
         name: trimmedName,
         subjectId,
         schoolId: user.schoolId,
+        levels: Array.isArray(levels) ? levels : [],
       },
       include: {
         subject: { select: { id: true, name: true, code: true } },
@@ -100,6 +102,7 @@ export async function POST(request: Request) {
         subjectId: division.subjectId,
         subjectName: division.subject.name,
         subjectCode: division.subject.code,
+        levels: division.levels,
         assignmentCount: 0,
         createdAt: division.createdAt.toISOString(),
       },
@@ -108,6 +111,44 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error("POST /api/admin/divisions error:", error);
     return NextResponse.json({ error: "Failed to create division" }, { status: 500 });
+  }
+}
+
+// PATCH: Update a division (e.g., change levels)
+export async function PATCH(request: Request) {
+  try {
+    const user = await getSessionUser();
+    if (!user || user.role !== "SCHOOL_ADMIN") {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const body = await request.json();
+    const { id, levels } = body;
+
+    if (!id) {
+      return NextResponse.json({ error: "Division ID is required" }, { status: 400 });
+    }
+
+    const division = await db.subjectDivision.findFirst({
+      where: { id, schoolId: user.schoolId! },
+    });
+
+    if (!division) {
+      return NextResponse.json({ error: "Division not found" }, { status: 404 });
+    }
+
+    const updated = await db.subjectDivision.update({
+      where: { id },
+      data: { levels: Array.isArray(levels) ? levels : division.levels },
+    });
+
+    return NextResponse.json({
+      id: updated.id,
+      levels: updated.levels,
+    });
+  } catch (error) {
+    console.error("PATCH /api/admin/divisions error:", error);
+    return NextResponse.json({ error: "Failed to update division" }, { status: 500 });
   }
 }
 

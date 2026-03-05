@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import {
   Crown,
@@ -14,6 +14,7 @@ import {
   Layers,
   FileText,
   ArrowLeft,
+  GraduationCap,
 } from "lucide-react";
 
 interface HODStats {
@@ -68,10 +69,15 @@ export default function HODDashboard() {
   const [filterSubject, setFilterSubject] = useState("");
   const [filterClassLevel, setFilterClassLevel] = useState("");
   const [filterClass, setFilterClass] = useState("");
+  const [filterModule, setFilterModule] = useState("");
   const [classLevels, setClassLevels] = useState<string[]>([]);
   const [deptClasses, setDeptClasses] = useState<{ id: string; name: string; level: string }[]>([]);
+  const [modules, setModules] = useState<string[]>([]);
   const [expandedEntries, setExpandedEntries] = useState<Set<string>>(new Set());
   const [page, setPage] = useState(0);
+
+  // Overview: filter by class for teacher monitoring
+  const [overviewClassFilter, setOverviewClassFilter] = useState("");
 
   useEffect(() => {
     async function fetchStats() {
@@ -97,6 +103,7 @@ export default function HODDashboard() {
       if (filterSubject) params.set("subjectId", filterSubject);
       if (filterClassLevel) params.set("classLevel", filterClassLevel);
       if (filterClass) params.set("classId", filterClass);
+      if (filterModule) params.set("moduleName", filterModule);
       params.set("limit", "20");
       params.set("offset", String(p * 20));
 
@@ -108,6 +115,7 @@ export default function HODDashboard() {
         setPage(p);
         if (data.classLevels) setClassLevels(data.classLevels);
         if (data.classes) setDeptClasses(data.classes);
+        if (data.modules) setModules(data.modules);
       }
     } catch {
       // silently fail
@@ -121,7 +129,7 @@ export default function HODDashboard() {
       fetchEntries(0);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeTab, filterTeacher, filterSubject, filterClassLevel, filterClass]);
+  }, [activeTab, filterTeacher, filterSubject, filterClassLevel, filterClass, filterModule]);
 
   function toggleEntry(id: string) {
     setExpandedEntries((prev) => {
@@ -131,6 +139,26 @@ export default function HODDashboard() {
       return next;
     });
   }
+
+  // Filter teacher rankings by class for overview tab
+  const filteredRankings = useMemo(() => {
+    if (!stats || !overviewClassFilter) return stats?.teacherRankings || [];
+    return stats.teacherRankings.filter((t) =>
+      t.classes?.some((c) => c.className === overviewClassFilter)
+    );
+  }, [stats, overviewClassFilter]);
+
+  // Get all unique class names from teacher rankings for the overview filter
+  const overviewClassOptions = useMemo(() => {
+    if (!stats) return [];
+    const classNames = new Set<string>();
+    for (const t of stats.teacherRankings) {
+      for (const c of t.classes || []) {
+        classNames.add(c.className);
+      }
+    }
+    return Array.from(classNames).sort();
+  }, [stats]);
 
   const totalPages = Math.ceil(entriesTotal / 20);
 
@@ -179,7 +207,7 @@ export default function HODDashboard() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100/50 pb-24">
-      {/* Header — amber/gold theme for HOD */}
+      {/* Header */}
       <div className="bg-gradient-to-br from-amber-950 via-amber-900 to-amber-800 px-5 pt-10 pb-8 rounded-b-[2rem] shadow-elevated relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-amber-600/20 via-transparent to-transparent" />
         <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/[0.07] rounded-full -translate-y-1/3 translate-x-1/4 blur-3xl" />
@@ -293,17 +321,45 @@ export default function HODDashboard() {
         </div>
 
         {activeTab === "overview" ? (
-          /* Teacher Rankings */
+          /* Teacher Rankings with class filter */
           <div className="card overflow-hidden">
-            <div className="p-4 pb-2">
+            <div className="p-4 pb-2 space-y-2">
               <h3 className="text-sm font-bold text-slate-900">
                 Teacher Activity (This Month)
               </h3>
+              {/* Class filter for overview */}
+              {overviewClassOptions.length > 1 && (
+                <div className="flex items-center gap-2">
+                  <GraduationCap className="w-3.5 h-3.5 text-slate-400" />
+                  <select
+                    value={overviewClassFilter}
+                    onChange={(e) => setOverviewClassFilter(e.target.value)}
+                    className="text-xs bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-slate-700 flex-1"
+                  >
+                    <option value="">All classes</option>
+                    {overviewClassOptions.map((c) => (
+                      <option key={c} value={c}>{c}</option>
+                    ))}
+                  </select>
+                  {overviewClassFilter && (
+                    <button
+                      onClick={() => setOverviewClassFilter("")}
+                      className="text-[10px] text-red-500 font-medium"
+                    >
+                      Clear
+                    </button>
+                  )}
+                </div>
+              )}
             </div>
             <div className="divide-y divide-slate-50">
-              {stats.teacherRankings.map((t, i) => {
-                const maxEntries = stats.teacherRankings[0]?.monthlyEntries || 1;
+              {filteredRankings.map((t, i) => {
+                const maxEntries = filteredRankings[0]?.monthlyEntries || 1;
                 const pct = Math.round((t.monthlyEntries / Math.max(maxEntries, 1)) * 100);
+                // Filter classes shown based on overview class filter
+                const displayClasses = overviewClassFilter
+                  ? t.classes?.filter((c) => c.className === overviewClassFilter)
+                  : t.classes;
                 return (
                   <div key={t.id} className="px-4 py-3">
                     <div className="flex items-center justify-between">
@@ -340,9 +396,9 @@ export default function HODDashboard() {
                         style={{ width: `${Math.max(pct, 3)}%` }}
                       />
                     </div>
-                    {t.classes && t.classes.length > 0 && (
+                    {displayClasses && displayClasses.length > 0 && (
                       <div className="flex flex-wrap gap-1 mt-1.5 ml-8">
-                        {t.classes.map((c, ci) => (
+                        {displayClasses.map((c, ci) => (
                           <span
                             key={ci}
                             className="text-[9px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded font-medium"
@@ -355,10 +411,12 @@ export default function HODDashboard() {
                   </div>
                 );
               })}
-              {stats.teacherRankings.length === 0 && (
+              {filteredRankings.length === 0 && (
                 <div className="p-8 text-center">
                   <p className="text-slate-400 text-sm">
-                    No teachers assigned to your subjects yet
+                    {overviewClassFilter
+                      ? "No teachers assigned to this class"
+                      : "No teachers assigned to your subjects yet"}
                   </p>
                 </div>
               )}
@@ -428,8 +486,22 @@ export default function HODDashboard() {
                 )}
               </div>
 
+              {/* Module filter */}
+              {modules.length > 0 && (
+                <select
+                  value={filterModule}
+                  onChange={(e) => setFilterModule(e.target.value)}
+                  className="input-field text-sm"
+                >
+                  <option value="">All modules</option>
+                  {modules.map((m) => (
+                    <option key={m} value={m}>{m}</option>
+                  ))}
+                </select>
+              )}
+
               {/* Active filters indicator */}
-              {(filterTeacher || filterSubject || filterClassLevel || filterClass) && (
+              {(filterTeacher || filterSubject || filterClassLevel || filterClass || filterModule) && (
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="text-[10px] font-semibold text-slate-400">Active filters:</span>
                   {filterTeacher && (
@@ -456,8 +528,14 @@ export default function HODDashboard() {
                       <button onClick={() => setFilterClass("")} className="ml-1 text-emerald-400 hover:text-emerald-600">&times;</button>
                     </span>
                   )}
+                  {filterModule && (
+                    <span className="text-[10px] bg-indigo-50 text-indigo-700 font-semibold px-2 py-0.5 rounded-full border border-indigo-200">
+                      Module
+                      <button onClick={() => setFilterModule("")} className="ml-1 text-indigo-400 hover:text-indigo-600">&times;</button>
+                    </span>
+                  )}
                   <button
-                    onClick={() => { setFilterTeacher(""); setFilterSubject(""); setFilterClassLevel(""); setFilterClass(""); }}
+                    onClick={() => { setFilterTeacher(""); setFilterSubject(""); setFilterClassLevel(""); setFilterClass(""); setFilterModule(""); }}
                     className="text-[10px] text-red-500 font-semibold underline"
                   >
                     Clear all
@@ -492,6 +570,7 @@ export default function HODDashboard() {
                       entry.assignment?.subject?.name ??
                       entry.topics?.[0]?.subject?.name ??
                       "—";
+                    const divisionName = entry.assignment?.division?.name;
                     const teacherName = `${entry.teacher.firstName} ${entry.teacher.lastName}`;
                     const entryDate = new Date(entry.date).toLocaleDateString(
                       "en-GB",
@@ -511,6 +590,11 @@ export default function HODDashboard() {
                                 <span className="text-[10px] font-bold bg-blue-50 text-blue-700 px-1.5 py-0.5 rounded">
                                   {subjectName}
                                 </span>
+                                {divisionName && (
+                                  <span className="text-[10px] font-medium bg-amber-50 text-amber-700 px-1.5 py-0.5 rounded">
+                                    {divisionName}
+                                  </span>
+                                )}
                                 <span className="text-[10px] font-medium bg-purple-50 text-purple-600 px-1.5 py-0.5 rounded">
                                   {entry.class.name}
                                 </span>
@@ -544,6 +628,12 @@ export default function HODDashboard() {
                                     Period {entry.period}
                                   </span>
                                 )}
+                                {entry.moduleName && (
+                                  <span className="flex items-center gap-1">
+                                    <Layers className="w-3 h-3" />
+                                    {entry.moduleName}
+                                  </span>
+                                )}
                               </div>
                             </div>
                             {isExpanded ? (
@@ -568,6 +658,20 @@ export default function HODDashboard() {
                                       {entry.topics
                                         .map((t) => t.name)
                                         .join(", ")}
+                                    </p>
+                                  </div>
+                                </div>
+                              )}
+
+                              {entry.topicText && (
+                                <div className="flex items-start gap-2">
+                                  <BookOpen className="w-4 h-4 text-slate-400 mt-0.5 flex-shrink-0" />
+                                  <div>
+                                    <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400">
+                                      Topic Taught
+                                    </p>
+                                    <p className="text-sm text-slate-700">
+                                      {entry.topicText}
                                     </p>
                                   </div>
                                 </div>
