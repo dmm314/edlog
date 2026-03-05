@@ -245,7 +245,6 @@ export default function AdminDashboardPage() {
           </h3>
           <div className="grid grid-cols-2 gap-3">
             {[
-              
                             { href: "/admin/entries", icon: FileText, label: "All Entries", desc: "Browse entries", gradient: "from-brand-500 to-brand-700" },
               { href: "/admin/teachers", icon: Users, label: "Teachers", desc: "Verify & manage", gradient: "from-blue-500 to-indigo-600" },
                             { href: "/admin/assignments", icon: UserCheck, label: "Assignments", desc: "Assign teachers", gradient: "from-emerald-500 to-teal-600" },
