@@ -41,7 +41,7 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const body = await request.json();
+    const body: { notificationId?: string; markAllRead?: boolean } = await request.json();
 
     if (body.markAllRead === true) {
       await db.notification.updateMany({
