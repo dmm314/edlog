@@ -418,6 +418,22 @@ export default function ProfilePage() {
               </div>
             </div>
 
+            {isSchoolAdmin && (
+              <Link
+                href="/admin/school"
+                className="flex items-center justify-between p-4 hover:bg-slate-50 transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <Building2 className="w-5 h-5 text-slate-400" />
+                  <div>
+                    <p className="text-xs text-slate-400">School Settings</p>
+                    <p className="text-sm font-medium text-slate-900">Open school profile editor</p>
+                  </div>
+                </div>
+                <ChevronRight className="w-4 h-4 text-slate-400" />
+              </Link>
+            )}
+
             <div className="flex items-center gap-3 p-4">
               <BookOpen className="w-5 h-5 text-slate-400" />
               <div>
