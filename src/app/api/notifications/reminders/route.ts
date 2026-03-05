@@ -33,7 +33,7 @@ export async function POST(request: Request) {
         isVerified: true,
         assignments: {
           some: {
-            timetableSlots: { some: {} },
+            periods: { some: {} },
           },
         },
       },
@@ -44,7 +44,7 @@ export async function POST(request: Request) {
           include: {
             class: true,
             subject: true,
-            timetableSlots: true,
+            periods: true,
           },
         },
       },
@@ -104,7 +104,7 @@ export async function POST(request: Request) {
         const dateStr = checkDate.toISOString().split("T")[0];
 
         for (const assignment of teacher.assignments) {
-          for (const slot of assignment.timetableSlots) {
+          for (const slot of assignment.periods) {
             if (slot.dayOfWeek !== dow) continue;
 
             const periodMatch = slot.periodLabel?.match(/\d+/);
