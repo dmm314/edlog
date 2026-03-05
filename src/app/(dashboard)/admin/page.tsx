@@ -245,16 +245,14 @@ export default function AdminDashboardPage() {
           </h3>
           <div className="grid grid-cols-2 gap-3">
             {[
-              { href: "/admin/entry-timetable", icon: BarChart3, label: "Entry Timetable", desc: "View by timetable", gradient: "from-cyan-500 to-blue-600" },
-              { href: "/admin/entries", icon: FileText, label: "All Entries", desc: "Browse entries", gradient: "from-brand-500 to-brand-700" },
+              
+                            { href: "/admin/entries", icon: FileText, label: "All Entries", desc: "Browse entries", gradient: "from-brand-500 to-brand-700" },
               { href: "/admin/teachers", icon: Users, label: "Teachers", desc: "Verify & manage", gradient: "from-blue-500 to-indigo-600" },
-              { href: "/admin/classes", icon: GraduationCap, label: "Classes", desc: "Add & edit classes", gradient: "from-violet-500 to-purple-600" },
-              { href: "/admin/assignments", icon: UserCheck, label: "Assignments", desc: "Assign teachers", gradient: "from-emerald-500 to-teal-600" },
-              { href: "/admin/timetable", icon: Calendar, label: "Timetable", desc: "Set up slots", gradient: "from-amber-500 to-orange-600" },
-              { href: "/admin/divisions", icon: Layers, label: "Divisions", desc: "Subject sub-sections", gradient: "from-rose-500 to-pink-600" },
+                            { href: "/admin/assignments", icon: UserCheck, label: "Assignments", desc: "Assign teachers", gradient: "from-emerald-500 to-teal-600" },
+                            { href: "/admin/divisions", icon: Layers, label: "Divisions", desc: "Subject sub-sections", gradient: "from-rose-500 to-pink-600" },
               { href: "/admin/hods", icon: UserCheck, label: "HODs", desc: "Dept. heads", gradient: "from-amber-500 to-yellow-600" },
               { href: "/admin/reports", icon: TrendingUp, label: "Reports", desc: "Analytics & export", gradient: "from-orange-500 to-red-600" },
-              { href: "/admin/school", icon: Building2, label: "School Profile", desc: "School settings", gradient: "from-slate-500 to-slate-700" },
+              { href: "/profile", icon: Building2, label: "Profile & School", desc: "Account and school info", gradient: "from-slate-500 to-slate-700" },
             ].map(({ href, icon: Icon, label, desc, gradient }) => (
               <Link
                 key={href}
