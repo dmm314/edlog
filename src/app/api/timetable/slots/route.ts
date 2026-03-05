@@ -50,48 +50,27 @@ export async function GET(request: NextRequest) {
       orderBy: { startTime: "asc" },
     });
 
-    // Build lookup for joint class detection: day+time -> classes
-    const timeSlotMap = new Map<string, { className: string; classId: string; slotId: string }[]>();
-    for (const slot of slots) {
-      const key = `${slot.dayOfWeek}|${slot.startTime}`;
-      if (!timeSlotMap.has(key)) timeSlotMap.set(key, []);
-      timeSlotMap.get(key)!.push({
-        className: slot.assignment.class.name,
+    const result = slots.map((slot) => ({
+      id: slot.id,
+      dayOfWeek: slot.dayOfWeek,
+      startTime: slot.startTime,
+      endTime: slot.endTime,
+      periodLabel: slot.periodLabel,
+      schoolId: slot.school.id,
+      schoolName: slot.school.name,
+      schoolCode: slot.school.code,
+      assignment: {
+        id: slot.assignment.id,
         classId: slot.assignment.classId,
-        slotId: slot.id,
-      });
-    }
-
-    const result = slots.map((slot) => {
-      const key = `${slot.dayOfWeek}|${slot.startTime}`;
-      const sameTimeSlots = timeSlotMap.get(key) || [];
-      const jointClasses = sameTimeSlots
-        .filter((s) => s.slotId !== slot.id)
-        .map((s) => s.className);
-
-      return {
-        id: slot.id,
-        dayOfWeek: slot.dayOfWeek,
-        startTime: slot.startTime,
-        endTime: slot.endTime,
-        periodLabel: slot.periodLabel,
-        schoolId: slot.school.id,
-        schoolName: slot.school.name,
-        schoolCode: slot.school.code,
-        assignment: {
-          id: slot.assignment.id,
-          classId: slot.assignment.classId,
-          className: slot.assignment.class.name,
-          subjectId: slot.assignment.subjectId,
-          subjectName: slot.assignment.division
-            ? `${slot.assignment.subject.name} (${slot.assignment.division.name})`
-            : slot.assignment.subject.name,
-          divisionId: slot.assignment.divisionId,
-          divisionName: slot.assignment.division?.name || null,
-        },
-        jointWith: jointClasses.length > 0 ? jointClasses : undefined,
-      };
-    });
+        className: slot.assignment.class.name,
+        subjectId: slot.assignment.subjectId,
+        subjectName: slot.assignment.division
+          ? `${slot.assignment.subject.name} (${slot.assignment.division.name})`
+          : slot.assignment.subject.name,
+        divisionId: slot.assignment.divisionId,
+        divisionName: slot.assignment.division?.name || null,
+      },
+    }));
 
     return NextResponse.json(result);
   } catch (error) {

@@ -9,14 +9,7 @@ import {
   Check,
   Plus,
   Search,
-  Copy,
-  Layers,
 } from "lucide-react";
-
-interface DivisionInfo {
-  id: string;
-  name: string;
-}
 
 interface SubjectItem {
   id: string;
@@ -24,27 +17,16 @@ interface SubjectItem {
   code: string;
   category: string | null;
   linked: boolean;
-  divisions: DivisionInfo[];
-}
-
-interface OtherClass {
-  id: string;
-  name: string;
-  subjectCount: number;
-  subjectIds: string[];
 }
 
 export default function ClassSubjectsPage() {
   const { classId } = useParams<{ classId: string }>();
   const [className, setClassName] = useState("");
   const [subjects, setSubjects] = useState<SubjectItem[]>([]);
-  const [otherClasses, setOtherClasses] = useState<OtherClass[]>([]);
   const [loading, setLoading] = useState(true);
   const [toggling, setToggling] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
-  const [showCopyFrom, setShowCopyFrom] = useState(false);
-  const [copying, setCopying] = useState(false);
 
   useEffect(() => {
     fetchSubjects();
@@ -57,7 +39,6 @@ export default function ClassSubjectsPage() {
         const data = await res.json();
         setClassName(data.className);
         setSubjects(data.subjects);
-        setOtherClasses(data.otherClasses || []);
       }
     } catch {
       // silently fail
@@ -110,35 +91,6 @@ export default function ClassSubjectsPage() {
     }
   }
 
-  async function handleCopyFrom(sourceClass: OtherClass) {
-    setCopying(true);
-    setError("");
-
-    try {
-      const res = await fetch(`/api/admin/classes/${classId}/subjects`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ subjectIds: sourceClass.subjectIds }),
-      });
-      if (res.ok) {
-        const copiedIds = new Set(sourceClass.subjectIds);
-        setSubjects((prev) =>
-          prev.map((s) =>
-            copiedIds.has(s.id) ? { ...s, linked: true } : s
-          )
-        );
-        setShowCopyFrom(false);
-      } else {
-        const data = await res.json();
-        setError(data.error || "Failed to copy subjects");
-      }
-    } catch {
-      setError("Something went wrong");
-    } finally {
-      setCopying(false);
-    }
-  }
-
   const linkedCount = subjects.filter((s) => s.linked).length;
 
   const filteredSubjects = useMemo(() => {
@@ -174,25 +126,12 @@ export default function ClassSubjectsPage() {
             <ArrowLeft className="w-4 h-4" />
             Back to Classes
           </Link>
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-xl font-bold text-white">
-                {loading ? "Loading..." : className}
-              </h1>
-              <p className="text-brand-400 text-sm mt-0.5">
-                {linkedCount} subject{linkedCount !== 1 ? "s" : ""} assigned
-              </p>
-            </div>
-            {otherClasses.length > 0 && (
-              <button
-                onClick={() => setShowCopyFrom(!showCopyFrom)}
-                className="flex items-center gap-1.5 bg-white/10 hover:bg-white/20 text-white text-sm rounded-lg px-3 py-1.5"
-              >
-                <Copy className="w-4 h-4" />
-                Copy from
-              </button>
-            )}
-          </div>
+          <h1 className="text-xl font-bold text-white">
+            {loading ? "Loading..." : className}
+          </h1>
+          <p className="text-brand-400 text-sm mt-0.5">
+            {linkedCount} subject{linkedCount !== 1 ? "s" : ""} assigned
+          </p>
         </div>
       </div>
 
@@ -201,48 +140,9 @@ export default function ClassSubjectsPage() {
         <div className="card p-4">
           <p className="text-sm text-slate-600">
             Select the subjects taught in this class. These will be available
-            when assigning teachers. Subjects with divisions are shown with
-            their sub-sections below.
+            when assigning teachers.
           </p>
         </div>
-
-        {/* Copy from another class */}
-        {showCopyFrom && (
-          <div className="card p-4 border-l-4 border-blue-400 space-y-3">
-            <div className="flex items-start gap-2">
-              <Copy className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
-              <div>
-                <h3 className="text-sm font-semibold text-slate-900">
-                  Copy subjects from another class
-                </h3>
-                <p className="text-xs text-slate-500 mt-0.5">
-                  This will add all subjects from the selected class to {className}.
-                  Already-added subjects will be skipped.
-                </p>
-              </div>
-            </div>
-            <div className="space-y-2">
-              {otherClasses.map((oc) => (
-                <button
-                  key={oc.id}
-                  onClick={() => handleCopyFrom(oc)}
-                  disabled={copying}
-                  className="w-full flex items-center justify-between bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-xl px-3 py-2.5 transition-colors text-left"
-                >
-                  <div>
-                    <p className="text-sm font-semibold text-blue-900">
-                      {oc.name}
-                    </p>
-                    <p className="text-xs text-blue-600">
-                      {oc.subjectCount} subject{oc.subjectCount !== 1 ? "s" : ""}
-                    </p>
-                  </div>
-                  <Copy className="w-4 h-4 text-blue-500" />
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
 
         {/* Error */}
         {error && (
@@ -289,70 +189,42 @@ export default function ClassSubjectsPage() {
               </h3>
               <div className="space-y-1.5">
                 {categorySubjects.map((subject) => (
-                  <div key={subject.id}>
-                    <button
-                      onClick={() =>
-                        toggleSubject(subject.id, subject.linked)
-                      }
-                      disabled={toggling === subject.id}
-                      className={`w-full card p-3 flex items-center justify-between transition-colors ${
-                        subject.linked
-                          ? "bg-brand-50 border-brand-200"
-                          : "hover:bg-slate-50"
-                      } ${subject.divisions.length > 0 && subject.linked ? "rounded-b-none border-b-0" : ""}`}
-                    >
-                      <div className="text-left">
-                        <h4
-                          className={`font-medium text-sm ${
-                            subject.linked
-                              ? "text-brand-900"
-                              : "text-slate-900"
-                          }`}
-                        >
-                          {subject.name}
-                        </h4>
-                        <p className="text-xs text-slate-400">{subject.code}</p>
+                  <button
+                    key={subject.id}
+                    onClick={() =>
+                      toggleSubject(subject.id, subject.linked)
+                    }
+                    disabled={toggling === subject.id}
+                    className={`w-full card p-3 flex items-center justify-between transition-colors ${
+                      subject.linked
+                        ? "bg-brand-50 border-brand-200"
+                        : "hover:bg-slate-50"
+                    }`}
+                  >
+                    <div className="text-left">
+                      <h4
+                        className={`font-medium text-sm ${
+                          subject.linked
+                            ? "text-brand-900"
+                            : "text-slate-900"
+                        }`}
+                      >
+                        {subject.name}
+                      </h4>
+                      <p className="text-xs text-slate-400">{subject.code}</p>
+                    </div>
+                    {toggling === subject.id ? (
+                      <div className="w-6 h-6 border-2 border-brand-300 border-t-transparent rounded-full animate-spin" />
+                    ) : subject.linked ? (
+                      <div className="w-6 h-6 bg-brand-600 rounded-full flex items-center justify-center">
+                        <Check className="w-3.5 h-3.5 text-white" />
                       </div>
-                      <div className="flex items-center gap-2">
-                        {subject.divisions.length > 0 && (
-                          <span className="text-[10px] text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded font-medium flex items-center gap-0.5">
-                            <Layers className="w-3 h-3" />
-                            {subject.divisions.length} div.
-                          </span>
-                        )}
-                        {toggling === subject.id ? (
-                          <div className="w-6 h-6 border-2 border-brand-300 border-t-transparent rounded-full animate-spin" />
-                        ) : subject.linked ? (
-                          <div className="w-6 h-6 bg-brand-600 rounded-full flex items-center justify-center">
-                            <Check className="w-3.5 h-3.5 text-white" />
-                          </div>
-                        ) : (
-                          <div className="w-6 h-6 border-2 border-slate-200 rounded-full flex items-center justify-center">
-                            <Plus className="w-3.5 h-3.5 text-slate-400" />
-                          </div>
-                        )}
-                      </div>
-                    </button>
-                    {/* Show divisions when subject is linked and has divisions */}
-                    {subject.linked && subject.divisions.length > 0 && (
-                      <div className="bg-amber-50/50 border border-t-0 border-amber-200 rounded-b-xl px-3 py-2">
-                        <p className="text-[10px] font-semibold uppercase tracking-widest text-amber-600 mb-1.5 flex items-center gap-1">
-                          <Layers className="w-3 h-3" />
-                          Divisions (taught by different teachers)
-                        </p>
-                        <div className="flex flex-wrap gap-1.5">
-                          {subject.divisions.map((d) => (
-                            <span
-                              key={d.id}
-                              className="text-xs bg-white text-amber-800 px-2 py-0.5 rounded border border-amber-200 font-medium"
-                            >
-                              {d.name}
-                            </span>
-                          ))}
-                        </div>
+                    ) : (
+                      <div className="w-6 h-6 border-2 border-slate-200 rounded-full flex items-center justify-center">
+                        <Plus className="w-3.5 h-3.5 text-slate-400" />
                       </div>
                     )}
-                  </div>
+                  </button>
                 ))}
               </div>
             </div>

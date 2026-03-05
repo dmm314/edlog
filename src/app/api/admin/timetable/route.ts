@@ -153,43 +153,20 @@ export async function GET() {
       classes = rawClasses.map((c) => ({ ...c, _count: { assignments: 0 } }));
     }
 
-    // Build a lookup of teacher+day+time -> classes for joint class detection
-    const teacherSlotMap = new Map<string, { className: string; classId: string; slotId: string }[]>();
-    for (const slot of slots) {
-      const teacherName = `${slot.assignment.teacher.firstName} ${slot.assignment.teacher.lastName}`;
-      const key = `${teacherName}|${slot.dayOfWeek}|${slot.startTime}`;
-      if (!teacherSlotMap.has(key)) teacherSlotMap.set(key, []);
-      teacherSlotMap.get(key)!.push({
-        className: slot.assignment.class.name,
-        classId: slot.assignment.class.id,
-        slotId: slot.id,
-      });
-    }
-
-    const slotsResult = slots.map((slot) => {
-      const teacherName = `${slot.assignment.teacher.firstName} ${slot.assignment.teacher.lastName}`;
-      const key = `${teacherName}|${slot.dayOfWeek}|${slot.startTime}`;
-      const sameTimeSlots = teacherSlotMap.get(key) || [];
-      const jointClasses = sameTimeSlots
-        .filter((s) => s.slotId !== slot.id)
-        .map((s) => s.className);
-
-      return {
-        id: slot.id,
-        dayOfWeek: slot.dayOfWeek,
-        startTime: slot.startTime,
-        endTime: slot.endTime,
-        periodLabel: slot.periodLabel,
-        assignmentId: slot.assignmentId,
-        teacher: teacherName,
-        className: slot.assignment.class.name,
-        classId: slot.assignment.class.id,
-        subject: slot.assignment.division
-          ? `${slot.assignment.subject.name} (${slot.assignment.division.name})`
-          : slot.assignment.subject.name,
-        jointWith: jointClasses.length > 0 ? jointClasses : undefined,
-      };
-    });
+    const slotsResult = slots.map((slot) => ({
+      id: slot.id,
+      dayOfWeek: slot.dayOfWeek,
+      startTime: slot.startTime,
+      endTime: slot.endTime,
+      periodLabel: slot.periodLabel,
+      assignmentId: slot.assignmentId,
+      teacher: `${slot.assignment.teacher.firstName} ${slot.assignment.teacher.lastName}`,
+      className: slot.assignment.class.name,
+      classId: slot.assignment.class.id,
+      subject: slot.assignment.division
+        ? `${slot.assignment.subject.name} (${slot.assignment.division.name})`
+        : slot.assignment.subject.name,
+    }));
 
     const assignmentOptions = assignments.map((a) => ({
       id: a.id,
@@ -299,7 +276,7 @@ export async function POST(request: Request) {
       return NextResponse.json(
         {
           warning: true,
-          error: `This teacher is already teaching ${conflict.subject.name} in ${conflict.class.name} on ${DAYS[parseInt(dayOfWeek) - 1] || `Day ${dayOfWeek}`} at ${teacherConflicts[0].startTime}-${teacherConflicts[0].endTime}. If you proceed, this will create a joint class — ${conflict.class.name} and ${assignment.class.name} will share this teacher at the same time.`,
+          error: `Double-booking: This teacher is already assigned to ${conflict.subject.name} (${conflict.class.name}) on ${DAYS[parseInt(dayOfWeek) - 1] || `Day ${dayOfWeek}`} at ${teacherConflicts[0].startTime}-${teacherConflicts[0].endTime}. This is allowed for joint classes. Do you want to proceed?`,
         },
         { status: 409 }
       );

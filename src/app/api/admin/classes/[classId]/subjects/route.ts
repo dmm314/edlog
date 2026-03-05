@@ -50,60 +50,14 @@ export async function GET(
 
     const linkedIds = new Set(classSubjects.map((cs) => cs.subjectId));
 
-    // Get divisions for each subject (school-specific)
-    const divisions = await db.subjectDivision.findMany({
-      where: { schoolId: user.schoolId },
-      select: { id: true, name: true, subjectId: true },
-      orderBy: { name: "asc" },
-    }).catch(() => [] as { id: string; name: string; subjectId: string }[]);
-
-    const divisionsBySubject: Record<string, { id: string; name: string }[]> = {};
-    for (const d of divisions) {
-      if (!divisionsBySubject[d.subjectId]) divisionsBySubject[d.subjectId] = [];
-      divisionsBySubject[d.subjectId].push({ id: d.id, name: d.name });
-    }
-
-    // Get other classes in this school (for "copy from" feature)
-    const otherClasses = await db.class.findMany({
-      where: { schoolId: user.schoolId, NOT: { id: params.classId } },
-      select: { id: true, name: true },
-      orderBy: { name: "asc" },
-    });
-
-    // Get subject counts per class (for copy from)
-    const otherClassSubjects = await db.classSubject.findMany({
-      where: {
-        class: { schoolId: user.schoolId },
-        NOT: { classId: params.classId },
-      },
-      select: { classId: true, subjectId: true },
-    });
-
-    const subjectCountByClass: Record<string, number> = {};
-    const subjectIdsByClass: Record<string, string[]> = {};
-    for (const cs of otherClassSubjects) {
-      subjectCountByClass[cs.classId] = (subjectCountByClass[cs.classId] || 0) + 1;
-      if (!subjectIdsByClass[cs.classId]) subjectIdsByClass[cs.classId] = [];
-      subjectIdsByClass[cs.classId].push(cs.subjectId);
-    }
-
     return NextResponse.json({
       className: cls.name,
       classLevel: cls.level,
       subjects: allSubjects.map((s) => ({
         ...s,
         linked: linkedIds.has(s.id),
-        divisions: divisionsBySubject[s.id] || [],
       })),
       linkedCount: linkedIds.size,
-      otherClasses: otherClasses
-        .filter((c) => (subjectCountByClass[c.id] || 0) > 0)
-        .map((c) => ({
-          id: c.id,
-          name: c.name,
-          subjectCount: subjectCountByClass[c.id] || 0,
-          subjectIds: subjectIdsByClass[c.id] || [],
-        })),
     });
   } catch (error) {
     console.error("GET /api/admin/classes/[classId]/subjects error:", error);

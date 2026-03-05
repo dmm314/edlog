@@ -105,43 +105,7 @@ export async function GET() {
       });
     }
 
-    // Fetch divisions for each subject
-    let divisions: { id: string; name: string; subjectId: string }[] = [];
-    try {
-      divisions = await db.subjectDivision.findMany({
-        where: { schoolId: user.schoolId },
-        select: { id: true, name: true, subjectId: true },
-        orderBy: { name: "asc" },
-      });
-    } catch {
-      // Division table might not exist
-    }
-
-    const divisionsBySubject: Record<string, { id: string; name: string }[]> = {};
-    for (const d of divisions) {
-      if (!divisionsBySubject[d.subjectId]) divisionsBySubject[d.subjectId] = [];
-      divisionsBySubject[d.subjectId].push({ id: d.id, name: d.name });
-    }
-
-    // Count teachers assigned per subject
-    const assignmentCounts = await db.teacherAssignment.groupBy({
-      by: ["subjectId"],
-      where: { schoolId: user.schoolId },
-      _count: { teacherId: true },
-    }).catch(() => [] as { subjectId: string; _count: { teacherId: number } }[]);
-
-    const teacherCountBySubject: Record<string, number> = {};
-    for (const ac of assignmentCounts) {
-      teacherCountBySubject[ac.subjectId] = ac._count.teacherId;
-    }
-
-    return NextResponse.json({
-      hods,
-      teachers,
-      subjects,
-      divisionsBySubject,
-      teacherCountBySubject,
-    });
+    return NextResponse.json({ hods, teachers, subjects });
   } catch (error) {
     console.error("GET /api/admin/hods error:", error);
     return NextResponse.json(

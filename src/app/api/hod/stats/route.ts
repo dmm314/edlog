@@ -46,7 +46,7 @@ export async function GET() {
       db.logbookEntry.count({ where: { ...entryFilter, date: { gte: startOfWeek } } }),
     ]);
 
-    // Teachers with their entry counts for ranking — filtered to HOD's subjects only
+    // Teachers with their entry counts for ranking
     const teacherDetails = await db.user.findMany({
       where: {
         schoolId: user.schoolId,
@@ -57,77 +57,29 @@ export async function GET() {
         id: true,
         firstName: true,
         lastName: true,
-        assignments: {
-          where: { subjectId: { in: hodSubjectIds } },
-          select: {
-            subject: { select: { name: true } },
-            division: { select: { name: true } },
-            class: { select: { name: true } },
-          },
+        _count: { select: { entries: true } },
+        entries: {
+          where: { date: { gte: startOfMonth } },
+          select: { id: true },
         },
       },
       orderBy: { lastName: "asc" },
     });
 
-    // Count entries per teacher in HOD's subjects
-    const teacherRankings = await Promise.all(
-      teacherDetails.map(async (t) => {
-        const subjectEntryFilter = {
-          teacherId: t.id,
-          OR: [
-            { topics: { some: { subjectId: { in: hodSubjectIds } } } },
-            { assignment: { subjectId: { in: hodSubjectIds } } },
-          ],
-        };
-
-        const [total, monthly] = await Promise.all([
-          db.logbookEntry.count({ where: subjectEntryFilter }),
-          db.logbookEntry.count({
-            where: { ...subjectEntryFilter, date: { gte: startOfMonth } },
-          }),
-        ]);
-
-        // Build readable class list for HOD's subjects
-        const classInfo = t.assignments.map((a) => ({
-          className: a.class.name,
-          subject: a.subject.name,
-          division: a.division?.name || null,
-        }));
-
-        return {
-          id: t.id,
-          name: `${t.firstName} ${t.lastName}`,
-          totalEntries: total,
-          monthlyEntries: monthly,
-          classes: classInfo,
-        };
-      })
-    );
-
-    teacherRankings.sort((a, b) => b.monthlyEntries - a.monthlyEntries);
-
-    // Get divisions for HOD's subjects
-    const divisions = await db.subjectDivision.findMany({
-      where: {
-        schoolId: user.schoolId!,
-        subjectId: { in: hodSubjectIds },
-      },
-      select: { id: true, name: true, subjectId: true },
-      orderBy: { name: "asc" },
-    }).catch(() => [] as { id: string; name: string; subjectId: string }[]);
-
-    const divisionsBySubject: Record<string, { id: string; name: string }[]> = {};
-    for (const d of divisions) {
-      if (!divisionsBySubject[d.subjectId]) divisionsBySubject[d.subjectId] = [];
-      divisionsBySubject[d.subjectId].push({ id: d.id, name: d.name });
-    }
+    const teacherRankings = teacherDetails
+      .map((t) => ({
+        id: t.id,
+        name: `${t.firstName} ${t.lastName}`,
+        totalEntries: t._count.entries,
+        monthlyEntries: t.entries.length,
+      }))
+      .sort((a, b) => b.monthlyEntries - a.monthlyEntries);
 
     return NextResponse.json({
       hodSubjects: hodAssignments.map((h) => ({
         id: h.subject.id,
         name: h.subject.name,
         code: h.subject.code,
-        divisions: divisionsBySubject[h.subjectId] || [],
       })),
       teachersInDept,
       totalEntries,

@@ -8,8 +8,6 @@ import {
   Plus,
   Trash2,
   BookOpen,
-  Layers,
-  Users,
 } from "lucide-react";
 
 interface HODItem {
@@ -45,8 +43,6 @@ export default function HODsPage() {
   const [hods, setHods] = useState<HODItem[]>([]);
   const [teachers, setTeachers] = useState<TeacherOption[]>([]);
   const [subjects, setSubjects] = useState<SubjectOption[]>([]);
-  const [divisionsBySubject, setDivisionsBySubject] = useState<Record<string, { id: string; name: string }[]>>({});
-  const [teacherCountBySubject, setTeacherCountBySubject] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -68,8 +64,6 @@ export default function HODsPage() {
         setHods(data.hods);
         setTeachers(data.teachers);
         setSubjects(data.subjects);
-        setDivisionsBySubject(data.divisionsBySubject || {});
-        setTeacherCountBySubject(data.teacherCountBySubject || {});
       }
     } catch {
       setError("Failed to load data");
@@ -192,9 +186,8 @@ export default function HODsPage() {
                 </p>
                 <p className="text-slate-500 mt-1">
                   An HOD is a teacher designated to oversee a subject department.
-                  They can view logbook entries of all teachers teaching their
-                  subject (including all divisions like Physical Chemistry,
-                  Organic Chemistry, etc.), helping ensure quality and completeness.
+                  They can view logbook entries of all teachers in their subject,
+                  helping ensure quality and completeness.
                 </p>
                 <button
                   onClick={() => setShowForm(true)}
@@ -332,7 +325,7 @@ export default function HODsPage() {
                         </button>
                       </div>
 
-                      <div className="flex items-center gap-2 mt-2 flex-wrap">
+                      <div className="flex items-center gap-2 mt-2">
                         <span className="text-[10px] font-bold bg-amber-50 text-amber-700 px-2 py-0.5 rounded-md border border-amber-100 flex items-center gap-1">
                           <Crown className="w-3 h-3" />
                           HOD
@@ -340,28 +333,7 @@ export default function HODsPage() {
                         <span className="text-[10px] font-bold bg-blue-50 text-blue-700 px-2 py-0.5 rounded-md border border-blue-100">
                           {hod.subject.name}
                         </span>
-                        {(teacherCountBySubject[hod.subject.id] || 0) > 0 && (
-                          <span className="text-[10px] font-medium bg-slate-50 text-slate-500 px-2 py-0.5 rounded-md border border-slate-200 flex items-center gap-1">
-                            <Users className="w-3 h-3" />
-                            {teacherCountBySubject[hod.subject.id]} assigned
-                          </span>
-                        )}
                       </div>
-                      {divisionsBySubject[hod.subject.id] && divisionsBySubject[hod.subject.id].length > 0 && (
-                        <div className="mt-2 flex items-start gap-1.5">
-                          <Layers className="w-3 h-3 text-amber-500 mt-0.5 flex-shrink-0" />
-                          <div className="flex flex-wrap gap-1">
-                            {divisionsBySubject[hod.subject.id].map((d) => (
-                              <span
-                                key={d.id}
-                                className="text-[10px] bg-amber-50 text-amber-600 px-1.5 py-0.5 rounded border border-amber-100"
-                              >
-                                {d.name}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                      )}
                     </div>
                   </div>
                 </div>
