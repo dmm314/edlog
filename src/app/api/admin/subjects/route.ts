@@ -5,6 +5,7 @@ import { getSessionUser } from "@/lib/auth";
 export async function GET() {
   try {
     const user = await getSessionUser();
+
     if (!user || user.role !== "SCHOOL_ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -13,6 +14,9 @@ export async function GET() {
       return NextResponse.json({ error: "No school assigned" }, { status: 400 });
     }
 
+    // Initialize school-scoped DB
+    const sdb = schoolDb(user.schoolId);
+
     // Get all global subjects
     const allSubjects = await db.subject.findMany({
       orderBy: [{ category: "asc" }, { name: "asc" }],
@@ -20,8 +24,7 @@ export async function GET() {
     });
 
     // Get subjects already linked to this school
-    const schoolSubjects = await db.schoolSubject.findMany({
-      where: { schoolId: user.schoolId },
+    const schoolSubjects = await sdb.schoolSubject.findMany({
       select: { subjectId: true },
     });
 
