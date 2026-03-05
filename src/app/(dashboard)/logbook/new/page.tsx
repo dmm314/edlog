@@ -540,7 +540,9 @@ export default function NewEntryPage() {
         .map((id) => topicsForModule.find((t) => t.id === id)?.name)
         .filter(Boolean) as string[];
 
-      const classNames = [...new Set(createdEntries.map((e) => e.class.name))];
+      const classNames = Array.from(
+  new Set(createdEntries.map((e) => e.class.name))
+);
 
       setSubmittedEntries({
         subject: subjectDisplayName,
