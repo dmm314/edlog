@@ -40,6 +40,9 @@ const DIVISION_TEMPLATES: Record<string, string[]> = {
   MAT: ["Pure Mathematics", "Mechanics", "Statistics"],
   ECO: ["Microeconomics", "Macroeconomics"],
   GEO: ["Physical Geography", "Human Geography"],
+  LOG: ["Formal Logic", "Reasoning", "Applied Logic"],
+  PHI: ["Logic", "Ethics", "Metaphysics", "Applied Philosophy"],
+  HIS: ["World History", "African History", "Cameroon History"],
 };
 
 export default function DivisionsPage() {
