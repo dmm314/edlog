@@ -1,4 +1,4 @@
-type EventPayload = Record<string, any>
+type EventPayload = Record<string, unknown>
 
 type EventHandler = (payload: EventPayload) => Promise<void>
 
