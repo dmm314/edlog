@@ -1,28 +1,18 @@
 import { db } from "@/lib/db"
-
-type PrismaArgs = {
-  where?: Record<string, unknown>
-  data?: Record<string, unknown>
-}
+import { Prisma } from "@prisma/client"
 
 export function schoolDb(schoolId: string) {
   return {
     teacherAssignment: {
-      findMany: (args: PrismaArgs = {}) =>
+      findMany: (args: Prisma.TeacherAssignmentFindManyArgs = {}) =>
         db.teacherAssignment.findMany({
           ...args,
           where: { ...(args.where ?? {}), schoolId }
         }),
-
-      create: (args: PrismaArgs) =>
-        db.teacherAssignment.create({
-          ...args,
-          data: { ...(args.data ?? {}), schoolId }
-        })
     },
 
     schoolSubject: {
-      findMany: (args: PrismaArgs = {}) =>
+      findMany: (args: Prisma.SchoolSubjectFindManyArgs = {}) =>
         db.schoolSubject.findMany({
           ...args,
           where: { ...(args.where ?? {}), schoolId }
