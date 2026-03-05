@@ -47,6 +47,12 @@ export async function GET(request: NextRequest) {
       where.class = { name: className };
     }
 
+    // Support filtering by class level (for HOD filtering by form)
+    const classLevel = searchParams.get("classLevel");
+    if (classLevel) {
+      where.class = { ...(where.class as Record<string, unknown> || {}), level: classLevel };
+    }
+
     // teacherId filter (for admin filtering by specific teacher)
     if (teacherId && user.role !== "TEACHER") {
       where.teacherId = teacherId;
@@ -91,6 +97,12 @@ export async function GET(request: NextRequest) {
           { assignment: { subject: { name: { contains: search, mode: "insensitive" } } } },
         ],
       });
+    }
+
+    // Filter by status
+    const status = searchParams.get("status");
+    if (status) {
+      where.status = status;
     }
 
     if (andConditions.length > 0) {
@@ -178,8 +190,8 @@ export async function POST(request: Request) {
         ? [data.topicId]
         : [];
 
-    // topicText (free-text) OR topicId is required
-    if (topicIds.length === 0 && !topicText) {
+    // topicText (free-text) OR topicId is required for submitted entries (not drafts or class-didn't-hold)
+    if (topicIds.length === 0 && !topicText && data.status !== "DRAFT" && !data.classDidNotHold) {
       return NextResponse.json(
         { error: "A topic is required" },
         { status: 400 }
@@ -192,12 +204,37 @@ export async function POST(request: Request) {
     // Convert to 1=Mon format used in timetable
     const timetableDow = jsDay === 0 ? 7 : jsDay;
 
-    // Block weekends
+    // The date entered must be a weekday (Mon-Fri) — the teaching date
     if (timetableDow > 5) {
       return NextResponse.json(
-        { error: "You cannot submit entries on weekends" },
+        { error: "The teaching date must be a weekday (Monday to Friday)" },
         { status: 400 }
       );
+    }
+
+    // Weekend submission rule: Teachers can only submit final entries (SUBMITTED status)
+    // for the current week. The deadline is the end of the weekend (Sunday).
+    // They can fill during the week or complete by end of weekend.
+    const now = new Date();
+    const entryWeekStart = getWeekStart(entryDate);
+    const entryWeekEnd = getWeekEnd(entryDate); // Sunday end of that week
+
+    // For SUBMITTED entries, check if we're still within the allowed window
+    // Allowed: same week (Mon-Sun), or if it's the weekend after the teaching week
+    if (data.status === "SUBMITTED") {
+      const currentWeekStart = getWeekStart(now);
+      const isCurrentWeek = entryWeekStart.getTime() === currentWeekStart.getTime();
+
+      // Allow submission up to 3 days after the end of the teaching week (Wednesday next week)
+      const submissionDeadline = new Date(entryWeekEnd);
+      submissionDeadline.setDate(submissionDeadline.getDate() + 3);
+
+      if (now > submissionDeadline && !isCurrentWeek) {
+        return NextResponse.json(
+          { error: "The submission window for this week has closed. You can only submit entries for the current week or the previous week (until Wednesday)." },
+          { status: 400 }
+        );
+      }
     }
 
     // Check teacher has a timetable slot on this day
@@ -208,7 +245,7 @@ export async function POST(request: Request) {
       },
     });
 
-    if (teacherSlotsOnDay === 0) {
+    if (teacherSlotsOnDay === 0 && !data.classDidNotHold) {
       return NextResponse.json(
         { error: "You do not have any classes scheduled on this day" },
         { status: 400 }
@@ -222,6 +259,7 @@ export async function POST(request: Request) {
           teacherId: user.id,
           date: entryDate,
           period: data.period,
+          status: { not: "DRAFT" }, // Allow overwriting drafts
         },
       });
 
@@ -231,6 +269,16 @@ export async function POST(request: Request) {
           { status: 409 }
         );
       }
+
+      // If there's an existing draft for this period, delete it before creating new one
+      await db.logbookEntry.deleteMany({
+        where: {
+          teacherId: user.id,
+          date: entryDate,
+          period: data.period,
+          status: "DRAFT",
+        },
+      });
     }
 
     // Also check by timetable slot ID to catch duplicates even without period
@@ -240,6 +288,7 @@ export async function POST(request: Request) {
           teacherId: user.id,
           date: entryDate,
           timetableSlotId: data.timetableSlotId,
+          status: { not: "DRAFT" },
         },
       });
 
@@ -251,40 +300,58 @@ export async function POST(request: Request) {
       }
     }
 
-    const entry = await db.logbookEntry.create({
-      data: {
-        date: new Date(data.date),
-        classId: data.classId,
-        ...(topicIds.length > 0
-          ? { topics: { connect: topicIds.map((id: string) => ({ id })) } }
-          : {}),
-        moduleName,
-        topicText,
-        assignmentId: data.assignmentId ?? null,
-        timetableSlotId: data.timetableSlotId ?? null,
-        period: data.period ?? null,
-        duration: data.duration,
-        notes,
-        objectives,
-        signatureData: data.signatureData ?? null,
-        studentAttendance: data.studentAttendance ?? null,
-        engagementLevel: data.engagementLevel ?? null,
-        status: data.status || "SUBMITTED",
-        teacherId: user.id,
-      },
-      include: {
-        class: true,
-        topics: {
-          include: { subject: true },
-        },
-        assignment: {
-          include: { subject: true, division: true },
-        },
-        timetableSlot: true,
-      },
-    });
+    // Determine the class IDs to create entries for
+    // Multi-class: if classIds is provided, create an entry for each class
+    const classIdsToCreate = data.classIds?.length ? data.classIds : [data.classId];
+    const assignmentIdsToUse = data.assignmentIds?.length ? data.assignmentIds : [data.assignmentId ?? null];
 
-    return NextResponse.json(entry, { status: 201 });
+    const createdEntries = [];
+
+    for (let i = 0; i < classIdsToCreate.length; i++) {
+      const thisClassId = classIdsToCreate[i];
+      const thisAssignmentId = assignmentIdsToUse[i] ?? assignmentIdsToUse[0] ?? null;
+
+      const entry = await db.logbookEntry.create({
+        data: {
+          date: new Date(data.date),
+          classId: thisClassId,
+          ...(topicIds.length > 0
+            ? { topics: { connect: topicIds.map((id: string) => ({ id })) } }
+            : {}),
+          moduleName: data.classDidNotHold ? "Class Did Not Hold" : moduleName,
+          topicText: data.classDidNotHold ? "Class did not hold" : topicText,
+          assignmentId: thisAssignmentId,
+          timetableSlotId: i === 0 ? (data.timetableSlotId ?? null) : null,
+          period: data.period ?? null,
+          duration: data.classDidNotHold ? 0 : data.duration,
+          notes: data.classDidNotHold ? (notes || "Class did not hold for this period") : notes,
+          objectives,
+          signatureData: data.signatureData ?? null,
+          studentAttendance: data.classDidNotHold ? 0 : (data.studentAttendance ?? null),
+          engagementLevel: data.engagementLevel ?? null,
+          status: data.status || "SUBMITTED",
+          teacherId: user.id,
+        },
+        include: {
+          class: true,
+          topics: {
+            include: { subject: true },
+          },
+          assignment: {
+            include: { subject: true, division: true },
+          },
+          timetableSlot: true,
+        },
+      });
+
+      createdEntries.push(entry);
+    }
+
+    // Return single entry for backwards compatibility, or array if multi-class
+    if (createdEntries.length === 1) {
+      return NextResponse.json(createdEntries[0], { status: 201 });
+    }
+    return NextResponse.json(createdEntries, { status: 201 });
   } catch (error) {
     console.error("POST /api/entries error:", error);
     return NextResponse.json(
@@ -292,4 +359,22 @@ export async function POST(request: Request) {
       { status: 500 }
     );
   }
+}
+
+// Helper: Get Monday of the week for a given date
+function getWeekStart(d: Date): Date {
+  const date = new Date(d);
+  const day = date.getUTCDay();
+  const diff = day === 0 ? -6 : 1 - day; // Monday
+  date.setUTCDate(date.getUTCDate() + diff);
+  date.setUTCHours(0, 0, 0, 0);
+  return date;
+}
+
+// Helper: Get Sunday end of the week for a given date
+function getWeekEnd(d: Date): Date {
+  const start = getWeekStart(d);
+  start.setUTCDate(start.getUTCDate() + 6); // Sunday
+  start.setUTCHours(23, 59, 59, 999);
+  return start;
 }
