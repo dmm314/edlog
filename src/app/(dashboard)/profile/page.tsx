@@ -543,6 +543,23 @@ export default function ProfilePage() {
           </div>
         </div>
 
+        {/* School Profile link for school admins */}
+        {isSchoolAdmin && (
+          <Link
+            href="/admin/school"
+            className="card mt-4 p-4 flex items-center justify-between group hover:bg-slate-50 transition-colors"
+          >
+            <div className="flex items-center gap-3">
+              <Building2 className="w-5 h-5 text-slate-400" />
+              <div>
+                <p className="text-sm font-semibold text-slate-900">School Profile</p>
+                <p className="text-[11px] text-slate-400">School settings & details</p>
+              </div>
+            </div>
+            <ChevronRight className="w-4 h-4 text-slate-400 group-hover:translate-x-0.5 transition-transform" />
+          </Link>
+        )}
+
         {/* Sign Out */}
         <button
           onClick={() => signOut({ callbackUrl: "/login" })}
