@@ -18,6 +18,7 @@ export async function GET(request: NextRequest) {
     const classId = searchParams.get("classId");
     const moduleName = searchParams.get("moduleName");
     const teacherId = searchParams.get("teacherId");
+    const schoolId = searchParams.get("schoolId");
     const search = searchParams.get("search");
     const limit = parseInt(searchParams.get("limit") || "20");
     const offset = parseInt(searchParams.get("offset") || "0");
@@ -31,6 +32,11 @@ export async function GET(request: NextRequest) {
       where.teacher = { schoolId: user.schoolId };
     } else if (user.role === "REGIONAL_ADMIN") {
       where.teacher = { school: { regionId: user.regionId } };
+    }
+
+
+    if (schoolId && user.role === "REGIONAL_ADMIN") {
+      where.teacher = { ...(where.teacher as Record<string, unknown> || {}), schoolId };
     }
 
     if (from || to) {
@@ -124,6 +130,7 @@ export async function GET(request: NextRequest) {
               lastName: true,
               email: true,
               photoUrl: true,
+              school: { select: { id: true, name: true, code: true } },
             },
           },
           assignment: {
@@ -212,9 +219,9 @@ export async function POST(request: Request) {
       );
     }
 
-    // Weekend submission rule: Teachers can only submit final entries (SUBMITTED status)
-    // for the current week. The deadline is the end of the weekend (Sunday).
-    // They can fill during the week or complete by end of weekend.
+    // Submission windows:
+    // 1) Teaching date cannot be in the future.
+    // 2) Submitted entries must be completed by the end of that teaching week (Sunday 23:59:59 UTC).
     const now = new Date();
     const entryWeekStart = getWeekStart(entryDate);
     const entryWeekEnd = getWeekEnd(entryDate); // Sunday end of that week
@@ -252,30 +259,36 @@ export async function POST(request: Request) {
       );
     }
 
-    // Prevent duplicate entries for the same teacher + date + period
+    // Determine the class IDs we are creating for (supports one-shot entry for multiple classes)
+    const classIdsToCreate = data.classIds?.length ? data.classIds : [data.classId];
+
+    // Prevent duplicate entries for the same teacher + date + period + class
     if (data.period) {
-      const existingEntry = await db.logbookEntry.findFirst({
+      const existingEntries = await db.logbookEntry.findMany({
         where: {
           teacherId: user.id,
           date: entryDate,
           period: data.period,
+          classId: { in: classIdsToCreate },
           status: { not: "DRAFT" }, // Allow overwriting drafts
         },
+        select: { classId: true },
       });
 
-      if (existingEntry) {
+      if (existingEntries.length > 0) {
         return NextResponse.json(
-          { error: `You already have an entry for Period ${data.period} on this date. You cannot fill the same period twice.` },
+          { error: `You already submitted Period ${data.period} for one or more selected classes on this date. You cannot fill the same period twice.` },
           { status: 409 }
         );
       }
 
-      // If there's an existing draft for this period, delete it before creating new one
+      // If there's an existing draft for the same period/class, replace it
       await db.logbookEntry.deleteMany({
         where: {
           teacherId: user.id,
           date: entryDate,
           period: data.period,
+          classId: { in: classIdsToCreate },
           status: "DRAFT",
         },
       });
@@ -300,9 +313,8 @@ export async function POST(request: Request) {
       }
     }
 
-    // Determine the class IDs to create entries for
+    
     // Multi-class: if classIds is provided, create an entry for each class
-    const classIdsToCreate = data.classIds?.length ? data.classIds : [data.classId];
     const assignmentIdsToUse = data.assignmentIds?.length ? data.assignmentIds : [data.assignmentId ?? null];
 
     const createdEntries = [];
