@@ -66,6 +66,10 @@ export default function HODDashboard() {
   const [activeTab, setActiveTab] = useState<"overview" | "entries">("overview");
   const [filterTeacher, setFilterTeacher] = useState("");
   const [filterSubject, setFilterSubject] = useState("");
+  const [filterClassLevel, setFilterClassLevel] = useState("");
+  const [filterClass, setFilterClass] = useState("");
+  const [classLevels, setClassLevels] = useState<string[]>([]);
+  const [deptClasses, setDeptClasses] = useState<{ id: string; name: string; level: string }[]>([]);
   const [expandedEntries, setExpandedEntries] = useState<Set<string>>(new Set());
   const [page, setPage] = useState(0);
 
@@ -91,6 +95,8 @@ export default function HODDashboard() {
       const params = new URLSearchParams();
       if (filterTeacher) params.set("teacherId", filterTeacher);
       if (filterSubject) params.set("subjectId", filterSubject);
+      if (filterClassLevel) params.set("classLevel", filterClassLevel);
+      if (filterClass) params.set("classId", filterClass);
       params.set("limit", "20");
       params.set("offset", String(p * 20));
 
@@ -100,6 +106,8 @@ export default function HODDashboard() {
         setEntries(data.entries);
         setEntriesTotal(data.total);
         setPage(p);
+        if (data.classLevels) setClassLevels(data.classLevels);
+        if (data.classes) setDeptClasses(data.classes);
       }
     } catch {
       // silently fail
@@ -113,7 +121,7 @@ export default function HODDashboard() {
       fetchEntries(0);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeTab, filterTeacher, filterSubject]);
+  }, [activeTab, filterTeacher, filterSubject, filterClassLevel, filterClass]);
 
   function toggleEntry(id: string) {
     setExpandedEntries((prev) => {
@@ -360,32 +368,101 @@ export default function HODDashboard() {
           /* Entries Tab */
           <>
             {/* Filters */}
-            <div className="flex gap-2">
-              <select
-                value={filterTeacher}
-                onChange={(e) => setFilterTeacher(e.target.value)}
-                className="input-field text-sm flex-1"
-              >
-                <option value="">All teachers</option>
-                {stats.teacherRankings.map((t) => (
-                  <option key={t.id} value={t.id}>
-                    {t.name}
-                  </option>
-                ))}
-              </select>
-              {stats.hodSubjects.length > 1 && (
+            <div className="space-y-2">
+              <div className="flex gap-2">
                 <select
-                  value={filterSubject}
-                  onChange={(e) => setFilterSubject(e.target.value)}
+                  value={filterTeacher}
+                  onChange={(e) => setFilterTeacher(e.target.value)}
                   className="input-field text-sm flex-1"
                 >
-                  <option value="">All subjects</option>
-                  {stats.hodSubjects.map((s) => (
-                    <option key={s.id} value={s.id}>
-                      {s.name}
+                 <option value="">All teachers</option>
+                  {stats.teacherRankings.map((t) => (
+                    <option key={t.id} value={t.id}>
+                      {t.name}
                     </option>
                   ))}
                 </select>
+                {stats.hodSubjects.length > 1 && (
+                  <select
+                    value={filterSubject}
+                    onChange={(e) => setFilterSubject(e.target.value)}
+                    className="input-field text-sm flex-1"
+                  >
+                    <option value="">All subjects</option>
+                    {stats.hodSubjects.map((s) => (
+                      <option key={s.id} value={s.id}>
+                        {s.name}
+                      </option>
+                    ))}
+                  </select>
+                )}
+              </div>
+
+              {/* Class / Form Level Filter */}
+              <div className="flex gap-2">
+                {classLevels.length > 0 && (
+                  <select
+                    value={filterClassLevel}
+                    onChange={(e) => { setFilterClassLevel(e.target.value); setFilterClass(""); }}
+                    className="input-field text-sm flex-1"
+                  >
+                    <option value="">All forms</option>
+                    {classLevels.map((level) => (
+                      <option key={level} value={level}>{level}</option>
+                    ))}
+                  </select>
+                )}
+                {deptClasses.length > 0 && (
+                  <select
+                    value={filterClass}
+                    onChange={(e) => setFilterClass(e.target.value)}
+                    className="input-field text-sm flex-1"
+                  >
+                    <option value="">All classes</option>
+                    {deptClasses
+                      .filter((c) => !filterClassLevel || c.level === filterClassLevel)
+                      .map((c) => (
+                        <option key={c.id} value={c.id}>{c.name}</option>
+                      ))}
+                  </select>
+                )}
+              </div>
+
+              {/* Active filters indicator */}
+              {(filterTeacher || filterSubject || filterClassLevel || filterClass) && (
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-[10px] font-semibold text-slate-400">Active filters:</span>
+                  {filterTeacher && (
+                    <span className="text-[10px] bg-amber-50 text-amber-700 font-semibold px-2 py-0.5 rounded-full border border-amber-200">
+                      Teacher
+                      <button onClick={() => setFilterTeacher("")} className="ml-1 text-amber-400 hover:text-amber-600">&times;</button>
+                    </span>
+                  )}
+                  {filterSubject && (
+                    <span className="text-[10px] bg-blue-50 text-blue-700 font-semibold px-2 py-0.5 rounded-full border border-blue-200">
+                      Subject
+                      <button onClick={() => setFilterSubject("")} className="ml-1 text-blue-400 hover:text-blue-600">&times;</button>
+                    </span>
+                  )}
+                  {filterClassLevel && (
+                    <span className="text-[10px] bg-purple-50 text-purple-700 font-semibold px-2 py-0.5 rounded-full border border-purple-200">
+                      {filterClassLevel}
+                      <button onClick={() => { setFilterClassLevel(""); setFilterClass(""); }} className="ml-1 text-purple-400 hover:text-purple-600">&times;</button>
+                    </span>
+                  )}
+                  {filterClass && (
+                    <span className="text-[10px] bg-emerald-50 text-emerald-700 font-semibold px-2 py-0.5 rounded-full border border-emerald-200">
+                      Class
+                      <button onClick={() => setFilterClass("")} className="ml-1 text-emerald-400 hover:text-emerald-600">&times;</button>
+                    </span>
+                  )}
+                  <button
+                    onClick={() => { setFilterTeacher(""); setFilterSubject(""); setFilterClassLevel(""); setFilterClass(""); }}
+                    className="text-[10px] text-red-500 font-semibold underline"
+                  >
+                    Clear all
+                  </button>
+                </div>
               )}
             </div>
 
