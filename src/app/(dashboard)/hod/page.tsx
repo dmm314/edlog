@@ -375,7 +375,7 @@ export default function HODDashboard() {
                   onChange={(e) => setFilterTeacher(e.target.value)}
                   className="input-field text-sm flex-1"
                 >
-                  <option value="">All teachers</option>
+                 <option value="">All teachers</option>
                   {stats.teacherRankings.map((t) => (
                     <option key={t.id} value={t.id}>
                       {t.name}

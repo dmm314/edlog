@@ -582,7 +582,7 @@ export default function LogbookPage() {
           </div>
         )}
 
-        {/* Unfilled Periods This Week */}
+         {/* Unfilled Periods This Week */}
         {unfilledWeekSlots.length > 0 && (
           <div className="animate-slide-up card overflow-hidden border-red-200/60 shadow-[0_0_0_1px_rgba(239,68,68,0.1),0_4px_16px_rgba(239,68,68,0.06)]">
             <div className="px-5 pt-4 pb-2.5 flex items-center gap-3 bg-gradient-to-r from-red-50/50 to-transparent">
