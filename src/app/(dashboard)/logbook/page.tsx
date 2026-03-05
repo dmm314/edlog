@@ -19,6 +19,7 @@ import {
   Award,
   BarChart3,
   Crown,
+  AlertCircle,
 } from "lucide-react";
 import { NotificationBell } from "@/components/NotificationBell";
 import type { EntryWithRelations } from "@/types";
@@ -213,6 +214,63 @@ export default function LogbookPage() {
     );
     return todaySlots.filter((s) => !filledPeriods.has(s.periodNumber));
   }, [todaySlots, entries, todayStr]);
+
+  // Unfilled periods for this week — shows what the teacher hasn't filled yet
+  const unfilledWeekSlots = useMemo(() => {
+    if (allSlots.length === 0) return [];
+
+    // Get start of current week (Monday)
+    const now = new Date();
+    const currentDow = now.getDay(); // 0=Sun...6=Sat
+    const mondayOffset = currentDow === 0 ? -6 : 1 - currentDow;
+    const monday = new Date(now);
+    monday.setDate(now.getDate() + mondayOffset);
+    monday.setHours(0, 0, 0, 0);
+
+    // For each weekday up to today, check which slots don't have entries
+    const unfilled: { dayOfWeek: number; dayName: string; dateStr: string; slotLabel: string; className: string; subjectName: string }[] = [];
+    const DOW_NAMES = ["", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+
+    for (let d = 0; d < 5; d++) { // Mon=0..Fri=4
+      const checkDate = new Date(monday);
+      checkDate.setDate(monday.getDate() + d);
+      if (checkDate > now) break; // Don't show future days
+
+      const dow = d + 1; // 1=Mon...5=Fri
+      const dateStr = checkDate.toISOString().split("T")[0];
+
+      // Get slots for this day
+      const daySlots = allSlots.filter((s) => s.dayOfWeek === dow);
+
+      // Check which ones have entries
+      for (const slot of daySlots) {
+        const periodMatch = slot.periodLabel.match(/\d+/);
+        const periodNum = periodMatch ? parseInt(periodMatch[0]) : null;
+
+        const hasEntry = entries.some((e) => {
+          const entryDate = new Date(e.date).toISOString().split("T")[0];
+          if (entryDate !== dateStr) return false;
+          if (e.status === "DRAFT") return false;
+          // Match by period number or slot ID
+          if (periodNum !== null && e.period === periodNum) return true;
+          return false;
+        });
+
+        if (!hasEntry) {
+          unfilled.push({
+            dayOfWeek: dow,
+            dayName: DOW_NAMES[dow] || "",
+            dateStr,
+            slotLabel: slot.periodLabel,
+            className: slot.assignment.className,
+            subjectName: slot.assignment.subjectName,
+          });
+        }
+      }
+    }
+
+    return unfilled;
+  }, [allSlots, entries]);
 
   // Track unique subjects for coloring
   const subjectColorMap = useMemo(() => {
@@ -521,6 +579,53 @@ export default function LogbookPage() {
                   );
                 })}
             </div>
+          </div>
+        )}
+
+        {/* Unfilled Periods This Week */}
+        {unfilledWeekSlots.length > 0 && (
+          <div className="animate-slide-up card overflow-hidden border-red-200/60 shadow-[0_0_0_1px_rgba(239,68,68,0.1),0_4px_16px_rgba(239,68,68,0.06)]">
+            <div className="px-5 pt-4 pb-2.5 flex items-center gap-3 bg-gradient-to-r from-red-50/50 to-transparent">
+              <div className="w-9 h-9 bg-gradient-to-br from-red-100 to-red-50 rounded-xl flex items-center justify-center shadow-sm">
+                <AlertCircle className="w-4.5 h-4.5 text-red-600" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-sm font-bold text-slate-900">Unfilled Periods This Week</h3>
+                <p className="text-[11px] text-slate-400">
+                  {unfilledWeekSlots.length} period{unfilledWeekSlots.length !== 1 ? "s" : ""} not yet filled
+                </p>
+              </div>
+              <span className="text-[10px] bg-red-100 text-red-700 font-bold px-2.5 py-1 rounded-full border border-red-200/60">
+                {unfilledWeekSlots.length} pending
+              </span>
+            </div>
+            <div className="divide-y divide-slate-50/80 max-h-64 overflow-y-auto">
+              {unfilledWeekSlots.map((slot, i) => (
+                <div key={i} className="flex items-center gap-3.5 px-5 py-3 hover:bg-red-50/30 transition-colors">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-400 to-red-500 text-white flex items-center justify-center font-bold text-xs shadow-sm flex-shrink-0">
+                    {slot.slotLabel.replace(/[^0-9P]/g, "").slice(0, 3) || slot.slotLabel.slice(0, 2)}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-slate-800 truncate">
+                      {slot.subjectName} — {slot.className}
+                    </p>
+                    <p className="text-[11px] text-red-500 font-medium">
+                      {slot.dayName} &middot; {slot.slotLabel} not filled
+                    </p>
+                  </div>
+                  <Link href="/logbook/new" className="text-xs font-bold text-white bg-gradient-to-r from-red-500 to-red-400 rounded-xl px-3 py-1.5 flex-shrink-0 transition-all active:scale-95 shadow-sm">
+                    Fill
+                  </Link>
+                </div>
+              ))}
+            </div>
+            {unfilledWeekSlots.length > 3 && (
+              <div className="px-5 py-2.5 bg-red-50/30 border-t border-red-100">
+                <p className="text-[11px] text-red-600 font-medium text-center">
+                  Remember: You have until the end of this weekend to fill all periods for this week
+                </p>
+              </div>
+            )}
           </div>
         )}
 

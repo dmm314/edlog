@@ -25,6 +25,8 @@ export async function GET(request: NextRequest) {
     const from = searchParams.get("from");
     const to = searchParams.get("to");
     const teacherId = searchParams.get("teacherId");
+    const classLevel = searchParams.get("classLevel"); // Filter by form level e.g. "Form 1", "Form 2"
+    const classId = searchParams.get("classId");
     const limit = parseInt(searchParams.get("limit") || "20");
     const offset = parseInt(searchParams.get("offset") || "0");
 
@@ -50,6 +52,14 @@ export async function GET(request: NextRequest) {
 
     if (teacherId) {
       where.teacherId = teacherId;
+    }
+
+    if (classLevel) {
+      where.class = { ...(where.class as Record<string, unknown> || {}), level: classLevel };
+    }
+
+    if (classId) {
+      where.classId = classId;
     }
 
     const [entries, total] = await Promise.all([
@@ -89,6 +99,23 @@ export async function GET(request: NextRequest) {
       orderBy: { lastName: "asc" },
     });
 
+    // Get all classes that have assignments for the HOD's subjects
+    const classesInDept = await db.class.findMany({
+      where: {
+        schoolId: user.schoolId,
+        assignments: { some: { subjectId: { in: hodSubjectIds } } },
+      },
+      select: {
+        id: true,
+        name: true,
+        level: true,
+      },
+      orderBy: { name: "asc" },
+    });
+
+    // Build unique class levels for filtering
+    const classLevels = [...new Set(classesInDept.map((c) => c.level).filter(Boolean))].sort();
+
     return NextResponse.json({
       entries,
       total,
@@ -105,6 +132,8 @@ export async function GET(request: NextRequest) {
         photoUrl: t.photoUrl,
         entryCount: t._count.entries,
       })),
+      classes: classesInDept,
+      classLevels,
     });
   } catch (error) {
     console.error("GET /api/hod/entries error:", error);
