@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 
@@ -6,7 +7,7 @@ import { db } from "@/lib/db";
 export async function POST(request: Request) {
   try {
     // Simple auth check — require a secret key or admin role
-    const body = await request.json().catch(() => ({}));
+    await request.json().catch(() => ({}));
     const authHeader = request.headers.get("authorization");
     const cronSecret = process.env.CRON_SECRET;
 
@@ -32,7 +33,7 @@ export async function POST(request: Request) {
       where: {
         role: "TEACHER",
         isVerified: true,
-        assignments: { some: { timetableSlots: { some: {} } } },
+        assignments: { some: { periods: { some: {} } } },
       },
       select: {
         id: true,
@@ -41,7 +42,7 @@ export async function POST(request: Request) {
           include: {
             class: true,
             subject: true,
-            timetableSlots: true,
+            periods: true,
           },
         },
       },
@@ -82,7 +83,7 @@ export async function POST(request: Request) {
         const dayNames = ["", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
 
         for (const assignment of teacher.assignments) {
-          for (const slot of assignment.timetableSlots) {
+          for (const slot of assignment.periods) {
             if (slot.dayOfWeek !== dow) continue;
 
             const periodMatch = slot.periodLabel?.match(/\d+/);

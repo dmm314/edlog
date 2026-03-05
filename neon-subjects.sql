@@ -41,8 +41,17 @@ INSERT INTO "Subject" ("id", "name", "code", "category", "createdAt") VALUES
   ('subj-arc', 'Arts and Crafts',       'ARC', 'General',    CURRENT_TIMESTAMP),
   ('subj-phe', 'Physical Education',    'PHE', 'General',    CURRENT_TIMESTAMP),
   ('subj-spo', 'Sports',               'SPO', 'General',    CURRENT_TIMESTAMP),
-  ('subj-mla', 'Manual Labour',         'MLA', 'General',    CURRENT_TIMESTAMP)
+  ('subj-mla', 'Manual Labour',         'MLA', 'General',    CURRENT_TIMESTAMP),
 
+  -- ── New Subjects ──
+  ('subj-ict', 'Information and Communication Technology', 'ICT', 'Science',    CURRENT_TIMESTAMP),
+  ('subj-nwk', 'Needle Work',                             'NWK', 'General',    CURRENT_TIMESTAMP),
+  ('subj-fan', 'Food and Nutrition',                       'FAN', 'General',    CURRENT_TIMESTAMP),
+  ('subj-gel', 'Geology',                                  'GEL', 'Science',    CURRENT_TIMESTAMP),
+  ('subj-sbf', 'Special Bilingual French',                 'SBF', 'Language',   CURRENT_TIMESTAMP),
+  ('subj-hbi', 'Human Biology',                            'HBI', 'Science',    CURRENT_TIMESTAMP),
+  ('subj-fsc', 'Food Science',                             'FSC', 'Science',    CURRENT_TIMESTAMP),
+  ('subj-clb', 'Club Activities',                          'CLB', 'General',    CURRENT_TIMESTAMP)
 ON CONFLICT ("id") DO NOTHING;
 
 -- ============================================================
@@ -345,6 +354,112 @@ INSERT INTO "Topic" ("id", "name", "classLevel", "moduleName", "moduleNum", "ord
   ('t-phi-011', 'Existentialism & Phenomenology',    'Upper Sixth', 'Modern Philosophy',    7,  11, CURRENT_TIMESTAMP, 'subj-phi'),
   ('t-phi-012', 'Philosophy of Religion',            'Upper Sixth', 'Applied Philosophy',   5,  12, CURRENT_TIMESTAMP, 'subj-phi')
 
+  -- ════════════════════════════════════════════════════════════
+  -- ICT (Information and Communication Technology)
+  -- Form 1-5 (O Level)
+  -- ════════════════════════════════════════════════════════════
+  ('t-ict-001', 'Introduction to Computers',               'Form 1',      'Computer Basics',      1,  1,  CURRENT_TIMESTAMP, 'subj-ict'),
+  ('t-ict-002', 'Computer Hardware & Software',            'Form 1',      'Computer Basics',      1,  2,  CURRENT_TIMESTAMP, 'subj-ict'),
+  ('t-ict-003', 'Operating Systems',                       'Form 1',      'Computer Basics',      1,  3,  CURRENT_TIMESTAMP, 'subj-ict'),
+  ('t-ict-004', 'Word Processing',                         'Form 2',      'Office Applications',  2,  4,  CURRENT_TIMESTAMP, 'subj-ict'),
+  ('t-ict-005', 'Spreadsheets',                            'Form 2',      'Office Applications',  2,  5,  CURRENT_TIMESTAMP, 'subj-ict'),
+  ('t-ict-006', 'Presentation Software',                   'Form 2',      'Office Applications',  2,  6,  CURRENT_TIMESTAMP, 'subj-ict'),
+  ('t-ict-007', 'Internet & Email',                        'Form 3',      'Networking & Internet', 3,  7,  CURRENT_TIMESTAMP, 'subj-ict'),
+  ('t-ict-008', 'Web Design Basics',                       'Form 3',      'Networking & Internet', 3,  8,  CURRENT_TIMESTAMP, 'subj-ict'),
+  ('t-ict-009', 'Database Concepts',                       'Form 4',      'Data Management',      4,  9,  CURRENT_TIMESTAMP, 'subj-ict'),
+  ('t-ict-010', 'Introduction to Programming',             'Form 4',      'Programming',          5,  10, CURRENT_TIMESTAMP, 'subj-ict'),
+  ('t-ict-011', 'Multimedia & Graphics',                   'Form 5',      'Multimedia',           6,  11, CURRENT_TIMESTAMP, 'subj-ict'),
+  ('t-ict-012', 'ICT & Society',                           'Form 5',      'ICT in Society',       7,  12, CURRENT_TIMESTAMP, 'subj-ict'),
+  ('t-ict-013', 'Cybersecurity Awareness',                 'Form 5',      'ICT in Society',       7,  13, CURRENT_TIMESTAMP, 'subj-ict'),
+
+  -- ════════════════════════════════════════════════════════════
+  -- NEEDLE WORK
+  -- Form 1-5 (O Level)
+  -- ════════════════════════════════════════════════════════════
+  ('t-nwk-001', 'Introduction to Sewing Tools',            'Form 1',      'Basics',               1,  1,  CURRENT_TIMESTAMP, 'subj-nwk'),
+  ('t-nwk-002', 'Hand Stitches & Seams',                   'Form 1',      'Basics',               1,  2,  CURRENT_TIMESTAMP, 'subj-nwk'),
+  ('t-nwk-003', 'Fabric Types & Properties',               'Form 2',      'Textiles',             2,  3,  CURRENT_TIMESTAMP, 'subj-nwk'),
+  ('t-nwk-004', 'Pattern Making & Cutting',                'Form 3',      'Pattern & Design',     3,  4,  CURRENT_TIMESTAMP, 'subj-nwk'),
+  ('t-nwk-005', 'Machine Sewing',                          'Form 3',      'Pattern & Design',     3,  5,  CURRENT_TIMESTAMP, 'subj-nwk'),
+  ('t-nwk-006', 'Garment Construction',                    'Form 4',      'Construction',         4,  6,  CURRENT_TIMESTAMP, 'subj-nwk'),
+  ('t-nwk-007', 'Embroidery & Decoration',                 'Form 5',      'Finishing',            5,  7,  CURRENT_TIMESTAMP, 'subj-nwk'),
+  ('t-nwk-008', 'Fashion Design Principles',               'Form 5',      'Finishing',            5,  8,  CURRENT_TIMESTAMP, 'subj-nwk'),
+
+  -- ════════════════════════════════════════════════════════════
+  -- FOOD AND NUTRITION
+  -- Form 1-5 (O Level)
+  -- ════════════════════════════════════════════════════════════
+  ('t-fan-001', 'Introduction to Nutrition',               'Form 1',      'Nutrition Basics',     1,  1,  CURRENT_TIMESTAMP, 'subj-fan'),
+  ('t-fan-002', 'Food Groups & Nutrients',                 'Form 1',      'Nutrition Basics',     1,  2,  CURRENT_TIMESTAMP, 'subj-fan'),
+  ('t-fan-003', 'Food Hygiene & Safety',                   'Form 2',      'Food Safety',          2,  3,  CURRENT_TIMESTAMP, 'subj-fan'),
+  ('t-fan-004', 'Meal Planning',                           'Form 2',      'Meal Planning',        3,  4,  CURRENT_TIMESTAMP, 'subj-fan'),
+  ('t-fan-005', 'Methods of Cooking',                      'Form 3',      'Cooking Methods',      4,  5,  CURRENT_TIMESTAMP, 'subj-fan'),
+  ('t-fan-006', 'Food Preservation',                       'Form 3',      'Food Processing',      5,  6,  CURRENT_TIMESTAMP, 'subj-fan'),
+  ('t-fan-007', 'Diet & Health',                           'Form 4',      'Health & Diet',        6,  7,  CURRENT_TIMESTAMP, 'subj-fan'),
+  ('t-fan-008', 'Special Diets & Nutritional Disorders',   'Form 5',      'Health & Diet',        6,  8,  CURRENT_TIMESTAMP, 'subj-fan'),
+
+  -- ════════════════════════════════════════════════════════════
+  -- GEOLOGY
+  -- Lower Sixth & Upper Sixth (A Level)
+  -- ════════════════════════════════════════════════════════════
+  ('t-gel-001', 'Introduction to Geology',                 'Lower Sixth', 'Physical Geology',     1,  1,  CURRENT_TIMESTAMP, 'subj-gel'),
+  ('t-gel-002', 'Minerals & Rocks',                        'Lower Sixth', 'Physical Geology',     1,  2,  CURRENT_TIMESTAMP, 'subj-gel'),
+  ('t-gel-003', 'Plate Tectonics',                         'Lower Sixth', 'Physical Geology',     1,  3,  CURRENT_TIMESTAMP, 'subj-gel'),
+  ('t-gel-004', 'Weathering & Erosion',                    'Lower Sixth', 'Surface Processes',    2,  4,  CURRENT_TIMESTAMP, 'subj-gel'),
+  ('t-gel-005', 'Stratigraphy & Fossils',                  'Upper Sixth', 'Historical Geology',   3,  5,  CURRENT_TIMESTAMP, 'subj-gel'),
+  ('t-gel-006', 'Structural Geology',                      'Upper Sixth', 'Structural Geology',   4,  6,  CURRENT_TIMESTAMP, 'subj-gel'),
+  ('t-gel-007', 'Economic Geology',                        'Upper Sixth', 'Applied Geology',      5,  7,  CURRENT_TIMESTAMP, 'subj-gel'),
+  ('t-gel-008', 'Hydrogeology',                            'Upper Sixth', 'Applied Geology',      5,  8,  CURRENT_TIMESTAMP, 'subj-gel'),
+
+  -- ════════════════════════════════════════════════════════════
+  -- SPECIAL BILINGUAL FRENCH
+  -- Form 1-5 (anglophone schools)
+  -- ════════════════════════════════════════════════════════════
+  ('t-sbf-001', 'Greetings & Introductions',               'Form 1',      'Communication',        1,  1,  CURRENT_TIMESTAMP, 'subj-sbf'),
+  ('t-sbf-002', 'Basic Vocabulary & Phrases',              'Form 1',      'Communication',        1,  2,  CURRENT_TIMESTAMP, 'subj-sbf'),
+  ('t-sbf-003', 'Grammar Foundations',                     'Form 2',      'Grammaire',            2,  3,  CURRENT_TIMESTAMP, 'subj-sbf'),
+  ('t-sbf-004', 'Reading Comprehension',                   'Form 3',      'Lecture',              3,  4,  CURRENT_TIMESTAMP, 'subj-sbf'),
+  ('t-sbf-005', 'Oral Expression',                         'Form 3',      'Oral',                 4,  5,  CURRENT_TIMESTAMP, 'subj-sbf'),
+  ('t-sbf-006', 'Written Expression',                      'Form 4',      'Écriture',             5,  6,  CURRENT_TIMESTAMP, 'subj-sbf'),
+  ('t-sbf-007', 'Essay & Composition',                     'Form 5',      'Écriture',             5,  7,  CURRENT_TIMESTAMP, 'subj-sbf'),
+
+  -- ════════════════════════════════════════════════════════════
+  -- HUMAN BIOLOGY
+  -- Form 3-5 (O Level)
+  -- ════════════════════════════════════════════════════════════
+  ('t-hbi-001', 'Organisation of the Human Body',          'Form 3',      'Body Systems',         1,  1,  CURRENT_TIMESTAMP, 'subj-hbi'),
+  ('t-hbi-002', 'Nutrition & Digestive System',            'Form 3',      'Body Systems',         1,  2,  CURRENT_TIMESTAMP, 'subj-hbi'),
+  ('t-hbi-003', 'Respiratory System',                      'Form 4',      'Body Systems',         1,  3,  CURRENT_TIMESTAMP, 'subj-hbi'),
+  ('t-hbi-004', 'Circulatory System',                      'Form 4',      'Body Systems',         1,  4,  CURRENT_TIMESTAMP, 'subj-hbi'),
+  ('t-hbi-005', 'Nervous System & Sense Organs',           'Form 4',      'Coordination',         2,  5,  CURRENT_TIMESTAMP, 'subj-hbi'),
+  ('t-hbi-006', 'Endocrine System',                        'Form 5',      'Coordination',         2,  6,  CURRENT_TIMESTAMP, 'subj-hbi'),
+  ('t-hbi-007', 'Reproduction & Development',              'Form 5',      'Reproduction',         3,  7,  CURRENT_TIMESTAMP, 'subj-hbi'),
+  ('t-hbi-008', 'Disease & Immunity',                      'Form 5',      'Health',               4,  8,  CURRENT_TIMESTAMP, 'subj-hbi'),
+
+  -- ════════════════════════════════════════════════════════════
+  -- FOOD SCIENCE
+  -- Lower Sixth & Upper Sixth (A Level)
+  -- ════════════════════════════════════════════════════════════
+  ('t-fsc-001', 'Introduction to Food Science',            'Lower Sixth', 'Foundations',          1,  1,  CURRENT_TIMESTAMP, 'subj-fsc'),
+  ('t-fsc-002', 'Food Chemistry',                          'Lower Sixth', 'Food Chemistry',       2,  2,  CURRENT_TIMESTAMP, 'subj-fsc'),
+  ('t-fsc-003', 'Food Microbiology',                       'Lower Sixth', 'Microbiology',         3,  3,  CURRENT_TIMESTAMP, 'subj-fsc'),
+  ('t-fsc-004', 'Food Preservation & Processing',          'Lower Sixth', 'Processing',           4,  4,  CURRENT_TIMESTAMP, 'subj-fsc'),
+  ('t-fsc-005', 'Food Quality & Standards',                'Upper Sixth', 'Quality Control',      5,  5,  CURRENT_TIMESTAMP, 'subj-fsc'),
+  ('t-fsc-006', 'Nutrition & Health',                      'Upper Sixth', 'Nutrition',            6,  6,  CURRENT_TIMESTAMP, 'subj-fsc'),
+  ('t-fsc-007', 'Food Biotechnology',                      'Upper Sixth', 'Biotechnology',        7,  7,  CURRENT_TIMESTAMP, 'subj-fsc'),
+
+  -- ════════════════════════════════════════════════════════════
+  -- CLUB ACTIVITIES (General period)
+  -- All levels
+  -- ════════════════════════════════════════════════════════════
+  ('t-clb-001', 'Club Meeting',                            'Form 1',      'Club Activities',      1,  1,  CURRENT_TIMESTAMP, 'subj-clb'),
+  ('t-clb-002', 'Club Meeting',                            'Form 2',      'Club Activities',      1,  1,  CURRENT_TIMESTAMP, 'subj-clb'),
+  ('t-clb-003', 'Club Meeting',                            'Form 3',      'Club Activities',      1,  1,  CURRENT_TIMESTAMP, 'subj-clb'),
+  ('t-clb-004', 'Club Meeting',                            'Form 4',      'Club Activities',      1,  1,  CURRENT_TIMESTAMP, 'subj-clb'),
+  ('t-clb-005', 'Club Meeting',                            'Form 5',      'Club Activities',      1,  1,  CURRENT_TIMESTAMP, 'subj-clb'),
+  ('t-clb-006', 'Club Meeting',                            'Lower Sixth', 'Club Activities',      1,  1,  CURRENT_TIMESTAMP, 'subj-clb'),
+  ('t-clb-007', 'Club Meeting',                            'Upper Sixth', 'Club Activities',      1,  1,  CURRENT_TIMESTAMP, 'subj-clb')
+
 ON CONFLICT ("id") DO NOTHING;
 
 -- ============================================================
@@ -490,7 +605,47 @@ INSERT INTO "Topic" ("id", "name", "classLevel", "moduleName", "moduleNum", "ord
   ('t-arc-rev-f5',  'Revision for Exams',    'Form 5',       'Revision & Exams', 99, 97, CURRENT_TIMESTAMP, 'subj-arc'),
   ('t-arc-cor-f5',  'Correction of Exams',   'Form 5',       'Revision & Exams', 99, 98, CURRENT_TIMESTAMP, 'subj-arc'),
   ('t-phe-rev-f5',  'Revision for Exams',    'Form 5',       'Revision & Exams', 99, 97, CURRENT_TIMESTAMP, 'subj-phe'),
-  ('t-phe-cor-f5',  'Correction of Exams',   'Form 5',       'Revision & Exams', 99, 98, CURRENT_TIMESTAMP, 'subj-phe')
+  ('t-phe-cor-f5',  'Correction of Exams',   'Form 5',       'Revision & Exams', 99, 98, CURRENT_TIMESTAMP, 'subj-phe'),
+
+  -- New subjects: ICT
+  ('t-ict-rev-f1',  'Revision for Exams',    'Form 1',       'Revision & Exams', 99, 97, CURRENT_TIMESTAMP, 'subj-ict'),
+  ('t-ict-cor-f1',  'Correction of Exams',   'Form 1',       'Revision & Exams', 99, 98, CURRENT_TIMESTAMP, 'subj-ict'),
+  ('t-ict-rev-f2',  'Revision for Exams',    'Form 2',       'Revision & Exams', 99, 97, CURRENT_TIMESTAMP, 'subj-ict'),
+  ('t-ict-cor-f2',  'Correction of Exams',   'Form 2',       'Revision & Exams', 99, 98, CURRENT_TIMESTAMP, 'subj-ict'),
+  ('t-ict-rev-f3',  'Revision for Exams',    'Form 3',       'Revision & Exams', 99, 97, CURRENT_TIMESTAMP, 'subj-ict'),
+  ('t-ict-cor-f3',  'Correction of Exams',   'Form 3',       'Revision & Exams', 99, 98, CURRENT_TIMESTAMP, 'subj-ict'),
+  ('t-ict-rev-f4',  'Revision for Exams',    'Form 4',       'Revision & Exams', 99, 97, CURRENT_TIMESTAMP, 'subj-ict'),
+  ('t-ict-cor-f4',  'Correction of Exams',   'Form 4',       'Revision & Exams', 99, 98, CURRENT_TIMESTAMP, 'subj-ict'),
+  ('t-ict-rev-f5',  'Revision for Exams',    'Form 5',       'Revision & Exams', 99, 97, CURRENT_TIMESTAMP, 'subj-ict'),
+  ('t-ict-cor-f5',  'Correction of Exams',   'Form 5',       'Revision & Exams', 99, 98, CURRENT_TIMESTAMP, 'subj-ict'),
+
+  -- Needle Work
+  ('t-nwk-rev-f5',  'Revision for Exams',    'Form 5',       'Revision & Exams', 99, 97, CURRENT_TIMESTAMP, 'subj-nwk'),
+  ('t-nwk-cor-f5',  'Correction of Exams',   'Form 5',       'Revision & Exams', 99, 98, CURRENT_TIMESTAMP, 'subj-nwk'),
+
+  -- Food and Nutrition
+  ('t-fan-rev-f5',  'Revision for Exams',    'Form 5',       'Revision & Exams', 99, 97, CURRENT_TIMESTAMP, 'subj-fan'),
+  ('t-fan-cor-f5',  'Correction of Exams',   'Form 5',       'Revision & Exams', 99, 98, CURRENT_TIMESTAMP, 'subj-fan'),
+
+  -- Geology
+  ('t-gel-rev-ls',  'Revision for Exams',    'Lower Sixth',  'Revision & Exams', 99, 97, CURRENT_TIMESTAMP, 'subj-gel'),
+  ('t-gel-cor-ls',  'Correction of Exams',   'Lower Sixth',  'Revision & Exams', 99, 98, CURRENT_TIMESTAMP, 'subj-gel'),
+  ('t-gel-rev-us',  'Revision for Exams',    'Upper Sixth',  'Revision & Exams', 99, 97, CURRENT_TIMESTAMP, 'subj-gel'),
+  ('t-gel-cor-us',  'Correction of Exams',   'Upper Sixth',  'Revision & Exams', 99, 98, CURRENT_TIMESTAMP, 'subj-gel'),
+
+  -- Special Bilingual French
+  ('t-sbf-rev-f5',  'Revision for Exams',    'Form 5',       'Revision & Exams', 99, 97, CURRENT_TIMESTAMP, 'subj-sbf'),
+  ('t-sbf-cor-f5',  'Correction of Exams',   'Form 5',       'Revision & Exams', 99, 98, CURRENT_TIMESTAMP, 'subj-sbf'),
+
+  -- Human Biology
+  ('t-hbi-rev-f5',  'Revision for Exams',    'Form 5',       'Revision & Exams', 99, 97, CURRENT_TIMESTAMP, 'subj-hbi'),
+  ('t-hbi-cor-f5',  'Correction of Exams',   'Form 5',       'Revision & Exams', 99, 98, CURRENT_TIMESTAMP, 'subj-hbi'),
+
+  -- Food Science
+  ('t-fsc-rev-ls',  'Revision for Exams',    'Lower Sixth',  'Revision & Exams', 99, 97, CURRENT_TIMESTAMP, 'subj-fsc'),
+  ('t-fsc-cor-ls',  'Correction of Exams',   'Lower Sixth',  'Revision & Exams', 99, 98, CURRENT_TIMESTAMP, 'subj-fsc'),
+  ('t-fsc-rev-us',  'Revision for Exams',    'Upper Sixth',  'Revision & Exams', 99, 97, CURRENT_TIMESTAMP, 'subj-fsc'),
+  ('t-fsc-cor-us',  'Correction of Exams',   'Upper Sixth',  'Revision & Exams', 99, 98, CURRENT_TIMESTAMP, 'subj-fsc')
 
 ON CONFLICT ("id") DO NOTHING;
 
