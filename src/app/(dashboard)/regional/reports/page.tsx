@@ -62,7 +62,7 @@ interface EntryItem {
   studentAttendance: number | null;
   engagementLevel: string | null;
   createdAt: string;
-  teacher: { id: string; firstName: string; lastName: string; email: string };
+  teacher: { id: string; firstName: string; lastName: string; email: string; school?: { id: string; name: string; code: string } | null };
   class: { id: string; name: string; level: string };
   topics: { id: string; name: string; moduleName?: string | null; subject: { id: string; name: string; code: string } }[];
   assignment?: { subject: { name: string } } | null;
@@ -88,18 +88,7 @@ export default function RegionalReportsPage() {
   const [entriesTotal, setEntriesTotal] = useState(0);
   const [loadingEntries, setLoadingEntries] = useState(false);
   const [entriesPage, setEntriesPage] = useState(0);
-  const ENTRIES_PER_PAGE = 20;
-
-  // View state
-  const [activeTab, setActiveTab] = useState<"overview" | "entries">("overview");
-  const [expandedSchool, setExpandedSchool] = useState<string | null>(null);
-  const [expandedEntryIds, setExpandedEntryIds] = useState<Set<string>>(new Set());
-
-  function toggleEntryExpand(id: string) {
-    setExpandedEntryIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
+@@ -103,72 +103,73 @@ export default function RegionalReportsPage() {
       return next;
     });
   }
@@ -125,6 +114,7 @@ export default function RegionalReportsPage() {
     setLoadingEntries(true);
     try {
       const params = new URLSearchParams();
+      if (filterSchool) params.set("schoolId", filterSchool);
       if (filterSubject) params.set("subjectId", filterSubject);
       if (filterClass) params.set("classId", filterClass);
       if (filterModule) params.set("moduleName", filterModule);
@@ -146,7 +136,7 @@ export default function RegionalReportsPage() {
     } finally {
       setLoadingEntries(false);
     }
-  }, [filterSubject, filterClass, filterModule, filterFrom, filterTo, searchQuery]);
+  }, [filterSchool, filterSubject, filterClass, filterModule, filterFrom, filterTo, searchQuery]);
 
   useEffect(() => {
     if (activeTab === "entries") {
@@ -172,28 +162,7 @@ export default function RegionalReportsPage() {
     setFilterClass("");
     setFilterModule("");
     setFilterFrom("");
-    setFilterTo("");
-    setSearchQuery("");
-  }
-
-  function escapeCSV(val: string | number | null | undefined): string {
-    if (val === null || val === undefined) return "";
-    const str = String(val);
-    if (str.includes(",") || str.includes('"') || str.includes("\n")) {
-      return `"${str.replace(/"/g, '""')}"`;
-    }
-    return str;
-  }
-
-  function exportCSV() {
-    if (!data) return;
-
-    const bom = "\uFEFF";
-    const date = new Date().toISOString().split("T")[0];
-
-    // Summary section
-    let csv = "REGIONAL REPORT\n";
-    csv += `Generated,${date}\n`;
+@@ -197,74 +198,172 @@ export default function RegionalReportsPage() {
     csv += `Total Schools,${data.totalSchools}\n`;
     csv += `Active Schools,${data.activeSchools}\n`;
     csv += `Pending Schools,${data.pendingSchools}\n`;
@@ -219,6 +188,94 @@ export default function RegionalReportsPage() {
     URL.revokeObjectURL(url);
   }
 
+  async function exportTeachersBySubjectCSV() {
+    try {
+      const params = new URLSearchParams();
+      if (filterSchool) params.set("schoolId", filterSchool);
+      if (filterSubject) params.set("subjectId", filterSubject);
+      if (filterClass) params.set("classId", filterClass);
+      if (filterModule) params.set("moduleName", filterModule);
+      if (filterFrom) params.set("from", filterFrom);
+      if (filterTo) params.set("to", filterTo);
+      if (searchQuery) params.set("search", searchQuery);
+      params.set("limit", "1000");
+      params.set("offset", "0");
+
+      const res = await fetch(`/api/entries?${params.toString()}`);
+      if (!res.ok) return;
+      const result = await res.json();
+      const rows = result.entries || [];
+
+      const grouped = new Map<string, {
+        teacherName: string;
+        teacherEmail: string;
+        schoolName: string;
+        schoolCode: string;
+        subjectName: string;
+        classNames: Set<string>;
+        entryCount: number;
+        latestDate: string;
+      }>();
+
+      for (const entry of rows) {
+        const teacherName = `${entry.teacher.firstName} ${entry.teacher.lastName}`.trim();
+        const subjectName = entry.assignment?.subject?.name || entry.topics?.[0]?.subject?.name || "Unknown";
+        const schoolName = entry.teacher?.school?.name || "—";
+        const schoolCode = entry.teacher?.school?.code || "—";
+        const key = `${entry.teacher.id}::${subjectName}::${schoolName}`;
+
+        if (!grouped.has(key)) {
+          grouped.set(key, {
+            teacherName,
+            teacherEmail: entry.teacher.email,
+            schoolName,
+            schoolCode,
+            subjectName,
+            classNames: new Set<string>(),
+            entryCount: 0,
+            latestDate: entry.date,
+          });
+        }
+
+        const g = grouped.get(key)!;
+        g.classNames.add(entry.class?.name || "—");
+        g.entryCount += 1;
+        if (new Date(entry.date) > new Date(g.latestDate)) g.latestDate = entry.date;
+      }
+
+      const date = new Date().toISOString().split("T")[0];
+      const bom = "\uFEFF";
+      let csv = "TEACHERS BY SUBJECT REPORT\n";
+      csv += `Generated,${date}\n\n`;
+      csv += "Teacher,Email,School,School Code,Subject,Classes,Entries,Latest Entry\n";
+
+      Array.from(grouped.values())
+        .sort((a, b) => a.schoolName.localeCompare(b.schoolName) || a.subjectName.localeCompare(b.subjectName) || a.teacherName.localeCompare(b.teacherName))
+        .forEach((g) => {
+          csv += [
+            escapeCSV(g.teacherName),
+            escapeCSV(g.teacherEmail),
+            escapeCSV(g.schoolName),
+            escapeCSV(g.schoolCode),
+            escapeCSV(g.subjectName),
+            escapeCSV(Array.from(g.classNames).sort().join("; ")),
+            g.entryCount,
+            escapeCSV(new Date(g.latestDate).toISOString().split("T")[0]),
+          ].join(",") + "\n";
+        });
+
+      const blob = new Blob([bom + csv], { type: "text/csv;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `regional-teachers-by-subject-${date}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      // silent
+    }
+  }
+
   const totalPages = Math.ceil(entriesTotal / ENTRIES_PER_PAGE);
 
   return (
@@ -235,14 +292,24 @@ export default function RegionalReportsPage() {
           </Link>
           <div className="flex items-center justify-between">
             <h1 className="text-xl font-bold text-white">Regional Reports</h1>
-            <button
-              onClick={exportCSV}
-              disabled={!data}
-              className="flex items-center gap-1.5 bg-white/10 hover:bg-white/20 text-white text-sm rounded-lg px-3 py-1.5"
-            >
-              <Download className="w-4 h-4" />
-              CSV
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={exportTeachersBySubjectCSV}
+                disabled={!data}
+                className="flex items-center gap-1.5 bg-white/10 hover:bg-white/20 text-white text-xs rounded-lg px-3 py-1.5"
+              >
+                <Users className="w-4 h-4" />
+                Teachers CSV
+              </button>
+              <button
+                onClick={exportCSV}
+                disabled={!data}
+                className="flex items-center gap-1.5 bg-white/10 hover:bg-white/20 text-white text-xs rounded-lg px-3 py-1.5"
+              >
+                <Download className="w-4 h-4" />
+                Summary CSV
+              </button>
+            </div>
           </div>
         </div>
       </div>
