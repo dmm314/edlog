@@ -28,10 +28,24 @@ export async function GET() {
 
     const linkedIds = new Set(schoolSubjects.map((ss) => ss.subjectId));
 
+    // Get all divisions for this school, grouped by subject
+    const divisions = await db.subjectDivision.findMany({
+      where: { schoolId: user.schoolId },
+      select: { id: true, name: true, subjectId: true, levels: true },
+      orderBy: { name: "asc" },
+    });
+
+    const divisionsBySubject: Record<string, { id: string; name: string; levels: string[] }[]> = {};
+    for (const d of divisions) {
+      if (!divisionsBySubject[d.subjectId]) divisionsBySubject[d.subjectId] = [];
+      divisionsBySubject[d.subjectId].push({ id: d.id, name: d.name, levels: d.levels });
+    }
+
     return NextResponse.json({
       subjects: allSubjects.map((s) => ({
         ...s,
         linked: linkedIds.has(s.id),
+        divisions: divisionsBySubject[s.id] || [],
       })),
       linkedCount: linkedIds.size,
     });
@@ -123,6 +137,11 @@ export async function DELETE(request: Request) {
         { status: 400 }
       );
     }
+
+    // Also remove any divisions for this subject
+    await db.subjectDivision.deleteMany({
+      where: { schoolId: user.schoolId, subjectId },
+    });
 
     await db.schoolSubject.deleteMany({
       where: { schoolId: user.schoolId, subjectId },

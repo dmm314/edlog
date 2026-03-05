@@ -304,6 +304,7 @@ model SubjectDivision {
   subject   Subject  @relation(fields: [subjectId], references: [id])
   schoolId  String
   school    School   @relation(fields: [schoolId], references: [id])
+  levels    String[] // Class levels this division applies to, e.g. ["Form 4", "Form 5"] or ["Lower Sixth", "Upper Sixth"]. Empty = all levels.
   createdAt DateTime @default(now())
 
   assignments TeacherAssignment[]

@@ -16,6 +16,7 @@ import {
 interface DivisionInfo {
   id: string;
   name: string;
+  levels: string[];
 }
 
 interface SubjectItem {
@@ -200,9 +201,13 @@ export default function ClassSubjectsPage() {
         {/* Info */}
         <div className="card p-4">
           <p className="text-sm text-slate-600">
-            Select the subjects taught in this class. These will be available
-            when assigning teachers. Subjects with divisions are shown with
-            their sub-sections below.
+            Select the subjects taught in this class. Subjects with divisions
+            for this level are shown with their sections below. Manage divisions
+            in{" "}
+            <Link href="/admin/subjects" className="text-brand-600 font-medium">
+              School Subjects
+            </Link>
+            .
           </p>
         </div>
 
