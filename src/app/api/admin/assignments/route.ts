@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getSessionUser } from "@/lib/auth";
+import { emit } from "@/lib/events";
 
 export async function GET() {
   try {
@@ -16,8 +17,13 @@ export async function GET() {
       );
     }
 
-    // Run queries individually so one failure doesn't break everything
-    const [assignments, teachers, classes, classSubjects, divisions] = await Promise.all([
+    const [
+      assignments,
+      teachers,
+      classes,
+      classSubjects,
+      divisions
+    ] = await Promise.all([
       db.teacherAssignment.findMany({
         where: { schoolId: user.schoolId },
         include: {
@@ -41,7 +47,8 @@ export async function GET() {
           { teacher: { lastName: "asc" } },
           { class: { name: "asc" } },
         ],
-      }).catch((e) => { console.error("assignments query failed:", e); return []; }),
+      }),
+
       db.user.findMany({
         where: {
           schoolId: user.schoolId,
@@ -50,12 +57,14 @@ export async function GET() {
         },
         select: { id: true, firstName: true, lastName: true },
         orderBy: { lastName: "asc" },
-      }).catch((e) => { console.error("teachers query failed:", e); return []; }),
+      }),
+
       db.class.findMany({
         where: { schoolId: user.schoolId },
         select: { id: true, name: true, level: true },
         orderBy: { name: "asc" },
-      }).catch((e) => { console.error("classes query failed:", e); return []; }),
+      }),
+
       db.classSubject.findMany({
         where: {
           class: { schoolId: user.schoolId },
@@ -63,30 +72,44 @@ export async function GET() {
         include: {
           subject: { select: { id: true, name: true, code: true } },
         },
-      }).catch((e) => { console.error("classSubjects query failed:", e); return []; }),
+      }),
+
       db.subjectDivision.findMany({
         where: { schoolId: user.schoolId },
         select: { id: true, name: true, subjectId: true },
         orderBy: { name: "asc" },
-      }).catch((e) => { console.error("divisions query failed:", e); return []; }),
+      }),
     ]);
 
-    // Build a map of classId -> subjects for the frontend
-    const subjectsByClass: Record<string, { id: string; name: string; code: string }[]> = {};
+    const subjectsByClass: Record<
+      string,
+      { id: string; name: string; code: string }[]
+    > = {};
+
     for (const cs of classSubjects) {
       if (!subjectsByClass[cs.classId]) subjectsByClass[cs.classId] = [];
       subjectsByClass[cs.classId].push(cs.subject);
     }
 
-    // Build a map of subjectId -> divisions
-    const divisionsBySubject: Record<string, { id: string; name: string }[]> = {};
+    const divisionsBySubject: Record<
+      string,
+      { id: string; name: string }[]
+    > = {};
+
     for (const d of divisions) {
-      if (!divisionsBySubject[d.subjectId]) divisionsBySubject[d.subjectId] = [];
-      divisionsBySubject[d.subjectId].push({ id: d.id, name: d.name });
+      if (!divisionsBySubject[d.subjectId])
+        divisionsBySubject[d.subjectId] = [];
+      divisionsBySubject[d.subjectId].push({
+        id: d.id,
+        name: d.name,
+      });
     }
 
-    // Dedupe all subjects across classes for backward compat
-    const allSubjectMap = new Map<string, { id: string; name: string; code: string }>();
+    const allSubjectMap = new Map<
+      string,
+      { id: string; name: string; code: string }
+    >();
+
     for (const cs of classSubjects) {
       allSubjectMap.set(cs.subject.id, cs.subject);
     }
@@ -108,7 +131,9 @@ export async function GET() {
           name: a.subject.name,
           code: a.subject.code,
         },
-        division: a.division ? { id: a.division.id, name: a.division.name } : null,
+        division: a.division
+          ? { id: a.division.id, name: a.division.name }
+          : null,
         entryCount: a._count.entries,
         timetableSlots: a._count.periods,
         createdAt: a.createdAt.toISOString(),
@@ -131,6 +156,7 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const user = await getSessionUser();
+
     if (!user || user.role !== "SCHOOL_ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -147,53 +173,52 @@ export async function POST(request: Request) {
 
     if (!teacherId || !classId || !subjectId) {
       return NextResponse.json(
-        { error: "Teacher, class, and subject are all required" },
+        { error: "Teacher, class, and subject are required" },
         { status: 400 }
       );
     }
 
-    // Verify teacher belongs to this school
     const teacher = await db.user.findFirst({
-      where: { id: teacherId, schoolId: user.schoolId, role: "TEACHER" },
+      where: {
+        id: teacherId,
+        schoolId: user.schoolId,
+        role: "TEACHER",
+      },
     });
+
     if (!teacher) {
       return NextResponse.json(
-        { error: "Teacher not found in your school" },
+        { error: "Teacher not found in this school" },
         { status: 404 }
       );
     }
 
-    // Verify class belongs to this school
     const cls = await db.class.findFirst({
-      where: { id: classId, schoolId: user.schoolId },
+      where: {
+        id: classId,
+        schoolId: user.schoolId,
+      },
     });
+
     if (!cls) {
       return NextResponse.json(
-        { error: "Class not found in your school" },
+        { error: "Class not found" },
         { status: 404 }
       );
     }
 
-    // Verify division belongs to this subject & school (if provided)
-    if (divisionId) {
-      const division = await db.subjectDivision.findFirst({
-        where: { id: divisionId, subjectId, schoolId: user.schoolId },
-      });
-      if (!division) {
-        return NextResponse.json(
-          { error: "Division not found for this subject" },
-          { status: 404 }
-        );
-      }
-    }
-
-    // Check for duplicate (same teacher + class + subject + division)
     const existing = await db.teacherAssignment.findFirst({
-      where: { teacherId, classId, subjectId, divisionId: divisionId || null },
+      where: {
+        teacherId,
+        classId,
+        subjectId,
+        divisionId: divisionId || null,
+      },
     });
+
     if (existing) {
       return NextResponse.json(
-        { error: "This teacher is already assigned to this class and subject" + (divisionId ? " division" : "") },
+        { error: "Teacher already assigned" },
         { status: 409 }
       );
     }
@@ -214,6 +239,14 @@ export async function POST(request: Request) {
       },
     });
 
+    await emit("teacher.assigned", {
+      teacherId: assignment.teacher.id,
+      teacherName: `${assignment.teacher.firstName} ${assignment.teacher.lastName}`,
+      className: assignment.class.name,
+      subjectName: assignment.subject.name,
+      schoolId: user.schoolId,
+    });
+
     return NextResponse.json({
       id: assignment.id,
       teacher: {
@@ -230,11 +263,14 @@ export async function POST(request: Request) {
         name: assignment.subject.name,
         code: assignment.subject.code,
       },
-      division: assignment.division ? { id: assignment.division.id, name: assignment.division.name } : null,
+      division: assignment.division
+        ? { id: assignment.division.id, name: assignment.division.name }
+        : null,
       entryCount: 0,
       timetableSlots: 0,
       createdAt: assignment.createdAt.toISOString(),
     });
+
   } catch (error) {
     console.error("POST /api/admin/assignments error:", error);
     return NextResponse.json(
@@ -247,6 +283,7 @@ export async function POST(request: Request) {
 export async function DELETE(request: Request) {
   try {
     const user = await getSessionUser();
+
     if (!user || user.role !== "SCHOOL_ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -256,14 +293,21 @@ export async function DELETE(request: Request) {
 
     if (!assignmentId) {
       return NextResponse.json(
-        { error: "Assignment ID is required" },
+        { error: "Assignment ID required" },
         { status: 400 }
       );
     }
 
     const assignment = await db.teacherAssignment.findFirst({
-      where: { id: assignmentId, schoolId: user.schoolId! },
-      include: { _count: { select: { entries: true, periods: true } } },
+      where: {
+        id: assignmentId,
+        schoolId: user.schoolId!,
+      },
+      include: {
+        _count: {
+          select: { entries: true, periods: true },
+        },
+      },
     });
 
     if (!assignment) {
@@ -277,22 +321,29 @@ export async function DELETE(request: Request) {
       return NextResponse.json(
         {
           error:
-            "Cannot delete an assignment with existing logbook entries. Remove entries first.",
+            "Cannot delete assignment with existing logbook entries",
         },
         { status: 400 }
       );
     }
 
-    // Delete timetable slots tied to this assignment first
     if (assignment._count.periods > 0) {
       await db.timetableSlot.deleteMany({
         where: { assignmentId },
       });
     }
 
-    await db.teacherAssignment.delete({ where: { id: assignmentId } });
+    await db.teacherAssignment.delete({
+      where: { id: assignmentId },
+    });
+
+    await emit("teacher.unassigned", {
+      assignmentId,
+      schoolId: user.schoolId,
+    });
 
     return NextResponse.json({ success: true });
+
   } catch (error) {
     console.error("DELETE /api/admin/assignments error:", error);
     return NextResponse.json(
