@@ -7,7 +7,7 @@
 -- ============================================================
 
 -- ============================================================
--- SUBJECTS  (22 subjects across 4 categories)
+-- SUBJECTS  (24 subjects across 4 categories)
 -- ============================================================
 
 INSERT INTO "Subject" ("id", "name", "code", "category", "createdAt") VALUES
@@ -33,6 +33,8 @@ INSERT INTO "Subject" ("id", "name", "code", "category", "createdAt") VALUES
   ('subj-geo', 'Geography',             'GEO', 'Humanities', CURRENT_TIMESTAMP),
   ('subj-eco', 'Economics',             'ECO', 'Humanities', CURRENT_TIMESTAMP),
   ('subj-rel', 'Religious Studies',     'REL', 'Humanities', CURRENT_TIMESTAMP),
+  ('subj-log', 'Logic',                'LOG', 'Humanities', CURRENT_TIMESTAMP),
+  ('subj-phi', 'Philosophy',           'PHI', 'Humanities', CURRENT_TIMESTAMP),
 
   -- ── General ──
   ('subj-cit', 'Citizenship',           'CIT', 'General',    CURRENT_TIMESTAMP),
@@ -275,7 +277,37 @@ INSERT INTO "Topic" ("id", "name", "classLevel", "moduleName", "moduleNum", "ord
   ('t-rel-004', 'New Testament Studies',             'Lower Sixth', 'Biblical Studies',     3,  4,  CURRENT_TIMESTAMP, 'subj-rel'),
   -- Upper Sixth
   ('t-rel-005', 'Philosophy of Religion',            'Upper Sixth', 'Philosophy',           4,  5,  CURRENT_TIMESTAMP, 'subj-rel'),
-  ('t-rel-006', 'Religion & Society',                'Upper Sixth', 'Applied',              5,  6,  CURRENT_TIMESTAMP, 'subj-rel')
+  ('t-rel-006', 'Religion & Society',                'Upper Sixth', 'Applied',              5,  6,  CURRENT_TIMESTAMP, 'subj-rel'),
+
+  -- ════════════════════════════════════════════════════════════
+  -- LOGIC  (O Level — Form 5)
+  -- ════════════════════════════════════════════════════════════
+  -- Form 5
+  ('t-log-001', 'Propositions & Logical Connectives','Form 5',      'Formal Logic',         1,  1,  CURRENT_TIMESTAMP, 'subj-log'),
+  ('t-log-002', 'Truth Tables',                      'Form 5',      'Formal Logic',         1,  2,  CURRENT_TIMESTAMP, 'subj-log'),
+  ('t-log-003', 'Logical Equivalence & Implication',  'Form 5',      'Formal Logic',         1,  3,  CURRENT_TIMESTAMP, 'subj-log'),
+  ('t-log-004', 'Syllogisms & Deductive Reasoning',  'Form 5',      'Reasoning',            2,  4,  CURRENT_TIMESTAMP, 'subj-log'),
+  ('t-log-005', 'Fallacies & Invalid Arguments',     'Form 5',      'Reasoning',            2,  5,  CURRENT_TIMESTAMP, 'subj-log'),
+  ('t-log-006', 'Sets, Venn Diagrams & Logic',       'Form 5',      'Applied Logic',        3,  6,  CURRENT_TIMESTAMP, 'subj-log'),
+  ('t-log-007', 'Inductive Reasoning',               'Form 5',      'Reasoning',            2,  7,  CURRENT_TIMESTAMP, 'subj-log'),
+
+  -- ════════════════════════════════════════════════════════════
+  -- PHILOSOPHY  (A Level — Logic at A Level)
+  -- ════════════════════════════════════════════════════════════
+  -- Lower Sixth
+  ('t-phi-001', 'Introduction to Philosophy',        'Lower Sixth', 'Foundations',          1,  1,  CURRENT_TIMESTAMP, 'subj-phi'),
+  ('t-phi-002', 'Epistemology (Theory of Knowledge)','Lower Sixth', 'Foundations',          1,  2,  CURRENT_TIMESTAMP, 'subj-phi'),
+  ('t-phi-003', 'Propositional & Predicate Logic',   'Lower Sixth', 'Logic',                2,  3,  CURRENT_TIMESTAMP, 'subj-phi'),
+  ('t-phi-004', 'Formal Proofs & Derivations',       'Lower Sixth', 'Logic',                2,  4,  CURRENT_TIMESTAMP, 'subj-phi'),
+  ('t-phi-005', 'Ethics & Moral Philosophy',         'Lower Sixth', 'Ethics',               3,  5,  CURRENT_TIMESTAMP, 'subj-phi'),
+  ('t-phi-006', 'Philosophy of Mind',                'Lower Sixth', 'Metaphysics',          4,  6,  CURRENT_TIMESTAMP, 'subj-phi'),
+  -- Upper Sixth
+  ('t-phi-007', 'Metaphysics',                       'Upper Sixth', 'Metaphysics',          4,  7,  CURRENT_TIMESTAMP, 'subj-phi'),
+  ('t-phi-008', 'Political Philosophy',              'Upper Sixth', 'Applied Philosophy',   5,  8,  CURRENT_TIMESTAMP, 'subj-phi'),
+  ('t-phi-009', 'Philosophy of Science',             'Upper Sixth', 'Applied Philosophy',   5,  9,  CURRENT_TIMESTAMP, 'subj-phi'),
+  ('t-phi-010', 'Symbolic Logic & Modal Logic',      'Upper Sixth', 'Advanced Logic',       6,  10, CURRENT_TIMESTAMP, 'subj-phi'),
+  ('t-phi-011', 'Existentialism & Phenomenology',    'Upper Sixth', 'Modern Philosophy',    7,  11, CURRENT_TIMESTAMP, 'subj-phi'),
+  ('t-phi-012', 'Philosophy of Religion',            'Upper Sixth', 'Applied Philosophy',   5,  12, CURRENT_TIMESTAMP, 'subj-phi')
 
 ON CONFLICT ("id") DO NOTHING;
 
