@@ -215,7 +215,7 @@ export default function LogbookPage() {
     return todaySlots.filter((s) => !filledPeriods.has(s.periodNumber));
   }, [todaySlots, entries, todayStr]);
 
-   // Unfilled periods for this week — shows what the teacher hasn't filled yet
+  // Unfilled periods for this week — shows what the teacher hasn't filled yet
   const unfilledWeekSlots = useMemo(() => {
     if (allSlots.length === 0) return [];
 
