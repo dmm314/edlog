@@ -7,13 +7,13 @@ export default function DivisionsRedirectPage() {
   const router = useRouter();
 
   useEffect(() => {
-    router.replace("/admin/subjects");
+    router.replace("/admin/classes");
   }, [router]);
 
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center">
       <p className="text-slate-500 text-sm">
-        Redirecting to Subjects...
+        Redirecting to Classes...
       </p>
     </div>
   );
