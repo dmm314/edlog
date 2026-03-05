@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getSessionUser } from "@/lib/auth";
@@ -102,7 +103,7 @@ export async function GET(request: NextRequest) {
     // Get all classes that have assignments for the HOD's subjects
     const classesInDept = await db.class.findMany({
       where: {
-        schoolId: user.schoolId,
+        schoolId: user.schoolId ?? undefined,
         assignments: { some: { subjectId: { in: hodSubjectIds } } },
       },
       select: {
@@ -114,7 +115,7 @@ export async function GET(request: NextRequest) {
     });
 
     // Build unique class levels for filtering
-    const classLevels = [...new Set(classesInDept.map((c) => c.level).filter(Boolean))].sort();
+    const classLevels = Array.from(new Set(classesInDept.map((c) => c.level).filter(Boolean))).sort();
 
     return NextResponse.json({
       entries,
