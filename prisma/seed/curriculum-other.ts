@@ -1,3 +1,29 @@
+// ============================================================
+// CURRICULUM-OTHER: Placeholder subjects without full curriculum data
+// ============================================================
+//
+// HOW TO ADD A NEW SUBJECT:
+//   1. Add a new object to the OTHER_SUBJECTS array at the bottom
+//   2. Each subject needs: name, code (unique 2-3 letter), category, levels
+//   3. Use buildLevels("Subject Name", levelsFromTo("Form 1", "Upper Sixth"))
+//      to auto-generate placeholder topics for each form level
+//   4. levelsFromTo(start, end) picks a range from:
+//      "Form 1", "Form 2", "Form 3", "Form 4", "Form 5",
+//      "Lower Sixth", "Upper Sixth"
+//
+// HOW TO ADD FULL CURRICULUM (replace placeholders):
+//   1. Create a new file: prisma/seed/curriculum-<subject>.ts
+//   2. Export a constant like PHYSICS_CURRICULUM (array of LevelData)
+//   3. Import it in prisma/seed.ts and push to allSubjects[]
+//   4. Remove the placeholder entry from OTHER_SUBJECTS here
+//
+// CATEGORIES used: "Science", "Language", "Humanities", "General",
+//                  "Chemistry" (for chemistry branches)
+//
+// AFTER CHANGES: Re-run `npx prisma db seed` (or do a full reset
+//   via neon-reset.sql + seed) for new subjects to appear.
+// ============================================================
+
 export interface TopicData {
   name: string;
   moduleNum: number;
@@ -146,6 +172,27 @@ export const OTHER_SUBJECTS: SubjectDef[] = [
     levels: buildLevels(
       "Manual Labour",
       levelsFromTo("Form 1", "Form 5"),
+    ),
+  },
+  // ICT — part of the Computer Science family but a distinct subject
+  // (shares HOD with Computer Science)
+  {
+    name: "Information and Communication Technology",
+    code: "ICT",
+    category: "Science",
+    levels: buildLevels(
+      "Information and Communication Technology",
+      levelsFromTo("Form 1", "Upper Sixth"),
+    ),
+  },
+  // Food Science
+  {
+    name: "Food Science",
+    code: "FSC",
+    category: "Science",
+    levels: buildLevels(
+      "Food Science",
+      levelsFromTo("Form 3", "Upper Sixth"),
     ),
   },
   // Chemistry branch subjects — individually assignable

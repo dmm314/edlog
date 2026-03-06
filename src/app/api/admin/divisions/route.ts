@@ -1,3 +1,30 @@
+// ============================================================
+// DIVISIONS API — /api/admin/divisions
+// ============================================================
+//
+// Manages "Subject Divisions" — sub-parts of a subject taught
+// by different teachers (e.g. Chemistry -> Physical / Organic / Inorganic).
+//
+// ENDPOINTS:
+//   GET    — List all divisions for the admin's school
+//   POST   — Create a new division (body: { subjectId, name, levels? })
+//   PATCH  — Update a division's levels (body: { id, levels })
+//   DELETE — Remove a division (query: ?id=xxx) — only if no assignments
+//
+// KEY FIELDS:
+//   name      — Display name, e.g. "Physical Chemistry"
+//   subjectId — Parent subject this division belongs to
+//   schoolId  — School-specific (each school has its own divisions)
+//   levels    — String[] of class levels this applies to, e.g.
+//               ["Lower Sixth", "Upper Sixth"]. Empty = all levels.
+//
+// RELATED FILES:
+//   - Schema:    prisma/schema.prisma (SubjectDivision model)
+//   - Frontend:  app/(dashboard)/admin/classes/[classId]/page.tsx
+//                (Divisions tab with templates + custom add)
+//   - Subjects:  api/admin/subjects/route.ts (also reads divisions)
+// ============================================================
+
 export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";

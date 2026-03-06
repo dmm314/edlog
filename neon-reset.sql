@@ -225,6 +225,7 @@ CREATE TABLE "SubjectDivision" (
     "name" TEXT NOT NULL,
     "subjectId" TEXT NOT NULL,
     "schoolId" TEXT NOT NULL,
+    "levels" TEXT[] NOT NULL DEFAULT '{}',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT "SubjectDivision_pkey" PRIMARY KEY ("id")
 );
