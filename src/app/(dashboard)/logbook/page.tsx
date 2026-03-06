@@ -9,7 +9,6 @@ import {
   Clock,
   Edit3,
   CheckCircle,
-  Sparkles,
   ArrowRight,
   Sun,
   Moon,
@@ -84,12 +83,7 @@ function getGreeting(): { text: string; icon: React.ElementType } {
   return { text: "Good Evening", icon: Moon };
 }
 
-function getSubjectColor(index: number): string {
-  const opacity = [0.9, 0.75, 0.65, 0.55, 0.8, 0.7];
-  return `opacity-${Math.round((opacity[index % opacity.length] || 0.7) * 100)}`;
-}
- 
-function getSubjectBg(_index: number): string {
+function getSubjectBg(): string {
   return "bg-[var(--accent-light)] text-[var(--accent-text)] border-[var(--border-primary)]";
 }
 
@@ -259,24 +253,6 @@ export default function LogbookPage() {
     return unfilled;
   }, [allSlots, entries]);
 
-  // Track unique subjects for coloring
-  const subjectColorMap = useMemo(() => {
-    const map = new Map<string, number>();
-    let idx = 0;
-    todaySlots.forEach((s) => {
-      if (!map.has(s.assignment.subject.name)) {
-        map.set(s.assignment.subject.name, idx++);
-      }
-    });
-    entries.forEach((e) => {
-      const name = e.topics?.[0]?.subject?.name;
-      if (name && !map.has(name)) {
-        map.set(name, idx++);
-      }
-    });
-    return map;
-  }, [todaySlots, entries]);
-
   // Check if teacher has multiple schools
   const hasMultipleSchools = useMemo(() => {
     const schools = new Set(allSlots.map((s) => s.schoolName).filter(Boolean));
@@ -380,8 +356,8 @@ export default function LogbookPage() {
       <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-primary)" }}>
         <div className="page-header px-5 pt-10 pb-10 rounded-b-[2rem] shadow-elevated">
           <div className="max-w-lg mx-auto relative">
-            <div className="skeleton h-5 w-32 !bg-white/10 mb-2" />
-            <div className="skeleton h-7 w-48 !bg-white/15 mb-6" />
+            <div className="skeleton h-5 w-32 !bg-[var(--bg-elevated)]/10 mb-2" />
+            <div className="skeleton h-7 w-48 !bg-[var(--bg-elevated)]/15 mb-6" />
             <div className="grid grid-cols-3 gap-3">
               {[1, 2, 3].map((i) => (
                 <div key={i} className="bg-white/[0.05] rounded-2xl px-3 py-4">
@@ -792,7 +768,6 @@ export default function LogbookPage() {
             <div className="space-y-2.5">
               {stats.recentEntries.map((entry, i) => {
                 const subjectName = entry.topics?.[0]?.subject?.name ?? "—";
-                const colorIdx = subjectColorMap.get(subjectName) ?? i;
                 return (
                   <div
                     key={entry.id}
@@ -801,7 +776,7 @@ export default function LogbookPage() {
                   >
                     <div className="flex items-start justify-between mb-2">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border ${getSubjectBg(colorIdx)}`}>
+                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border ${getSubjectBg()}`}>
                           {subjectName}
                         </span>
                         <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md border" style={{ backgroundColor: "var(--bg-tertiary)", color: "var(--text-secondary)", borderColor: "var(--border-primary)" }}>
@@ -847,7 +822,9 @@ export default function LogbookPage() {
           </div>
         )}
 
-        <div className="w-20 h-20 bg-[var(--bg-tertiary)] rounded-3xl flex items-center justify-center mx-auto mb-5">
+        {entries.length === 0 && (
+          <div className="text-center py-20 animate-fade-in">
+            <div className="w-20 h-20 bg-[var(--bg-tertiary)] rounded-3xl flex items-center justify-center mx-auto mb-5">
               <BookOpen className="w-10 h-10 text-[var(--text-tertiary)]" />
             </div>
             <p className="text-[var(--text-primary)] font-bold text-lg">No entries yet</p>

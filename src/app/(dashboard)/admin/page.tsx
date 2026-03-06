@@ -12,7 +12,6 @@ import {
   GraduationCap,
   UserCheck,
   FileText,
-  Sparkles,
   BarChart3,
   Zap,
   Layers,
@@ -62,8 +61,8 @@ export default function AdminDashboardPage() {
        <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-primary)" }}>
         <div className="page-header px-5 pt-10 pb-8 rounded-b-[2rem] shadow-elevated">
           <div className="max-w-lg mx-auto relative">
-            <div className="skeleton h-6 w-40 !bg-white/15 mb-2" />
-            <div className="skeleton h-4 w-28 !bg-white/10" />
+            <div className="skeleton h-6 w-40 !bg-[var(--bg-elevated)]/15 mb-2" />
+            <div className="skeleton h-4 w-28 !bg-[var(--bg-elevated)]/10" />
           </div>
         </div>
         <div className="px-5 mt-4 max-w-lg mx-auto space-y-4">

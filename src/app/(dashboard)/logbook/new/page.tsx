@@ -26,7 +26,7 @@ const SignaturePad = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="h-24 border-2 border-dashed border-slate-300 rounded-xl bg-white flex items-center justify-center text-slate-400 text-sm">
+      <div className="h-24 border-2 border-dashed border-[var(--border-primary)] rounded-xl bg-[var(--bg-elevated)] flex items-center justify-center text-[var(--text-tertiary)] text-sm">
         Loading signature pad...
       </div>
     ),
@@ -602,14 +602,14 @@ export default function NewEntryPage() {
   // ───── Success Screen ─────
   if (success && submittedEntries) {
     return (
-      <div className="min-h-screen bg-slate-50 flex flex-col">
+      <div className="min-h-screen flex flex-col" style={{ backgroundColor: "var(--bg-secondary)" }}>
         <div className={`px-5 pt-12 pb-8 rounded-b-3xl ${
           submittedEntries.isDraft ? "bg-gradient-to-br from-amber-600 to-amber-500"
             : submittedEntries.classDidNotHold ? "bg-gradient-to-br from-slate-600 to-slate-500"
             : "bg-gradient-to-br from-emerald-600 to-emerald-500"
         }`}>
           <div className="max-w-lg mx-auto text-center">
-            <div className="inline-flex items-center justify-center w-20 h-20 bg-white/20 rounded-full mb-4">
+            <div className="inline-flex items-center justify-center w-20 h-20 bg-[var(--bg-elevated)]/20 rounded-full mb-4">
               {submittedEntries.isDraft ? <Save className="w-12 h-12 text-white" />
                 : submittedEntries.classDidNotHold ? <XCircle className="w-12 h-12 text-white" />
                 : <CheckCircle className="w-12 h-12 text-white" />}
@@ -646,7 +646,7 @@ export default function NewEntryPage() {
               )}
               {submittedEntries.classDidNotHold && (
                 <div className="pb-3">
-                  <div className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm text-slate-600">
+                  <div className="bg-[var(--bg-tertiary)] border border-[var(--border-primary)] rounded-xl px-3 py-2 text-sm text-[var(--text-secondary)]">
                     <XCircle className="w-4 h-4 inline mr-1.5 -mt-0.5" />
                     This period has been marked as &ldquo;Class Did Not Hold&rdquo;
                   </div>
@@ -659,8 +659,8 @@ export default function NewEntryPage() {
                       <Layers className="w-4 h-4 text-blue-600" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400">Module</p>
-                      <p className="text-sm font-medium text-slate-800">{submittedEntries.module}</p>
+                      <p className="text-[10px] font-semibold uppercase tracking-widest text-[var(--text-tertiary)]">Module</p>
+                      <p className="text-sm font-medium text-[var(--text-primary)]">{submittedEntries.module}</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-3 mt-2.5">
@@ -668,20 +668,20 @@ export default function NewEntryPage() {
                       <BookOpen className="w-4 h-4 text-purple-600" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400">
+                      <p className="text-[10px] font-semibold uppercase tracking-widest text-[var(--text-tertiary)]">
                         {submittedEntries.topics.length > 1 ? `Topics Covered (${submittedEntries.topics.length})` : "Topic Covered"}
                       </p>
                       {submittedEntries.topics.length > 0 ? (
                         <ul className="mt-1 space-y-1">
                           {submittedEntries.topics.map((t, i) => (
-                            <li key={i} className="text-sm text-slate-800 flex items-start gap-2">
+                            <li key={i} className="text-sm text-[var(--text-primary)] flex items-start gap-2">
                               <Check className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0 mt-0.5" />
                               <span>{t}</span>
                             </li>
                           ))}
                         </ul>
                       ) : (
-                        <p className="text-sm font-medium text-slate-800">{submittedEntries.topic}</p>
+                        <p className="text-sm font-medium text-[var(--text-primary)]">{submittedEntries.topic}</p>
                       )}
                     </div>
                   </div>
@@ -697,20 +697,20 @@ export default function NewEntryPage() {
                 <div className="space-y-2">
                   {submittedEntries.periods.map((p, i) => (
                     <div key={i} className="grid grid-cols-3 gap-3">
-                      <div className="text-center bg-slate-50 rounded-xl py-2.5 px-2">
-                        <Calendar className="w-4 h-4 text-slate-400 mx-auto mb-1" />
-                        <p className="text-[10px] text-slate-400 font-medium">Period</p>
-                        <p className="text-xs font-bold text-slate-800">{p.period}</p>
+                      <div className="text-center bg-[var(--bg-tertiary)] rounded-xl py-2.5 px-2">
+                        <Calendar className="w-4 h-4 text-[var(--text-tertiary)] mx-auto mb-1" />
+                        <p className="text-[10px] text-[var(--text-tertiary)] font-medium">Period</p>
+                        <p className="text-xs font-bold text-[var(--text-primary)]">{p.period}</p>
                       </div>
-                      <div className="text-center bg-slate-50 rounded-xl py-2.5 px-2">
-                        <Clock className="w-4 h-4 text-slate-400 mx-auto mb-1" />
-                        <p className="text-[10px] text-slate-400 font-medium">Time</p>
-                        <p className="text-xs font-bold text-slate-800">{p.time}</p>
+                      <div className="text-center bg-[var(--bg-tertiary)] rounded-xl py-2.5 px-2">
+                        <Clock className="w-4 h-4 text-[var(--text-tertiary)] mx-auto mb-1" />
+                        <p className="text-[10px] text-[var(--text-tertiary)] font-medium">Time</p>
+                        <p className="text-xs font-bold text-[var(--text-primary)]">{p.time}</p>
                       </div>
-                      <div className="text-center bg-slate-50 rounded-xl py-2.5 px-2">
-                        <Clock className="w-4 h-4 text-slate-400 mx-auto mb-1" />
-                        <p className="text-[10px] text-slate-400 font-medium">Duration</p>
-                        <p className="text-xs font-bold text-slate-800">{p.duration}</p>
+                      <div className="text-center bg-[var(--bg-tertiary)] rounded-xl py-2.5 px-2">
+                        <Clock className="w-4 h-4 text-[var(--text-tertiary)] mx-auto mb-1" />
+                        <p className="text-[10px] text-[var(--text-tertiary)] font-medium">Duration</p>
+                        <p className="text-xs font-bold text-[var(--text-primary)]">{p.duration}</p>
                       </div>
                     </div>
                   ))}
@@ -718,7 +718,7 @@ export default function NewEntryPage() {
               </div>
               {submittedEntries.classNames.length > 1 && (
                 <div className="py-3">
-                  <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 mb-2">Classes</p>
+                  <p className="text-[10px] font-semibold uppercase tracking-widest text-[var(--text-tertiary)] mb-2">Classes</p>
                   <div className="flex flex-wrap gap-1.5">
                     {submittedEntries.classNames.map((cn, i) => (
                       <span key={i} className="text-xs font-semibold bg-brand-50 text-brand-700 px-2.5 py-1 rounded-lg border border-brand-100">{cn}</span>
@@ -730,15 +730,15 @@ export default function NewEntryPage() {
                 <div className="py-3">
                   <div className="grid grid-cols-2 gap-3">
                     {submittedEntries.attendance && (
-                      <div className="text-center bg-slate-50 rounded-xl py-2.5 px-2">
-                        <p className="text-[10px] text-slate-400 font-medium">Attendance</p>
-                        <p className="text-xs font-bold text-slate-800">{submittedEntries.attendance}</p>
+                      <div className="text-center bg-[var(--bg-tertiary)] rounded-xl py-2.5 px-2">
+                        <p className="text-[10px] text-[var(--text-tertiary)] font-medium">Attendance</p>
+                        <p className="text-xs font-bold text-[var(--text-primary)]">{submittedEntries.attendance}</p>
                       </div>
                     )}
                     {submittedEntries.engagement && (
-                      <div className="text-center bg-slate-50 rounded-xl py-2.5 px-2">
-                        <p className="text-[10px] text-slate-400 font-medium">Engagement</p>
-                        <p className="text-xs font-bold text-slate-800">
+                      <div className="text-center bg-[var(--bg-tertiary)] rounded-xl py-2.5 px-2">
+                        <p className="text-[10px] text-[var(--text-tertiary)] font-medium">Engagement</p>
+                        <p className="text-xs font-bold text-[var(--text-primary)]">
                           {submittedEntries.engagement.charAt(0) + submittedEntries.engagement.slice(1).toLowerCase()}
                         </p>
                       </div>
@@ -754,8 +754,8 @@ export default function NewEntryPage() {
                         <GraduationCap className="w-4 h-4 text-amber-600" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400">Objectives</p>
-                        <p className="text-sm text-slate-600 mt-0.5">{submittedEntries.objectives}</p>
+                        <p className="text-[10px] font-semibold uppercase tracking-widest text-[var(--text-tertiary)]">Objectives</p>
+                        <p className="text-sm text-[var(--text-secondary)] mt-0.5">{submittedEntries.objectives}</p>
                       </div>
                     </div>
                   )}
@@ -765,8 +765,8 @@ export default function NewEntryPage() {
                         <FileText className="w-4 h-4 text-emerald-600" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400">Notes</p>
-                        <p className="text-sm text-slate-600 mt-0.5">{submittedEntries.notes}</p>
+                        <p className="text-[10px] font-semibold uppercase tracking-widest text-[var(--text-tertiary)]">Notes</p>
+                        <p className="text-sm text-[var(--text-secondary)] mt-0.5">{submittedEntries.notes}</p>
                       </div>
                     </div>
                   )}
@@ -785,16 +785,16 @@ export default function NewEntryPage() {
 
   // ───── Entry Form ─────
   return (
-    <div className="min-h-screen bg-slate-50 pb-24">
+    <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
       <div className="bg-gradient-to-br from-brand-950 via-brand-900 to-brand-800 px-5 pt-10 pb-6 rounded-b-[1.5rem] relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-brand-600/15 via-transparent to-transparent" />
         <div className="max-w-lg mx-auto relative">
           <div className="flex items-center justify-between mb-3">
-            <button onClick={() => router.back()} className="w-9 h-9 bg-white/[0.08] rounded-xl flex items-center justify-center text-white/80 hover:text-white hover:bg-white/[0.12] transition-colors">
+            <button onClick={() => router.back()} className="w-9 h-9 bg-[var(--bg-elevated)]/[0.08] rounded-xl flex items-center justify-center text-white/80 hover:text-white hover:bg-[var(--bg-elevated)]/[0.12] transition-colors">
               <ArrowLeft className="w-5 h-5" />
             </button>
             <div className={`flex items-center gap-2 rounded-full px-3.5 py-1.5 border transition-colors ${
-              seconds > 60 ? "bg-amber-500/15 border-amber-400/20" : "bg-white/[0.08] border-white/[0.06]"
+              seconds > 60 ? "bg-amber-500/15 border-amber-400/20" : "bg-[var(--bg-elevated)]/[0.08] border-white/[0.06]"
             }`}>
               <Clock className={`w-3.5 h-3.5 ${seconds > 60 ? "text-amber-400" : "text-brand-400"}`} />
               <span className={`text-sm font-mono font-bold tabular-nums ${seconds > 60 ? "text-amber-300" : "text-white"}`}>{seconds}s</span>
@@ -832,8 +832,8 @@ export default function NewEntryPage() {
         ) : assignments.length === 0 ? (
           <div className="card p-6 text-center">
             <AlertCircle className="w-10 h-10 text-amber-400 mx-auto mb-3" />
-            <p className="font-medium text-slate-900">No assignments yet</p>
-            <p className="text-sm text-slate-500 mt-1">
+            <p className="font-medium text-[var(--text-primary)]">No assignments yet</p>
+            <p className="text-sm text-[var(--text-tertiary)] mt-1">
               Your school administrator needs to assign you to classes and subjects before you can create logbook entries.
             </p>
             <Link href="/timetable" className="text-sm text-brand-600 font-medium mt-3 inline-block">View My Timetable</Link>
@@ -855,7 +855,7 @@ export default function NewEntryPage() {
                   <Calendar className="w-3.5 h-3.5 text-brand-500" />
                   Your {selectedDayName} Schedule — Tap to Fill
                 </label>
-                <p className="text-[11px] text-slate-400 mb-2">Select up to 4 periods of the same subject to fill at once</p>
+                <p className="text-[11px] text-[var(--text-tertiary)] mb-2">Select up to 4 periods of the same subject to fill at once</p>
                 <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
                   {timetableSlots.map((slot) => {
                     const periodMatch = slot.periodLabel.match(/\d+/);
@@ -872,8 +872,8 @@ export default function NewEntryPage() {
                         className={`flex-shrink-0 rounded-xl border-2 px-3 py-2.5 text-left transition-all relative ${
                           isAlreadyFilled ? "border-emerald-200 bg-emerald-50 opacity-70 cursor-not-allowed"
                             : isSelected ? "border-brand-500 bg-brand-50 shadow-sm"
-                            : !canAdd || !isCompatible ? "border-slate-100 bg-slate-50 opacity-50"
-                            : "border-slate-200 bg-white hover:border-slate-300"
+                            : !canAdd || !isCompatible ? "border-[var(--border-secondary)] bg-[var(--bg-tertiary)] opacity-50"
+                            : "border-[var(--border-primary)] bg-[var(--bg-elevated)] hover:border-[var(--border-primary)]"
                         }`}>
                         {isAlreadyFilled && (
                           <div className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center shadow-sm">
@@ -885,10 +885,10 @@ export default function NewEntryPage() {
                             <Check className="w-3 h-3 text-white" />
                           </div>
                         )}
-                        <p className={`text-xs font-bold ${isAlreadyFilled ? "text-emerald-700" : "text-slate-900"}`}>{slot.periodLabel}</p>
-                        <p className="text-[10px] text-slate-500 mt-0.5 font-medium">{slot.startTime} - {slot.endTime}</p>
+                        <p className={`text-xs font-bold ${isAlreadyFilled ? "text-emerald-700" : "text-[var(--text-primary)]"}`}>{slot.periodLabel}</p>
+                        <p className="text-[10px] text-[var(--text-tertiary)] mt-0.5 font-medium">{slot.startTime} - {slot.endTime}</p>
                         <p className={`text-[11px] font-semibold mt-1.5 ${isAlreadyFilled ? "text-emerald-600" : "text-brand-700"}`}>{slot.assignment.subjectName}</p>
-                        <p className="text-[10px] text-slate-400">{shortClassName(slot.assignment.className)}</p>
+                        <p className="text-[10px] text-[var(--text-tertiary)]">{shortClassName(slot.assignment.className)}</p>
                         {isAlreadyFilled && <p className="text-[9px] font-bold text-emerald-600 mt-1">Already filled</p>}
                       </button>
                     );
@@ -973,11 +973,11 @@ export default function NewEntryPage() {
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="label-field">Class</label>
-                    <div className="input-field bg-slate-50 text-slate-700 flex items-center text-sm">{assignedClasses.find((c) => c.id === classId)?.name || "—"}</div>
+                    <div className="input-field bg-[var(--bg-tertiary)] text-[var(--text-secondary)] flex items-center text-sm">{assignedClasses.find((c) => c.id === classId)?.name || "—"}</div>
                   </div>
                   <div>
                     <label className="label-field">Subject</label>
-                    <div className="input-field bg-slate-50 text-slate-700 flex items-center text-sm">{subjectsForClass.find((s) => s.assignmentId === assignmentId || s.id === subjectId)?.name || "—"}</div>
+                    <div className="input-field bg-[var(--bg-tertiary)] text-[var(--text-secondary)] flex items-center text-sm">{subjectsForClass.find((s) => s.assignmentId === assignmentId || s.id === subjectId)?.name || "—"}</div>
                   </div>
                 </div>
               </>
@@ -988,7 +988,7 @@ export default function NewEntryPage() {
               <div>
                 <label className="label-field">Subject <span className="text-red-500">*</span></label>
                 {subjectsForClass.length === 1 ? (
-                  <div className="input-field bg-slate-50 text-slate-700 flex items-center">{subjectsForClass[0].name}</div>
+                  <div className="input-field bg-[var(--bg-tertiary)] text-[var(--text-secondary)] flex items-center">{subjectsForClass[0].name}</div>
                 ) : (
                   <select value={assignmentId || subjectId} onChange={(e) => handleSubjectChange(e.target.value)} className="input-field" required>
                     <option value="">Select subject</option>
@@ -1005,7 +1005,7 @@ export default function NewEntryPage() {
                   <Copy className="w-3.5 h-3.5 text-violet-500" />
                   Also submit for other classes?
                 </label>
-                <p className="text-[11px] text-slate-400 mb-2">
+                <p className="text-[11px] text-[var(--text-tertiary)] mb-2">
                   If you taught the same topic to other classes, select them to fill all at once
                 </p>
                 <div className="flex flex-wrap gap-2">
@@ -1014,7 +1014,7 @@ export default function NewEntryPage() {
                     return (
                       <button key={oc.classId} type="button" onClick={() => toggleAdditionalClass(oc.classId)}
                         className={`text-xs font-semibold px-3 py-2 rounded-xl border-2 transition-all ${
-                          isSelected ? "border-violet-500 bg-violet-50 text-violet-700" : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"
+                          isSelected ? "border-violet-500 bg-violet-50 text-violet-700" : "border-[var(--border-primary)] bg-[var(--bg-elevated)] text-[var(--text-secondary)] hover:border-[var(--border-primary)]"
                         }`}>
                         {isSelected && <Check className="w-3 h-3 inline mr-1 -mt-0.5" />}
                         {oc.className}
@@ -1035,16 +1035,16 @@ export default function NewEntryPage() {
               <div>
                 <button type="button" onClick={() => setClassDidNotHold(!classDidNotHold)}
                   className={`w-full text-left flex items-center gap-3 px-4 py-3 rounded-xl border-2 transition-all ${
-                    classDidNotHold ? "border-red-300 bg-red-50" : "border-slate-200 bg-white hover:border-slate-300"
+                    classDidNotHold ? "border-red-300 bg-red-50" : "border-[var(--border-primary)] bg-[var(--bg-elevated)] hover:border-[var(--border-primary)]"
                   }`}>
                   <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center flex-shrink-0 transition-colors ${
-                    classDidNotHold ? "bg-red-500 border-red-500" : "border-slate-300 bg-white"
+                    classDidNotHold ? "bg-red-500 border-red-500" : "border-[var(--border-primary)] bg-[var(--bg-elevated)]"
                   }`}>
                     {classDidNotHold && <Check className="w-3 h-3 text-white" />}
                   </div>
                   <div>
-                    <p className={`text-sm font-semibold ${classDidNotHold ? "text-red-700" : "text-slate-700"}`}>Class did not hold</p>
-                    <p className="text-[11px] text-slate-400">Mark this period if the class was cancelled or didn&apos;t take place</p>
+                    <p className={`text-sm font-semibold ${classDidNotHold ? "text-red-700" : "text-[var(--text-secondary)]"}`}>Class did not hold</p>
+                    <p className="text-[11px] text-[var(--text-tertiary)]">Mark this period if the class was cancelled or didn&apos;t take place</p>
                   </div>
                 </button>
               </div>
@@ -1073,18 +1073,18 @@ export default function NewEntryPage() {
                     </span>
                   )}
                 </label>
-                <p className="text-[11px] text-slate-400 mb-2">Tap to select the topics you covered</p>
-                <div className="space-y-1.5 max-h-52 overflow-y-auto rounded-xl border border-slate-200 bg-white p-2">
+                <p className="text-[11px] text-[var(--text-tertiary)] mb-2">Tap to select the topics you covered</p>
+                <div className="space-y-1.5 max-h-52 overflow-y-auto rounded-xl border border-[var(--border-primary)] bg-[var(--bg-elevated)] p-2">
                   {topicsForModule.map((topic) => {
                     const isTopicSelected = selectedTopicIds.includes(topic.id);
                     return (
                       <button key={topic.id} type="button"
                         onClick={() => setSelectedTopicIds((prev) => isTopicSelected ? prev.filter((id) => id !== topic.id) : [...prev, topic.id])}
                         className={`w-full text-left flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm transition-all ${
-                          isTopicSelected ? "bg-brand-50 border border-brand-200 text-brand-800" : "bg-slate-50 border border-transparent text-slate-700 hover:bg-slate-100"
+                          isTopicSelected ? "bg-brand-50 border border-brand-200 text-brand-800" : "bg-[var(--bg-tertiary)] border border-transparent text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)]"
                         }`}>
                         <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center flex-shrink-0 transition-colors ${
-                          isTopicSelected ? "bg-brand-600 border-brand-600" : "border-slate-300 bg-white"
+                          isTopicSelected ? "bg-brand-600 border-brand-600" : "border-[var(--border-primary)] bg-[var(--bg-elevated)]"
                         }`}>
                           {isTopicSelected && <Check className="w-3 h-3 text-white" />}
                         </div>
@@ -1100,12 +1100,12 @@ export default function NewEntryPage() {
             {subjectId && !classDidNotHold && (
               <div>
                 <label className="label-field flex items-center gap-1.5">
-                  <PenTool className="w-3.5 h-3.5 text-slate-400" />
+                  <PenTool className="w-3.5 h-3.5 text-[var(--text-tertiary)]" />
                   {topicsForModule.length > 0 ? "Additional Topic (Optional)" : "Topic Covered"}
                 </label>
                 <input type="text" value={topicText} onChange={(e) => setTopicText(e.target.value.slice(0, 300))} className="input-field"
                   placeholder={topicsForModule.length > 0 ? "Type any additional topic not listed above..." : "Type the topic you taught..."} maxLength={300} />
-                {topicText.length > 0 && <p className="text-xs text-slate-400 mt-1 text-right">{topicText.length}/300</p>}
+                {topicText.length > 0 && <p className="text-xs text-[var(--text-tertiary)] mt-1 text-right">{topicText.length}/300</p>}
               </div>
             )}
 
@@ -1114,7 +1114,7 @@ export default function NewEntryPage() {
               <div>
                 <label className="label-field">Notes (Optional)</label>
                 <textarea value={notes} onChange={(e) => setNotes(e.target.value.slice(0, 500))} className="input-field resize-none" rows={3} placeholder="Brief notes about the lesson..." maxLength={500} />
-                <p className="text-xs text-slate-400 mt-1 text-right">{notes.length}/500</p>
+                <p className="text-xs text-[var(--text-tertiary)] mt-1 text-right">{notes.length}/500</p>
               </div>
             )}
 
@@ -1123,7 +1123,7 @@ export default function NewEntryPage() {
               <div>
                 <label className="label-field">Objectives (Optional)</label>
                 <textarea value={objectives} onChange={(e) => setObjectives(e.target.value.slice(0, 500))} className="input-field resize-none" rows={2} placeholder="Learning objectives covered..." maxLength={500} />
-                <p className="text-xs text-slate-400 mt-1 text-right">{objectives.length}/500</p>
+                <p className="text-xs text-[var(--text-tertiary)] mt-1 text-right">{objectives.length}/500</p>
               </div>
             )}
 
@@ -1184,7 +1184,7 @@ export default function NewEntryPage() {
 
               {isDraftValid && !classDidNotHold && (
                 <button type="button" onClick={(e) => handleSubmit(e, true)} disabled={savingDraft || submitting}
-                  className="w-full flex items-center justify-center gap-2 bg-white border-2 border-amber-300 text-amber-700 font-bold rounded-2xl py-3.5 px-6 hover:bg-amber-50 active:scale-[0.98] transition-all">
+                  className="w-full flex items-center justify-center gap-2 bg-[var(--bg-elevated)] border-2 border-amber-300 text-amber-700 font-bold rounded-2xl py-3.5 px-6 hover:bg-amber-50 active:scale-[0.98] transition-all">
                   {savingDraft ? (
                     <>
                       <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24" fill="none">

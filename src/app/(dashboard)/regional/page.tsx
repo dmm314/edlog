@@ -39,7 +39,7 @@ export default function RegionalDashboardPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 pb-24">
+      <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
         <div className="bg-gradient-to-br from-brand-950 to-brand-800 px-5 pt-10 pb-6 rounded-b-2xl">
           <div className="max-w-lg mx-auto">
             <h1 className="text-xl font-bold text-white">Regional Dashboard</h1>
@@ -61,7 +61,7 @@ export default function RegionalDashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-24">
+    <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
       {/* Header */}
       <div className="bg-gradient-to-br from-brand-950 to-brand-800 px-5 pt-10 pb-6 rounded-b-2xl">
         <div className="max-w-lg mx-auto">
@@ -101,40 +101,40 @@ export default function RegionalDashboardPage() {
             <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center mb-2">
               <Building2 className="w-5 h-5 text-blue-600" />
             </div>
-            <p className="text-2xl font-bold text-slate-900">
+            <p className="text-2xl font-bold text-[var(--text-primary)]">
               {stats?.totalSchools ?? 0}
             </p>
-            <p className="text-xs text-slate-400 mt-0.5">Total Schools</p>
+            <p className="text-xs text-[var(--text-tertiary)] mt-0.5">Total Schools</p>
           </div>
 
           <div className="card p-4 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
             <div className="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center mb-2">
               <CheckCircle className="w-5 h-5 text-green-600" />
             </div>
-            <p className="text-2xl font-bold text-slate-900">
+            <p className="text-2xl font-bold text-[var(--text-primary)]">
               {stats?.activeSchools ?? 0}
             </p>
-            <p className="text-xs text-slate-400 mt-0.5">Active Schools</p>
+            <p className="text-xs text-[var(--text-tertiary)] mt-0.5">Active Schools</p>
           </div>
 
           <div className="card p-4 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
             <div className="w-10 h-10 bg-purple-50 rounded-xl flex items-center justify-center mb-2">
               <Users className="w-5 h-5 text-purple-600" />
             </div>
-            <p className="text-2xl font-bold text-slate-900">
+            <p className="text-2xl font-bold text-[var(--text-primary)]">
               {stats?.totalTeachers ?? 0}
             </p>
-            <p className="text-xs text-slate-400 mt-0.5">Total Teachers</p>
+            <p className="text-xs text-[var(--text-tertiary)] mt-0.5">Total Teachers</p>
           </div>
 
           <div className="card p-4 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
             <div className="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center mb-2">
               <BookOpen className="w-5 h-5 text-orange-600" />
             </div>
-            <p className="text-2xl font-bold text-slate-900">
+            <p className="text-2xl font-bold text-[var(--text-primary)]">
               {stats?.entriesThisMonth ?? 0}
             </p>
-            <p className="text-xs text-slate-400 mt-0.5">Entries This Month</p>
+            <p className="text-xs text-[var(--text-tertiary)] mt-0.5">Entries This Month</p>
           </div>
 
           <div className="card p-4 col-span-2 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
@@ -143,10 +143,10 @@ export default function RegionalDashboardPage() {
                 <TrendingUp className="w-5 h-5 text-emerald-600" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-slate-900">
+                <p className="text-2xl font-bold text-[var(--text-primary)]">
                   {stats?.complianceRate ?? 0}%
                 </p>
-                <p className="text-xs text-slate-400 mt-0.5">Compliance Rate</p>
+                <p className="text-xs text-[var(--text-tertiary)] mt-0.5">Compliance Rate</p>
               </div>
               <div className="flex-1">
                 <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
@@ -164,7 +164,7 @@ export default function RegionalDashboardPage() {
         {stats && stats.schoolRankings.length > 0 && (
           <div className="animate-slide-up animation-delay-150 card p-4">
             <div className="flex items-center justify-between mb-3">
-              <h3 className="text-sm font-semibold text-slate-900">
+              <h3 className="text-sm font-semibold text-[var(--text-primary)]">
                 School Rankings
               </h3>
               <Link
@@ -176,17 +176,17 @@ export default function RegionalDashboardPage() {
             </div>
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-slate-100">
-                  <th className="text-left pb-2 text-slate-400 font-medium text-xs uppercase">
+                <tr className="border-b border-[var(--border-secondary)]">
+                  <th className="text-left pb-2 text-[var(--text-tertiary)] font-medium text-xs uppercase">
                     School
                   </th>
-                  <th className="text-right pb-2 text-slate-400 font-medium text-xs uppercase">
+                  <th className="text-right pb-2 text-[var(--text-tertiary)] font-medium text-xs uppercase">
                     Teachers
                   </th>
-                  <th className="text-right pb-2 text-slate-400 font-medium text-xs uppercase">
+                  <th className="text-right pb-2 text-[var(--text-tertiary)] font-medium text-xs uppercase">
                     Entries
                   </th>
-                  <th className="text-right pb-2 text-slate-400 font-medium text-xs uppercase">
+                  <th className="text-right pb-2 text-[var(--text-tertiary)] font-medium text-xs uppercase">
                     Compliance
                   </th>
                 </tr>
@@ -195,27 +195,27 @@ export default function RegionalDashboardPage() {
                 {stats.schoolRankings.slice(0, 10).map((school, i) => (
                   <tr
                     key={school.id}
-                    className="border-b border-slate-50 last:border-0 even:bg-slate-50/50 hover:bg-brand-50/40 transition-colors duration-150"
+                    className="border-b border-slate-50 last:border-0 even:bg-[var(--bg-tertiary)] hover:bg-brand-50/40 transition-colors duration-150"
                   >
                     <td className="py-2.5">
                       <div className="flex items-center gap-2">
-                        <span className="text-xs text-slate-400 w-4">
+                        <span className="text-xs text-[var(--text-tertiary)] w-4">
                           #{i + 1}
                         </span>
                         <div>
-                          <p className="text-slate-700 font-medium text-xs">
+                          <p className="text-[var(--text-secondary)] font-medium text-xs">
                             {school.name}
                           </p>
-                          <p className="text-[10px] text-slate-400">
+                          <p className="text-[10px] text-[var(--text-tertiary)]">
                             {school.code}
                           </p>
                         </div>
                       </div>
                     </td>
-                    <td className="py-2.5 text-right text-slate-600">
+                    <td className="py-2.5 text-right text-[var(--text-secondary)]">
                       {school.teacherCount}
                     </td>
-                    <td className="py-2.5 text-right text-slate-600">
+                    <td className="py-2.5 text-right text-[var(--text-secondary)]">
                       {school.entryCount}
                     </td>
                     <td className="py-2.5 text-right">
@@ -242,56 +242,56 @@ export default function RegionalDashboardPage() {
         <div className="animate-slide-up animation-delay-225 space-y-2">
           <Link
             href="/regional/schools"
-            className="card p-4 flex items-center justify-between border-l-2 border-l-transparent hover:border-l-brand-500 hover:bg-slate-50 transition-all duration-200"
+            className="card p-4 flex items-center justify-between border-l-2 border-l-transparent hover:border-l-brand-500 hover:bg-[var(--bg-tertiary)] transition-all duration-200"
           >
             <div className="flex items-center gap-3">
-              <Building2 className="w-5 h-5 text-slate-400" />
-              <span className="font-medium text-slate-900">
+              <Building2 className="w-5 h-5 text-[var(--text-tertiary)]" />
+              <span className="font-medium text-[var(--text-primary)]">
                 Manage Schools
               </span>
             </div>
-            <ChevronRight className="w-4 h-4 text-slate-400 transition-transform duration-200 group-hover:translate-x-0.5" />
+            <ChevronRight className="w-4 h-4 text-[var(--text-tertiary)] transition-transform duration-200 group-hover:translate-x-0.5" />
           </Link>
           <Link
             href="/regional/codes"
-            className="card p-4 flex items-center justify-between border-l-2 border-l-transparent hover:border-l-brand-500 hover:bg-slate-50 transition-all duration-200"
+            className="card p-4 flex items-center justify-between border-l-2 border-l-transparent hover:border-l-brand-500 hover:bg-[var(--bg-tertiary)] transition-all duration-200"
           >
             <div className="flex items-center gap-3">
-              <Key className="w-5 h-5 text-slate-400" />
-              <span className="font-medium text-slate-900">
+              <Key className="w-5 h-5 text-[var(--text-tertiary)]" />
+              <span className="font-medium text-[var(--text-primary)]">
                 Registration Codes
               </span>
             </div>
-            <ChevronRight className="w-4 h-4 text-slate-400 transition-transform duration-200 group-hover:translate-x-0.5" />
+            <ChevronRight className="w-4 h-4 text-[var(--text-tertiary)] transition-transform duration-200 group-hover:translate-x-0.5" />
           </Link>
           <Link
             href="/regional/reports"
-            className="card p-4 flex items-center justify-between border-l-2 border-l-transparent hover:border-l-brand-500 hover:bg-slate-50 transition-all duration-200"
+            className="card p-4 flex items-center justify-between border-l-2 border-l-transparent hover:border-l-brand-500 hover:bg-[var(--bg-tertiary)] transition-all duration-200"
           >
             <div className="flex items-center gap-3">
-              <BarChart3 className="w-5 h-5 text-slate-400" />
-              <span className="font-medium text-slate-900">
+              <BarChart3 className="w-5 h-5 text-[var(--text-tertiary)]" />
+              <span className="font-medium text-[var(--text-primary)]">
                 View Reports
               </span>
             </div>
-            <ChevronRight className="w-4 h-4 text-slate-400 transition-transform duration-200 group-hover:translate-x-0.5" />
+            <ChevronRight className="w-4 h-4 text-[var(--text-tertiary)] transition-transform duration-200 group-hover:translate-x-0.5" />
           </Link>
           <Link
             href="/regional/analysis"
-            className="card p-4 flex items-center justify-between border-l-2 border-l-transparent hover:border-l-brand-500 hover:bg-slate-50 transition-all duration-200"
+            className="card p-4 flex items-center justify-between border-l-2 border-l-transparent hover:border-l-brand-500 hover:bg-[var(--bg-tertiary)] transition-all duration-200"
           >
             <div className="flex items-center gap-3">
-              <Layers className="w-5 h-5 text-slate-400" />
+              <Layers className="w-5 h-5 text-[var(--text-tertiary)]" />
               <div>
-                <span className="font-medium text-slate-900 block">
+                <span className="font-medium text-[var(--text-primary)] block">
                   Deep Analysis
                 </span>
-                <span className="text-[11px] text-slate-400">
+                <span className="text-[11px] text-[var(--text-tertiary)]">
                   Modules, subjects, HODs
                 </span>
               </div>
             </div>
-            <ChevronRight className="w-4 h-4 text-slate-400 transition-transform duration-200 group-hover:translate-x-0.5" />
+            <ChevronRight className="w-4 h-4 text-[var(--text-tertiary)] transition-transform duration-200 group-hover:translate-x-0.5" />
           </Link>
         </div>
       </div>

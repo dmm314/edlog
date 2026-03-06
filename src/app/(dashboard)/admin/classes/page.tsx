@@ -155,7 +155,7 @@ export default function ManageClassesPage() {
     form.level === "Lower Sixth" || form.level === "Upper Sixth";
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-24">
+    <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
       {/* Header */}
       <div className="bg-gradient-to-br from-brand-950 to-brand-800 px-5 pt-10 pb-6 rounded-b-2xl">
         <div className="max-w-lg mx-auto">
@@ -179,7 +179,7 @@ export default function ManageClassesPage() {
                 setShowForm(!showForm);
                 setError("");
               }}
-              className="flex items-center gap-1.5 bg-white/10 hover:bg-white/20 text-white text-sm rounded-lg px-3 py-1.5"
+              className="flex items-center gap-1.5 bg-[var(--bg-elevated)]/10 hover:bg-[var(--bg-elevated)]/20 text-white text-sm rounded-lg px-3 py-1.5"
             >
               <Plus className="w-4 h-4" />
               Add Class
@@ -199,7 +199,7 @@ export default function ManageClassesPage() {
         {/* Add Class Form */}
         {showForm && (
           <form onSubmit={handleCreate} className="card p-4 space-y-3">
-            <h3 className="text-sm font-semibold text-slate-900">
+            <h3 className="text-sm font-semibold text-[var(--text-primary)]">
               Add New Class
             </h3>
 
@@ -264,7 +264,7 @@ export default function ManageClassesPage() {
                   </option>
                 ))}
               </select>
-              <p className="text-xs text-slate-400 mt-1">
+              <p className="text-xs text-[var(--text-tertiary)] mt-1">
                 Use sections if you have multiple classes at the same level
                 (e.g., Form 1 A, Form 1 B)
               </p>
@@ -272,9 +272,9 @@ export default function ManageClassesPage() {
 
             {/* Preview */}
             {form.level && (
-              <div className="bg-slate-50 rounded-lg px-3 py-2">
-                <p className="text-xs text-slate-400">Preview</p>
-                <p className="font-semibold text-slate-900">
+              <div className="bg-[var(--bg-tertiary)] rounded-lg px-3 py-2">
+                <p className="text-xs text-[var(--text-tertiary)]">Preview</p>
+                <p className="font-semibold text-[var(--text-primary)]">
                   {form.level}
                   {form.stream && form.stream !== "General"
                     ? ` ${form.stream}`
@@ -306,16 +306,16 @@ export default function ManageClassesPage() {
           </div>
         ) : classes.length === 0 ? (
           <div className="text-center py-8">
-            <GraduationCap className="w-10 h-10 text-slate-300 mx-auto mb-2" />
-            <p className="text-slate-500">No classes set up yet</p>
-            <p className="text-sm text-slate-400 mt-1">
+            <GraduationCap className="w-10 h-10 text-[var(--text-quaternary)] mx-auto mb-2" />
+            <p className="text-[var(--text-tertiary)]">No classes set up yet</p>
+            <p className="text-sm text-[var(--text-tertiary)] mt-1">
               Tap &quot;Add Class&quot; to get started
             </p>
           </div>
         ) : (
           groupedClasses.map(([level, levelClasses]) => (
             <div key={level}>
-              <h3 className="text-xs font-semibold uppercase tracking-widest text-slate-400 mb-2">
+              <h3 className="text-xs font-semibold uppercase tracking-widest text-[var(--text-tertiary)] mb-2">
                 {level}
               </h3>
               <div className="space-y-2">
@@ -326,10 +326,10 @@ export default function ManageClassesPage() {
                         href={`/admin/classes/${cls.id}`}
                         className="flex-1 min-w-0"
                       >
-                        <h4 className="font-semibold text-slate-900 text-sm">
+                        <h4 className="font-semibold text-[var(--text-primary)] text-sm">
                           {cls.name}
                         </h4>
-                        <div className="flex items-center gap-3 mt-1 text-xs text-slate-400">
+                        <div className="flex items-center gap-3 mt-1 text-xs text-[var(--text-tertiary)]">
                           <span className="flex items-center gap-1">
                             <BookOpen className="w-3 h-3" />
                             {cls.subjectCount} subject{cls.subjectCount !== 1 ? "s" : ""}
@@ -345,13 +345,13 @@ export default function ManageClassesPage() {
                           <button
                             onClick={() => handleDelete(cls.id)}
                             disabled={deleting === cls.id}
-                            className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                            className="p-1.5 text-[var(--text-tertiary)] hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
                         )}
                         <Link href={`/admin/classes/${cls.id}`}>
-                          <ChevronRight className="w-4 h-4 text-slate-400" />
+                          <ChevronRight className="w-4 h-4 text-[var(--text-tertiary)]" />
                         </Link>
                       </div>
                     </div>

@@ -113,6 +113,9 @@ const config: Config = {
       backgroundImage: {
         "shimmer-gradient":
           "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%)",
+      },
+    },
+  },
   plugins: [],
 };
 export default config;

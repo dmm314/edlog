@@ -11,7 +11,6 @@ import {
   BookOpen,
   Calendar,
   AlertCircle,
-  Layers,
 } from "lucide-react";
 
 interface DivisionOption {
@@ -211,7 +210,7 @@ export default function AssignmentsPage() {
   const hasSetup = teachers.length > 0 && classes.length > 0 && subjects.length > 0;
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-24">
+    <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
       {/* Header */}
       <div className="bg-gradient-to-br from-brand-950 to-brand-800 px-5 pt-10 pb-6 rounded-b-2xl">
         <div className="max-w-lg mx-auto">
@@ -233,20 +232,13 @@ export default function AssignmentsPage() {
               </p>
             </div>
             <div className="flex items-center gap-2">
-              <Link
-                href="/admin/divisions"
-                className="flex items-center gap-1.5 bg-white/10 hover:bg-white/20 text-white text-sm rounded-lg px-3 py-1.5"
-              >
-                <Layers className="w-4 h-4" />
-                Divisions
-              </Link>
               {hasSetup && (
                 <button
                   onClick={() => {
                     setShowForm(!showForm);
                     setError("");
                   }}
-                  className="flex items-center gap-1.5 bg-white/10 hover:bg-white/20 text-white text-sm rounded-lg px-3 py-1.5"
+                  className="flex items-center gap-1.5 bg-[var(--bg-elevated)]/10 hover:bg-[var(--bg-elevated)]/20 text-white text-sm rounded-lg px-3 py-1.5"
                 >
                   <Plus className="w-4 h-4" />
                   Assign
@@ -264,11 +256,11 @@ export default function AssignmentsPage() {
             <div className="flex items-start gap-3">
               <AlertCircle className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
               <div className="space-y-2 text-sm">
-                <p className="font-medium text-slate-900">
+                <p className="font-medium text-[var(--text-primary)]">
                   Setup required before assigning teachers
                 </p>
                 {teachers.length === 0 && (
-                  <p className="text-slate-500">
+                  <p className="text-[var(--text-tertiary)]">
                     No verified teachers found.{" "}
                     <Link
                       href="/admin/teachers"
@@ -279,7 +271,7 @@ export default function AssignmentsPage() {
                   </p>
                 )}
                 {classes.length === 0 && (
-                  <p className="text-slate-500">
+                  <p className="text-[var(--text-tertiary)]">
                     No classes created.{" "}
                     <Link
                       href="/admin/classes"
@@ -290,7 +282,7 @@ export default function AssignmentsPage() {
                   </p>
                 )}
                 {subjects.length === 0 && (
-                  <p className="text-slate-500">
+                  <p className="text-[var(--text-tertiary)]">
                     No subjects assigned to any class.{" "}
                     <Link
                       href="/admin/classes"
@@ -315,10 +307,10 @@ export default function AssignmentsPage() {
         {/* Add Assignment Form */}
         {showForm && hasSetup && (
           <form onSubmit={handleCreate} className="card p-4 space-y-3">
-            <h3 className="text-sm font-semibold text-slate-900">
+            <h3 className="text-sm font-semibold text-[var(--text-primary)]">
               New Assignment
             </h3>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-[var(--text-tertiary)]">
               Assign a teacher to teach a subject in a specific class.
             </p>
 
@@ -424,7 +416,7 @@ export default function AssignmentsPage() {
                     </option>
                   ))}
                 </select>
-                <p className="text-[10px] text-slate-400 mt-1">
+                <p className="text-[10px] text-[var(--text-tertiary)] mt-1">
                   This subject has been divided into sections. Each teacher should be assigned to a specific division.
                 </p>
               </div>
@@ -450,19 +442,19 @@ export default function AssignmentsPage() {
         {assignments.length > 0 && (
           <div className="flex gap-2">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-tertiary)]" />
               <input
                 type="text"
                 placeholder="Search assignments..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                className="w-full pl-9 pr-4 py-2.5 bg-[var(--bg-elevated)] border border-[var(--border-primary)] rounded-xl text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
               />
             </div>
             <select
               value={filterTeacher}
               onChange={(e) => setFilterTeacher(e.target.value)}
-              className="bg-white border border-slate-200 rounded-xl text-sm text-slate-600 px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-500"
+              className="bg-[var(--bg-elevated)] border border-[var(--border-primary)] rounded-xl text-sm text-[var(--text-secondary)] px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-500"
             >
               <option value="">All teachers</option>
               {teachers.map((t) => (
@@ -486,20 +478,20 @@ export default function AssignmentsPage() {
           </div>
         ) : assignments.length === 0 ? (
           <div className="text-center py-8">
-            <UserCheck className="w-10 h-10 text-slate-300 mx-auto mb-2" />
-            <p className="text-slate-500">No assignments yet</p>
-            <p className="text-sm text-slate-400 mt-1">
+            <UserCheck className="w-10 h-10 text-[var(--text-quaternary)] mx-auto mb-2" />
+            <p className="text-[var(--text-tertiary)]">No assignments yet</p>
+            <p className="text-sm text-[var(--text-tertiary)] mt-1">
               Assign teachers to classes and subjects to get started
             </p>
           </div>
         ) : filteredAssignments.length === 0 ? (
           <div className="text-center py-8">
-            <p className="text-slate-500">No matching assignments</p>
+            <p className="text-[var(--text-tertiary)]">No matching assignments</p>
           </div>
         ) : (
           groupedByTeacher.map(([teacherId, group]) => (
             <div key={teacherId}>
-              <h3 className="text-xs font-semibold uppercase tracking-widest text-slate-400 mb-2">
+              <h3 className="text-xs font-semibold uppercase tracking-widest text-[var(--text-tertiary)] mb-2">
                 {group.name}
               </h3>
               <div className="space-y-2">
@@ -520,7 +512,7 @@ export default function AssignmentsPage() {
                             {a.class.name}
                           </span>
                         </div>
-                        <div className="flex items-center gap-3 mt-1.5 text-xs text-slate-400">
+                        <div className="flex items-center gap-3 mt-1.5 text-xs text-[var(--text-tertiary)]">
                           <span className="flex items-center gap-1">
                             <BookOpen className="w-3 h-3" />
                             {a.entryCount} entries
@@ -535,7 +527,7 @@ export default function AssignmentsPage() {
                         <button
                           onClick={() => handleDelete(a.id)}
                           disabled={deleting === a.id}
-                          className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                          className="p-1.5 text-[var(--text-tertiary)] hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>

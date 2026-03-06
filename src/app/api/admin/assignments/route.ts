@@ -188,6 +188,18 @@ export async function POST(request: Request) {
       }
     }
 
+    // Check if teacher already teaches a different subject in this class
+    const existingInClass = await db.teacherAssignment.findFirst({
+      where: { teacherId, classId, subjectId: { not: subjectId } },
+      include: { subject: { select: { name: true } } },
+    });
+    if (existingInClass) {
+      return NextResponse.json(
+        { error: `This teacher is already assigned to ${existingInClass.subject.name} in this class. A teacher can only teach one subject per class.` },
+        { status: 409 }
+      );
+    }
+
     // Check for duplicate (same teacher + class + subject + division)
     const existing = await db.teacherAssignment.findFirst({
       where: { teacherId, classId, subjectId, divisionId: divisionId || null },

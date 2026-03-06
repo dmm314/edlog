@@ -167,8 +167,8 @@ export default function HODDashboard() {
       <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100/50 pb-24">
         <div className="bg-gradient-to-br from-amber-950 via-amber-900 to-amber-800 px-5 pt-10 pb-8 rounded-b-[2rem]">
           <div className="max-w-lg mx-auto">
-            <div className="h-6 w-40 bg-white/15 rounded mb-2 animate-pulse" />
-            <div className="h-4 w-28 bg-white/10 rounded animate-pulse" />
+            <div className="h-6 w-40 bg-[var(--bg-elevated)]/15 rounded mb-2 animate-pulse" />
+            <div className="h-4 w-28 bg-[var(--bg-elevated)]/10 rounded animate-pulse" />
           </div>
         </div>
         <div className="px-5 mt-4 max-w-lg mx-auto space-y-3">
@@ -185,13 +185,13 @@ export default function HODDashboard() {
 
   if (!stats) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center pb-24">
+      <div className="min-h-screen flex items-center justify-center pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
         <div className="text-center">
-          <Crown className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-          <p className="text-slate-600 font-semibold">
+          <Crown className="w-12 h-12 text-[var(--text-quaternary)] mx-auto mb-3" />
+          <p className="text-[var(--text-secondary)] font-semibold">
             You are not assigned as HOD
           </p>
-          <p className="text-sm text-slate-400 mt-1">
+          <p className="text-sm text-[var(--text-tertiary)] mt-1">
             Contact your school admin to be designated
           </p>
           <Link
@@ -233,7 +233,7 @@ export default function HODDashboard() {
             {stats.hodSubjects.map((s) => (
               <span
                 key={s.id}
-                className="text-[10px] font-bold bg-white/10 text-white px-2.5 py-1 rounded-lg"
+                className="text-[10px] font-bold bg-[var(--bg-elevated)]/10 text-white px-2.5 py-1 rounded-lg"
               >
                 {s.name}
                 {s.divisions && s.divisions.length > 0 && (
@@ -254,10 +254,10 @@ export default function HODDashboard() {
             <div className="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center mb-2">
               <Users className="w-5 h-5 text-amber-600" />
             </div>
-            <p className="text-2xl font-black text-slate-900 tabular-nums">
+            <p className="text-2xl font-black text-[var(--text-primary)] tabular-nums">
               {stats.teachersInDept}
             </p>
-            <p className="text-[11px] text-slate-400 font-semibold">
+            <p className="text-[11px] text-[var(--text-tertiary)] font-semibold">
               Teachers
             </p>
           </div>
@@ -265,10 +265,10 @@ export default function HODDashboard() {
             <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center mb-2">
               <BookOpen className="w-5 h-5 text-blue-600" />
             </div>
-            <p className="text-2xl font-black text-slate-900 tabular-nums">
+            <p className="text-2xl font-black text-[var(--text-primary)] tabular-nums">
               {stats.totalEntries}
             </p>
-            <p className="text-[11px] text-slate-400 font-semibold">
+            <p className="text-[11px] text-[var(--text-tertiary)] font-semibold">
               Total Entries
             </p>
           </div>
@@ -276,10 +276,10 @@ export default function HODDashboard() {
             <div className="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center mb-2">
               <Calendar className="w-5 h-5 text-emerald-600" />
             </div>
-            <p className="text-2xl font-black text-slate-900 tabular-nums">
+            <p className="text-2xl font-black text-[var(--text-primary)] tabular-nums">
               {stats.entriesThisMonth}
             </p>
-            <p className="text-[11px] text-slate-400 font-semibold">
+            <p className="text-[11px] text-[var(--text-tertiary)] font-semibold">
               This Month
             </p>
           </div>
@@ -287,23 +287,23 @@ export default function HODDashboard() {
             <div className="w-10 h-10 bg-violet-50 rounded-xl flex items-center justify-center mb-2">
               <Clock className="w-5 h-5 text-violet-600" />
             </div>
-            <p className="text-2xl font-black text-slate-900 tabular-nums">
+            <p className="text-2xl font-black text-[var(--text-primary)] tabular-nums">
               {stats.entriesThisWeek}
             </p>
-            <p className="text-[11px] text-slate-400 font-semibold">
+            <p className="text-[11px] text-[var(--text-tertiary)] font-semibold">
               This Week
             </p>
           </div>
         </div>
 
         {/* Tab switcher */}
-        <div className="flex bg-white rounded-xl border border-slate-200 p-1">
+        <div className="flex bg-[var(--bg-elevated)] rounded-xl border border-[var(--border-primary)] p-1">
           <button
             onClick={() => setActiveTab("overview")}
             className={`flex-1 text-center text-sm font-semibold py-2.5 rounded-lg transition-all ${
               activeTab === "overview"
                 ? "bg-amber-600 text-white shadow-sm"
-                : "text-slate-500 hover:text-slate-700"
+                : "text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]"
             }`}
           >
             Teachers
@@ -313,7 +313,7 @@ export default function HODDashboard() {
             className={`flex-1 text-center text-sm font-semibold py-2.5 rounded-lg transition-all ${
               activeTab === "entries"
                 ? "bg-amber-600 text-white shadow-sm"
-                : "text-slate-500 hover:text-slate-700"
+                : "text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]"
             }`}
           >
             Entries
@@ -324,17 +324,17 @@ export default function HODDashboard() {
           /* Teacher Rankings with class filter */
           <div className="card overflow-hidden">
             <div className="p-4 pb-2 space-y-2">
-              <h3 className="text-sm font-bold text-slate-900">
+              <h3 className="text-sm font-bold text-[var(--text-primary)]">
                 Teacher Activity (This Month)
               </h3>
               {/* Class filter for overview */}
               {overviewClassOptions.length > 1 && (
                 <div className="flex items-center gap-2">
-                  <GraduationCap className="w-3.5 h-3.5 text-slate-400" />
+                  <GraduationCap className="w-3.5 h-3.5 text-[var(--text-tertiary)]" />
                   <select
                     value={overviewClassFilter}
                     onChange={(e) => setOverviewClassFilter(e.target.value)}
-                    className="text-xs bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-slate-700 flex-1"
+                    className="text-xs bg-[var(--bg-tertiary)] border border-[var(--border-primary)] rounded-lg px-2 py-1.5 text-[var(--text-secondary)] flex-1"
                   >
                     <option value="">All classes</option>
                     {overviewClassOptions.map((c) => (
@@ -369,20 +369,20 @@ export default function HODDashboard() {
                             i === 0
                               ? "bg-amber-100 text-amber-700"
                               : i === 1
-                              ? "bg-slate-200 text-slate-600"
+                              ? "bg-slate-200 text-[var(--text-secondary)]"
                               : i === 2
                               ? "bg-orange-100 text-orange-700"
-                              : "bg-slate-100 text-slate-400"
+                              : "bg-slate-100 text-[var(--text-tertiary)]"
                           }`}
                         >
                           {i + 1}
                         </span>
-                        <span className="text-sm font-semibold text-slate-800 truncate">
+                        <span className="text-sm font-semibold text-[var(--text-primary)] truncate">
                           {t.name}
                         </span>
                       </div>
                       <div className="flex items-center gap-3 text-right flex-shrink-0">
-                        <span className="text-xs text-slate-400">
+                        <span className="text-xs text-[var(--text-tertiary)]">
                           {t.totalEntries} total
                         </span>
                         <span className="text-sm font-bold text-amber-700 tabular-nums">
@@ -401,7 +401,7 @@ export default function HODDashboard() {
                         {displayClasses.map((c, ci) => (
                           <span
                             key={ci}
-                            className="text-[9px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded font-medium"
+                            className="text-[9px] bg-slate-100 text-[var(--text-tertiary)] px-1.5 py-0.5 rounded font-medium"
                           >
                             {c.className}{c.division ? ` · ${c.division}` : ""}
                           </span>
@@ -413,7 +413,7 @@ export default function HODDashboard() {
               })}
               {filteredRankings.length === 0 && (
                 <div className="p-8 text-center">
-                  <p className="text-slate-400 text-sm">
+                  <p className="text-[var(--text-tertiary)] text-sm">
                     {overviewClassFilter
                       ? "No teachers assigned to this class"
                       : "No teachers assigned to your subjects yet"}
@@ -503,7 +503,7 @@ export default function HODDashboard() {
               {/* Active filters indicator */}
               {(filterTeacher || filterSubject || filterClassLevel || filterClass || filterModule) && (
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-[10px] font-semibold text-slate-400">Active filters:</span>
+                  <span className="text-[10px] font-semibold text-[var(--text-tertiary)]">Active filters:</span>
                   {filterTeacher && (
                     <span className="text-[10px] bg-amber-50 text-amber-700 font-semibold px-2 py-0.5 rounded-full border border-amber-200">
                       Teacher
@@ -555,12 +555,12 @@ export default function HODDashboard() {
               </div>
             ) : entries.length === 0 ? (
               <div className="text-center py-8">
-                <BookOpen className="w-10 h-10 text-slate-300 mx-auto mb-2" />
-                <p className="text-slate-500 text-sm">No entries found</p>
+                <BookOpen className="w-10 h-10 text-[var(--text-quaternary)] mx-auto mb-2" />
+                <p className="text-[var(--text-tertiary)] text-sm">No entries found</p>
               </div>
             ) : (
               <>
-                <p className="text-xs text-slate-400">
+                <p className="text-xs text-[var(--text-tertiary)]">
                   Showing {entries.length} of {entriesTotal} entries
                 </p>
 
@@ -604,7 +604,7 @@ export default function HODDashboard() {
                                       ? "bg-green-50 text-green-700"
                                       : entry.status === "FLAGGED"
                                       ? "bg-red-50 text-red-700"
-                                      : "bg-slate-100 text-slate-500"
+                                      : "bg-slate-100 text-[var(--text-tertiary)]"
                                   }`}
                                 >
                                   {entry.status.charAt(0) +
@@ -612,12 +612,12 @@ export default function HODDashboard() {
                                 </span>
                               </div>
                               <div className="flex items-center gap-1.5 mt-2">
-                                <User className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
+                                <User className="w-3.5 h-3.5 text-[var(--text-tertiary)] flex-shrink-0" />
                                 <span className="text-sm font-semibold text-brand-950 truncate">
                                   {teacherName}
                                 </span>
                               </div>
-                              <div className="flex items-center gap-3 mt-1 text-xs text-slate-400">
+                              <div className="flex items-center gap-3 mt-1 text-xs text-[var(--text-tertiary)]">
                                 <span className="flex items-center gap-1">
                                   <Calendar className="w-3 h-3" />
                                   {entryDate}
@@ -637,24 +637,24 @@ export default function HODDashboard() {
                               </div>
                             </div>
                             {isExpanded ? (
-                              <ChevronUp className="w-4 h-4 text-slate-400 flex-shrink-0" />
+                              <ChevronUp className="w-4 h-4 text-[var(--text-tertiary)] flex-shrink-0" />
                             ) : (
-                              <ChevronDown className="w-4 h-4 text-slate-400 flex-shrink-0" />
+                              <ChevronDown className="w-4 h-4 text-[var(--text-tertiary)] flex-shrink-0" />
                             )}
                           </div>
                         </button>
 
                         {isExpanded && (
-                          <div className="px-3 pb-3 border-t border-slate-100">
+                          <div className="px-3 pb-3 border-t border-[var(--border-secondary)]">
                             <div className="pt-3 space-y-3">
                               {entry.topics.length > 0 && (
                                 <div className="flex items-start gap-2">
-                                  <Layers className="w-4 h-4 text-slate-400 mt-0.5 flex-shrink-0" />
+                                  <Layers className="w-4 h-4 text-[var(--text-tertiary)] mt-0.5 flex-shrink-0" />
                                   <div>
-                                    <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400">
+                                    <p className="text-[10px] font-semibold uppercase tracking-widest text-[var(--text-tertiary)]">
                                       Topics
                                     </p>
-                                    <p className="text-sm text-slate-700">
+                                    <p className="text-sm text-[var(--text-secondary)]">
                                       {entry.topics
                                         .map((t) => t.name)
                                         .join(", ")}
@@ -665,12 +665,12 @@ export default function HODDashboard() {
 
                               {entry.topicText && (
                                 <div className="flex items-start gap-2">
-                                  <BookOpen className="w-4 h-4 text-slate-400 mt-0.5 flex-shrink-0" />
+                                  <BookOpen className="w-4 h-4 text-[var(--text-tertiary)] mt-0.5 flex-shrink-0" />
                                   <div>
-                                    <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400">
+                                    <p className="text-[10px] font-semibold uppercase tracking-widest text-[var(--text-tertiary)]">
                                       Topic Taught
                                     </p>
-                                    <p className="text-sm text-slate-700">
+                                    <p className="text-sm text-[var(--text-secondary)]">
                                       {entry.topicText}
                                     </p>
                                   </div>
@@ -679,12 +679,12 @@ export default function HODDashboard() {
 
                               {entry.moduleName && (
                                 <div className="flex items-start gap-2">
-                                  <BookOpen className="w-4 h-4 text-slate-400 mt-0.5 flex-shrink-0" />
+                                  <BookOpen className="w-4 h-4 text-[var(--text-tertiary)] mt-0.5 flex-shrink-0" />
                                   <div>
-                                    <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400">
+                                    <p className="text-[10px] font-semibold uppercase tracking-widest text-[var(--text-tertiary)]">
                                       Module
                                     </p>
-                                    <p className="text-sm text-slate-700">
+                                    <p className="text-sm text-[var(--text-secondary)]">
                                       {entry.moduleName}
                                     </p>
                                   </div>
@@ -693,19 +693,19 @@ export default function HODDashboard() {
 
                               {entry.notes && (
                                 <div className="flex items-start gap-2">
-                                  <FileText className="w-4 h-4 text-slate-400 mt-0.5 flex-shrink-0" />
+                                  <FileText className="w-4 h-4 text-[var(--text-tertiary)] mt-0.5 flex-shrink-0" />
                                   <div>
-                                    <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400">
+                                    <p className="text-[10px] font-semibold uppercase tracking-widest text-[var(--text-tertiary)]">
                                       Notes
                                     </p>
-                                    <p className="text-sm text-slate-700 whitespace-pre-wrap">
+                                    <p className="text-sm text-[var(--text-secondary)] whitespace-pre-wrap">
                                       {entry.notes}
                                     </p>
                                   </div>
                                 </div>
                               )}
 
-                              <div className="pt-2 border-t border-slate-100 text-xs text-slate-400">
+                              <div className="pt-2 border-t border-[var(--border-secondary)] text-xs text-[var(--text-tertiary)]">
                                 {entry.teacher.email} &middot; {entry.duration}
                                 min
                               </div>
@@ -722,17 +722,17 @@ export default function HODDashboard() {
                     <button
                       onClick={() => fetchEntries(page - 1)}
                       disabled={page === 0}
-                      className="text-sm text-amber-600 font-medium disabled:text-slate-300 px-3 py-1.5"
+                      className="text-sm text-amber-600 font-medium disabled:text-[var(--text-quaternary)] px-3 py-1.5"
                     >
                       Previous
                     </button>
-                    <span className="text-xs text-slate-400">
+                    <span className="text-xs text-[var(--text-tertiary)]">
                       Page {page + 1} of {totalPages}
                     </span>
                     <button
                       onClick={() => fetchEntries(page + 1)}
                       disabled={page >= totalPages - 1}
-                      className="text-sm text-amber-600 font-medium disabled:text-slate-300 px-3 py-1.5"
+                      className="text-sm text-amber-600 font-medium disabled:text-[var(--text-quaternary)] px-3 py-1.5"
                     >
                       Next
                     </button>

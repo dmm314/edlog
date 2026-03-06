@@ -132,7 +132,7 @@ export default function InvitationsPage() {
             {/* Pending Invitations */}
             {pending.length > 0 && (
               <div>
-                <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-3 px-1">
+                <h3 className="text-xs font-bold uppercase tracking-widest text-[var(--text-tertiary)] mb-3 px-1">
                   Pending Invitations
                 </h3>
                 <div className="space-y-3">
@@ -146,15 +146,15 @@ export default function InvitationsPage() {
                           <Building2 className="w-5 h-5 text-white" />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <h4 className="font-bold text-slate-900 text-sm">
+                          <h4 className="font-bold text-[var(--text-primary)] text-sm">
                             {m.school.name}
                           </h4>
-                          <p className="text-[11px] text-slate-400 mt-0.5">
+                          <p className="text-[11px] text-[var(--text-tertiary)] mt-0.5">
                             Code: {m.school.code}
                             {m.school.schoolType && ` · ${m.school.schoolType}`}
                           </p>
                           {m.school.region && (
-                            <p className="text-[11px] text-slate-400 flex items-center gap-1 mt-0.5">
+                            <p className="text-[11px] text-[var(--text-tertiary)] flex items-center gap-1 mt-0.5">
                               <MapPin className="w-3 h-3" />
                               {m.school.division?.name}, {m.school.region.name}
                             </p>
@@ -174,14 +174,14 @@ export default function InvitationsPage() {
                         <button
                           onClick={() => handleRespond(m.id, "decline")}
                           disabled={responding === m.id}
-                          className="flex-1 flex items-center justify-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 text-sm font-semibold py-2.5 rounded-xl transition-colors active:scale-[0.98]"
+                          className="flex-1 flex items-center justify-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-[var(--text-secondary)] text-sm font-semibold py-2.5 rounded-xl transition-colors active:scale-[0.98]"
                         >
                           <X className="w-4 h-4" />
                           Decline
                         </button>
                       </div>
 
-                      <p className="text-[10px] text-slate-400 mt-2 flex items-center gap-1">
+                      <p className="text-[10px] text-[var(--text-tertiary)] mt-2 flex items-center gap-1">
                         <Clock className="w-3 h-3" />
                         Invited{" "}
                         {new Date(m.createdAt).toLocaleDateString("en-GB", {
@@ -199,7 +199,7 @@ export default function InvitationsPage() {
             {/* Active Schools */}
             {active.length > 0 && (
               <div>
-                <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-3 px-1">
+                <h3 className="text-xs font-bold uppercase tracking-widest text-[var(--text-tertiary)] mb-3 px-1">
                   My Schools
                 </h3>
                 <div className="space-y-2">
@@ -217,7 +217,7 @@ export default function InvitationsPage() {
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2">
-                            <h4 className="font-bold text-slate-900 text-sm truncate">
+                            <h4 className="font-bold text-[var(--text-primary)] text-sm truncate">
                               {m.school.name}
                             </h4>
                             {m.isPrimary && (
@@ -226,7 +226,7 @@ export default function InvitationsPage() {
                               </span>
                             )}
                           </div>
-                          <p className="text-[11px] text-slate-400 mt-0.5">
+                          <p className="text-[11px] text-[var(--text-tertiary)] mt-0.5">
                             {m.school.code}
                             {m.school.region && ` · ${m.school.region.name}`}
                           </p>
@@ -241,9 +241,9 @@ export default function InvitationsPage() {
 
             {memberships.length === 0 && (
               <div className="text-center py-12">
-                <Building2 className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-                <p className="text-slate-600 font-semibold">No schools yet</p>
-                <p className="text-sm text-slate-400 mt-1">
+                <Building2 className="w-12 h-12 text-[var(--text-quaternary)] mx-auto mb-3" />
+                <p className="text-[var(--text-secondary)] font-semibold">No schools yet</p>
+                <p className="text-sm text-[var(--text-tertiary)] mt-1">
                   When a school invites you, it will appear here
                 </p>
               </div>

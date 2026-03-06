@@ -171,7 +171,7 @@ export default function HODsPage() {
                 setShowForm(!showForm);
                 setError("");
               }}
-              className="flex items-center gap-1.5 bg-white/10 hover:bg-white/20 text-white text-sm rounded-lg px-3 py-1.5 transition-colors"
+              className="flex items-center gap-1.5 bg-[var(--bg-elevated)]/10 hover:bg-[var(--bg-elevated)]/20 text-white text-sm rounded-lg px-3 py-1.5 transition-colors"
             >
               <Plus className="w-4 h-4" />
               Assign
@@ -187,10 +187,10 @@ export default function HODsPage() {
             <div className="flex items-start gap-3">
               <Crown className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
               <div className="text-sm">
-                <p className="font-medium text-slate-900">
+                <p className="font-medium text-[var(--text-primary)]">
                   What are Heads of Department?
                 </p>
-                <p className="text-slate-500 mt-1">
+                <p className="text-[var(--text-tertiary)] mt-1">
                   An HOD is a teacher designated to oversee a subject department.
                   They can view logbook entries of all teachers teaching their
                   subject (including all divisions like Physical Chemistry,
@@ -216,10 +216,10 @@ export default function HODsPage() {
         {/* Assign Form */}
         {showForm && (
           <form onSubmit={handleAssign} className="card p-4 space-y-3">
-            <h3 className="text-sm font-semibold text-slate-900">
+            <h3 className="text-sm font-semibold text-[var(--text-primary)]">
               Assign HOD
             </h3>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-[var(--text-tertiary)]">
               Select a subject and a verified teacher. One HOD per subject.
             </p>
 
@@ -316,17 +316,17 @@ export default function HODsPage() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">
                         <div>
-                          <h4 className="font-bold text-slate-900 text-sm">
+                          <h4 className="font-bold text-[var(--text-primary)] text-sm">
                             {hod.teacher.firstName} {hod.teacher.lastName}
                           </h4>
-                          <p className="text-[11px] text-slate-400">
+                          <p className="text-[11px] text-[var(--text-tertiary)]">
                             {hod.teacher.email}
                           </p>
                         </div>
                         <button
                           onClick={() => handleRemove(hod.id)}
                           disabled={deleting === hod.id}
-                          className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                          className="p-1.5 text-[var(--text-tertiary)] hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -341,7 +341,7 @@ export default function HODsPage() {
                           {hod.subject.name}
                         </span>
                         {(teacherCountBySubject[hod.subject.id] || 0) > 0 && (
-                          <span className="text-[10px] font-medium bg-slate-50 text-slate-500 px-2 py-0.5 rounded-md border border-slate-200 flex items-center gap-1">
+                          <span className="text-[10px] font-medium bg-[var(--bg-tertiary)] text-[var(--text-tertiary)] px-2 py-0.5 rounded-md border border-[var(--border-primary)] flex items-center gap-1">
                             <Users className="w-3 h-3" />
                             {teacherCountBySubject[hod.subject.id]} assigned
                           </span>
@@ -375,7 +375,7 @@ export default function HODsPage() {
           <div className="card p-4">
             <div className="flex items-center gap-2 mb-3">
               <BookOpen className="w-4 h-4 text-brand-500" />
-              <h3 className="text-sm font-bold text-slate-900">
+              <h3 className="text-sm font-bold text-[var(--text-primary)]">
                 Department Coverage
               </h3>
             </div>
@@ -388,11 +388,11 @@ export default function HODsPage() {
                   HODs Assigned
                 </p>
               </div>
-              <div className="bg-slate-50 rounded-xl p-3 text-center">
-                <p className="text-xl font-black text-slate-700">
+              <div className="bg-[var(--bg-tertiary)] rounded-xl p-3 text-center">
+                <p className="text-xl font-black text-[var(--text-secondary)]">
                   {subjects.length - hods.length}
                 </p>
-                <p className="text-[10px] text-slate-500 uppercase font-semibold">
+                <p className="text-[10px] text-[var(--text-tertiary)] uppercase font-semibold">
                   Subjects Unassigned
                 </p>
               </div>

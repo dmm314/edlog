@@ -104,7 +104,7 @@ export default function RegionalAnalysisPage() {
 
       <div className="px-5 mt-4 max-w-lg mx-auto space-y-4">
         {/* Tab switcher */}
-        <div className="flex bg-white rounded-xl border border-slate-200 p-1">
+        <div className="flex bg-[var(--bg-elevated)] rounded-xl border border-[var(--border-primary)] p-1">
           {[
             { key: "modules" as const, label: "Modules", icon: BookOpen },
             { key: "teachers" as const, label: "Teachers", icon: Users },
@@ -119,7 +119,7 @@ export default function RegionalAnalysisPage() {
               className={`flex-1 flex items-center justify-center gap-1.5 text-sm font-semibold py-2.5 rounded-lg transition-all ${
                 activeTab === tab.key
                   ? "bg-violet-600 text-white shadow-sm"
-                  : "text-slate-500 hover:text-slate-700"
+                  : "text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]"
               }`}
             >
               <tab.icon className="w-3.5 h-3.5" />
@@ -139,18 +139,18 @@ export default function RegionalAnalysisPage() {
           </div>
         ) : !data ? (
           <div className="text-center py-12">
-            <p className="text-slate-500">Failed to load analysis data</p>
+            <p className="text-[var(--text-tertiary)]">Failed to load analysis data</p>
           </div>
         ) : activeTab === "modules" ? (
           /* Module Completion */
           <>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-[var(--text-tertiary)]">
               {data.moduleCompletion.length} modules tracked across schools
             </p>
             {data.moduleCompletion.length === 0 ? (
               <div className="text-center py-12">
-                <BookOpen className="w-10 h-10 text-slate-300 mx-auto mb-2" />
-                <p className="text-slate-500 text-sm">No module data yet</p>
+                <BookOpen className="w-10 h-10 text-[var(--text-quaternary)] mx-auto mb-2" />
+                <p className="text-[var(--text-tertiary)] text-sm">No module data yet</p>
               </div>
             ) : (
               <div className="space-y-2">
@@ -164,10 +164,10 @@ export default function RegionalAnalysisPage() {
                       >
                         <div className="flex items-center justify-between">
                           <div className="flex-1 min-w-0">
-                            <h4 className="text-sm font-bold text-slate-900 truncate">
+                            <h4 className="text-sm font-bold text-[var(--text-primary)] truncate">
                               {mod.module}
                             </h4>
-                            <div className="flex items-center gap-3 mt-1 text-xs text-slate-400">
+                            <div className="flex items-center gap-3 mt-1 text-xs text-[var(--text-tertiary)]">
                               <span className="flex items-center gap-1">
                                 <Building2 className="w-3 h-3" />
                                 {mod.schoolCount} school{mod.schoolCount !== 1 ? "s" : ""}
@@ -179,24 +179,24 @@ export default function RegionalAnalysisPage() {
                             </div>
                           </div>
                           {isOpen ? (
-                            <ChevronUp className="w-4 h-4 text-slate-400" />
+                            <ChevronUp className="w-4 h-4 text-[var(--text-tertiary)]" />
                           ) : (
-                            <ChevronDown className="w-4 h-4 text-slate-400" />
+                            <ChevronDown className="w-4 h-4 text-[var(--text-tertiary)]" />
                           )}
                         </div>
                       </button>
                       {isOpen && (
-                        <div className="px-4 pb-4 border-t border-slate-100">
+                        <div className="px-4 pb-4 border-t border-[var(--border-secondary)]">
                           <div className="pt-3 space-y-2">
                             {mod.schools.map((s) => (
                               <div
                                 key={s.name}
                                 className="flex items-center justify-between text-sm"
                               >
-                                <span className="text-slate-600 truncate">
+                                <span className="text-[var(--text-secondary)] truncate">
                                   {s.name}
                                 </span>
-                                <span className="text-slate-900 font-bold tabular-nums flex-shrink-0 ml-2">
+                                <span className="text-[var(--text-primary)] font-bold tabular-nums flex-shrink-0 ml-2">
                                   {s.entries}
                                 </span>
                               </div>
@@ -213,13 +213,13 @@ export default function RegionalAnalysisPage() {
         ) : activeTab === "teachers" ? (
           /* Teachers per Subject */
           <>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-[var(--text-tertiary)]">
               {data.teachersBySubject.length} subjects with teacher assignments
             </p>
             {data.teachersBySubject.length === 0 ? (
               <div className="text-center py-12">
-                <Users className="w-10 h-10 text-slate-300 mx-auto mb-2" />
-                <p className="text-slate-500 text-sm">No teacher data</p>
+                <Users className="w-10 h-10 text-[var(--text-quaternary)] mx-auto mb-2" />
+                <p className="text-[var(--text-tertiary)] text-sm">No teacher data</p>
               </div>
             ) : (
               <div className="space-y-2">
@@ -233,10 +233,10 @@ export default function RegionalAnalysisPage() {
                       >
                         <div className="flex items-center justify-between">
                           <div className="flex-1 min-w-0">
-                            <h4 className="text-sm font-bold text-slate-900">
+                            <h4 className="text-sm font-bold text-[var(--text-primary)]">
                               {sub.subject}
                             </h4>
-                            <p className="text-xs text-slate-400 mt-0.5">
+                            <p className="text-xs text-[var(--text-tertiary)] mt-0.5">
                               {sub.totalTeachers} teacher{sub.totalTeachers !== 1 ? "s" : ""} across{" "}
                               {sub.schools.length} school{sub.schools.length !== 1 ? "s" : ""}
                             </p>
@@ -246,23 +246,23 @@ export default function RegionalAnalysisPage() {
                               {sub.totalTeachers}
                             </span>
                             {isOpen ? (
-                              <ChevronUp className="w-4 h-4 text-slate-400" />
+                              <ChevronUp className="w-4 h-4 text-[var(--text-tertiary)]" />
                             ) : (
-                              <ChevronDown className="w-4 h-4 text-slate-400" />
+                              <ChevronDown className="w-4 h-4 text-[var(--text-tertiary)]" />
                             )}
                           </div>
                         </div>
                       </button>
                       {isOpen && (
-                        <div className="px-4 pb-4 border-t border-slate-100">
+                        <div className="px-4 pb-4 border-t border-[var(--border-secondary)]">
                           <div className="pt-3 space-y-3">
                             {sub.schools.map((s) => (
                               <div key={s.name}>
                                 <div className="flex items-center justify-between">
-                                  <span className="text-xs font-semibold text-slate-700">
+                                  <span className="text-xs font-semibold text-[var(--text-secondary)]">
                                     {s.name}
                                   </span>
-                                  <span className="text-xs text-slate-400">
+                                  <span className="text-xs text-[var(--text-tertiary)]">
                                     {s.teacherCount} teacher{s.teacherCount !== 1 ? "s" : ""}
                                   </span>
                                 </div>
@@ -270,7 +270,7 @@ export default function RegionalAnalysisPage() {
                                   {s.teachers.map((t) => (
                                     <span
                                       key={t}
-                                      className="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-md"
+                                      className="text-[10px] bg-slate-100 text-[var(--text-secondary)] px-2 py-0.5 rounded-md"
                                     >
                                       {t}
                                     </span>
@@ -290,16 +290,16 @@ export default function RegionalAnalysisPage() {
         ) : (
           /* HODs */
           <>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-[var(--text-tertiary)]">
               {data.hodsBySubject.length} subjects with HOD assignments
             </p>
             {data.hodsBySubject.length === 0 ? (
               <div className="text-center py-12">
-                <Crown className="w-10 h-10 text-slate-300 mx-auto mb-2" />
-                <p className="text-slate-500 text-sm">
+                <Crown className="w-10 h-10 text-[var(--text-quaternary)] mx-auto mb-2" />
+                <p className="text-[var(--text-tertiary)] text-sm">
                   No HODs assigned yet
                 </p>
-                <p className="text-xs text-slate-400 mt-1">
+                <p className="text-xs text-[var(--text-tertiary)] mt-1">
                   School admins can assign HODs from their dashboard
                 </p>
               </div>
@@ -319,7 +319,7 @@ export default function RegionalAnalysisPage() {
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
                             <Crown className="w-4 h-4 text-amber-500" />
-                            <h4 className="text-sm font-bold text-slate-900">
+                            <h4 className="text-sm font-bold text-[var(--text-primary)]">
                               {sub.subject}
                             </h4>
                           </div>
@@ -328,30 +328,30 @@ export default function RegionalAnalysisPage() {
                               {sub.hodCount} HOD{sub.hodCount !== 1 ? "s" : ""}
                             </span>
                             {isOpen ? (
-                              <ChevronUp className="w-4 h-4 text-slate-400" />
+                              <ChevronUp className="w-4 h-4 text-[var(--text-tertiary)]" />
                             ) : (
-                              <ChevronDown className="w-4 h-4 text-slate-400" />
+                              <ChevronDown className="w-4 h-4 text-[var(--text-tertiary)]" />
                             )}
                           </div>
                         </div>
                       </button>
                       {isOpen && (
-                        <div className="px-4 pb-4 border-t border-slate-100">
+                        <div className="px-4 pb-4 border-t border-[var(--border-secondary)]">
                           <div className="pt-3 space-y-2">
                             {sub.schools.map((h, i) => (
                               <div
                                 key={i}
-                                className="flex items-center justify-between p-2 bg-slate-50 rounded-lg"
+                                className="flex items-center justify-between p-2 bg-[var(--bg-tertiary)] rounded-lg"
                               >
                                 <div>
-                                  <p className="text-sm font-semibold text-slate-800">
+                                  <p className="text-sm font-semibold text-[var(--text-primary)]">
                                     {h.teacher}
                                   </p>
-                                  <p className="text-[10px] text-slate-400">
+                                  <p className="text-[10px] text-[var(--text-tertiary)]">
                                     {h.email}
                                   </p>
                                 </div>
-                                <span className="text-[10px] font-semibold bg-white text-slate-500 px-2 py-0.5 rounded border border-slate-200">
+                                <span className="text-[10px] font-semibold bg-[var(--bg-elevated)] text-[var(--text-tertiary)] px-2 py-0.5 rounded border border-[var(--border-primary)]">
                                   {h.school}
                                 </span>
                               </div>

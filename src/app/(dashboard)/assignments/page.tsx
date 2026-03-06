@@ -118,7 +118,7 @@ export default function MyAssignmentsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-24">
+    <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
       {/* Header */}
       <div className="bg-gradient-to-br from-brand-950 to-brand-800 px-5 pt-10 pb-6 rounded-b-2xl">
         <div className="max-w-lg mx-auto">
@@ -130,7 +130,7 @@ export default function MyAssignmentsPage() {
             Back to Logbook
           </Link>
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center">
+            <div className="w-10 h-10 bg-[var(--bg-elevated)]/10 rounded-xl flex items-center justify-center">
               <GraduationCap className="w-5 h-5 text-white" />
             </div>
             <div>
@@ -148,13 +148,13 @@ export default function MyAssignmentsPage() {
         {/* Search / Filter */}
         {!loading && assignments.length > 2 && (
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-tertiary)]" />
             <input
               type="text"
               placeholder="Filter by class or subject..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+              className="w-full pl-9 pr-4 py-2.5 bg-[var(--bg-elevated)] border border-[var(--border-primary)] rounded-xl text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
             />
           </div>
         )}
@@ -170,15 +170,15 @@ export default function MyAssignmentsPage() {
           </div>
         ) : assignments.length === 0 ? (
           <div className="text-center py-12">
-            <GraduationCap className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-            <p className="text-slate-500 font-medium">No assignments yet</p>
-            <p className="text-slate-400 text-sm mt-1">
+            <GraduationCap className="w-12 h-12 text-[var(--text-quaternary)] mx-auto mb-3" />
+            <p className="text-[var(--text-tertiary)] font-medium">No assignments yet</p>
+            <p className="text-[var(--text-tertiary)] text-sm mt-1">
               Your school administrator will assign you to classes and subjects.
             </p>
           </div>
         ) : formGroups.length === 0 ? (
           <div className="text-center py-8">
-            <p className="text-slate-500">No matching assignments</p>
+            <p className="text-[var(--text-tertiary)]">No matching assignments</p>
           </div>
         ) : (
           <div className="space-y-3">
@@ -189,16 +189,16 @@ export default function MyAssignmentsPage() {
                   {/* Folder header — clickable */}
                   <button
                     onClick={() => toggleLevel(group.level)}
-                    className="w-full flex items-center gap-3 p-4 text-left hover:bg-slate-50 transition-colors"
+                    className="w-full flex items-center gap-3 p-4 text-left hover:bg-[var(--bg-tertiary)] transition-colors"
                   >
                     <div className="w-10 h-10 bg-brand-50 rounded-xl flex items-center justify-center flex-shrink-0">
                       <Folder className="w-5 h-5 text-brand-600" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-slate-900 text-sm">
+                      <h3 className="font-semibold text-[var(--text-primary)] text-sm">
                         {group.level}
                       </h3>
-                      <div className="flex items-center gap-3 text-xs text-slate-400 mt-0.5">
+                      <div className="flex items-center gap-3 text-xs text-[var(--text-tertiary)] mt-0.5">
                         <span>
                           {group.assignments.length} class
                           {group.assignments.length !== 1 ? "es" : ""}
@@ -210,20 +210,20 @@ export default function MyAssignmentsPage() {
                       </div>
                     </div>
                     {isExpanded ? (
-                      <ChevronDown className="w-5 h-5 text-slate-400 flex-shrink-0" />
+                      <ChevronDown className="w-5 h-5 text-[var(--text-tertiary)] flex-shrink-0" />
                     ) : (
-                      <ChevronRight className="w-5 h-5 text-slate-400 flex-shrink-0" />
+                      <ChevronRight className="w-5 h-5 text-[var(--text-tertiary)] flex-shrink-0" />
                     )}
                   </button>
 
                   {/* Expanded contents */}
                   {isExpanded && (
-                    <div className="border-t border-slate-100">
+                    <div className="border-t border-[var(--border-secondary)]">
                       {group.assignments.map((a, idx) => (
                         <Link
                           key={a.id}
                           href={`/logbook/new?classId=${a.class.id}&subjectId=${a.subject.id}`}
-                          className={`block p-4 hover:bg-slate-50 transition-colors ${
+                          className={`block p-4 hover:bg-[var(--bg-tertiary)] transition-colors ${
                             idx > 0 ? "border-t border-slate-50" : ""
                           }`}
                         >
@@ -244,13 +244,13 @@ export default function MyAssignmentsPage() {
                                   {a.timetableSlots.map((slot) => (
                                     <div
                                       key={slot.id}
-                                      className="flex items-center gap-2 text-[11px] text-slate-500"
+                                      className="flex items-center gap-2 text-[11px] text-[var(--text-tertiary)]"
                                     >
-                                      <Calendar className="w-3 h-3 text-slate-400" />
+                                      <Calendar className="w-3 h-3 text-[var(--text-tertiary)]" />
                                       <span className="font-medium">
                                         {DAY_NAMES[slot.day] || `Day ${slot.day}`}
                                       </span>
-                                      <span className="text-slate-400 flex items-center gap-0.5">
+                                      <span className="text-[var(--text-tertiary)] flex items-center gap-0.5">
                                         <Clock className="w-2.5 h-2.5" />
                                         {slot.period} ({slot.time})
                                       </span>
@@ -260,12 +260,12 @@ export default function MyAssignmentsPage() {
                               )}
 
                               {a.timetableSlots.length === 0 && (
-                                <p className="text-[11px] text-slate-400 mt-1 italic">
+                                <p className="text-[11px] text-[var(--text-tertiary)] mt-1 italic">
                                   No timetable slots
                                 </p>
                               )}
                             </div>
-                            <div className="flex items-center gap-1 text-xs text-slate-400 flex-shrink-0 ml-2">
+                            <div className="flex items-center gap-1 text-xs text-[var(--text-tertiary)] flex-shrink-0 ml-2">
                               <BookOpen className="w-3.5 h-3.5" />
                               {a.entryCount}
                             </div>
