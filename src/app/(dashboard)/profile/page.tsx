@@ -19,6 +19,7 @@ import {
   Copy,
   Check,
   ChevronRight,
+  Palette,
 } from "lucide-react";
 import Link from "next/link";
 import { formatDate } from "@/lib/utils";
@@ -559,6 +560,23 @@ export default function ProfilePage() {
             <ChevronRight className="w-4 h-4 text-[var(--text-tertiary)] group-hover:translate-x-0.5 transition-transform" />
           </Link>
         )}
+
+        {/* Appearance Settings */}
+        <Link
+          href="/appearance"
+          className="card mt-4 p-4 flex items-center justify-between group hover:bg-[var(--bg-tertiary)] transition-colors"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-full flex items-center justify-center" style={{ backgroundColor: "var(--accent-light)" }}>
+              <Palette className="w-4.5 h-4.5" style={{ color: "var(--accent-text)" }} />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-[var(--text-primary)]">Display & Appearance</p>
+              <p className="text-[11px] text-[var(--text-tertiary)]">Light, Dark, or Night mode</p>
+            </div>
+          </div>
+          <ChevronRight className="w-4 h-4 text-[var(--text-tertiary)] group-hover:translate-x-0.5 transition-transform" />
+        </Link>
 
         {/* Sign Out */}
         <button
