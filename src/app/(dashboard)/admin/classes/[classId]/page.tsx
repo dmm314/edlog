@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import {
@@ -15,6 +15,7 @@ import {
   ChevronDown,
   ChevronUp,
   Users,
+  AlertCircle,
 } from "lucide-react";
 
 interface DivisionInfo {
@@ -114,6 +115,18 @@ const DIVISION_TEMPLATES: Record<string, { name: string; levels: string[] }[]> =
 
 type Tab = "subjects" | "divisions";
 
+// Helper to find the matching counterpart class name
+// e.g. "Lower Sixth Science A" <-> "Upper Sixth Science A"
+function getCounterpartClassName(className: string): string | null {
+  if (className.startsWith("Lower Sixth")) {
+    return className.replace("Lower Sixth", "Upper Sixth");
+  }
+  if (className.startsWith("Upper Sixth")) {
+    return className.replace("Upper Sixth", "Lower Sixth");
+  }
+  return null;
+}
+
 export default function ClassDetailPage() {
   const { classId } = useParams<{ classId: string }>();
   const [className, setClassName] = useState("");
@@ -122,10 +135,12 @@ export default function ClassDetailPage() {
   const [loading, setLoading] = useState(true);
   const [toggling, setToggling] = useState<string | null>(null);
   const [error, setError] = useState("");
+  const [successMsg, setSuccessMsg] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [showCopyFrom, setShowCopyFrom] = useState(false);
   const [copying, setCopying] = useState(false);
   const [activeTab, setActiveTab] = useState<Tab>("subjects");
+  const [syncing, setSyncing] = useState(false);
 
   // Division state
   const [expandedSubject, setExpandedSubject] = useState<string | null>(null);
@@ -134,11 +149,7 @@ export default function ClassDetailPage() {
   const [savingDiv, setSavingDiv] = useState(false);
   const [deletingDiv, setDeletingDiv] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchSubjects();
-  }, [classId]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  async function fetchSubjects() {
+  const fetchSubjects = useCallback(async () => {
     try {
       const res = await fetch(`/api/admin/classes/${classId}/subjects`);
       if (res.ok) {
@@ -152,7 +163,11 @@ export default function ClassDetailPage() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [classId]);
+
+  useEffect(() => {
+    fetchSubjects();
+  }, [fetchSubjects]);
 
   async function toggleSubject(subjectId: string, currentlyLinked: boolean) {
     setToggling(subjectId);
@@ -216,6 +231,8 @@ export default function ClassDetailPage() {
           )
         );
         setShowCopyFrom(false);
+        setSuccessMsg(`Copied ${sourceClass.subjectIds.length} subjects from ${sourceClass.name}`);
+        setTimeout(() => setSuccessMsg(""), 3000);
       } else {
         const data = await res.json();
         setError(data.error || "Failed to copy subjects");
@@ -224,6 +241,42 @@ export default function ClassDetailPage() {
       setError("Something went wrong");
     } finally {
       setCopying(false);
+    }
+  }
+
+  // Sync subjects to counterpart class (Lower Sixth <-> Upper Sixth)
+  async function handleSyncCounterpart() {
+    const counterpartName = getCounterpartClassName(className);
+    if (!counterpartName) return;
+
+    const counterpart = otherClasses.find((c) => c.name === counterpartName);
+    if (!counterpart) {
+      setError(`Counterpart class "${counterpartName}" not found. Create it first.`);
+      return;
+    }
+
+    setSyncing(true);
+    setError("");
+
+    try {
+      const linkedSubjectIds = subjects.filter((s) => s.linked).map((s) => s.id);
+      const res = await fetch(`/api/admin/classes/${counterpart.id}/subjects`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ subjectIds: linkedSubjectIds }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setSuccessMsg(`Synced ${data.added || linkedSubjectIds.length} subjects to ${counterpartName}`);
+        setTimeout(() => setSuccessMsg(""), 4000);
+      } else {
+        const data = await res.json();
+        setError(data.error || "Failed to sync subjects");
+      }
+    } catch {
+      setError("Something went wrong");
+    } finally {
+      setSyncing(false);
     }
   }
 
@@ -380,6 +433,10 @@ export default function ClassDetailPage() {
   const linkedSubjects = subjects.filter((s) => s.linked);
   const totalDivisions = linkedSubjects.reduce((sum, s) => sum + s.divisions.length, 0);
 
+  // Check if this is a Lower/Upper Sixth class that can sync
+  const counterpartName = getCounterpartClassName(className);
+  const hasCounterpart = counterpartName ? otherClasses.some((c) => c.name === counterpartName) : false;
+
   const filteredSubjects = useMemo(() => {
     if (!searchQuery) return subjects;
     const q = searchQuery.toLowerCase();
@@ -466,13 +523,22 @@ export default function ClassDetailPage() {
       </div>
 
       <div className="px-5 mt-4 max-w-lg mx-auto space-y-4">
+        {/* Success message */}
+        {successMsg && (
+          <div className="bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm rounded-xl px-4 py-3 flex items-center gap-2">
+            <Check className="w-4 h-4 flex-shrink-0" />
+            {successMsg}
+          </div>
+        )}
+
         {/* Error */}
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-4 py-3">
-            {error}
+          <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-4 py-3 flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 flex-shrink-0" />
+            <span className="flex-1">{error}</span>
             <button
               onClick={() => setError("")}
-              className="ml-2 text-red-400 hover:text-red-600"
+              className="text-red-400 hover:text-red-600 font-bold"
             >
               &times;
             </button>
@@ -495,7 +561,7 @@ export default function ClassDetailPage() {
               </div>
             </div>
             <div className="space-y-2">
-              {otherClasses.map((oc) => (
+              {otherClasses.filter((oc) => oc.subjectCount > 0).map((oc) => (
                 <button
                   key={oc.id}
                   onClick={() => handleCopyFrom(oc)}
@@ -517,12 +583,33 @@ export default function ClassDetailPage() {
           </div>
         )}
 
+        {/* Sync counterpart (Lower Sixth <-> Upper Sixth) */}
+        {activeTab === "subjects" && hasCounterpart && linkedCount > 0 && (
+          <div className="card p-3 border-l-4 border-violet-400">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 min-w-0">
+                <Users className="w-4 h-4 text-violet-500 flex-shrink-0" />
+                <p className="text-xs text-slate-600 truncate">
+                  Sync these {linkedCount} subjects to <strong>{counterpartName}</strong>
+                </p>
+              </div>
+              <button
+                onClick={handleSyncCounterpart}
+                disabled={syncing}
+                className="text-xs font-semibold text-violet-600 hover:text-violet-700 bg-violet-50 hover:bg-violet-100 px-3 py-1.5 rounded-lg transition-colors flex-shrink-0"
+              >
+                {syncing ? "Syncing..." : "Sync"}
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Search */}
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
           <input
             type="text"
-            placeholder={activeTab === "subjects" ? "Search subjects..." : "Search subjects with divisions..."}
+            placeholder={activeTab === "subjects" ? "Search all subjects..." : "Search subjects with divisions..."}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-9 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
@@ -535,7 +622,8 @@ export default function ClassDetailPage() {
             {/* Info */}
             <div className="card p-3">
               <p className="text-xs text-slate-500">
-                Toggle subjects taught in <strong>{className}</strong>. Manage divisions in the Divisions tab.
+                Toggle subjects taught in <strong>{className}</strong>. Each class has its own subject list.
+                Manage divisions in the Divisions tab.
               </p>
             </div>
 

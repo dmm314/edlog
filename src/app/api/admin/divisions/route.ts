@@ -72,6 +72,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Subject not found" }, { status: 404 });
     }
 
+    // Auto-link subject to school if not already linked
+    await db.schoolSubject.upsert({
+      where: { schoolId_subjectId: { schoolId: user.schoolId, subjectId } },
+      update: {},
+      create: { schoolId: user.schoolId, subjectId },
+    });
+
     // Check for duplicate
     const existing = await db.subjectDivision.findFirst({
       where: { schoolId: user.schoolId, subjectId, name: trimmedName },
@@ -110,7 +117,11 @@ export async function POST(request: Request) {
     );
   } catch (error) {
     console.error("POST /api/admin/divisions error:", error);
-    return NextResponse.json({ error: "Failed to create division" }, { status: 500 });
+    const message = error instanceof Error ? error.message : "Unknown error";
+    return NextResponse.json(
+      { error: `Failed to create division: ${message}` },
+      { status: 500 }
+    );
   }
 }
 

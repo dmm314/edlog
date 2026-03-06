@@ -16,6 +16,9 @@ import {
   X,
   FileText,
   Users,
+  FolderOpen,
+  FolderClosed,
+  AlertTriangle,
 } from "lucide-react";
 
 const DAYS = [
@@ -183,6 +186,9 @@ export default function EntryTimetablePage() {
   const [selectedEntry, setSelectedEntry] = useState<EntryInfo | null>(null);
   const [selectedSlot, setSelectedSlot] = useState<TimetableSlotInfo | null>(null);
 
+  // Unfilled periods folder
+  const [unfilledOpen, setUnfilledOpen] = useState(false);
+
   // Fetch classes on mount
   useEffect(() => {
     async function fetchClasses() {
@@ -298,6 +304,28 @@ export default function EntryTimetablePage() {
     const filledCount = entries.length;
     const verifiedCount = entries.filter((e) => e.status === "VERIFIED").length;
     return { totalSlots, filledCount, verifiedCount };
+  }, [slots, entries]);
+
+  // Compute unfilled periods this week (slots without entries)
+  const unfilledPeriods = useMemo(() => {
+    const filled = new Set(
+      entries.map((e) => `${e.dayOfWeek}-${e.period}`)
+    );
+    // Also match entries to slots by timetableSlotId
+    const filledSlotIds = new Set(
+      entries.filter((e) => e.timetableSlotId).map((e) => e.timetableSlotId)
+    );
+
+    return slots.filter((slot) => {
+      if (filledSlotIds.has(slot.id)) return false;
+      const periodMatch = slot.periodLabel.match(/\d+/);
+      const periodNum = periodMatch ? parseInt(periodMatch[0]) : null;
+      if (periodNum && filled.has(`${slot.dayOfWeek}-${periodNum}`)) return false;
+      return true;
+    }).map((slot) => {
+      const dayLabel = DAYS.find((d) => d.value === slot.dayOfWeek)?.label || `Day ${slot.dayOfWeek}`;
+      return { ...slot, dayLabel };
+    });
   }, [slots, entries]);
 
   // ─── CLASS LIST VIEW ───
@@ -421,6 +449,71 @@ export default function EntryTimetablePage() {
             <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">Verified</p>
           </div>
         </div>
+
+        {/* Unfilled Periods Folder */}
+        {!loadingGrid && unfilledPeriods.length > 0 && (
+          <div className="card overflow-hidden">
+            <button
+              onClick={() => setUnfilledOpen(!unfilledOpen)}
+              className="w-full flex items-center gap-3 p-3.5 hover:bg-slate-50 transition-colors text-left"
+            >
+              {unfilledOpen ? (
+                <FolderOpen className="w-5 h-5 text-amber-500 flex-shrink-0" />
+              ) : (
+                <FolderClosed className="w-5 h-5 text-amber-500 flex-shrink-0" />
+              )}
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-bold text-slate-900">
+                  Unfilled Periods
+                </p>
+                <p className="text-[11px] text-slate-400">
+                  {unfilledPeriods.length} period{unfilledPeriods.length !== 1 ? "s" : ""} without entries this week
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full">
+                  {unfilledPeriods.length}
+                </span>
+                <ChevronRight className={`w-4 h-4 text-slate-400 transition-transform ${unfilledOpen ? "rotate-90" : ""}`} />
+              </div>
+            </button>
+
+            {unfilledOpen && (
+              <div className="border-t border-slate-100 divide-y divide-slate-50">
+                {DAYS.map((day) => {
+                  const dayUnfilled = unfilledPeriods.filter((p) => p.dayOfWeek === day.value);
+                  if (dayUnfilled.length === 0) return null;
+                  return (
+                    <div key={day.value} className="px-4 py-2.5">
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">
+                        {day.label}
+                      </p>
+                      <div className="space-y-1.5">
+                        {dayUnfilled.map((slot) => (
+                          <button
+                            key={slot.id}
+                            onClick={() => { setSelectedSlot(slot); setSelectedEntry(null); }}
+                            className="w-full flex items-center gap-2.5 bg-amber-50/70 hover:bg-amber-50 border border-amber-100 rounded-lg px-3 py-2 text-left transition-colors"
+                          >
+                            <AlertTriangle className="w-3.5 h-3.5 text-amber-400 flex-shrink-0" />
+                            <div className="flex-1 min-w-0">
+                              <p className="text-xs font-semibold text-slate-700 truncate">
+                                {slot.subject} &middot; {slot.periodLabel}
+                              </p>
+                              <p className="text-[10px] text-slate-400">
+                                {slot.teacher.firstName} {slot.teacher.lastName} &middot; {slot.startTime} - {slot.endTime}
+                              </p>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Timetable Grid */}
         {loadingGrid ? (
