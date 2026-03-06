@@ -6,7 +6,7 @@ const config: Config = {
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
-  darkMode: "class",
+   darkMode: "class",
   theme: {
     extend: {
       colors: {
@@ -37,7 +37,7 @@ const config: Config = {
           quaternary: "var(--text-quaternary)",
         },
         "border-theme": {
-          primary: "var(--border-primary)",
+          DEFAULT: "var(--border-primary)",
           secondary: "var(--border-secondary)",
           subtle: "var(--border-subtle)",
         },
@@ -113,9 +113,6 @@ const config: Config = {
       backgroundImage: {
         "shimmer-gradient":
           "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%)",
-      },
-    },
-  },
   plugins: [],
 };
 export default config;
