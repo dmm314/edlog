@@ -21,10 +21,11 @@ export default function DashboardLayout({
 
   if (status === "loading") {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: "var(--bg-primary)" }}>
         <div className="text-center">
           <svg
-            className="animate-spin h-8 w-8 mx-auto text-brand-600"
+            className="animate-spin h-8 w-8 mx-auto"
+            style={{ color: "var(--accent)" }}
             viewBox="0 0 24 24"
             fill="none"
           >
@@ -42,7 +43,7 @@ export default function DashboardLayout({
               d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
             />
           </svg>
-          <p className="text-sm text-slate-400 mt-3">Loading...</p>
+          <p className="text-sm mt-3" style={{ color: "var(--text-tertiary)" }}>Loading...</p>
         </div>
       </div>
     );
@@ -53,7 +54,7 @@ export default function DashboardLayout({
   const role = (session.user as Record<string, unknown>)?.role as string;
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen" style={{ backgroundColor: "var(--bg-primary)" }}>
       {children}
       <BottomNav role={role} />
     </div>
