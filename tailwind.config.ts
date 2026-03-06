@@ -1,26 +1,52 @@
 import type { Config } from "tailwindcss";
-
+ 
 const config: Config = {
   content: [
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
+  darkMode: "class",
   theme: {
     extend: {
       colors: {
         brand: {
-          950: "#0F2B4C",
-          900: "#132F52",
-          800: "#1B4F8A",
-          700: "#2D7DD2",
-          600: "#3B9BF5",
-          500: "#4DA8F7",
-          400: "#7EC8E3",
-          300: "#A8D8F0",
-          200: "#D6EEFB",
-          100: "#EBF5FF",
-          50: "#F5FAFF",
+          950: "#1e1b4b",
+          900: "#312e81",
+          800: "#3730a3",
+          700: "#4338ca",
+          600: "#4f46e5",
+          500: "#6366f1",
+          400: "#818cf8",
+          300: "#a5b4fc",
+          200: "#c7d2fe",
+          100: "#e0e7ff",
+          50: "#eef2ff",
+        },
+        surface: {
+          primary: "var(--bg-primary)",
+          secondary: "var(--bg-secondary)",
+          tertiary: "var(--bg-tertiary)",
+          elevated: "var(--bg-elevated)",
+          inset: "var(--bg-inset)",
+        },
+        content: {
+          primary: "var(--text-primary)",
+          secondary: "var(--text-secondary)",
+          tertiary: "var(--text-tertiary)",
+          quaternary: "var(--text-quaternary)",
+        },
+        "border-theme": {
+          primary: "var(--border-primary)",
+          secondary: "var(--border-secondary)",
+          subtle: "var(--border-subtle)",
+        },
+        accent: {
+          DEFAULT: "var(--accent)",
+          hover: "var(--accent-hover)",
+          light: "var(--accent-light)",
+          text: "var(--accent-text)",
+          muted: "var(--accent-muted)",
         },
       },
       fontFamily: {
@@ -35,10 +61,10 @@ const config: Config = {
         ],
       },
       boxShadow: {
-        "card": "0 1px 3px 0 rgb(0 0 0 / 0.04), 0 1px 2px -1px rgb(0 0 0 / 0.04)",
-        "card-hover": "0 4px 12px 0 rgb(0 0 0 / 0.08), 0 2px 4px -2px rgb(0 0 0 / 0.04)",
-        "elevated": "0 8px 24px -4px rgb(0 0 0 / 0.12), 0 4px 8px -4px rgb(0 0 0 / 0.04)",
-        "glow": "0 0 0 3px rgb(59 155 245 / 0.15)",
+        card: "var(--shadow-card)",
+        "card-hover": "var(--shadow-card-hover)",
+        elevated: "var(--shadow-elevated)",
+        glow: "0 0 0 3px var(--accent-light)",
         "glow-success": "0 0 0 3px rgb(34 197 94 / 0.15)",
         "glow-error": "0 0 0 3px rgb(239 68 68 / 0.15)",
         "inner-glow": "inset 0 1px 2px 0 rgb(0 0 0 / 0.06)",
@@ -60,7 +86,7 @@ const config: Config = {
           "0%": { opacity: "0", transform: "scale(0.95)" },
           "100%": { opacity: "1", transform: "scale(1)" },
         },
-        "shimmer": {
+        shimmer: {
           "0%": { backgroundPosition: "-200% 0" },
           "100%": { backgroundPosition: "200% 0" },
         },
@@ -80,12 +106,13 @@ const config: Config = {
         "slide-up": "slide-up 0.35s cubic-bezier(0.16, 1, 0.3, 1)",
         "fade-in": "fade-in 0.2s ease-out",
         "scale-in": "scale-in 0.25s cubic-bezier(0.16, 1, 0.3, 1)",
-        "shimmer": "shimmer 2s linear infinite",
+        shimmer: "shimmer 2s linear infinite",
         "bounce-in": "bounce-in 0.5s cubic-bezier(0.16, 1, 0.3, 1)",
         "count-up": "count-up 0.4s cubic-bezier(0.16, 1, 0.3, 1)",
       },
       backgroundImage: {
-        "shimmer-gradient": "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%)",
+        "shimmer-gradient":
+          "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%)",
       },
     },
   },
