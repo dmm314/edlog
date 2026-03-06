@@ -19,6 +19,9 @@ import {
   Award,
   BarChart3,
   Crown,
+  ChevronDown,
+  ChevronRight,
+  ListTodo,
   AlertCircle,
 } from "lucide-react";
 import { NotificationBell } from "@/components/NotificationBell";
@@ -113,6 +116,7 @@ export default function LogbookPage() {
   const [allSlots, setAllSlots] = useState<AllSlotInfo[]>([]);
   const [loading, setLoading] = useState(true);
   const [isHOD, setIsHOD] = useState(false);
+  const [unfilledOpen, setUnfilledOpen] = useState(false);
   const [hodSubjects, setHodSubjects] = useState<string[]>([]);
 
   const today = useMemo(() => new Date(), []);
@@ -582,48 +586,65 @@ export default function LogbookPage() {
           </div>
         )}
 
-         {/* Unfilled Periods This Week */}
+        {/* Unfilled Periods This Week */}
         {unfilledWeekSlots.length > 0 && (
-          <div className="animate-slide-up card overflow-hidden border-red-200/60 shadow-[0_0_0_1px_rgba(239,68,68,0.1),0_4px_16px_rgba(239,68,68,0.06)]">
-            <div className="px-5 pt-4 pb-2.5 flex items-center gap-3 bg-gradient-to-r from-red-50/50 to-transparent">
-              <div className="w-9 h-9 bg-gradient-to-br from-red-100 to-red-50 rounded-xl flex items-center justify-center shadow-sm">
-                <AlertCircle className="w-4.5 h-4.5 text-red-600" />
+          <div className="animate-slide-up card overflow-hidden">
+            <button
+              onClick={() => setUnfilledOpen(!unfilledOpen)}
+              className="w-full flex items-center gap-3 p-3.5 hover:bg-slate-50 transition-colors text-left"
+            >
+              <div className="w-9 h-9 bg-gradient-to-br from-red-100 to-red-50 rounded-xl flex items-center justify-center shadow-sm flex-shrink-0">
+                <AlertCircle className="w-4 h-4 text-red-600" />
               </div>
-              <div className="flex-1">
-                <h3 className="text-sm font-bold text-slate-900">Unfilled Periods This Week</h3>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-bold text-slate-900">Unfilled Periods This Week</p>
                 <p className="text-[11px] text-slate-400">
                   {unfilledWeekSlots.length} period{unfilledWeekSlots.length !== 1 ? "s" : ""} not yet filled
                 </p>
               </div>
-              <span className="text-[10px] bg-red-100 text-red-700 font-bold px-2.5 py-1 rounded-full border border-red-200/60">
-                {unfilledWeekSlots.length} pending
-              </span>
-            </div>
-            <div className="divide-y divide-slate-50/80 max-h-64 overflow-y-auto">
-              {unfilledWeekSlots.map((slot, i) => (
-                <div key={i} className="flex items-center gap-3.5 px-5 py-3 hover:bg-red-50/30 transition-colors">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-400 to-red-500 text-white flex items-center justify-center font-bold text-xs shadow-sm flex-shrink-0">
-                    {slot.slotLabel.replace(/[^0-9P]/g, "").slice(0, 3) || slot.slotLabel.slice(0, 2)}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-slate-800 truncate">
-                      {slot.subjectName} — {slot.className}
-                    </p>
-                    <p className="text-[11px] text-red-500 font-medium">
-                      {slot.dayName} &middot; {slot.slotLabel} not filled
-                    </p>
-                  </div>
-                  <Link href="/logbook/new" className="text-xs font-bold text-white bg-gradient-to-r from-red-500 to-red-400 rounded-xl px-3 py-1.5 flex-shrink-0 transition-all active:scale-95 shadow-sm">
-                    Fill
-                  </Link>
-                </div>
-              ))}
-            </div>
-            {unfilledWeekSlots.length > 3 && (
-              <div className="px-5 py-2.5 bg-red-50/30 border-t border-red-100">
-                <p className="text-[11px] text-red-600 font-medium text-center">
-                  Remember: You have until the end of this weekend to fill all periods for this week
-                </p>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold text-red-600 bg-red-50 px-2 py-0.5 rounded-full">
+                  {unfilledWeekSlots.length}
+                </span>
+                <ChevronRight className={`w-4 h-4 text-slate-400 transition-transform ${unfilledOpen ? "rotate-90" : ""}`} />
+              </div>
+            </button>
+
+            {unfilledOpen && (
+              <div className="border-t border-slate-100 divide-y divide-slate-50">
+                {[1, 2, 3, 4, 5].map((dow) => {
+                  const daySlots = unfilledWeekSlots.filter((s) => s.dayOfWeek === dow);
+                  if (daySlots.length === 0) return null;
+                  return (
+                    <div key={dow} className="px-4 py-2.5">
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">
+                        {daySlots[0].dayName}
+                      </p>
+                      <div className="space-y-1.5">
+                        {daySlots.map((slot, i) => (
+                          <Link
+                            key={i}
+                            href="/logbook/new"
+                            className="w-full flex items-center gap-2.5 bg-red-50/70 hover:bg-red-50 border border-red-100 rounded-lg px-3 py-2 text-left transition-colors"
+                          >
+                            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-red-400 to-red-500 text-white flex items-center justify-center font-bold text-[10px] flex-shrink-0">
+                              {slot.slotLabel.replace(/[^0-9P]/g, "").slice(0, 3) || slot.slotLabel.slice(0, 2)}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-xs font-semibold text-slate-700 truncate">
+                                {slot.subjectName} &middot; {slot.className}
+                              </p>
+                              <p className="text-[10px] text-slate-400">
+                                {slot.slotLabel} &middot; Not filled
+                              </p>
+                            </div>
+                            <span className="text-[10px] font-bold text-red-500">Fill</span>
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>
