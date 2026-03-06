@@ -51,7 +51,8 @@ function BottomNav({ role }: BottomNavProps) {
   const tabs = getNavTabs(role);
 
   return (
-    <nav className="fixed bottom-0 left-0 w-full z-50 bg-white/95 backdrop-blur-lg border-t border-slate-200/80 pb-[env(safe-area-inset-bottom)]">
+    <nav className="fixed bottom-0 left-0 w-full z-50 backdrop-blur-xl pb-[env(safe-area-inset-bottom)]"
+      style={{ backgroundColor: "var(--nav-bg)", borderTop: "1px solid var(--nav-border)" }}>
       <div className="flex items-center justify-around h-16 max-w-lg mx-auto">
         {tabs.map((tab) => {
           const isActive = pathname === tab.href || pathname.startsWith(tab.href + "/");
@@ -64,10 +65,11 @@ function BottomNav({ role }: BottomNavProps) {
                 href={tab.href}
                 className="flex flex-col items-center gap-0.5 -mt-3"
               >
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-brand-600 to-brand-700 shadow-lg shadow-brand-600/25 active:scale-95 transition-transform">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full shadow-lg active:scale-95 transition-transform"
+                  style={{ backgroundColor: "var(--accent)" }}>
                   <Icon className="h-5.5 w-5.5 text-white" />
                 </div>
-                <span className="text-[10px] font-semibold text-brand-600">
+                <span className="text-[10px] font-semibold" style={{ color: "var(--accent-text)" }}>
                   {tab.label}
                 </span>
               </Link>
@@ -78,12 +80,11 @@ function BottomNav({ role }: BottomNavProps) {
             <Link
               key={tab.href}
               href={tab.href}
-              className={`flex flex-col items-center gap-0.5 px-3 py-1 transition-colors ${
-                isActive ? "text-brand-700" : "text-slate-400"
-              }`}
+              className="flex flex-col items-center gap-0.5 px-3 py-1 transition-colors"
+              style={{ color: isActive ? "var(--nav-text-active)" : "var(--nav-text)" }}
             >
-              <Icon className={`h-5.5 w-5.5 ${isActive ? "text-brand-600" : ""}`} />
-              <span className={`text-[10px] font-medium ${isActive ? "font-semibold" : ""}`}>{tab.label}</span>
+              <Icon className="h-5.5 w-5.5" />
+              <span className={`text-[10px] ${isActive ? "font-semibold" : "font-medium"}`}>{tab.label}</span>
             </Link>
           );
         })}

@@ -127,10 +127,10 @@ function EmptyState() {
   return (
     <div className="text-center py-16">
       <div className="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-        <Calendar className="w-8 h-8 text-slate-300" />
+        <Calendar className="w-8 h-8 text-[var(--text-quaternary)]" />
       </div>
-      <p className="text-slate-500 font-medium text-base">No timetable yet</p>
-      <p className="text-slate-400 text-sm mt-1.5 max-w-[260px] mx-auto leading-relaxed">
+      <p className="text-[var(--text-tertiary)] font-medium text-base">No timetable yet</p>
+      <p className="text-[var(--text-tertiary)] text-sm mt-1.5 max-w-[260px] mx-auto leading-relaxed">
         Your school administrator will set up your weekly timetable once classes and subjects are assigned.
       </p>
     </div>
@@ -156,11 +156,11 @@ function SlotCard({ slot }: { slot: TimetableSlot }) {
       <div className="ml-2">
         {/* Period & time */}
         <div className="flex items-center gap-2 mb-1.5">
-          <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+          <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-tertiary)]">
             {slot.periodLabel}
           </span>
-          <span className="text-slate-300">&middot;</span>
-          <span className="flex items-center gap-1 text-[11px] text-slate-400">
+          <span className="text-[var(--text-quaternary)]">&middot;</span>
+          <span className="flex items-center gap-1 text-[11px] text-[var(--text-tertiary)]">
             <Clock className="w-3 h-3" />
             {slot.startTime} &ndash; {slot.endTime}
           </span>
@@ -173,8 +173,8 @@ function SlotCard({ slot }: { slot: TimetableSlot }) {
 
         {/* Class */}
         <div className="flex items-center gap-1.5 mt-1.5">
-          <BookOpen className="w-3.5 h-3.5 text-slate-400" />
-          <span className="text-xs font-medium text-slate-500">
+          <BookOpen className="w-3.5 h-3.5 text-[var(--text-tertiary)]" />
+          <span className="text-xs font-medium text-[var(--text-tertiary)]">
             {slot.assignment.className}
           </span>
         </div>
@@ -204,19 +204,19 @@ function FreePeriod({
   endTime: string;
 }) {
   return (
-    <div className="rounded-xl border-2 border-dashed border-slate-200 bg-slate-50/50 p-4">
+    <div className="rounded-xl border-2 border-dashed border-[var(--border-primary)] bg-[var(--bg-tertiary)] p-4">
       <div className="ml-2">
         <div className="flex items-center gap-2 mb-1.5">
-          <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-300">
+          <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-quaternary)]">
             {periodLabel}
           </span>
           <span className="text-slate-200">&middot;</span>
-          <span className="flex items-center gap-1 text-[11px] text-slate-300">
+          <span className="flex items-center gap-1 text-[11px] text-[var(--text-quaternary)]">
             <Clock className="w-3 h-3" />
             {startTime} &ndash; {endTime}
           </span>
         </div>
-        <p className="text-sm font-medium text-slate-300 italic">Free Period</p>
+        <p className="text-sm font-medium text-[var(--text-quaternary)] italic">Free Period</p>
       </div>
     </div>
   );
@@ -303,7 +303,7 @@ export default function TimetablePage() {
   }, [slotsByDay]);
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-24">
+    <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
       {/* ============ Header ============ */}
       <div className="bg-gradient-to-br from-brand-950 to-brand-800 px-5 pt-10 pb-6 rounded-b-2xl">
         <div className="max-w-lg mx-auto">
@@ -316,7 +316,7 @@ export default function TimetablePage() {
           </Link>
 
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center">
+            <div className="w-10 h-10 bg-[var(--bg-elevated)]/10 rounded-xl flex items-center justify-center">
               <Calendar className="w-5 h-5 text-white" />
             </div>
             <div>
@@ -332,19 +332,19 @@ export default function TimetablePage() {
           {/* Quick stats */}
           {!loading && totalSlots > 0 && (
             <div className="grid grid-cols-3 gap-3 mt-4">
-              <div className="bg-white/10 rounded-xl px-3 py-2.5 text-center">
+              <div className="bg-[var(--bg-elevated)]/10 rounded-xl px-3 py-2.5 text-center">
                 <p className="text-lg font-bold text-white">{totalSlots}</p>
                 <p className="text-[10px] uppercase tracking-wider text-brand-400 font-semibold">
                   Periods
                 </p>
               </div>
-              <div className="bg-white/10 rounded-xl px-3 py-2.5 text-center">
+              <div className="bg-[var(--bg-elevated)]/10 rounded-xl px-3 py-2.5 text-center">
                 <p className="text-lg font-bold text-white">{uniqueSubjects}</p>
                 <p className="text-[10px] uppercase tracking-wider text-brand-400 font-semibold">
                   Subjects
                 </p>
               </div>
-              <div className="bg-white/10 rounded-xl px-3 py-2.5 text-center">
+              <div className="bg-[var(--bg-elevated)]/10 rounded-xl px-3 py-2.5 text-center">
                 <p className="text-lg font-bold text-white">
                   {new Set(
                     Object.values(slotsByDay)
@@ -395,14 +395,14 @@ export default function TimetablePage() {
                       ${
                         isActive
                           ? "bg-brand-600 text-white shadow-lg shadow-brand-600/25"
-                          : "bg-white text-slate-500 hover:bg-slate-100 border border-slate-200"
+                          : "bg-[var(--bg-elevated)] text-[var(--text-tertiary)] hover:bg-[var(--bg-tertiary)] border border-[var(--border-primary)]"
                       }
                     `}
                   >
                     <span className="text-xs font-bold">{day.short}</span>
                     {/* Slot count dot */}
                     {daySlotCount > 0 && !isActive && (
-                      <span className="block text-[10px] text-slate-400 leading-tight">
+                      <span className="block text-[10px] text-[var(--text-tertiary)] leading-tight">
                         {daySlotCount}
                       </span>
                     )}
@@ -412,7 +412,7 @@ export default function TimetablePage() {
                       </span>
                     )}
                     {daySlotCount === 0 && (
-                      <span className="block text-[10px] text-slate-300 leading-tight">
+                      <span className="block text-[10px] text-[var(--text-quaternary)] leading-tight">
                         &mdash;
                       </span>
                     )}
@@ -433,7 +433,7 @@ export default function TimetablePage() {
 
             {/* ---- Day label ---- */}
             <div className="flex items-center justify-between mb-3">
-              <h2 className="text-sm font-bold text-slate-700">
+              <h2 className="text-sm font-bold text-[var(--text-secondary)]">
                 {DAYS.find((d) => d.value === activeDay)?.label}
                 {todayDow === activeDay && (
                   <span className="ml-2 text-[10px] uppercase tracking-wider font-bold text-brand-600 bg-brand-50 px-2 py-0.5 rounded-full">
@@ -441,7 +441,7 @@ export default function TimetablePage() {
                   </span>
                 )}
               </h2>
-              <span className="text-xs text-slate-400">
+              <span className="text-xs text-[var(--text-tertiary)]">
                 {(slotsByDay[activeDay] || []).length} period
                 {(slotsByDay[activeDay] || []).length !== 1 ? "s" : ""}
               </span>
@@ -450,7 +450,7 @@ export default function TimetablePage() {
             {/* ---- Slots for the active day ---- */}
             {activeSchedule.length === 0 ? (
               <div className="text-center py-10">
-                <p className="text-slate-400 text-sm">No periods scheduled</p>
+                <p className="text-[var(--text-tertiary)] text-sm">No periods scheduled</p>
               </div>
             ) : (
               <div className="space-y-3">

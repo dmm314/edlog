@@ -95,7 +95,7 @@ function StatusIcon({ status }: { status: string }) {
     case "SUBMITTED":
       return <Send className="w-3 h-3 text-blue-500" />;
     default:
-      return <Clock className="w-3 h-3 text-slate-400" />;
+      return <Clock className="w-3 h-3 text-[var(--text-tertiary)]" />;
   }
 }
 
@@ -104,7 +104,7 @@ function getStatusColor(status: string): string {
     case "VERIFIED": return "border-emerald-400 bg-emerald-50";
     case "FLAGGED": return "border-red-400 bg-red-50";
     case "SUBMITTED": return "border-blue-400 bg-blue-50";
-    default: return "border-slate-200 bg-slate-50";
+    default: return "border-[var(--border-primary)] bg-[var(--bg-tertiary)]";
   }
 }
 
@@ -116,7 +116,7 @@ function getLevelColor(level: string): { bg: string; text: string; border: strin
   if (level.includes("5")) return { bg: "bg-rose-50", text: "text-rose-700", border: "border-rose-200" };
   if (level.toLowerCase().includes("lower")) return { bg: "bg-indigo-50", text: "text-indigo-700", border: "border-indigo-200" };
   if (level.toLowerCase().includes("upper")) return { bg: "bg-purple-50", text: "text-purple-700", border: "border-purple-200" };
-  return { bg: "bg-slate-50", text: "text-slate-700", border: "border-slate-200" };
+  return { bg: "bg-[var(--bg-tertiary)]", text: "text-[var(--text-secondary)]", border: "border-[var(--border-primary)]" };
 }
 
 const HISTORY_STATE_KEY = "edlog_history_state";
@@ -300,7 +300,7 @@ export default function HistoryPage() {
   // ─── LEVELS VIEW ───
   if (view === "levels") {
     return (
-      <div className="min-h-screen bg-slate-50 pb-24">
+      <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
         <div className="bg-gradient-to-br from-brand-950 to-brand-800 px-5 pt-10 pb-8 rounded-b-3xl">
           <div className="max-w-lg mx-auto">
             <div className="flex items-center gap-3 mb-1">
@@ -324,8 +324,8 @@ export default function HistoryPage() {
           ) : levels.length === 0 ? (
             <div className="text-center py-16">
               <FolderOpen className="w-14 h-14 text-slate-200 mx-auto mb-4" />
-              <p className="text-slate-500 font-semibold text-lg">No classes assigned</p>
-              <p className="text-slate-400 text-sm mt-1.5">
+              <p className="text-[var(--text-tertiary)] font-semibold text-lg">No classes assigned</p>
+              <p className="text-[var(--text-tertiary)] text-sm mt-1.5">
                 Contact your school administrator to get assigned to classes
               </p>
             </div>
@@ -346,12 +346,12 @@ export default function HistoryPage() {
                       </span>
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-bold text-slate-900 text-[15px]">{lvl.level}</p>
-                      <p className="text-xs text-slate-400 mt-0.5">
+                      <p className="font-bold text-[var(--text-primary)] text-[15px]">{lvl.level}</p>
+                      <p className="text-xs text-[var(--text-tertiary)] mt-0.5">
                         {lvl.classes.length} {lvl.classes.length === 1 ? "class" : "classes"} &middot; {totalSubjects} {totalSubjects === 1 ? "subject" : "subjects"}
                       </p>
                     </div>
-                    <ChevronRight className="w-5 h-5 text-slate-300 group-hover:text-slate-500 group-hover:translate-x-0.5 transition-all duration-200 flex-shrink-0" />
+                    <ChevronRight className="w-5 h-5 text-[var(--text-quaternary)] group-hover:text-[var(--text-tertiary)] group-hover:translate-x-0.5 transition-all duration-200 flex-shrink-0" />
                   </button>
                 );
               })}
@@ -366,7 +366,7 @@ export default function HistoryPage() {
   if (view === "classes") {
     const lc = getLevelColor(selectedLevel);
     return (
-      <div className="min-h-screen bg-slate-50 pb-24">
+      <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
         <div className="bg-gradient-to-br from-brand-950 to-brand-800 px-5 pt-10 pb-8 rounded-b-3xl">
           <div className="max-w-lg mx-auto">
             <button onClick={goBack} className="flex items-center gap-1.5 text-white/70 hover:text-white text-sm mb-3 transition-colors">
@@ -381,7 +381,7 @@ export default function HistoryPage() {
         <div className="px-5 mt-5 max-w-lg mx-auto">
           {classesForLevel.length === 0 ? (
             <div className="text-center py-12">
-              <p className="text-slate-500">No classes found</p>
+              <p className="text-[var(--text-tertiary)]">No classes found</p>
             </div>
           ) : (
             <div className="grid grid-cols-2 gap-3">
@@ -396,15 +396,15 @@ export default function HistoryPage() {
                       {cls.section || cls.name.split(" ").pop()}
                     </span>
                   </div>
-                  <p className="font-bold text-slate-900 text-sm">{cls.name}</p>
+                  <p className="font-bold text-[var(--text-primary)] text-sm">{cls.name}</p>
                   <div className="flex flex-wrap gap-1 mt-2">
                     {cls.subjects.slice(0, 3).map((s) => (
-                      <span key={s} className="text-[9px] font-semibold bg-slate-100 text-slate-500 rounded-full px-2 py-0.5">
+                      <span key={s} className="text-[9px] font-semibold bg-slate-100 text-[var(--text-tertiary)] rounded-full px-2 py-0.5">
                         {s}
                       </span>
                     ))}
                     {cls.subjects.length > 3 && (
-                      <span className="text-[9px] font-semibold bg-slate-100 text-slate-500 rounded-full px-2 py-0.5">
+                      <span className="text-[9px] font-semibold bg-slate-100 text-[var(--text-tertiary)] rounded-full px-2 py-0.5">
                         +{cls.subjects.length - 3}
                       </span>
                     )}
@@ -420,7 +420,7 @@ export default function HistoryPage() {
 
   // ─── TIMETABLE VIEW ───
   return (
-    <div className="min-h-screen bg-slate-50 pb-24">
+    <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
       {/* Header */}
       <div className="bg-gradient-to-br from-brand-950 to-brand-800 px-5 pt-10 pb-5 rounded-b-3xl">
         <div className="max-w-lg mx-auto">
@@ -438,11 +438,11 @@ export default function HistoryPage() {
       {/* Week Navigation */}
       <div className="px-5 mt-4 max-w-lg mx-auto">
         <div className="card p-3 flex items-center justify-between">
-          <button onClick={goToPrevWeek} className="p-2 rounded-lg hover:bg-slate-100 transition-colors">
-            <ChevronLeft className="w-5 h-5 text-slate-600" />
+          <button onClick={goToPrevWeek} className="p-2 rounded-lg hover:bg-[var(--bg-tertiary)] transition-colors">
+            <ChevronLeft className="w-5 h-5 text-[var(--text-secondary)]" />
           </button>
           <div className="text-center">
-            <p className="text-sm font-bold text-slate-900">{formatWeekLabel(currentMonday)}</p>
+            <p className="text-sm font-bold text-[var(--text-primary)]">{formatWeekLabel(currentMonday)}</p>
             {!isCurrentWeek && (
               <button onClick={goToCurrentWeek} className="text-[10px] text-brand-600 font-semibold mt-0.5">
                 Go to current week
@@ -452,8 +452,8 @@ export default function HistoryPage() {
               <p className="text-[10px] text-emerald-600 font-semibold mt-0.5">Current week</p>
             )}
           </div>
-          <button onClick={goToNextWeek} className="p-2 rounded-lg hover:bg-slate-100 transition-colors">
-            <ChevronRight className="w-5 h-5 text-slate-600" />
+          <button onClick={goToNextWeek} className="p-2 rounded-lg hover:bg-[var(--bg-tertiary)] transition-colors">
+            <ChevronRight className="w-5 h-5 text-[var(--text-secondary)]" />
           </button>
         </div>
       </div>
@@ -476,17 +476,17 @@ export default function HistoryPage() {
         ) : periods.length === 0 ? (
           <div className="text-center py-12">
             <Calendar className="w-12 h-12 text-slate-200 mx-auto mb-3" />
-            <p className="text-slate-500 font-medium">No timetable configured</p>
-            <p className="text-slate-400 text-sm mt-1">Contact your administrator</p>
+            <p className="text-[var(--text-tertiary)] font-medium">No timetable configured</p>
+            <p className="text-[var(--text-tertiary)] text-sm mt-1">Contact your administrator</p>
           </div>
         ) : (
           <>
             {/* Grid */}
             <div className="card overflow-hidden">
               {/* Day Headers */}
-              <div className="grid grid-cols-[56px_repeat(5,1fr)] bg-slate-50 border-b border-slate-200">
+              <div className="grid grid-cols-[56px_repeat(5,1fr)] bg-[var(--bg-tertiary)] border-b border-[var(--border-primary)]">
                 <div className="p-2 text-center">
-                  <span className="text-[9px] font-bold uppercase tracking-wider text-slate-400">Period</span>
+                  <span className="text-[9px] font-bold uppercase tracking-wider text-[var(--text-tertiary)]">Period</span>
                 </div>
                 {DAY_NAMES.map((day, i) => {
                   const dateForDay = new Date(currentMonday);
@@ -494,10 +494,10 @@ export default function HistoryPage() {
                   const isToday = new Date().toDateString() === dateForDay.toDateString();
                   return (
                     <div key={day} className={`p-2 text-center ${isToday ? "bg-brand-50" : ""}`}>
-                      <span className={`text-[10px] font-bold uppercase tracking-wider ${isToday ? "text-brand-700" : "text-slate-500"}`}>
+                      <span className={`text-[10px] font-bold uppercase tracking-wider ${isToday ? "text-brand-700" : "text-[var(--text-tertiary)]"}`}>
                         {day}
                       </span>
-                      <p className={`text-[9px] ${isToday ? "text-brand-500 font-bold" : "text-slate-400"}`}>
+                      <p className={`text-[9px] ${isToday ? "text-brand-500 font-bold" : "text-[var(--text-tertiary)]"}`}>
                         {dateForDay.getDate()}/{dateForDay.getMonth() + 1}
                       </p>
                     </div>
@@ -507,12 +507,12 @@ export default function HistoryPage() {
 
               {/* Period Rows */}
               {periods.map((period) => (
-                <div key={period.periodNum} className="grid grid-cols-[56px_repeat(5,1fr)] border-b border-slate-100 last:border-b-0">
+                <div key={period.periodNum} className="grid grid-cols-[56px_repeat(5,1fr)] border-b border-[var(--border-secondary)] last:border-b-0">
                   {/* Period label */}
-                  <div className="p-1.5 flex flex-col items-center justify-center border-r border-slate-100">
-                    <span className="text-[10px] font-bold text-slate-700">P{period.periodNum}</span>
-                    <span className="text-[8px] text-slate-400 leading-tight">{period.startTime}</span>
-                    <span className="text-[8px] text-slate-400 leading-tight">{period.endTime}</span>
+                  <div className="p-1.5 flex flex-col items-center justify-center border-r border-[var(--border-secondary)]">
+                    <span className="text-[10px] font-bold text-[var(--text-secondary)]">P{period.periodNum}</span>
+                    <span className="text-[8px] text-[var(--text-tertiary)] leading-tight">{period.startTime}</span>
+                    <span className="text-[8px] text-[var(--text-tertiary)] leading-tight">{period.endTime}</span>
                   </div>
 
                   {/* Day cells */}
@@ -535,9 +535,9 @@ export default function HistoryPage() {
                         >
                           <div className="flex items-center gap-0.5 mb-0.5">
                             <StatusIcon status={hasEntry.status} />
-                            <span className="text-[8px] font-bold text-slate-700 truncate">{hasEntry.subject}</span>
+                            <span className="text-[8px] font-bold text-[var(--text-secondary)] truncate">{hasEntry.subject}</span>
                           </div>
-                          <p className="text-[7px] text-slate-500 line-clamp-2 leading-tight">
+                          <p className="text-[7px] text-[var(--text-tertiary)] line-clamp-2 leading-tight">
                             {hasEntry.topicText || "No topic"}
                           </p>
                         </button>
@@ -546,9 +546,9 @@ export default function HistoryPage() {
 
                     if (hasSlot) {
                       return (
-                        <div key={dayOfWeek} className={`p-1 m-0.5 rounded-lg bg-slate-50 border border-dashed border-slate-200 flex flex-col items-center justify-center ${isToday ? "ring-1 ring-brand-200" : ""}`}>
-                          <span className="text-[8px] font-medium text-slate-400 text-center">{hasSlot.subject}</span>
-                          <span className="text-[7px] text-slate-300 mt-0.5">No entry</span>
+                        <div key={dayOfWeek} className={`p-1 m-0.5 rounded-lg bg-[var(--bg-tertiary)] border border-dashed border-[var(--border-primary)] flex flex-col items-center justify-center ${isToday ? "ring-1 ring-brand-200" : ""}`}>
+                          <span className="text-[8px] font-medium text-[var(--text-tertiary)] text-center">{hasSlot.subject}</span>
+                          <span className="text-[7px] text-[var(--text-quaternary)] mt-0.5">No entry</span>
                         </div>
                       );
                     }
@@ -565,19 +565,19 @@ export default function HistoryPage() {
             <div className="flex flex-wrap items-center gap-3 mt-3 px-1">
               <div className="flex items-center gap-1.5">
                 <div className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
-                <span className="text-[10px] text-slate-500">Verified</span>
+                <span className="text-[10px] text-[var(--text-tertiary)]">Verified</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <div className="w-2.5 h-2.5 rounded-full bg-blue-500" />
-                <span className="text-[10px] text-slate-500">Submitted</span>
+                <span className="text-[10px] text-[var(--text-tertiary)]">Submitted</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <div className="w-2.5 h-2.5 rounded-full bg-red-500" />
-                <span className="text-[10px] text-slate-500">Flagged</span>
+                <span className="text-[10px] text-[var(--text-tertiary)]">Flagged</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <div className="w-2.5 h-2.5 rounded-sm border border-dashed border-slate-300 bg-slate-50" />
-                <span className="text-[10px] text-slate-500">Empty</span>
+                <div className="w-2.5 h-2.5 rounded-sm border border-dashed border-[var(--border-primary)] bg-[var(--bg-tertiary)]" />
+                <span className="text-[10px] text-[var(--text-tertiary)]">Empty</span>
               </div>
             </div>
           </>
@@ -588,7 +588,7 @@ export default function HistoryPage() {
       {selectedEntry && (
         <div className="fixed inset-0 z-50 flex items-end justify-center">
           <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setSelectedEntry(null)} />
-          <div className="relative w-full max-w-lg bg-white rounded-t-3xl shadow-2xl max-h-[85vh] overflow-y-auto animate-slide-up">
+          <div className="relative w-full max-w-lg bg-[var(--bg-elevated)] rounded-t-3xl shadow-2xl max-h-[85vh] overflow-y-auto animate-slide-up">
             {/* Handle bar */}
             <div className="flex justify-center pt-3 pb-1">
               <div className="w-10 h-1 bg-slate-300 rounded-full" />
@@ -599,7 +599,7 @@ export default function HistoryPage() {
               onClick={() => setSelectedEntry(null)}
               className="absolute top-3 right-4 p-1.5 rounded-full bg-slate-100 hover:bg-slate-200 transition-colors"
             >
-              <X className="w-4 h-4 text-slate-500" />
+              <X className="w-4 h-4 text-[var(--text-tertiary)]" />
             </button>
 
             {/* Entry header */}
@@ -615,7 +615,7 @@ export default function HistoryPage() {
                   selectedEntry.status === "VERIFIED" ? "bg-emerald-100 text-emerald-700" :
                   selectedEntry.status === "FLAGGED" ? "bg-red-100 text-red-700" :
                   selectedEntry.status === "SUBMITTED" ? "bg-blue-100 text-blue-700" :
-                  "bg-slate-100 text-slate-600"
+                  "bg-slate-100 text-[var(--text-secondary)]"
                 }`}>
                   <StatusIcon status={selectedEntry.status} />
                   {selectedEntry.status.charAt(0) + selectedEntry.status.slice(1).toLowerCase()}
@@ -633,8 +633,8 @@ export default function HistoryPage() {
                       <Layers className="w-4 h-4 text-blue-600" />
                     </div>
                     <div>
-                      <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400">Module</p>
-                      <p className="text-sm font-medium text-slate-800">{selectedEntry.moduleName}</p>
+                      <p className="text-[10px] font-semibold uppercase tracking-widest text-[var(--text-tertiary)]">Module</p>
+                      <p className="text-sm font-medium text-[var(--text-primary)]">{selectedEntry.moduleName}</p>
                     </div>
                   </div>
                 )}
@@ -643,8 +643,8 @@ export default function HistoryPage() {
                     <PenTool className="w-4 h-4 text-purple-600" />
                   </div>
                   <div>
-                    <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400">Topic Covered</p>
-                    <p className="text-sm font-medium text-slate-800">{selectedEntry.topicText || "—"}</p>
+                    <p className="text-[10px] font-semibold uppercase tracking-widest text-[var(--text-tertiary)]">Topic Covered</p>
+                    <p className="text-sm font-medium text-[var(--text-primary)]">{selectedEntry.topicText || "—"}</p>
                   </div>
                 </div>
               </div>
@@ -652,20 +652,20 @@ export default function HistoryPage() {
               {/* Period & Duration */}
               <div className="py-4">
                 <div className="grid grid-cols-3 gap-2.5">
-                  <div className="text-center bg-slate-50 rounded-xl py-3 px-2">
-                    <Calendar className="w-4 h-4 text-slate-400 mx-auto mb-1" />
-                    <p className="text-[9px] text-slate-400 font-medium uppercase">Period</p>
-                    <p className="text-xs font-bold text-slate-800">P{selectedEntry.period || "—"}</p>
+                  <div className="text-center bg-[var(--bg-tertiary)] rounded-xl py-3 px-2">
+                    <Calendar className="w-4 h-4 text-[var(--text-tertiary)] mx-auto mb-1" />
+                    <p className="text-[9px] text-[var(--text-tertiary)] font-medium uppercase">Period</p>
+                    <p className="text-xs font-bold text-[var(--text-primary)]">P{selectedEntry.period || "—"}</p>
                   </div>
-                  <div className="text-center bg-slate-50 rounded-xl py-3 px-2">
-                    <BookOpen className="w-4 h-4 text-slate-400 mx-auto mb-1" />
-                    <p className="text-[9px] text-slate-400 font-medium uppercase">Duration</p>
-                    <p className="text-xs font-bold text-slate-800">{selectedEntry.duration} min</p>
+                  <div className="text-center bg-[var(--bg-tertiary)] rounded-xl py-3 px-2">
+                    <BookOpen className="w-4 h-4 text-[var(--text-tertiary)] mx-auto mb-1" />
+                    <p className="text-[9px] text-[var(--text-tertiary)] font-medium uppercase">Duration</p>
+                    <p className="text-xs font-bold text-[var(--text-primary)]">{selectedEntry.duration} min</p>
                   </div>
-                  <div className="text-center bg-slate-50 rounded-xl py-3 px-2">
-                    <Clock className="w-4 h-4 text-slate-400 mx-auto mb-1" />
-                    <p className="text-[9px] text-slate-400 font-medium uppercase">Day</p>
-                    <p className="text-xs font-bold text-slate-800">{DAY_NAMES_FULL[selectedEntry.dayOfWeek - 1] || "—"}</p>
+                  <div className="text-center bg-[var(--bg-tertiary)] rounded-xl py-3 px-2">
+                    <Clock className="w-4 h-4 text-[var(--text-tertiary)] mx-auto mb-1" />
+                    <p className="text-[9px] text-[var(--text-tertiary)] font-medium uppercase">Day</p>
+                    <p className="text-xs font-bold text-[var(--text-primary)]">{DAY_NAMES_FULL[selectedEntry.dayOfWeek - 1] || "—"}</p>
                   </div>
                 </div>
               </div>
@@ -675,15 +675,15 @@ export default function HistoryPage() {
                 <div className="py-4">
                   <div className="grid grid-cols-2 gap-2.5">
                     {selectedEntry.studentAttendance !== null && (
-                      <div className="text-center bg-slate-50 rounded-xl py-3 px-2">
-                        <p className="text-[9px] text-slate-400 font-medium uppercase">Attendance</p>
-                        <p className="text-sm font-bold text-slate-800">{selectedEntry.studentAttendance} students</p>
+                      <div className="text-center bg-[var(--bg-tertiary)] rounded-xl py-3 px-2">
+                        <p className="text-[9px] text-[var(--text-tertiary)] font-medium uppercase">Attendance</p>
+                        <p className="text-sm font-bold text-[var(--text-primary)]">{selectedEntry.studentAttendance} students</p>
                       </div>
                     )}
                     {selectedEntry.engagementLevel && (
-                      <div className="text-center bg-slate-50 rounded-xl py-3 px-2">
-                        <p className="text-[9px] text-slate-400 font-medium uppercase">Engagement</p>
-                        <p className="text-sm font-bold text-slate-800">
+                      <div className="text-center bg-[var(--bg-tertiary)] rounded-xl py-3 px-2">
+                        <p className="text-[9px] text-[var(--text-tertiary)] font-medium uppercase">Engagement</p>
+                        <p className="text-sm font-bold text-[var(--text-primary)]">
                           {selectedEntry.engagementLevel.charAt(0) + selectedEntry.engagementLevel.slice(1).toLowerCase()}
                         </p>
                       </div>
@@ -700,8 +700,8 @@ export default function HistoryPage() {
                       <GraduationCap className="w-4 h-4 text-amber-600" />
                     </div>
                     <div>
-                      <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400">Objectives</p>
-                      <p className="text-sm text-slate-600 mt-0.5 leading-relaxed">{selectedEntry.objectives}</p>
+                      <p className="text-[10px] font-semibold uppercase tracking-widest text-[var(--text-tertiary)]">Objectives</p>
+                      <p className="text-sm text-[var(--text-secondary)] mt-0.5 leading-relaxed">{selectedEntry.objectives}</p>
                     </div>
                   </div>
                 </div>
@@ -715,8 +715,8 @@ export default function HistoryPage() {
                       <FileText className="w-4 h-4 text-emerald-600" />
                     </div>
                     <div>
-                      <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400">Notes</p>
-                      <p className="text-sm text-slate-600 mt-0.5 leading-relaxed">{selectedEntry.notes}</p>
+                      <p className="text-[10px] font-semibold uppercase tracking-widest text-[var(--text-tertiary)]">Notes</p>
+                      <p className="text-sm text-[var(--text-secondary)] mt-0.5 leading-relaxed">{selectedEntry.notes}</p>
                     </div>
                   </div>
                 </div>

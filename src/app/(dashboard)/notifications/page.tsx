@@ -30,7 +30,7 @@ function getNotificationIcon(type: string) {
     case "CURRICULUM_GAP":
       return <AlertTriangle className="w-4 h-4 text-red-500" />;
     default:
-      return <Info className="w-4 h-4 text-slate-400" />;
+      return <Info className="w-4 h-4 text-[var(--text-tertiary)]" />;
   }
 }
 
@@ -86,7 +86,7 @@ export default function NotificationsPage() {
   const unreadCount = notifications.filter((n) => !n.isRead).length;
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-24">
+    <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
       {/* Header */}
       <div className="bg-gradient-to-br from-brand-950 to-brand-800 px-5 pt-10 pb-6 rounded-b-2xl">
         <div className="max-w-lg mx-auto">
@@ -128,9 +128,9 @@ export default function NotificationsPage() {
           </div>
         ) : notifications.length === 0 ? (
           <div className="text-center py-12">
-            <BellOff className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-            <p className="text-slate-500 font-medium">No notifications yet</p>
-            <p className="text-sm text-slate-400 mt-1">
+            <BellOff className="w-12 h-12 text-[var(--text-quaternary)] mx-auto mb-3" />
+            <p className="text-[var(--text-tertiary)] font-medium">No notifications yet</p>
+            <p className="text-sm text-[var(--text-tertiary)] mt-1">
               You&apos;ll see updates here
             </p>
           </div>
@@ -153,8 +153,8 @@ export default function NotificationsPage() {
                       <h4
                         className={`text-sm ${
                           !notification.isRead
-                            ? "font-semibold text-slate-900"
-                            : "font-medium text-slate-700"
+                            ? "font-semibold text-[var(--text-primary)]"
+                            : "font-medium text-[var(--text-secondary)]"
                         }`}
                       >
                         {notification.title}
@@ -163,10 +163,10 @@ export default function NotificationsPage() {
                         <div className="w-2 h-2 rounded-full bg-brand-500 flex-shrink-0 mt-1.5" />
                       )}
                     </div>
-                    <p className="text-xs text-slate-500 mt-0.5 line-clamp-2">
+                    <p className="text-xs text-[var(--text-tertiary)] mt-0.5 line-clamp-2">
                       {notification.message}
                     </p>
-                    <p className="text-[10px] text-slate-400 mt-1.5">
+                    <p className="text-[10px] text-[var(--text-tertiary)] mt-1.5">
                       {formatDate(notification.createdAt)}
                     </p>
                   </div>

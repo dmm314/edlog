@@ -127,7 +127,7 @@ export default function EditEntryPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: "var(--bg-secondary)" }}>
         <Loader2 className="w-6 h-6 animate-spin text-brand-600" />
       </div>
     );
@@ -135,7 +135,7 @@ export default function EditEntryPage() {
 
   if (!entry) {
     return (
-      <div className="min-h-screen bg-slate-50 pb-24">
+      <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
         <div className="bg-gradient-to-br from-brand-950 to-brand-800 px-5 pt-10 pb-6 rounded-b-2xl">
           <div className="max-w-lg mx-auto">
             <Link
@@ -164,7 +164,7 @@ export default function EditEntryPage() {
   const topicNames = entry.topics?.map((t) => t.name).join(", ") || "—";
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-24">
+    <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
       {/* Header */}
       <div className="bg-gradient-to-br from-brand-950 to-brand-800 px-5 pt-10 pb-6 rounded-b-2xl">
         <div className="max-w-lg mx-auto">
@@ -206,27 +206,27 @@ export default function EditEntryPage() {
 
         {/* Entry Info (read-only) */}
         <div className="card p-4">
-          <h3 className="text-xs font-semibold uppercase tracking-widest text-slate-400 mb-2">
+          <h3 className="text-xs font-semibold uppercase tracking-widest text-[var(--text-tertiary)] mb-2">
             Entry Details
           </h3>
           <div className="space-y-1.5 text-sm">
             <div className="flex justify-between">
-              <span className="text-slate-500">Subject</span>
-              <span className="font-medium text-slate-800">{subjectName}</span>
+              <span className="text-[var(--text-tertiary)]">Subject</span>
+              <span className="font-medium text-[var(--text-primary)]">{subjectName}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-slate-500">Class</span>
-              <span className="font-medium text-slate-800">{entry.class.name}</span>
+              <span className="text-[var(--text-tertiary)]">Class</span>
+              <span className="font-medium text-[var(--text-primary)]">{entry.class.name}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-slate-500">Topic</span>
-              <span className="font-medium text-slate-800 text-right max-w-[60%] truncate">
+              <span className="text-[var(--text-tertiary)]">Topic</span>
+              <span className="font-medium text-[var(--text-primary)] text-right max-w-[60%] truncate">
                 {topicNames}
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-slate-500">Date</span>
-              <span className="font-medium text-slate-800">
+              <span className="text-[var(--text-tertiary)]">Date</span>
+              <span className="font-medium text-[var(--text-primary)]">
                 {new Date(entry.date).toLocaleDateString("en-GB", {
                   day: "numeric",
                   month: "short",
@@ -236,8 +236,8 @@ export default function EditEntryPage() {
             </div>
             {entry.period && (
               <div className="flex justify-between">
-                <span className="text-slate-500">Period</span>
-                <span className="font-medium text-slate-800">
+                <span className="text-[var(--text-tertiary)]">Period</span>
+                <span className="font-medium text-[var(--text-primary)]">
                   Period {entry.period}
                 </span>
               </div>
@@ -247,7 +247,7 @@ export default function EditEntryPage() {
 
         {/* Editable Fields */}
         <div className="card p-4 space-y-4">
-          <h3 className="text-xs font-semibold uppercase tracking-widest text-slate-400">
+          <h3 className="text-xs font-semibold uppercase tracking-widest text-[var(--text-tertiary)]">
             Editable Fields
           </h3>
 

@@ -493,7 +493,7 @@ export default function ClassDetailPage() {
   }, [filteredSubjects, activeTab]);
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-24">
+    <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
       {/* Header */}
       <div className="bg-gradient-to-br from-brand-950 to-brand-800 px-5 pt-10 pb-6 rounded-b-2xl">
         <div className="max-w-lg mx-auto">
@@ -516,7 +516,7 @@ export default function ClassDetailPage() {
             {activeTab === "subjects" && otherClasses.length > 0 && (
               <button
                 onClick={() => setShowCopyFrom(!showCopyFrom)}
-                className="flex items-center gap-1.5 bg-white/10 hover:bg-white/20 text-white text-sm rounded-lg px-3 py-1.5"
+                className="flex items-center gap-1.5 bg-[var(--bg-elevated)]/10 hover:bg-[var(--bg-elevated)]/20 text-white text-sm rounded-lg px-3 py-1.5"
               >
                 <Copy className="w-4 h-4" />
                 Copy from
@@ -535,8 +535,8 @@ export default function ClassDetailPage() {
               onClick={() => { setActiveTab(tab); setSearchQuery(""); setExpandedSubject(null); }}
               className={`flex-1 rounded-lg py-2.5 text-xs font-semibold capitalize transition-colors flex items-center justify-center gap-1.5 ${
                 activeTab === tab
-                  ? "bg-white text-slate-900 shadow-sm"
-                  : "text-slate-500 hover:text-slate-700"
+                  ? "bg-[var(--bg-elevated)] text-[var(--text-primary)] shadow-sm"
+                  : "text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]"
               }`}
             >
               {tab === "subjects" ? (
@@ -584,10 +584,10 @@ export default function ClassDetailPage() {
             <div className="flex items-start gap-2">
               <Copy className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
               <div>
-                <h3 className="text-sm font-semibold text-slate-900">
+                <h3 className="text-sm font-semibold text-[var(--text-primary)]">
                   Copy subjects from another class
                 </h3>
-                <p className="text-xs text-slate-500 mt-0.5">
+                <p className="text-xs text-[var(--text-tertiary)] mt-0.5">
                   This will add all subjects from the selected class to {className}.
                   Already-added subjects will be skipped.
                 </p>
@@ -622,7 +622,7 @@ export default function ClassDetailPage() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 min-w-0">
                 <Users className="w-4 h-4 text-violet-500 flex-shrink-0" />
-                <p className="text-xs text-slate-600 truncate">
+                <p className="text-xs text-[var(--text-secondary)] truncate">
                   Sync these {linkedCount} subjects to <strong>{counterpartName}</strong>
                 </p>
               </div>
@@ -639,13 +639,13 @@ export default function ClassDetailPage() {
 
         {/* Search */}
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-tertiary)]" />
           <input
             type="text"
             placeholder={activeTab === "subjects" ? "Search all subjects..." : "Search subjects with divisions..."}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+            className="w-full pl-9 pr-4 py-2.5 bg-[var(--bg-elevated)] border border-[var(--border-primary)] rounded-xl text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
           />
         </div>
 
@@ -654,7 +654,7 @@ export default function ClassDetailPage() {
           <>
             {/* Info */}
             <div className="card p-3">
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-[var(--text-tertiary)]">
                 Toggle subjects taught in <strong>{className}</strong>. Each class has its own subject list.
                 Manage divisions in the Divisions tab.
               </p>
@@ -671,9 +671,9 @@ export default function ClassDetailPage() {
               </div>
             ) : subjects.length === 0 ? (
               <div className="text-center py-8">
-                <BookOpen className="w-10 h-10 text-slate-300 mx-auto mb-2" />
-                <p className="text-slate-500">No subjects found in the system</p>
-                <p className="text-sm text-slate-400 mt-1">
+                <BookOpen className="w-10 h-10 text-[var(--text-quaternary)] mx-auto mb-2" />
+                <p className="text-[var(--text-tertiary)]">No subjects found in the system</p>
+                <p className="text-sm text-[var(--text-tertiary)] mt-1">
                   Add subjects to your school first in{" "}
                   <Link href="/admin/subjects" className="text-brand-600 font-medium">
                     School Subjects
@@ -683,7 +683,7 @@ export default function ClassDetailPage() {
             ) : (
               groupedSubjects.map(([category, categorySubjects]) => (
                 <div key={category}>
-                  <h3 className="text-xs font-semibold uppercase tracking-widest text-slate-400 mb-2">
+                  <h3 className="text-xs font-semibold uppercase tracking-widest text-[var(--text-tertiary)] mb-2">
                     {category}
                   </h3>
                   <div className="space-y-1.5">
@@ -697,7 +697,7 @@ export default function ClassDetailPage() {
                           className={`w-full card p-3 flex items-center justify-between transition-colors ${
                             subject.linked
                               ? "bg-brand-50 border-brand-200"
-                              : "hover:bg-slate-50"
+                              : "hover:bg-[var(--bg-tertiary)]"
                           } ${subject.divisions.length > 0 && subject.linked ? "rounded-b-none border-b-0" : ""}`}
                         >
                           <div className="text-left">
@@ -705,12 +705,12 @@ export default function ClassDetailPage() {
                               className={`font-medium text-sm ${
                                 subject.linked
                                   ? "text-brand-900"
-                                  : "text-slate-900"
+                                  : "text-[var(--text-primary)]"
                               }`}
                             >
                               {subject.name}
                             </h4>
-                            <p className="text-xs text-slate-400">{subject.code}</p>
+                            <p className="text-xs text-[var(--text-tertiary)]">{subject.code}</p>
                           </div>
                           <div className="flex items-center gap-2">
                             {subject.divisions.length > 0 && (
@@ -726,8 +726,8 @@ export default function ClassDetailPage() {
                                 <Check className="w-3.5 h-3.5 text-white" />
                               </div>
                             ) : (
-                              <div className="w-6 h-6 border-2 border-slate-200 rounded-full flex items-center justify-center">
-                                <Plus className="w-3.5 h-3.5 text-slate-400" />
+                              <div className="w-6 h-6 border-2 border-[var(--border-primary)] rounded-full flex items-center justify-center">
+                                <Plus className="w-3.5 h-3.5 text-[var(--text-tertiary)]" />
                               </div>
                             )}
                           </div>
@@ -743,7 +743,7 @@ export default function ClassDetailPage() {
                               {subject.divisions.map((d) => (
                                 <span
                                   key={d.id}
-                                  className="text-xs bg-white text-amber-800 px-2 py-0.5 rounded border border-amber-200 font-medium"
+                                  className="text-xs bg-[var(--bg-elevated)] text-amber-800 px-2 py-0.5 rounded border border-amber-200 font-medium"
                                 >
                                   {d.name}
                                 </span>
@@ -765,7 +765,7 @@ export default function ClassDetailPage() {
           <>
             {/* Info */}
             <div className="card p-3">
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-[var(--text-tertiary)]">
                 Set up <strong>divisions</strong> for subjects in <strong>{className}</strong>.
                 Divisions let you split a subject into parts taught by different teachers
                 (e.g. Physical Chemistry, Organic Chemistry).
@@ -783,9 +783,9 @@ export default function ClassDetailPage() {
               </div>
             ) : linkedSubjects.length === 0 ? (
               <div className="text-center py-8">
-                <Layers className="w-10 h-10 text-slate-300 mx-auto mb-2" />
-                <p className="text-slate-500">No subjects added yet</p>
-                <p className="text-sm text-slate-400 mt-1">
+                <Layers className="w-10 h-10 text-[var(--text-quaternary)] mx-auto mb-2" />
+                <p className="text-[var(--text-tertiary)]">No subjects added yet</p>
+                <p className="text-sm text-[var(--text-tertiary)] mt-1">
                   Add subjects in the Subjects tab first
                 </p>
                 <button
@@ -797,13 +797,13 @@ export default function ClassDetailPage() {
               </div>
             ) : groupedSubjects.length === 0 ? (
               <div className="text-center py-8">
-                <Search className="w-10 h-10 text-slate-300 mx-auto mb-2" />
-                <p className="text-slate-500">No matching subjects</p>
+                <Search className="w-10 h-10 text-[var(--text-quaternary)] mx-auto mb-2" />
+                <p className="text-[var(--text-tertiary)]">No matching subjects</p>
               </div>
             ) : (
               groupedSubjects.map(([category, categorySubjects]) => (
                 <div key={category}>
-                  <h3 className="text-xs font-semibold uppercase tracking-widest text-slate-400 mb-2">
+                  <h3 className="text-xs font-semibold uppercase tracking-widest text-[var(--text-tertiary)] mb-2">
                     {category}
                   </h3>
                   <div className="space-y-1.5">
@@ -832,7 +832,7 @@ export default function ClassDetailPage() {
                                   {subject.name}
                                 </h4>
                                 <div className="flex items-center gap-2 mt-0.5">
-                                  <span className="text-xs text-slate-400">
+                                  <span className="text-xs text-[var(--text-tertiary)]">
                                     {subject.code}
                                   </span>
                                   {subject.divisions.length > 0 ? (
@@ -841,7 +841,7 @@ export default function ClassDetailPage() {
                                       {subject.divisions.length} division{subject.divisions.length !== 1 ? "s" : ""}
                                     </span>
                                   ) : (
-                                    <span className="text-[10px] text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded font-medium">
+                                    <span className="text-[10px] text-[var(--text-tertiary)] bg-slate-100 px-1.5 py-0.5 rounded font-medium">
                                       No divisions
                                     </span>
                                   )}
@@ -850,7 +850,7 @@ export default function ClassDetailPage() {
                             </button>
                             <button
                               onClick={() => handleExpandSubject(subject.id)}
-                              className="p-1 text-slate-400 hover:text-brand-600 rounded"
+                              className="p-1 text-[var(--text-tertiary)] hover:text-brand-600 rounded"
                             >
                               {isExpanded ? (
                                 <ChevronUp className="w-4 h-4" />
@@ -862,14 +862,14 @@ export default function ClassDetailPage() {
 
                           {/* Expanded division setup panel */}
                           {isExpanded && (
-                            <div className="bg-white border border-t-0 border-brand-200 rounded-b-xl p-4 space-y-3">
+                            <div className="bg-[var(--bg-elevated)] border border-t-0 border-brand-200 rounded-b-xl p-4 space-y-3">
                               <div className="flex items-center gap-2">
                                 <Users className="w-4 h-4 text-brand-600" />
-                                <p className="text-sm font-semibold text-slate-900">
+                                <p className="text-sm font-semibold text-[var(--text-primary)]">
                                   Division Setup
                                 </p>
                               </div>
-                              <p className="text-xs text-slate-500">
+                              <p className="text-xs text-[var(--text-tertiary)]">
                                 Does <strong>{subject.name}</strong> have sections
                                 taught by different teachers? Add divisions below.
                                 Leave empty if one teacher handles the whole subject.
@@ -938,7 +938,7 @@ export default function ClassDetailPage() {
                                             t.levels
                                           )
                                         }
-                                        className="text-xs bg-white text-blue-700 px-2.5 py-1 rounded-lg font-medium border border-blue-200 hover:bg-blue-100 transition-colors flex items-center gap-1"
+                                        className="text-xs bg-[var(--bg-elevated)] text-blue-700 px-2.5 py-1 rounded-lg font-medium border border-blue-200 hover:bg-blue-100 transition-colors flex items-center gap-1"
                                       >
                                         <Plus className="w-3 h-3" />
                                         {t.name}
@@ -958,8 +958,8 @@ export default function ClassDetailPage() {
                               )}
 
                               {/* Add custom division */}
-                              <div className="border-t border-slate-100 pt-3 space-y-2">
-                                <p className="text-[10px] font-semibold uppercase text-slate-400">
+                              <div className="border-t border-[var(--border-secondary)] pt-3 space-y-2">
+                                <p className="text-[10px] font-semibold uppercase text-[var(--text-tertiary)]">
                                   Add custom division
                                 </p>
                                 <input
@@ -972,7 +972,7 @@ export default function ClassDetailPage() {
 
                                 {/* Level selector */}
                                 <div>
-                                  <p className="text-[10px] font-medium text-slate-400 mb-1">
+                                  <p className="text-[10px] font-medium text-[var(--text-tertiary)] mb-1">
                                     Applies to (leave empty for all levels):
                                   </p>
                                   <div className="flex flex-wrap gap-1">
@@ -984,7 +984,7 @@ export default function ClassDetailPage() {
                                         className={`text-[10px] font-medium px-2 py-1 rounded-lg border transition-colors ${
                                           newDivLevels.includes(level)
                                             ? "bg-brand-600 text-white border-brand-600"
-                                            : "bg-white text-slate-500 border-slate-200 hover:border-brand-300"
+                                            : "bg-[var(--bg-elevated)] text-[var(--text-tertiary)] border-[var(--border-primary)] hover:border-brand-300"
                                         }`}
                                       >
                                         {level}
@@ -1009,7 +1009,7 @@ export default function ClassDetailPage() {
                                     <button
                                       type="button"
                                       onClick={() => setNewDivLevels([])}
-                                      className="text-[10px] text-slate-400 font-medium underline"
+                                      className="text-[10px] text-[var(--text-tertiary)] font-medium underline"
                                     >
                                       All levels
                                     </button>
@@ -1028,7 +1028,7 @@ export default function ClassDetailPage() {
                               {/* Close panel */}
                               <button
                                 onClick={() => setExpandedSubject(null)}
-                                className="w-full text-center text-xs text-slate-400 hover:text-slate-600 py-1"
+                                className="w-full text-center text-xs text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] py-1"
                               >
                                 Done
                               </button>

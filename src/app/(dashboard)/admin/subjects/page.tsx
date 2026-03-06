@@ -355,7 +355,7 @@ export default function ManageSubjectsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-24">
+    <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
       {/* Header */}
       <div className="bg-gradient-to-br from-brand-950 to-brand-800 px-5 pt-10 pb-6 rounded-b-2xl">
         <div className="max-w-lg mx-auto">
@@ -380,7 +380,7 @@ export default function ManageSubjectsPage() {
       <div className="px-5 mt-4 max-w-lg mx-auto space-y-4">
         {/* Info */}
         <div className="card p-4">
-          <p className="text-sm text-slate-600">
+          <p className="text-sm text-[var(--text-secondary)]">
             Select subjects taught at your school. When you add a subject, you can
             set up <strong>divisions</strong> if it is taught by multiple teachers
             (e.g. Physical Chemistry, Organic Chemistry). For most first-cycle
@@ -403,13 +403,13 @@ export default function ManageSubjectsPage() {
 
         {/* Search */}
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-tertiary)]" />
           <input
             type="text"
             placeholder="Search subjects..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+            className="w-full pl-9 pr-4 py-2.5 bg-[var(--bg-elevated)] border border-[var(--border-primary)] rounded-xl text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
           />
         </div>
 
@@ -425,13 +425,13 @@ export default function ManageSubjectsPage() {
           </div>
         ) : subjects.length === 0 ? (
           <div className="text-center py-8">
-            <BookOpen className="w-10 h-10 text-slate-300 mx-auto mb-2" />
-            <p className="text-slate-500">No subjects found in the system</p>
+            <BookOpen className="w-10 h-10 text-[var(--text-quaternary)] mx-auto mb-2" />
+            <p className="text-[var(--text-tertiary)]">No subjects found in the system</p>
           </div>
         ) : (
           groupedSubjects.map(([category, categorySubjects]) => (
             <div key={category}>
-              <h3 className="text-xs font-semibold uppercase tracking-widest text-slate-400 mb-2">
+              <h3 className="text-xs font-semibold uppercase tracking-widest text-[var(--text-tertiary)] mb-2">
                 {category}
               </h3>
               <div className="space-y-1.5">
@@ -450,7 +450,7 @@ export default function ManageSubjectsPage() {
                         className={`card p-3 flex items-center justify-between transition-colors ${
                           subject.linked
                             ? "bg-brand-50 border-brand-200"
-                            : "hover:bg-slate-50"
+                            : "hover:bg-[var(--bg-tertiary)]"
                         } ${isExpanded ? "rounded-b-none border-b-0" : ""}`}
                       >
                         <button
@@ -466,13 +466,13 @@ export default function ManageSubjectsPage() {
                               className={`font-medium text-sm ${
                                 subject.linked
                                   ? "text-brand-900"
-                                  : "text-slate-900"
+                                  : "text-[var(--text-primary)]"
                               }`}
                             >
                               {subject.name}
                             </h4>
                             <div className="flex items-center gap-2 mt-0.5">
-                              <span className="text-xs text-slate-400">
+                              <span className="text-xs text-[var(--text-tertiary)]">
                                 {subject.code}
                               </span>
                               {subject.linked && subject.divisions.length > 0 && (
@@ -482,7 +482,7 @@ export default function ManageSubjectsPage() {
                                 </span>
                               )}
                               {subject.linked && subject.divisions.length === 0 && (
-                                <span className="text-[10px] text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded font-medium">
+                                <span className="text-[10px] text-[var(--text-tertiary)] bg-slate-100 px-1.5 py-0.5 rounded font-medium">
                                   No divisions
                                 </span>
                               )}
@@ -493,7 +493,7 @@ export default function ManageSubjectsPage() {
                           {subject.linked && (
                             <button
                               onClick={() => handleExpandSubject(subject.id)}
-                              className="p-1 text-slate-400 hover:text-brand-600 rounded"
+                              className="p-1 text-[var(--text-tertiary)] hover:text-brand-600 rounded"
                             >
                               {isExpanded ? (
                                 <ChevronUp className="w-4 h-4" />
@@ -515,8 +515,8 @@ export default function ManageSubjectsPage() {
                                 <Check className="w-3.5 h-3.5 text-white" />
                               </div>
                             ) : (
-                              <div className="w-6 h-6 border-2 border-slate-200 rounded-full flex items-center justify-center">
-                                <Plus className="w-3.5 h-3.5 text-slate-400" />
+                              <div className="w-6 h-6 border-2 border-[var(--border-primary)] rounded-full flex items-center justify-center">
+                                <Plus className="w-3.5 h-3.5 text-[var(--text-tertiary)]" />
                               </div>
                             )}
                           </button>
@@ -525,14 +525,14 @@ export default function ManageSubjectsPage() {
 
                       {/* Expanded division setup panel */}
                       {isExpanded && (
-                        <div className="bg-white border border-t-0 border-brand-200 rounded-b-xl p-4 space-y-3">
+                        <div className="bg-[var(--bg-elevated)] border border-t-0 border-brand-200 rounded-b-xl p-4 space-y-3">
                           <div className="flex items-center gap-2">
                             <Users className="w-4 h-4 text-brand-600" />
-                            <p className="text-sm font-semibold text-slate-900">
+                            <p className="text-sm font-semibold text-[var(--text-primary)]">
                               Division Setup
                             </p>
                           </div>
-                          <p className="text-xs text-slate-500">
+                          <p className="text-xs text-[var(--text-tertiary)]">
                             Does <strong>{subject.name}</strong> have sections
                             taught by different teachers? Add divisions below.
                             Leave empty if one teacher handles the whole subject.
@@ -601,7 +601,7 @@ export default function ManageSubjectsPage() {
                                         t.levels
                                       )
                                     }
-                                    className="text-xs bg-white text-blue-700 px-2.5 py-1 rounded-lg font-medium border border-blue-200 hover:bg-blue-100 transition-colors flex items-center gap-1"
+                                    className="text-xs bg-[var(--bg-elevated)] text-blue-700 px-2.5 py-1 rounded-lg font-medium border border-blue-200 hover:bg-blue-100 transition-colors flex items-center gap-1"
                                   >
                                     <Plus className="w-3 h-3" />
                                     {t.name}
@@ -621,8 +621,8 @@ export default function ManageSubjectsPage() {
                           )}
 
                           {/* Add custom division */}
-                          <div className="border-t border-slate-100 pt-3 space-y-2">
-                            <p className="text-[10px] font-semibold uppercase text-slate-400">
+                          <div className="border-t border-[var(--border-secondary)] pt-3 space-y-2">
+                            <p className="text-[10px] font-semibold uppercase text-[var(--text-tertiary)]">
                               Add custom division
                             </p>
                             <input
@@ -635,7 +635,7 @@ export default function ManageSubjectsPage() {
 
                             {/* Level selector */}
                             <div>
-                              <p className="text-[10px] font-medium text-slate-400 mb-1">
+                              <p className="text-[10px] font-medium text-[var(--text-tertiary)] mb-1">
                                 Applies to (leave empty for all levels):
                               </p>
                               <div className="flex flex-wrap gap-1">
@@ -647,7 +647,7 @@ export default function ManageSubjectsPage() {
                                     className={`text-[10px] font-medium px-2 py-1 rounded-lg border transition-colors ${
                                       newDivLevels.includes(level)
                                         ? "bg-brand-600 text-white border-brand-600"
-                                        : "bg-white text-slate-500 border-slate-200 hover:border-brand-300"
+                                        : "bg-[var(--bg-elevated)] text-[var(--text-tertiary)] border-[var(--border-primary)] hover:border-brand-300"
                                     }`}
                                   >
                                     {level}
@@ -672,7 +672,7 @@ export default function ManageSubjectsPage() {
                                 <button
                                   type="button"
                                   onClick={() => setNewDivLevels([])}
-                                  className="text-[10px] text-slate-400 font-medium underline"
+                                  className="text-[10px] text-[var(--text-tertiary)] font-medium underline"
                                 >
                                   All levels
                                 </button>
@@ -691,7 +691,7 @@ export default function ManageSubjectsPage() {
                           {/* Close panel */}
                           <button
                             onClick={() => setExpandedSubject(null)}
-                            className="w-full text-center text-xs text-slate-400 hover:text-slate-600 py-1"
+                            className="w-full text-center text-xs text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] py-1"
                           >
                             Done
                           </button>

@@ -93,7 +93,7 @@ export default function SchoolDetailPage() {
       case "SUSPENDED":
         return "bg-red-50 text-red-700 border-red-200";
       default:
-        return "bg-slate-50 text-slate-700 border-slate-200";
+        return "bg-[var(--bg-tertiary)] text-[var(--text-secondary)] border-[var(--border-primary)]";
     }
   }
 
@@ -129,11 +129,11 @@ export default function SchoolDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 pb-24">
+      <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
         <div className="bg-gradient-to-br from-brand-950 to-brand-800 px-5 pt-10 pb-6 rounded-b-2xl">
           <div className="max-w-lg mx-auto">
-            <div className="h-4 bg-white/20 rounded w-1/3 mb-4" />
-            <div className="h-6 bg-white/20 rounded w-2/3" />
+            <div className="h-4 bg-[var(--bg-elevated)]/20 rounded w-1/3 mb-4" />
+            <div className="h-6 bg-[var(--bg-elevated)]/20 rounded w-2/3" />
           </div>
         </div>
         <div className="px-5 mt-4 max-w-lg mx-auto space-y-4">
@@ -150,7 +150,7 @@ export default function SchoolDetailPage() {
 
   if (!school) {
     return (
-      <div className="min-h-screen bg-slate-50 pb-24">
+      <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
         <div className="bg-gradient-to-br from-brand-950 to-brand-800 px-5 pt-10 pb-6 rounded-b-2xl">
           <div className="max-w-lg mx-auto">
             <Link
@@ -164,8 +164,8 @@ export default function SchoolDetailPage() {
           </div>
         </div>
         <div className="px-5 mt-8 max-w-lg mx-auto text-center">
-          <Building2 className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-          <p className="text-slate-500">This school could not be found in your region.</p>
+          <Building2 className="w-12 h-12 text-[var(--text-quaternary)] mx-auto mb-3" />
+          <p className="text-[var(--text-tertiary)]">This school could not be found in your region.</p>
         </div>
       </div>
     );
@@ -174,7 +174,7 @@ export default function SchoolDetailPage() {
   const classGroups = groupClassesByLevel(school.classes);
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-24">
+    <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
       {/* Header */}
       <div className="bg-gradient-to-br from-brand-950 to-brand-800 px-5 pt-10 pb-6 rounded-b-2xl">
         <div className="max-w-lg mx-auto">
@@ -186,7 +186,7 @@ export default function SchoolDetailPage() {
             Back to Schools
           </Link>
           <div className="flex items-start gap-3">
-            <div className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center flex-shrink-0">
+            <div className="w-12 h-12 bg-[var(--bg-elevated)]/10 rounded-xl flex items-center justify-center flex-shrink-0">
               <Building2 className="w-6 h-6 text-white" />
             </div>
             <div className="flex-1 min-w-0">
@@ -214,26 +214,26 @@ export default function SchoolDetailPage() {
       <div className="px-5 -mt-1 max-w-lg mx-auto">
         <div className="flex gap-2">
           <div className="flex-1 card p-3 text-center">
-            <p className="text-xl font-bold text-slate-900">
+            <p className="text-xl font-bold text-[var(--text-primary)]">
               {school.teacherCount}
             </p>
-            <p className="text-[10px] text-slate-400 uppercase font-medium">
+            <p className="text-[10px] text-[var(--text-tertiary)] uppercase font-medium">
               Teachers
             </p>
           </div>
           <div className="flex-1 card p-3 text-center">
-            <p className="text-xl font-bold text-slate-900">
+            <p className="text-xl font-bold text-[var(--text-primary)]">
               {school.classes.length}
             </p>
-            <p className="text-[10px] text-slate-400 uppercase font-medium">
+            <p className="text-[10px] text-[var(--text-tertiary)] uppercase font-medium">
               Classes
             </p>
           </div>
           <div className="flex-1 card p-3 text-center">
-            <p className="text-xl font-bold text-slate-900">
+            <p className="text-xl font-bold text-[var(--text-primary)]">
               {school.totalEntries}
             </p>
-            <p className="text-[10px] text-slate-400 uppercase font-medium">
+            <p className="text-[10px] text-[var(--text-tertiary)] uppercase font-medium">
               Entries
             </p>
           </div>
@@ -249,8 +249,8 @@ export default function SchoolDetailPage() {
               onClick={() => setActiveTab(tab)}
               className={`flex-1 rounded-lg py-2 text-xs font-medium capitalize transition-colors ${
                 activeTab === tab
-                  ? "bg-white text-slate-900 shadow-sm"
-                  : "text-slate-500 hover:text-slate-700"
+                  ? "bg-[var(--bg-elevated)] text-[var(--text-primary)] shadow-sm"
+                  : "text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]"
               }`}
             >
               {tab}
@@ -265,35 +265,35 @@ export default function SchoolDetailPage() {
           <>
             {/* School Info */}
             <div className="card p-4">
-              <h3 className="text-xs font-semibold uppercase tracking-widest text-slate-400 mb-3">
+              <h3 className="text-xs font-semibold uppercase tracking-widest text-[var(--text-tertiary)] mb-3">
                 School Information
               </h3>
               <div className="space-y-3 text-sm">
                 {school.schoolType && (
                   <div className="flex items-start gap-3">
-                    <Building2 className="w-4 h-4 text-slate-400 mt-0.5 flex-shrink-0" />
+                    <Building2 className="w-4 h-4 text-[var(--text-tertiary)] mt-0.5 flex-shrink-0" />
                     <div>
-                      <p className="text-slate-400 text-xs">School Type</p>
-                      <p className="text-slate-900 font-medium">
+                      <p className="text-[var(--text-tertiary)] text-xs">School Type</p>
+                      <p className="text-[var(--text-primary)] font-medium">
                         {school.schoolType}
                       </p>
                     </div>
                   </div>
                 )}
                 <div className="flex items-start gap-3">
-                  <MapPin className="w-4 h-4 text-slate-400 mt-0.5 flex-shrink-0" />
+                  <MapPin className="w-4 h-4 text-[var(--text-tertiary)] mt-0.5 flex-shrink-0" />
                   <div>
-                    <p className="text-slate-400 text-xs">Location</p>
-                    <p className="text-slate-900 font-medium">
+                    <p className="text-[var(--text-tertiary)] text-xs">Location</p>
+                    <p className="text-[var(--text-primary)] font-medium">
                       {school.division}, {school.region} Region
                     </p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <Calendar className="w-4 h-4 text-slate-400 mt-0.5 flex-shrink-0" />
+                  <Calendar className="w-4 h-4 text-[var(--text-tertiary)] mt-0.5 flex-shrink-0" />
                   <div>
-                    <p className="text-slate-400 text-xs">Registered</p>
-                    <p className="text-slate-900 font-medium">
+                    <p className="text-[var(--text-tertiary)] text-xs">Registered</p>
+                    <p className="text-[var(--text-primary)] font-medium">
                       {formatDate(school.createdAt)}
                     </p>
                   </div>
@@ -303,7 +303,7 @@ export default function SchoolDetailPage() {
 
             {/* Principal */}
             <div className="card p-4">
-              <h3 className="text-xs font-semibold uppercase tracking-widest text-slate-400 mb-3">
+              <h3 className="text-xs font-semibold uppercase tracking-widest text-[var(--text-tertiary)] mb-3">
                 Principal
               </h3>
               {school.principalName ? (
@@ -319,11 +319,11 @@ export default function SchoolDetailPage() {
                       </span>
                     </div>
                     <div>
-                      <p className="font-semibold text-slate-900">
+                      <p className="font-semibold text-[var(--text-primary)]">
                         {school.principalName}
                       </p>
                       {school.principalPhone && (
-                        <p className="text-xs text-slate-400 flex items-center gap-1">
+                        <p className="text-xs text-[var(--text-tertiary)] flex items-center gap-1">
                           <Phone className="w-3 h-3" />
                           {school.principalPhone}
                         </p>
@@ -332,7 +332,7 @@ export default function SchoolDetailPage() {
                   </div>
                 </div>
               ) : (
-                <p className="text-sm text-slate-400 italic">
+                <p className="text-sm text-[var(--text-tertiary)] italic">
                   No principal information provided
                 </p>
               )}
@@ -340,7 +340,7 @@ export default function SchoolDetailPage() {
 
             {/* School Admin */}
             <div className="card p-4">
-              <h3 className="text-xs font-semibold uppercase tracking-widest text-slate-400 mb-3">
+              <h3 className="text-xs font-semibold uppercase tracking-widest text-[var(--text-tertiary)] mb-3">
                 School Administrator
               </h3>
               {school.admin ? (
@@ -356,15 +356,15 @@ export default function SchoolDetailPage() {
                       </span>
                     </div>
                     <div>
-                      <p className="font-semibold text-slate-900">
+                      <p className="font-semibold text-[var(--text-primary)]">
                         {school.admin.name}
                       </p>
-                      <p className="text-xs text-slate-400 flex items-center gap-1">
+                      <p className="text-xs text-[var(--text-tertiary)] flex items-center gap-1">
                         <Mail className="w-3 h-3" />
                         {school.admin.email}
                       </p>
                       {school.admin.phone && (
-                        <p className="text-xs text-slate-400 flex items-center gap-1">
+                        <p className="text-xs text-[var(--text-tertiary)] flex items-center gap-1">
                           <Phone className="w-3 h-3" />
                           {school.admin.phone}
                         </p>
@@ -373,7 +373,7 @@ export default function SchoolDetailPage() {
                   </div>
                 </div>
               ) : (
-                <p className="text-sm text-slate-400 italic">
+                <p className="text-sm text-[var(--text-tertiary)] italic">
                   No administrator assigned
                 </p>
               )}
@@ -382,7 +382,7 @@ export default function SchoolDetailPage() {
             {/* Subjects Offered */}
             {school.subjects.length > 0 && (
               <div className="card p-4">
-                <h3 className="text-xs font-semibold uppercase tracking-widest text-slate-400 mb-3">
+                <h3 className="text-xs font-semibold uppercase tracking-widest text-[var(--text-tertiary)] mb-3">
                   Subjects Offered ({school.subjects.length})
                 </h3>
                 <div className="flex flex-wrap gap-1.5">
@@ -405,16 +405,16 @@ export default function SchoolDetailPage() {
           <>
             {school.classes.length === 0 ? (
               <div className="text-center py-8">
-                <GraduationCap className="w-10 h-10 text-slate-300 mx-auto mb-2" />
-                <p className="text-slate-500">No classes registered</p>
-                <p className="text-xs text-slate-400 mt-1">
+                <GraduationCap className="w-10 h-10 text-[var(--text-quaternary)] mx-auto mb-2" />
+                <p className="text-[var(--text-tertiary)]">No classes registered</p>
+                <p className="text-xs text-[var(--text-tertiary)] mt-1">
                   The school has not set up their classes yet.
                 </p>
               </div>
             ) : (
               classGroups.map(([level, classes]) => (
                 <div key={level}>
-                  <h3 className="text-xs font-semibold uppercase tracking-widest text-slate-400 mb-2">
+                  <h3 className="text-xs font-semibold uppercase tracking-widest text-[var(--text-tertiary)] mb-2">
                     {level}
                   </h3>
                   <div className="space-y-2">
@@ -422,17 +422,17 @@ export default function SchoolDetailPage() {
                       <div key={cls.id} className="card p-3">
                         <div className="flex items-center justify-between">
                           <div>
-                            <h4 className="font-semibold text-slate-900 text-sm">
+                            <h4 className="font-semibold text-[var(--text-primary)] text-sm">
                               {cls.name}
                             </h4>
                             {cls.stream && (
-                              <p className="text-xs text-slate-400">
+                              <p className="text-xs text-[var(--text-tertiary)]">
                                 {cls.stream}
                                 {cls.section ? ` - Section ${cls.section}` : ""}
                               </p>
                             )}
                           </div>
-                          <div className="flex items-center gap-3 text-xs text-slate-400">
+                          <div className="flex items-center gap-3 text-xs text-[var(--text-tertiary)]">
                             <span className="flex items-center gap-1">
                               <Users className="w-3 h-3" />
                               {cls.teacherCount}
@@ -457,8 +457,8 @@ export default function SchoolDetailPage() {
           <>
             {school.teachers.length === 0 ? (
               <div className="text-center py-8">
-                <Users className="w-10 h-10 text-slate-300 mx-auto mb-2" />
-                <p className="text-slate-500">No teachers registered</p>
+                <Users className="w-10 h-10 text-[var(--text-quaternary)] mx-auto mb-2" />
+                <p className="text-[var(--text-tertiary)]">No teachers registered</p>
               </div>
             ) : (
               <div className="space-y-3">
@@ -466,10 +466,10 @@ export default function SchoolDetailPage() {
                   <div key={teacher.id} className="card p-4">
                     <div className="flex items-start justify-between">
                       <div>
-                        <h4 className="font-semibold text-slate-900 text-sm">
+                        <h4 className="font-semibold text-[var(--text-primary)] text-sm">
                           {teacher.name}
                         </h4>
-                        <p className="text-xs text-slate-400">{teacher.email}</p>
+                        <p className="text-xs text-[var(--text-tertiary)]">{teacher.email}</p>
                       </div>
                       <span
                         className={`flex items-center gap-1 text-[10px] font-medium rounded-full px-2 py-0.5 ${
@@ -514,7 +514,7 @@ export default function SchoolDetailPage() {
                       </div>
                     )}
 
-                    <div className="flex items-center gap-2 mt-2 text-xs text-slate-400">
+                    <div className="flex items-center gap-2 mt-2 text-xs text-[var(--text-tertiary)]">
                       <BookMarked className="w-3 h-3" />
                       <span>{teacher.entryCount} entries</span>
                     </div>

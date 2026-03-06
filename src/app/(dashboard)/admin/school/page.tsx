@@ -99,7 +99,7 @@ export default function SchoolProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-24">
+    <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
       {/* Header */}
       <div className="bg-gradient-to-br from-brand-950 to-brand-800 px-5 pt-10 pb-6 rounded-b-2xl">
         <div className="max-w-lg mx-auto">
@@ -129,35 +129,35 @@ export default function SchoolProfilePage() {
           </div>
         ) : !school ? (
           <div className="text-center py-8">
-            <Building2 className="w-10 h-10 text-slate-300 mx-auto mb-2" />
-            <p className="text-slate-500">Unable to load school information</p>
+            <Building2 className="w-10 h-10 text-[var(--text-quaternary)] mx-auto mb-2" />
+            <p className="text-[var(--text-tertiary)]">Unable to load school information</p>
           </div>
         ) : (
           <>
             {/* School Info (read-only) */}
             <div className="card p-4">
-              <h3 className="text-xs font-semibold uppercase tracking-widest text-slate-400 mb-3">
+              <h3 className="text-xs font-semibold uppercase tracking-widest text-[var(--text-tertiary)] mb-3">
                 School Details
               </h3>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-slate-400">Name</span>
-                  <span className="text-slate-900 font-medium">{school.name}</span>
+                  <span className="text-[var(--text-tertiary)]">Name</span>
+                  <span className="text-[var(--text-primary)] font-medium">{school.name}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-400">Code</span>
-                  <span className="text-slate-900 font-mono font-medium">{school.code}</span>
+                  <span className="text-[var(--text-tertiary)]">Code</span>
+                  <span className="text-[var(--text-primary)] font-mono font-medium">{school.code}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-400">Region</span>
-                  <span className="text-slate-900">{school.region}</span>
+                  <span className="text-[var(--text-tertiary)]">Region</span>
+                  <span className="text-[var(--text-primary)]">{school.region}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-400">Division</span>
-                  <span className="text-slate-900">{school.division}</span>
+                  <span className="text-[var(--text-tertiary)]">Division</span>
+                  <span className="text-[var(--text-primary)]">{school.division}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-400">Status</span>
+                  <span className="text-[var(--text-tertiary)]">Status</span>
                   <span
                     className={`text-xs font-semibold uppercase px-1.5 py-0.5 rounded-full ${
                       school.status === "ACTIVE"
@@ -176,7 +176,7 @@ export default function SchoolProfilePage() {
             {/* Editable Profile */}
             <form onSubmit={handleSave} className="space-y-4">
               <div className="card p-4">
-                <h3 className="text-xs font-semibold uppercase tracking-widest text-slate-400 mb-3">
+                <h3 className="text-xs font-semibold uppercase tracking-widest text-[var(--text-tertiary)] mb-3">
                   School Profile
                 </h3>
 

@@ -307,7 +307,7 @@ export default function TimetableManagementPage() {
   // ─── CLASS LIST VIEW ──────────────────────────────────
   if (!selectedClassId) {
     return (
-      <div className="min-h-screen bg-slate-50 pb-24">
+      <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
         <div className="bg-gradient-to-br from-brand-950 to-brand-800 px-5 pt-10 pb-6 rounded-b-2xl">
           <div className="max-w-lg mx-auto">
             <Link
@@ -342,8 +342,8 @@ export default function TimetableManagementPage() {
             </div>
           ) : classesWithCounts.length === 0 ? (
             <div className="text-center py-8">
-              <GraduationCap className="w-10 h-10 text-slate-300 mx-auto mb-2" />
-              <p className="text-slate-500">No classes set up yet</p>
+              <GraduationCap className="w-10 h-10 text-[var(--text-quaternary)] mx-auto mb-2" />
+              <p className="text-[var(--text-tertiary)]">No classes set up yet</p>
               <Link
                 href="/admin/classes"
                 className="text-sm text-brand-600 font-medium mt-2 inline-block"
@@ -357,13 +357,13 @@ export default function TimetableManagementPage() {
                 <button
                   key={cls.id}
                   onClick={() => setSelectedClassId(cls.id)}
-                  className="card p-4 w-full text-left flex items-center justify-between hover:bg-slate-50 transition-colors"
+                  className="card p-4 w-full text-left flex items-center justify-between hover:bg-[var(--bg-tertiary)] transition-colors"
                 >
                   <div>
-                    <h4 className="font-semibold text-slate-900 text-sm">
+                    <h4 className="font-semibold text-[var(--text-primary)] text-sm">
                       {cls.name}
                     </h4>
-                    <div className="flex items-center gap-3 mt-1 text-xs text-slate-400">
+                    <div className="flex items-center gap-3 mt-1 text-xs text-[var(--text-tertiary)]">
                       <span className="flex items-center gap-1">
                         <Calendar className="w-3 h-3" />
                         {cls.slotCount} timetable{" "}
@@ -375,14 +375,14 @@ export default function TimetableManagementPage() {
                       </span>
                     </div>
                   </div>
-                  <ChevronRight className="w-5 h-5 text-slate-300" />
+                  <ChevronRight className="w-5 h-5 text-[var(--text-quaternary)]" />
                 </button>
               ))}
             </div>
           )}
 
           {!loading && classes.length > 0 && (
-            <p className="text-center text-xs text-slate-400">
+            <p className="text-center text-xs text-[var(--text-tertiary)]">
               {slots.length} total slot{slots.length !== 1 ? "s" : ""} across
               all classes
             </p>
@@ -394,7 +394,7 @@ export default function TimetableManagementPage() {
 
   // ─── CLASS TIMETABLE VIEW ─────────────────────────────
   return (
-    <div className="min-h-screen bg-slate-50 pb-24">
+    <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
       {/* Header */}
       <div className="bg-gradient-to-br from-brand-950 to-brand-800 px-5 pt-10 pb-6 rounded-b-2xl">
         <div className="max-w-lg mx-auto">
@@ -421,7 +421,7 @@ export default function TimetableManagementPage() {
             {classAssignments.length > 0 && (
               <button
                 onClick={() => setShowForm(!showForm)}
-                className="flex items-center gap-1.5 bg-white/10 hover:bg-white/20 text-white text-sm rounded-lg px-3 py-1.5"
+                className="flex items-center gap-1.5 bg-[var(--bg-elevated)]/10 hover:bg-[var(--bg-elevated)]/20 text-white text-sm rounded-lg px-3 py-1.5"
               >
                 {showForm ? (
                   <>
@@ -493,10 +493,10 @@ export default function TimetableManagementPage() {
         {/* No assignments warning */}
         {classAssignments.length === 0 && (
           <div className="card p-4 border-l-4 border-amber-400">
-            <p className="text-sm font-medium text-slate-900">
+            <p className="text-sm font-medium text-[var(--text-primary)]">
               No teachers assigned to this class
             </p>
-            <p className="text-xs text-slate-500 mt-1">
+            <p className="text-xs text-[var(--text-tertiary)] mt-1">
               You need to assign teachers to this class before adding timetable
               slots.
             </p>
@@ -512,7 +512,7 @@ export default function TimetableManagementPage() {
         {/* Add Slot Form */}
         {showForm && classAssignments.length > 0 && (
           <form onSubmit={handleCreate} className="card p-4 space-y-3">
-            <h3 className="text-sm font-semibold text-slate-900">
+            <h3 className="text-sm font-semibold text-[var(--text-primary)]">
               Add Timetable Slot for {selectedClass?.name}
             </h3>
 
@@ -561,7 +561,7 @@ export default function TimetableManagementPage() {
               <div>
                 <label className="label-field">
                   Period{" "}
-                  <span className="text-slate-400 font-normal">(select up to 2)</span>
+                  <span className="text-[var(--text-tertiary)] font-normal">(select up to 2)</span>
                 </label>
                 <div className="grid grid-cols-3 gap-1.5 mt-1">
                   {periods.map((p) => {
@@ -577,8 +577,8 @@ export default function TimetableManagementPage() {
                           selected
                             ? "border-brand-500 bg-brand-50 text-brand-800"
                             : disabled
-                            ? "border-slate-100 bg-slate-50 text-slate-300 cursor-not-allowed"
-                            : "border-slate-200 bg-white text-slate-700 hover:border-slate-300"
+                            ? "border-[var(--border-secondary)] bg-[var(--bg-tertiary)] text-[var(--text-quaternary)] cursor-not-allowed"
+                            : "border-[var(--border-primary)] bg-[var(--bg-elevated)] text-[var(--text-secondary)] hover:border-[var(--border-primary)]"
                         }`}
                       >
                         <span className="font-semibold">{p.label}</span>
@@ -608,14 +608,14 @@ export default function TimetableManagementPage() {
             <div className="overflow-x-auto">
               <table className="w-full text-xs">
                 <thead>
-                  <tr className="bg-slate-50 border-b border-slate-100">
-                    <th className="px-2 py-2.5 text-left text-slate-400 font-medium w-16">
+                  <tr className="bg-[var(--bg-tertiary)] border-b border-[var(--border-secondary)]">
+                    <th className="px-2 py-2.5 text-left text-[var(--text-tertiary)] font-medium w-16">
                       Period
                     </th>
                     {DAYS.map((day) => (
                       <th
                         key={day.value}
-                        className="px-1.5 py-2.5 text-center text-slate-400 font-medium"
+                        className="px-1.5 py-2.5 text-center text-[var(--text-tertiary)] font-medium"
                       >
                         {day.short}
                       </th>
@@ -629,10 +629,10 @@ export default function TimetableManagementPage() {
                       className="border-b border-slate-50 last:border-0"
                     >
                       <td className="px-2 py-2 align-top">
-                        <div className="font-medium text-slate-700">
+                        <div className="font-medium text-[var(--text-secondary)]">
                           P{period.periodNum}
                         </div>
-                        <div className="text-[10px] text-slate-400">
+                        <div className="text-[10px] text-[var(--text-tertiary)]">
                           {period.startTime}
                         </div>
                       </td>
@@ -666,7 +666,7 @@ export default function TimetableManagementPage() {
                                 </button>
                               </div>
                             ) : (
-                              <div className="h-8 rounded-lg border border-dashed border-slate-200" />
+                              <div className="h-8 rounded-lg border border-dashed border-[var(--border-primary)]" />
                             )}
                           </td>
                         );
@@ -679,9 +679,9 @@ export default function TimetableManagementPage() {
           </div>
         ) : classSlots.length === 0 && classAssignments.length > 0 ? (
           <div className="text-center py-8">
-            <Calendar className="w-10 h-10 text-slate-300 mx-auto mb-2" />
-            <p className="text-slate-500">No timetable slots yet</p>
-            <p className="text-sm text-slate-400 mt-1">
+            <Calendar className="w-10 h-10 text-[var(--text-quaternary)] mx-auto mb-2" />
+            <p className="text-[var(--text-tertiary)]">No timetable slots yet</p>
+            <p className="text-sm text-[var(--text-tertiary)] mt-1">
               Tap &quot;Add Slot&quot; to fill in the timetable
             </p>
           </div>
@@ -690,7 +690,7 @@ export default function TimetableManagementPage() {
         {/* Slot list (detailed view) */}
         {classSlots.length > 0 && (
           <>
-            <h3 className="text-xs font-semibold uppercase tracking-widest text-slate-400">
+            <h3 className="text-xs font-semibold uppercase tracking-widest text-[var(--text-tertiary)]">
               All Slots ({classSlots.length})
             </h3>
             <div className="space-y-2">
@@ -708,20 +708,20 @@ export default function TimetableManagementPage() {
                           <span className="text-xs font-medium text-brand-600 bg-brand-50 px-2 py-0.5 rounded-full">
                             {slot.periodLabel}
                           </span>
-                          <span className="text-xs text-slate-400">
+                          <span className="text-xs text-[var(--text-tertiary)]">
                             {
                               DAYS.find((d) => d.value === slot.dayOfWeek)
                                 ?.label
                             }
                           </span>
-                          <span className="text-xs text-slate-400">
+                          <span className="text-xs text-[var(--text-tertiary)]">
                             {slot.startTime} - {slot.endTime}
                           </span>
                         </div>
-                        <h4 className="font-semibold text-slate-900 text-sm">
+                        <h4 className="font-semibold text-[var(--text-primary)] text-sm">
                           {slot.subject}
                         </h4>
-                        <p className="text-xs text-slate-500 mt-0.5">
+                        <p className="text-xs text-[var(--text-tertiary)] mt-0.5">
                           {slot.teacher}
                         </p>
                         {slot.jointWith && slot.jointWith.length > 0 && (
@@ -733,7 +733,7 @@ export default function TimetableManagementPage() {
                       <button
                         onClick={() => handleDelete(slot.id)}
                         disabled={deleting === slot.id}
-                        className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                        className="p-1.5 text-[var(--text-tertiary)] hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>

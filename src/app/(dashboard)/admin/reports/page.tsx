@@ -247,7 +247,7 @@ export default function ReportsPage() {
             <div className="card p-4">
               <div className="flex items-center gap-2 mb-3">
                 <FileSpreadsheet className="w-4 h-4 text-brand-500" />
-                <h3 className="text-sm font-bold text-slate-900">
+                <h3 className="text-sm font-bold text-[var(--text-primary)]">
                   Download Reports
                 </h3>
               </div>
@@ -262,7 +262,7 @@ export default function ReportsPage() {
                     key={key}
                     onClick={fn}
                     disabled={activeExport === key}
-                    className="flex items-start gap-2.5 p-3 rounded-xl border border-slate-200 hover:border-brand-200 hover:bg-brand-50/50 transition-all active:scale-[0.97] text-left"
+                    className="flex items-start gap-2.5 p-3 rounded-xl border border-[var(--border-primary)] hover:border-brand-200 hover:bg-brand-50/50 transition-all active:scale-[0.97] text-left"
                   >
                     <div className="w-8 h-8 bg-brand-50 rounded-lg flex items-center justify-center flex-shrink-0">
                       {activeExport === key ? (
@@ -272,8 +272,8 @@ export default function ReportsPage() {
                       )}
                     </div>
                     <div>
-                      <p className="text-xs font-bold text-slate-900">{label}</p>
-                      <p className="text-[10px] text-slate-400 mt-0.5">{desc}</p>
+                      <p className="text-xs font-bold text-[var(--text-primary)]">{label}</p>
+                      <p className="text-[10px] text-[var(--text-tertiary)] mt-0.5">{desc}</p>
                     </div>
                   </button>
                 ))}
@@ -283,26 +283,26 @@ export default function ReportsPage() {
             {/* Summary Cards */}
             <div className="grid grid-cols-3 gap-2">
               <div className="card p-3 text-center">
-                <p className="text-xl font-black text-slate-900 tabular-nums">
+                <p className="text-xl font-black text-[var(--text-primary)] tabular-nums">
                   {stats?.totalTeachers ?? 0}
                 </p>
-                <p className="text-[10px] text-slate-400 font-semibold uppercase">
+                <p className="text-[10px] text-[var(--text-tertiary)] font-semibold uppercase">
                   Teachers
                 </p>
               </div>
               <div className="card p-3 text-center">
-                <p className="text-xl font-black text-slate-900 tabular-nums">
+                <p className="text-xl font-black text-[var(--text-primary)] tabular-nums">
                   {stats?.totalEntries ?? 0}
                 </p>
-                <p className="text-[10px] text-slate-400 font-semibold uppercase">
+                <p className="text-[10px] text-[var(--text-tertiary)] font-semibold uppercase">
                   Total Entries
                 </p>
               </div>
               <div className="card p-3 text-center">
-                <p className="text-xl font-black text-slate-900 tabular-nums">
+                <p className="text-xl font-black text-[var(--text-primary)] tabular-nums">
                   {stats?.entriesThisMonth ?? 0}
                 </p>
-                <p className="text-[10px] text-slate-400 font-semibold uppercase">
+                <p className="text-[10px] text-[var(--text-tertiary)] font-semibold uppercase">
                   This Month
                 </p>
               </div>
@@ -313,7 +313,7 @@ export default function ReportsPage() {
               <div className="card p-4">
                 <div className="flex items-center gap-2 mb-4">
                   <GraduationCap className="w-4 h-4 text-brand-500" />
-                  <h3 className="text-sm font-bold text-slate-900">
+                  <h3 className="text-sm font-bold text-[var(--text-primary)]">
                     Entries by Subject
                   </h3>
                 </div>
@@ -324,10 +324,10 @@ export default function ReportsPage() {
                     return (
                       <div key={s.subject}>
                         <div className="flex justify-between text-xs mb-1.5">
-                          <span className="text-slate-700 font-semibold">
+                          <span className="text-[var(--text-secondary)] font-semibold">
                             {s.subject}
                           </span>
-                          <span className="text-slate-400 font-bold tabular-nums">
+                          <span className="text-[var(--text-tertiary)] font-bold tabular-nums">
                             {s.count}
                           </span>
                         </div>
@@ -349,7 +349,7 @@ export default function ReportsPage() {
               <div className="card overflow-hidden">
                 <div className="p-4 pb-2 flex items-center gap-2">
                   <Users className="w-4 h-4 text-brand-500" />
-                  <h3 className="text-sm font-bold text-slate-900">
+                  <h3 className="text-sm font-bold text-[var(--text-primary)]">
                     Teachers by Entry Count
                   </h3>
                 </div>
@@ -368,19 +368,19 @@ export default function ReportsPage() {
                                 i === 0
                                   ? "bg-amber-100 text-amber-700"
                                   : i === 1
-                                  ? "bg-slate-200 text-slate-600"
+                                  ? "bg-slate-200 text-[var(--text-secondary)]"
                                   : i === 2
                                   ? "bg-orange-100 text-orange-700"
-                                  : "bg-slate-100 text-slate-400"
+                                  : "bg-slate-100 text-[var(--text-tertiary)]"
                               }`}
                             >
                               {i + 1}
                             </span>
                             <div className="min-w-0">
-                              <span className="text-sm font-semibold text-slate-800 truncate block">
+                              <span className="text-sm font-semibold text-[var(--text-primary)] truncate block">
                                 {t.firstName} {t.lastName}
                               </span>
-                              <span className="text-[10px] text-slate-400 truncate block">
+                              <span className="text-[10px] text-[var(--text-tertiary)] truncate block">
                                 {t.subjects.join(", ") || "No subjects"}
                               </span>
                             </div>
@@ -407,7 +407,7 @@ export default function ReportsPage() {
               <div className="card p-4">
                 <div className="flex items-center gap-2 mb-4">
                   <BarChart3 className="w-4 h-4 text-brand-500" />
-                  <h3 className="text-sm font-bold text-slate-900">
+                  <h3 className="text-sm font-bold text-[var(--text-primary)]">
                     Weekly Trend
                   </h3>
                 </div>
@@ -430,14 +430,14 @@ export default function ReportsPage() {
                           key={w.week}
                           className="flex-1 flex flex-col items-center gap-1 min-w-[36px] group"
                         >
-                          <span className="text-xs text-slate-600 font-semibold tabular-nums">
+                          <span className="text-xs text-[var(--text-secondary)] font-semibold tabular-nums">
                             {w.count}
                           </span>
                           <div
                             className="w-full bg-gradient-to-t from-brand-800 to-brand-600 rounded-t min-h-[4px] group-hover:from-brand-600 group-hover:to-brand-400 transition-colors"
                             style={{ height: `${Math.max(height, 8)}%` }}
                           />
-                          <span className="text-[9px] text-slate-400 whitespace-nowrap">
+                          <span className="text-[9px] text-[var(--text-tertiary)] whitespace-nowrap">
                             W{w.week.split("-W")[1]}
                           </span>
                         </div>

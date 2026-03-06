@@ -331,7 +331,7 @@ export default function ManageTeachersPage() {
           <div className="relative">
             <div className="flex items-center gap-2 mb-3">
               <Share2 className="w-4 h-4 text-brand-500" />
-              <p className="text-xs font-bold uppercase tracking-widest text-slate-400">
+              <p className="text-xs font-bold uppercase tracking-widest text-[var(--text-tertiary)]">
                 Invite Teachers
               </p>
             </div>
@@ -350,7 +350,7 @@ export default function ManageTeachersPage() {
                 {copiedCode ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
               </button>
             </div>
-            <p className="text-[11px] text-slate-400 mt-2.5">
+            <p className="text-[11px] text-[var(--text-tertiary)] mt-2.5">
               Share this code with teachers to let them register under your school
             </p>
           </div>
@@ -360,11 +360,11 @@ export default function ManageTeachersPage() {
         <form onSubmit={handleInviteByCode} className="animate-slide-up card p-5">
           <div className="flex items-center gap-2 mb-3">
             <Users className="w-4 h-4 text-brand-500" />
-            <p className="text-xs font-bold uppercase tracking-widest text-slate-400">
+            <p className="text-xs font-bold uppercase tracking-widest text-[var(--text-tertiary)]">
               Add Existing Teacher
             </p>
           </div>
-          <p className="text-[11px] text-slate-400 mb-3">
+          <p className="text-[11px] text-[var(--text-tertiary)] mb-3">
             Enter a teacher&apos;s unique ID to invite them to your school
           </p>
           <div className="flex items-center gap-2">
@@ -373,7 +373,7 @@ export default function ManageTeachersPage() {
               value={inviteCode}
               onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
               placeholder="e.g. TCH-A1B2C3"
-              className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 font-mono text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent tracking-wider"
+              className="flex-1 bg-[var(--bg-tertiary)] border border-[var(--border-primary)] rounded-xl px-4 py-2.5 font-mono text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent tracking-wider"
             />
             <button
               type="submit"
@@ -411,10 +411,10 @@ export default function ManageTeachersPage() {
                     <div className="flex items-start gap-3">
                       <TeacherAvatar teacher={teacher} size="md" />
                       <div className="flex-1 min-w-0">
-                        <h4 className="font-bold text-slate-900 text-sm truncate">
+                        <h4 className="font-bold text-[var(--text-primary)] text-sm truncate">
                           {teacher.firstName} {teacher.lastName}
                         </h4>
-                        <p className="text-[11px] text-slate-400 truncate">
+                        <p className="text-[11px] text-[var(--text-tertiary)] truncate">
                           {teacher.email}
                         </p>
                         <p className="text-[10px] text-amber-600 font-medium mt-1">
@@ -434,7 +434,7 @@ export default function ManageTeachersPage() {
                       <button
                         onClick={() => handleApproveReject(teacher.id, "reject")}
                         disabled={approving === teacher.id}
-                        className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-white text-red-600 text-xs font-semibold rounded-xl border border-red-200 hover:bg-red-50 transition-colors active:scale-95 disabled:opacity-50"
+                        className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-[var(--bg-elevated)] text-red-600 text-xs font-semibold rounded-xl border border-red-200 hover:bg-red-50 transition-colors active:scale-95 disabled:opacity-50"
                       >
                         <UserX className="w-3.5 h-3.5" />
                         Reject
@@ -461,13 +461,13 @@ export default function ManageTeachersPage() {
         {activeTeachers.length > 0 && (
           <div className="animate-slide-up animation-delay-75 flex gap-2">
             <div className="relative flex-1">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-tertiary)]" />
               <input
                 type="text"
                 placeholder="Search by name or email..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent shadow-sm transition-all"
+                className="w-full pl-10 pr-4 py-2.5 bg-[var(--bg-elevated)] border border-[var(--border-primary)] rounded-xl text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent shadow-sm transition-all"
               />
             </div>
             <button
@@ -475,7 +475,7 @@ export default function ManageTeachersPage() {
               className={`flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl text-sm font-semibold border transition-all active:scale-95 shadow-sm ${
                 hasActiveFilters
                   ? "bg-brand-50 border-brand-200 text-brand-700"
-                  : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
+                  : "bg-[var(--bg-elevated)] border-[var(--border-primary)] text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)]"
               }`}
             >
               <Filter className="w-4 h-4" />
@@ -488,7 +488,7 @@ export default function ManageTeachersPage() {
         {showFilters && (
           <div className="animate-slide-down card p-5 space-y-3 border-brand-100/50">
             <div className="flex items-center justify-between">
-              <h4 className="text-sm font-bold text-slate-700">Filters</h4>
+              <h4 className="text-sm font-bold text-[var(--text-secondary)]">Filters</h4>
               {hasActiveFilters && (
                 <button
                   onClick={clearFilters}
@@ -549,7 +549,7 @@ export default function ManageTeachersPage() {
 
         {/* Results count */}
         {(searchQuery || hasActiveFilters) && (
-          <p className="text-xs text-slate-400 font-medium px-1">
+          <p className="text-xs text-[var(--text-tertiary)] font-medium px-1">
             Showing {filteredTeachers.length} of {activeTeachers.length} teacher
             {activeTeachers.length !== 1 ? "s" : ""}
           </p>
@@ -573,9 +573,9 @@ export default function ManageTeachersPage() {
         ) : filteredTeachers.length === 0 ? (
           <div className="text-center py-16 animate-fade-in">
             <div className="w-16 h-16 bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-sm">
-              <User className="w-8 h-8 text-slate-300" />
+              <User className="w-8 h-8 text-[var(--text-quaternary)]" />
             </div>
-            <p className="text-slate-600 font-semibold">
+            <p className="text-[var(--text-secondary)] font-semibold">
               {teachers.length === 0
                 ? "No teachers registered yet"
                 : activeTeachers.length === 0
@@ -583,11 +583,11 @@ export default function ManageTeachersPage() {
                 : "No teachers match your search"}
             </p>
             {teachers.length === 0 ? (
-              <p className="text-sm text-slate-400 mt-1.5">
+              <p className="text-sm text-[var(--text-tertiary)] mt-1.5">
                 Share the school code above with your teachers
               </p>
             ) : activeTeachers.length === 0 ? (
-              <p className="text-sm text-slate-400 mt-1.5">
+              <p className="text-sm text-[var(--text-tertiary)] mt-1.5">
                 Approve pending teachers above to get started
               </p>
             ) : (
@@ -619,10 +619,10 @@ export default function ManageTeachersPage() {
                           href={`/admin/teachers/${teacher.id}`}
                           className="group flex-1 min-w-0"
                         >
-                          <h4 className="font-bold text-slate-900 group-hover:text-brand-700 transition-colors truncate">
+                          <h4 className="font-bold text-[var(--text-primary)] group-hover:text-brand-700 transition-colors truncate">
                             {teacher.firstName} {teacher.lastName}
                           </h4>
-                          <p className="text-[11px] text-slate-400 truncate">
+                          <p className="text-[11px] text-[var(--text-tertiary)] truncate">
                             {teacher.email}
                           </p>
                         </Link>
@@ -659,11 +659,11 @@ export default function ManageTeachersPage() {
                                 <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border ${getSubjectBg(colorIdx)}`}>
                                   {sc.subject}
                                 </span>
-                                <span className="text-slate-300 text-[10px]">&rarr;</span>
+                                <span className="text-[var(--text-quaternary)] text-[10px]">&rarr;</span>
                                 {sc.classes.map((c) => (
                                   <span
                                     key={c}
-                                    className="text-[10px] font-semibold bg-slate-50 text-slate-600 px-2 py-0.5 rounded-md border border-slate-100"
+                                    className="text-[10px] font-semibold bg-[var(--bg-tertiary)] text-[var(--text-secondary)] px-2 py-0.5 rounded-md border border-[var(--border-secondary)]"
                                   >
                                     {c}
                                   </span>
@@ -675,7 +675,7 @@ export default function ManageTeachersPage() {
                       )}
 
                       {/* Stats row */}
-                      <div className="flex items-center gap-3 mt-2.5 text-[11px] text-slate-400">
+                      <div className="flex items-center gap-3 mt-2.5 text-[11px] text-[var(--text-tertiary)]">
                         <span className="flex items-center gap-1 text-brand-600 font-semibold bg-brand-50 rounded-md px-2 py-0.5">
                           <BookOpen className="w-3 h-3" />
                           {teacher.entryCount} entries

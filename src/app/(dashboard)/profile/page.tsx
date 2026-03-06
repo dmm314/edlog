@@ -223,7 +223,7 @@ export default function ProfilePage() {
     : `${user.firstName as string} ${user.lastName as string}`;
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-24">
+    <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
       {/* Header */}
       <div className="bg-gradient-to-br from-brand-950 to-brand-800 px-5 pt-10 pb-8 rounded-b-2xl">
         <div className="max-w-lg mx-auto text-center">
@@ -236,7 +236,7 @@ export default function ProfilePage() {
                 className="w-20 h-20 rounded-full object-cover border-4 border-white/20"
               />
             ) : (
-              <div className="inline-flex items-center justify-center w-20 h-20 bg-white/10 rounded-full">
+              <div className="inline-flex items-center justify-center w-20 h-20 bg-[var(--bg-elevated)]/10 rounded-full">
                 <User className="w-10 h-10 text-white" />
               </div>
             )}
@@ -258,11 +258,11 @@ export default function ProfilePage() {
           <h1 className="text-xl font-bold text-white mt-3">{displayName}</h1>
           <p className="text-brand-400 text-sm mt-0.5">{profile?.email || (user.email as string)}</p>
           <div className="flex items-center justify-center gap-2 mt-2">
-            <span className="bg-white/10 text-white text-xs rounded-full px-3 py-1 font-medium capitalize">
+            <span className="bg-[var(--bg-elevated)]/10 text-white text-xs rounded-full px-3 py-1 font-medium capitalize">
               {(profile?.role || (user.role as string))?.replace("_", " ").toLowerCase()}
             </span>
             {!isSchoolAdmin && profile?.gender && (
-              <span className="bg-white/10 text-white text-xs rounded-full px-3 py-1 font-medium">
+              <span className="bg-[var(--bg-elevated)]/10 text-white text-xs rounded-full px-3 py-1 font-medium">
                 {profile.gender === "MALE" ? "Male" : "Female"}
               </span>
             )}
@@ -290,20 +290,20 @@ export default function ProfilePage() {
                 <div className="grid grid-cols-3 gap-4 text-center">
                   <div>
                     <p className="text-2xl font-bold text-brand-950">{stats.totalEntries}</p>
-                    <p className="text-xs text-slate-400 mt-0.5">Total</p>
+                    <p className="text-xs text-[var(--text-tertiary)] mt-0.5">Total</p>
                   </div>
                   <div>
                     <p className="text-2xl font-bold text-brand-950">{stats.entriesThisMonth}</p>
-                    <p className="text-xs text-slate-400 mt-0.5">This Month</p>
+                    <p className="text-xs text-[var(--text-tertiary)] mt-0.5">This Month</p>
                   </div>
                   <div>
                     <p className="text-2xl font-bold text-brand-950">{stats.entriesThisWeek}</p>
-                    <p className="text-xs text-slate-400 mt-0.5">This Week</p>
+                    <p className="text-xs text-[var(--text-tertiary)] mt-0.5">This Week</p>
                   </div>
                 </div>
                 {stats.topSubject && (
-                  <div className="mt-3 pt-3 border-t border-slate-100 text-center">
-                    <p className="text-xs text-slate-400">Most taught subject</p>
+                  <div className="mt-3 pt-3 border-t border-[var(--border-secondary)] text-center">
+                    <p className="text-xs text-[var(--text-tertiary)]">Most taught subject</p>
                     <p className="text-sm font-semibold text-brand-950 mt-0.5">{stats.topSubject}</p>
                   </div>
                 )}
@@ -316,7 +316,7 @@ export default function ProfilePage() {
         {!isSchoolAdmin && profile?.teacherCode && (
           <div className="card mt-4 p-4">
             <div className="flex items-center gap-2 mb-2">
-              <p className="text-xs font-bold uppercase tracking-widest text-slate-400">
+              <p className="text-xs font-bold uppercase tracking-widest text-[var(--text-tertiary)]">
                 Your Teacher ID
               </p>
             </div>
@@ -339,7 +339,7 @@ export default function ProfilePage() {
                 {copiedTC ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
               </button>
             </div>
-            <p className="text-[11px] text-slate-400 mt-2">
+            <p className="text-[11px] text-[var(--text-tertiary)] mt-2">
               Share this ID with school admins so they can add you to their school
             </p>
           </div>
@@ -349,13 +349,13 @@ export default function ProfilePage() {
         {!isSchoolAdmin && (
           <Link
             href="/invitations"
-            className="card mt-3 p-4 flex items-center justify-between group hover:bg-slate-50 transition-colors"
+            className="card mt-3 p-4 flex items-center justify-between group hover:bg-[var(--bg-tertiary)] transition-colors"
           >
             <div className="flex items-center gap-3">
-              <Building2 className="w-5 h-5 text-slate-400" />
+              <Building2 className="w-5 h-5 text-[var(--text-tertiary)]" />
               <div>
-                <p className="text-sm font-semibold text-slate-900">My Schools</p>
-                <p className="text-[11px] text-slate-400">
+                <p className="text-sm font-semibold text-[var(--text-primary)]">My Schools</p>
+                <p className="text-[11px] text-[var(--text-tertiary)]">
                   {profile?.teacherSchools
                     ? `${profile.teacherSchools.filter((ts) => ts.status === "ACTIVE").length} active school(s)`
                     : "View invitations"}
@@ -364,14 +364,14 @@ export default function ProfilePage() {
                 </p>
               </div>
             </div>
-            <ChevronRight className="w-4 h-4 text-slate-400 group-hover:translate-x-0.5 transition-transform" />
+            <ChevronRight className="w-4 h-4 text-[var(--text-tertiary)] group-hover:translate-x-0.5 transition-transform" />
           </Link>
         )}
 
         {/* Info Card */}
         <div className="card mt-4 overflow-hidden">
           <div className="flex items-center justify-between px-4 pt-4 pb-2">
-            <h3 className="text-xs font-semibold uppercase tracking-widest text-slate-400">
+            <h3 className="text-xs font-semibold uppercase tracking-widest text-[var(--text-tertiary)]">
               {isSchoolAdmin ? "Profile & School Info" : "Personal Information"}
             </h3>
             {!editing ? (
@@ -386,7 +386,7 @@ export default function ProfilePage() {
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => { setEditing(false); setSaveError(""); }}
-                  className="flex items-center gap-1 text-xs text-slate-500 font-semibold"
+                  className="flex items-center gap-1 text-xs text-[var(--text-secondary)] font-semibold"
                 >
                   <X className="w-3.5 h-3.5" />
                   Cancel
@@ -411,18 +411,18 @@ export default function ProfilePage() {
 
           <div className="divide-y divide-slate-100">
             <div className="flex items-center gap-3 p-4">
-              <School className="w-5 h-5 text-slate-400" />
+              <School className="w-5 h-5 text-[var(--text-tertiary)]" />
               <div>
-                <p className="text-xs text-slate-400">School</p>
-                <p className="text-sm font-medium text-slate-900">{profile?.school?.name || "—"}</p>
+                <p className="text-xs text-[var(--text-tertiary)]">School</p>
+                <p className="text-sm font-medium text-[var(--text-primary)]">{profile?.school?.name || "—"}</p>
               </div>
             </div>
 
             <div className="flex items-center gap-3 p-4">
-              <BookOpen className="w-5 h-5 text-slate-400" />
+              <BookOpen className="w-5 h-5 text-[var(--text-tertiary)]" />
               <div>
-                <p className="text-xs text-slate-400">Role</p>
-                <p className="text-sm font-medium text-slate-900 capitalize">
+                <p className="text-xs text-[var(--text-tertiary)]">Role</p>
+                <p className="text-sm font-medium text-[var(--text-primary)] capitalize">
                   {(profile?.role || (user.role as string))?.replace("_", " ").toLowerCase()}
                 </p>
               </div>
@@ -431,9 +431,9 @@ export default function ProfilePage() {
             {/* School Admin: Founding Date instead of DOB/Gender */}
             {isSchoolAdmin ? (
               <div className="flex items-center gap-3 p-4">
-                <Building2 className="w-5 h-5 text-slate-400" />
+                <Building2 className="w-5 h-5 text-[var(--text-tertiary)]" />
                 <div className="flex-1">
-                  <p className="text-xs text-slate-400">Founding Date</p>
+                  <p className="text-xs text-[var(--text-tertiary)]">Founding Date</p>
                   {editing ? (
                     <input
                       type="date"
@@ -443,7 +443,7 @@ export default function ProfilePage() {
                       className="input-field mt-1"
                     />
                   ) : (
-                    <p className="text-sm font-medium text-slate-900">
+                    <p className="text-sm font-medium text-[var(--text-primary)]">
                       {profile?.school?.foundingDate
                         ? formatDate(profile.school.foundingDate)
                         : "Not set"}
@@ -455,9 +455,9 @@ export default function ProfilePage() {
               <>
                 {/* Teacher: Date of Birth */}
                 <div className="flex items-center gap-3 p-4">
-                  <Calendar className="w-5 h-5 text-slate-400" />
+                  <Calendar className="w-5 h-5 text-[var(--text-tertiary)]" />
                   <div className="flex-1">
-                    <p className="text-xs text-slate-400">Date of Birth</p>
+                    <p className="text-xs text-[var(--text-tertiary)]">Date of Birth</p>
                     {editing ? (
                       <input
                         type="date"
@@ -467,7 +467,7 @@ export default function ProfilePage() {
                         className="input-field mt-1"
                       />
                     ) : (
-                      <p className="text-sm font-medium text-slate-900">
+                      <p className="text-sm font-medium text-[var(--text-primary)]">
                         {profile?.dateOfBirth ? formatDate(profile.dateOfBirth) : "Not set"}
                       </p>
                     )}
@@ -476,9 +476,9 @@ export default function ProfilePage() {
 
                 {/* Teacher: Gender */}
                 <div className="flex items-center gap-3 p-4">
-                  <User className="w-5 h-5 text-slate-400" />
+                  <User className="w-5 h-5 text-[var(--text-tertiary)]" />
                   <div className="flex-1">
-                    <p className="text-xs text-slate-400">Gender</p>
+                    <p className="text-xs text-[var(--text-tertiary)]">Gender</p>
                     {editing ? (
                       <select
                         value={editGender}
@@ -490,7 +490,7 @@ export default function ProfilePage() {
                         <option value="FEMALE">Female</option>
                       </select>
                     ) : (
-                      <p className="text-sm font-medium text-slate-900">
+                      <p className="text-sm font-medium text-[var(--text-primary)]">
                         {profile?.gender === "MALE" ? "Male" : profile?.gender === "FEMALE" ? "Female" : "Not set"}
                       </p>
                     )}
@@ -500,9 +500,9 @@ export default function ProfilePage() {
             )}
 
             <div className="flex items-center gap-3 p-4">
-              <Phone className="w-5 h-5 text-slate-400" />
+              <Phone className="w-5 h-5 text-[var(--text-tertiary)]" />
               <div className="flex-1">
-                <p className="text-xs text-slate-400">Phone</p>
+                <p className="text-xs text-[var(--text-tertiary)]">Phone</p>
                 {editing ? (
                   <input
                     type="tel"
@@ -512,16 +512,16 @@ export default function ProfilePage() {
                     placeholder="+237 6XX XXX XXX"
                   />
                 ) : (
-                  <p className="text-sm font-medium text-slate-900">{profile?.phone || "Not set"}</p>
+                  <p className="text-sm font-medium text-[var(--text-primary)]">{profile?.phone || "Not set"}</p>
                 )}
               </div>
             </div>
 
             <div className="flex items-center gap-3 p-4">
-              <Calendar className="w-5 h-5 text-slate-400" />
+              <Calendar className="w-5 h-5 text-[var(--text-tertiary)]" />
               <div>
-                <p className="text-xs text-slate-400">Member Since</p>
-                <p className="text-sm font-medium text-slate-900">
+                <p className="text-xs text-[var(--text-tertiary)]">Member Since</p>
+                <p className="text-sm font-medium text-[var(--text-primary)]">
                   {profile?.createdAt ? formatDate(profile.createdAt) : "—"}
                 </p>
               </div>
@@ -534,7 +534,7 @@ export default function ProfilePage() {
                 <XCircle className="w-5 h-5 text-amber-500" />
               )}
               <div>
-                <p className="text-xs text-slate-400">Verification Status</p>
+                <p className="text-xs text-[var(--text-tertiary)]">Verification Status</p>
                 <p className={`text-sm font-medium ${profile?.isVerified ? "text-green-700" : "text-amber-700"}`}>
                   {profile?.isVerified ? "Verified" : "Pending Verification"}
                 </p>
@@ -547,16 +547,16 @@ export default function ProfilePage() {
         {isSchoolAdmin && (
           <Link
             href="/admin/school"
-            className="card mt-4 p-4 flex items-center justify-between group hover:bg-slate-50 transition-colors"
+            className="card mt-4 p-4 flex items-center justify-between group hover:bg-[var(--bg-tertiary)] transition-colors"
           >
             <div className="flex items-center gap-3">
-              <Building2 className="w-5 h-5 text-slate-400" />
+              <Building2 className="w-5 h-5 text-[var(--text-tertiary)]" />
               <div>
-                <p className="text-sm font-semibold text-slate-900">School Profile</p>
-                <p className="text-[11px] text-slate-400">School settings & details</p>
+                <p className="text-sm font-semibold text-[var(--text-primary)]">School Profile</p>
+                <p className="text-[11px] text-[var(--text-tertiary)]">School settings & details</p>
               </div>
             </div>
-            <ChevronRight className="w-4 h-4 text-slate-400 group-hover:translate-x-0.5 transition-transform" />
+            <ChevronRight className="w-4 h-4 text-[var(--text-tertiary)] group-hover:translate-x-0.5 transition-transform" />
           </Link>
         )}
 

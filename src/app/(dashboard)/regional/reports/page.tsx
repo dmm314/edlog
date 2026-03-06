@@ -222,7 +222,7 @@ export default function RegionalReportsPage() {
   const totalPages = Math.ceil(entriesTotal / ENTRIES_PER_PAGE);
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-24">
+    <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
       {/* Header */}
       <div className="bg-gradient-to-br from-brand-950 to-brand-800 px-5 pt-10 pb-6 rounded-b-2xl">
         <div className="max-w-lg mx-auto">
@@ -238,7 +238,7 @@ export default function RegionalReportsPage() {
             <button
               onClick={exportCSV}
               disabled={!data}
-              className="flex items-center gap-1.5 bg-white/10 hover:bg-white/20 text-white text-sm rounded-lg px-3 py-1.5"
+              className="flex items-center gap-1.5 bg-[var(--bg-elevated)]/10 hover:bg-[var(--bg-elevated)]/20 text-white text-sm rounded-lg px-3 py-1.5"
             >
               <Download className="w-4 h-4" />
               CSV
@@ -249,13 +249,13 @@ export default function RegionalReportsPage() {
 
       <div className="px-5 mt-4 max-w-lg mx-auto space-y-4">
         {/* Tab switcher */}
-        <div className="flex bg-white rounded-xl border border-slate-200 p-1">
+        <div className="flex bg-[var(--bg-elevated)] rounded-xl border border-[var(--border-primary)] p-1">
           <button
             onClick={() => setActiveTab("overview")}
             className={`flex-1 text-center text-sm font-medium py-2 rounded-lg transition-colors ${
               activeTab === "overview"
                 ? "bg-brand-600 text-white"
-                : "text-slate-500 hover:text-slate-700"
+                : "text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]"
             }`}
           >
             Overview
@@ -265,7 +265,7 @@ export default function RegionalReportsPage() {
             className={`flex-1 text-center text-sm font-medium py-2 rounded-lg transition-colors ${
               activeTab === "entries"
                 ? "bg-brand-600 text-white"
-                : "text-slate-500 hover:text-slate-700"
+                : "text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]"
             }`}
           >
             Entries
@@ -279,8 +279,8 @@ export default function RegionalReportsPage() {
             className="w-full flex items-center justify-between p-3 text-left"
           >
             <div className="flex items-center gap-2">
-              <Filter className="w-4 h-4 text-slate-500" />
-              <span className="text-sm font-medium text-slate-700">
+              <Filter className="w-4 h-4 text-[var(--text-tertiary)]" />
+              <span className="text-sm font-medium text-[var(--text-secondary)]">
                 Filters
               </span>
               {hasActiveFilters && (
@@ -290,18 +290,18 @@ export default function RegionalReportsPage() {
               )}
             </div>
             {showFilters ? (
-              <ChevronUp className="w-4 h-4 text-slate-400" />
+              <ChevronUp className="w-4 h-4 text-[var(--text-tertiary)]" />
             ) : (
-              <ChevronDown className="w-4 h-4 text-slate-400" />
+              <ChevronDown className="w-4 h-4 text-[var(--text-tertiary)]" />
             )}
           </button>
 
           {showFilters && (
-            <div className="px-3 pb-3 space-y-3 border-t border-slate-100 pt-3">
+            <div className="px-3 pb-3 space-y-3 border-t border-[var(--border-secondary)] pt-3">
               {/* School filter */}
               {data?.filterOptions?.schools && data.filterOptions.schools.length > 0 && (
                 <div>
-                  <label className="text-xs font-medium text-slate-500">School</label>
+                  <label className="text-xs font-medium text-[var(--text-tertiary)]">School</label>
                   <select
                     value={filterSchool}
                     onChange={(e) => setFilterSchool(e.target.value)}
@@ -318,7 +318,7 @@ export default function RegionalReportsPage() {
               {/* Subject filter */}
               {data?.filterOptions?.subjects && data.filterOptions.subjects.length > 0 && (
                 <div>
-                  <label className="text-xs font-medium text-slate-500">Subject</label>
+                  <label className="text-xs font-medium text-[var(--text-tertiary)]">Subject</label>
                   <select
                     value={filterSubject}
                     onChange={(e) => setFilterSubject(e.target.value)}
@@ -335,7 +335,7 @@ export default function RegionalReportsPage() {
               {/* Class filter */}
               {data?.filterOptions?.classes && data.filterOptions.classes.length > 0 && (
                 <div>
-                  <label className="text-xs font-medium text-slate-500">Class</label>
+                  <label className="text-xs font-medium text-[var(--text-tertiary)]">Class</label>
                   <select
                     value={filterClass}
                     onChange={(e) => setFilterClass(e.target.value)}
@@ -354,7 +354,7 @@ export default function RegionalReportsPage() {
               {/* Module filter */}
               {data?.filterOptions?.modules && data.filterOptions.modules.length > 0 && (
                 <div>
-                  <label className="text-xs font-medium text-slate-500">Module</label>
+                  <label className="text-xs font-medium text-[var(--text-tertiary)]">Module</label>
                   <select
                     value={filterModule}
                     onChange={(e) => setFilterModule(e.target.value)}
@@ -371,7 +371,7 @@ export default function RegionalReportsPage() {
               {/* Date range */}
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="text-xs font-medium text-slate-500">From</label>
+                  <label className="text-xs font-medium text-[var(--text-tertiary)]">From</label>
                   <input
                     type="date"
                     value={filterFrom}
@@ -380,7 +380,7 @@ export default function RegionalReportsPage() {
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-slate-500">To</label>
+                  <label className="text-xs font-medium text-[var(--text-tertiary)]">To</label>
                   <input
                     type="date"
                     value={filterTo}
@@ -393,9 +393,9 @@ export default function RegionalReportsPage() {
               {/* Search (entries tab) */}
               {activeTab === "entries" && (
                 <div>
-                  <label className="text-xs font-medium text-slate-500">Search</label>
+                  <label className="text-xs font-medium text-[var(--text-tertiary)]">Search</label>
                   <div className="relative mt-1">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-tertiary)]" />
                     <input
                       type="text"
                       placeholder="Search notes, topics..."
@@ -431,41 +431,41 @@ export default function RegionalReportsPage() {
           </div>
         ) : !data ? (
           <div className="text-center py-8">
-            <p className="text-slate-500">Failed to load report data</p>
+            <p className="text-[var(--text-tertiary)]">Failed to load report data</p>
           </div>
         ) : activeTab === "overview" ? (
           <>
             {/* Overview Stats */}
             <div className="card p-4">
-              <h3 className="text-sm font-semibold text-slate-900 mb-3">
+              <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-3">
                 Region Overview
               </h3>
               <div className="grid grid-cols-2 gap-3">
-                <div className="bg-slate-50 rounded-xl p-3 text-center">
-                  <School className="w-5 h-5 text-slate-400 mx-auto mb-1" />
-                  <p className="text-xl font-bold text-slate-900">{data.totalSchools}</p>
-                  <p className="text-[10px] text-slate-400 uppercase font-medium">Total Schools</p>
+                <div className="bg-[var(--bg-tertiary)] rounded-xl p-3 text-center">
+                  <School className="w-5 h-5 text-[var(--text-tertiary)] mx-auto mb-1" />
+                  <p className="text-xl font-bold text-[var(--text-primary)]">{data.totalSchools}</p>
+                  <p className="text-[10px] text-[var(--text-tertiary)] uppercase font-medium">Total Schools</p>
                 </div>
-                <div className="bg-slate-50 rounded-xl p-3 text-center">
+                <div className="bg-[var(--bg-tertiary)] rounded-xl p-3 text-center">
                   <School className="w-5 h-5 text-green-500 mx-auto mb-1" />
-                  <p className="text-xl font-bold text-slate-900">{data.activeSchools}</p>
-                  <p className="text-[10px] text-slate-400 uppercase font-medium">Active</p>
+                  <p className="text-xl font-bold text-[var(--text-primary)]">{data.activeSchools}</p>
+                  <p className="text-[10px] text-[var(--text-tertiary)] uppercase font-medium">Active</p>
                 </div>
-                <div className="bg-slate-50 rounded-xl p-3 text-center">
+                <div className="bg-[var(--bg-tertiary)] rounded-xl p-3 text-center">
                   <Users className="w-5 h-5 text-blue-500 mx-auto mb-1" />
-                  <p className="text-xl font-bold text-slate-900">{data.totalTeachers}</p>
-                  <p className="text-[10px] text-slate-400 uppercase font-medium">Teachers</p>
+                  <p className="text-xl font-bold text-[var(--text-primary)]">{data.totalTeachers}</p>
+                  <p className="text-[10px] text-[var(--text-tertiary)] uppercase font-medium">Teachers</p>
                 </div>
-                <div className="bg-slate-50 rounded-xl p-3 text-center">
+                <div className="bg-[var(--bg-tertiary)] rounded-xl p-3 text-center">
                   <BookOpen className="w-5 h-5 text-purple-500 mx-auto mb-1" />
-                  <p className="text-xl font-bold text-slate-900">{data.entriesThisMonth}</p>
-                  <p className="text-[10px] text-slate-400 uppercase font-medium">Entries (Month)</p>
+                  <p className="text-xl font-bold text-[var(--text-primary)]">{data.entriesThisMonth}</p>
+                  <p className="text-[10px] text-[var(--text-tertiary)] uppercase font-medium">Entries (Month)</p>
                 </div>
               </div>
-              <div className="mt-3 pt-3 border-t border-slate-100">
+              <div className="mt-3 pt-3 border-t border-[var(--border-secondary)]">
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs text-slate-400">Compliance Rate</span>
-                  <span className="text-sm font-bold text-slate-900">{data.complianceRate}%</span>
+                  <span className="text-xs text-[var(--text-tertiary)]">Compliance Rate</span>
+                  <span className="text-sm font-bold text-[var(--text-primary)]">{data.complianceRate}%</span>
                 </div>
                 <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
                   <div
@@ -486,7 +486,7 @@ export default function RegionalReportsPage() {
             {filteredRankings.length > 0 && (
               <div className="card overflow-hidden">
                 <div className="p-4 pb-2">
-                  <h3 className="text-sm font-semibold text-slate-900">
+                  <h3 className="text-sm font-semibold text-[var(--text-primary)]">
                     School Performance
                   </h3>
                 </div>
@@ -499,16 +499,16 @@ export default function RegionalReportsPage() {
                             expandedSchool === school.id ? null : school.id
                           )
                         }
-                        className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-slate-50 transition-colors border-t border-slate-50"
+                        className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-[var(--bg-tertiary)] transition-colors border-t border-slate-50"
                       >
-                        <span className="text-xs text-slate-400 w-5 text-center font-medium">
+                        <span className="text-xs text-[var(--text-tertiary)] w-5 text-center font-medium">
                           #{i + 1}
                         </span>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-slate-800 truncate">
+                          <p className="text-sm font-medium text-[var(--text-primary)] truncate">
                             {school.name}
                           </p>
-                          <p className="text-[10px] text-slate-400">{school.code}</p>
+                          <p className="text-[10px] text-[var(--text-tertiary)]">{school.code}</p>
                         </div>
                         <span
                           className={`text-xs font-bold px-2 py-0.5 rounded-full ${
@@ -522,36 +522,36 @@ export default function RegionalReportsPage() {
                           {school.complianceRate}%
                         </span>
                         {expandedSchool === school.id ? (
-                          <ChevronUp className="w-4 h-4 text-slate-400 flex-shrink-0" />
+                          <ChevronUp className="w-4 h-4 text-[var(--text-tertiary)] flex-shrink-0" />
                         ) : (
-                          <ChevronDown className="w-4 h-4 text-slate-400 flex-shrink-0" />
+                          <ChevronDown className="w-4 h-4 text-[var(--text-tertiary)] flex-shrink-0" />
                         )}
                       </button>
 
                       {expandedSchool === school.id && (
-                        <div className="px-4 pb-3 bg-slate-50 border-t border-slate-100">
+                        <div className="px-4 pb-3 bg-[var(--bg-tertiary)] border-t border-[var(--border-secondary)]">
                           <div className="grid grid-cols-3 gap-2 py-3">
                             <div className="text-center">
-                              <p className="text-lg font-bold text-slate-900">
+                              <p className="text-lg font-bold text-[var(--text-primary)]">
                                 {school.teacherCount}
                               </p>
-                              <p className="text-[10px] text-slate-400 uppercase">
+                              <p className="text-[10px] text-[var(--text-tertiary)] uppercase">
                                 Teachers
                               </p>
                             </div>
                             <div className="text-center">
-                              <p className="text-lg font-bold text-slate-900">
+                              <p className="text-lg font-bold text-[var(--text-primary)]">
                                 {school.entryCount}
                               </p>
-                              <p className="text-[10px] text-slate-400 uppercase">
+                              <p className="text-[10px] text-[var(--text-tertiary)] uppercase">
                                 Entries
                               </p>
                             </div>
                             <div className="text-center">
-                              <p className="text-lg font-bold text-slate-900">
+                              <p className="text-lg font-bold text-[var(--text-primary)]">
                                 {school.complianceRate}%
                               </p>
-                              <p className="text-[10px] text-slate-400 uppercase">
+                              <p className="text-[10px] text-[var(--text-tertiary)] uppercase">
                                 Compliance
                               </p>
                             </div>
@@ -596,8 +596,8 @@ export default function RegionalReportsPage() {
               </div>
             ) : entries.length === 0 ? (
               <div className="text-center py-8">
-                <BookOpen className="w-10 h-10 text-slate-300 mx-auto mb-2" />
-                <p className="text-slate-500">No entries found</p>
+                <BookOpen className="w-10 h-10 text-[var(--text-quaternary)] mx-auto mb-2" />
+                <p className="text-[var(--text-tertiary)]">No entries found</p>
                 {hasActiveFilters && (
                   <button
                     onClick={clearFilters}
@@ -609,7 +609,7 @@ export default function RegionalReportsPage() {
               </div>
             ) : (
               <>
-                <p className="text-xs text-slate-400">
+                <p className="text-xs text-[var(--text-tertiary)]">
                   Showing {entries.length} of {entriesTotal} entries
                 </p>
 
@@ -652,19 +652,19 @@ export default function RegionalReportsPage() {
                                       ? "bg-green-50 text-green-700"
                                       : entry.status === "FLAGGED"
                                       ? "bg-red-50 text-red-700"
-                                      : "bg-slate-100 text-slate-500"
+                                      : "bg-slate-100 text-[var(--text-tertiary)]"
                                   }`}
                                 >
                                   {entry.status.charAt(0) + entry.status.slice(1).toLowerCase()}
                                 </span>
                               </div>
                               <div className="flex items-center gap-1.5 mt-2">
-                                <User className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
+                                <User className="w-3.5 h-3.5 text-[var(--text-tertiary)] flex-shrink-0" />
                                 <span className="text-sm font-semibold text-brand-950 truncate">
                                   {teacherName}
                                 </span>
                               </div>
-                              <div className="flex items-center gap-3 mt-1 text-xs text-slate-400">
+                              <div className="flex items-center gap-3 mt-1 text-xs text-[var(--text-tertiary)]">
                                 <span className="flex items-center gap-1">
                                   <Calendar className="w-3 h-3" />
                                   {entryDate}
@@ -679,25 +679,25 @@ export default function RegionalReportsPage() {
                             </div>
                             <div className="flex-shrink-0 mt-1">
                               {isExpanded ? (
-                                <ChevronUp className="w-4 h-4 text-slate-400" />
+                                <ChevronUp className="w-4 h-4 text-[var(--text-tertiary)]" />
                               ) : (
-                                <ChevronDown className="w-4 h-4 text-slate-400" />
+                                <ChevronDown className="w-4 h-4 text-[var(--text-tertiary)]" />
                               )}
                             </div>
                           </div>
                         </button>
 
                         {isExpanded && (
-                          <div className="px-3 pb-3 border-t border-slate-100">
+                          <div className="px-3 pb-3 border-t border-[var(--border-secondary)]">
                             <div className="pt-3 space-y-3">
                               {/* Topic */}
                               <div className="flex items-start gap-2">
-                                <Layers className="w-4 h-4 text-slate-400 mt-0.5 flex-shrink-0" />
+                                <Layers className="w-4 h-4 text-[var(--text-tertiary)] mt-0.5 flex-shrink-0" />
                                 <div>
-                                  <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400">
+                                  <p className="text-[10px] font-semibold uppercase tracking-widest text-[var(--text-tertiary)]">
                                     Topic
                                   </p>
-                                  <p className="text-sm text-slate-700">
+                                  <p className="text-sm text-[var(--text-secondary)]">
                                     {topicNames}
                                   </p>
                                 </div>
@@ -707,12 +707,12 @@ export default function RegionalReportsPage() {
                               {(entry.moduleName ||
                                 entry.topics?.some((t) => t.moduleName)) && (
                                 <div className="flex items-start gap-2">
-                                  <GraduationCap className="w-4 h-4 text-slate-400 mt-0.5 flex-shrink-0" />
+                                  <GraduationCap className="w-4 h-4 text-[var(--text-tertiary)] mt-0.5 flex-shrink-0" />
                                   <div>
-                                    <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400">
+                                    <p className="text-[10px] font-semibold uppercase tracking-widest text-[var(--text-tertiary)]">
                                       Module
                                     </p>
-                                    <p className="text-sm text-slate-700">
+                                    <p className="text-sm text-[var(--text-secondary)]">
                                       {entry.moduleName ||
                                         entry.topics
                                           ?.map((t) => t.moduleName)
@@ -726,15 +726,15 @@ export default function RegionalReportsPage() {
 
                               {/* Duration */}
                               <div className="flex items-start gap-2">
-                                <Clock className="w-4 h-4 text-slate-400 mt-0.5 flex-shrink-0" />
+                                <Clock className="w-4 h-4 text-[var(--text-tertiary)] mt-0.5 flex-shrink-0" />
                                 <div>
-                                  <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400">
+                                  <p className="text-[10px] font-semibold uppercase tracking-widest text-[var(--text-tertiary)]">
                                     Duration
                                   </p>
-                                  <p className="text-sm text-slate-700">
+                                  <p className="text-sm text-[var(--text-secondary)]">
                                     {entry.duration} min
                                     {entry.timetableSlot && (
-                                      <span className="text-slate-400 ml-2">
+                                      <span className="text-[var(--text-tertiary)] ml-2">
                                         ({entry.timetableSlot.startTime} -{" "}
                                         {entry.timetableSlot.endTime})
                                       </span>
@@ -746,12 +746,12 @@ export default function RegionalReportsPage() {
                               {/* Notes */}
                               {entry.notes && (
                                 <div className="flex items-start gap-2">
-                                  <FileText className="w-4 h-4 text-slate-400 mt-0.5 flex-shrink-0" />
+                                  <FileText className="w-4 h-4 text-[var(--text-tertiary)] mt-0.5 flex-shrink-0" />
                                   <div>
-                                    <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400">
+                                    <p className="text-[10px] font-semibold uppercase tracking-widest text-[var(--text-tertiary)]">
                                       Notes
                                     </p>
-                                    <p className="text-sm text-slate-700 whitespace-pre-wrap">
+                                    <p className="text-sm text-[var(--text-secondary)] whitespace-pre-wrap">
                                       {entry.notes}
                                     </p>
                                   </div>
@@ -761,12 +761,12 @@ export default function RegionalReportsPage() {
                               {/* Objectives */}
                               {entry.objectives && (
                                 <div className="flex items-start gap-2">
-                                  <PenTool className="w-4 h-4 text-slate-400 mt-0.5 flex-shrink-0" />
+                                  <PenTool className="w-4 h-4 text-[var(--text-tertiary)] mt-0.5 flex-shrink-0" />
                                   <div>
-                                    <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400">
+                                    <p className="text-[10px] font-semibold uppercase tracking-widest text-[var(--text-tertiary)]">
                                       Objectives
                                     </p>
-                                    <p className="text-sm text-slate-700 whitespace-pre-wrap">
+                                    <p className="text-sm text-[var(--text-secondary)] whitespace-pre-wrap">
                                       {entry.objectives}
                                     </p>
                                   </div>
@@ -779,20 +779,20 @@ export default function RegionalReportsPage() {
                                 <div className="flex gap-4">
                                   {entry.studentAttendance !== null && (
                                     <div>
-                                      <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400">
+                                      <p className="text-[10px] font-semibold uppercase tracking-widest text-[var(--text-tertiary)]">
                                         Attendance
                                       </p>
-                                      <p className="text-sm font-medium text-slate-700">
+                                      <p className="text-sm font-medium text-[var(--text-secondary)]">
                                         {entry.studentAttendance} students
                                       </p>
                                     </div>
                                   )}
                                   {entry.engagementLevel && (
                                     <div>
-                                      <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400">
+                                      <p className="text-[10px] font-semibold uppercase tracking-widest text-[var(--text-tertiary)]">
                                         Engagement
                                       </p>
-                                      <p className="text-sm font-medium text-slate-700">
+                                      <p className="text-sm font-medium text-[var(--text-secondary)]">
                                         {entry.engagementLevel}
                                       </p>
                                     </div>
@@ -801,7 +801,7 @@ export default function RegionalReportsPage() {
                               )}
 
                               {/* Teacher info */}
-                              <div className="pt-2 border-t border-slate-100 text-xs text-slate-400">
+                              <div className="pt-2 border-t border-[var(--border-secondary)] text-xs text-[var(--text-tertiary)]">
                                 <span>{entry.teacher.email}</span>
                               </div>
                             </div>
@@ -818,17 +818,17 @@ export default function RegionalReportsPage() {
                     <button
                       onClick={() => fetchEntries(entriesPage - 1)}
                       disabled={entriesPage === 0}
-                      className="text-sm text-brand-600 font-medium disabled:text-slate-300 px-3 py-1.5"
+                      className="text-sm text-brand-600 font-medium disabled:text-[var(--text-quaternary)] px-3 py-1.5"
                     >
                       Previous
                     </button>
-                    <span className="text-xs text-slate-400">
+                    <span className="text-xs text-[var(--text-tertiary)]">
                       Page {entriesPage + 1} of {totalPages}
                     </span>
                     <button
                       onClick={() => fetchEntries(entriesPage + 1)}
                       disabled={entriesPage >= totalPages - 1}
-                      className="text-sm text-brand-600 font-medium disabled:text-slate-300 px-3 py-1.5"
+                      className="text-sm text-brand-600 font-medium disabled:text-[var(--text-quaternary)] px-3 py-1.5"
                     >
                       Next
                     </button>

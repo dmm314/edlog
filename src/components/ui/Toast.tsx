@@ -29,9 +29,9 @@ const iconMap: Record<ToastType, React.ReactNode> = {
 };
 
 const bgMap: Record<ToastType, string> = {
-  success: "bg-green-50 border-green-200",
-  error: "bg-red-50 border-red-200",
-  info: "bg-blue-50 border-blue-200",
+  success: "bg-[var(--bg-elevated)] border-emerald-500/20",
+  error: "bg-[var(--bg-elevated)] border-red-500/20",
+  info: "bg-[var(--bg-elevated)] border-[var(--accent)]/20",
 };
 
 function ToastProvider({ children }: { children: React.ReactNode }) {
@@ -64,12 +64,12 @@ function ToastProvider({ children }: { children: React.ReactNode }) {
             role="alert"
           >
             {iconMap[t.type]}
-            <p className="flex-1 text-sm font-medium text-slate-800">
+            <p className="flex-1 text-sm font-medium text-[var(--text-primary)]">
               {t.message}
             </p>
             <button
               onClick={() => removeToast(t.id)}
-              className="shrink-0 text-slate-400 hover:text-slate-600 transition-colors"
+              className="shrink-0 text-[var(--text-tertiary)] hover:text-[var(--text-primary)] transition-colors"
               aria-label="Dismiss"
             >
               <X className="h-4 w-4" />

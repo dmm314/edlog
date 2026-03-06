@@ -72,7 +72,7 @@ export default function RegistrationCodesPage() {
   const expired = codes.filter((c) => c.isExpired && !c.isUsed);
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-24">
+    <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
       {/* Header */}
       <div className="bg-gradient-to-br from-brand-950 to-brand-800 px-5 pt-10 pb-6 rounded-b-2xl">
         <div className="max-w-lg mx-auto">
@@ -95,7 +95,7 @@ export default function RegistrationCodesPage() {
             <button
               onClick={handleGenerate}
               disabled={generating}
-              className="flex items-center gap-1.5 bg-white/10 hover:bg-white/20 text-white text-sm rounded-lg px-3 py-1.5"
+              className="flex items-center gap-1.5 bg-[var(--bg-elevated)]/10 hover:bg-[var(--bg-elevated)]/20 text-white text-sm rounded-lg px-3 py-1.5"
             >
               <Plus className="w-4 h-4" />
               {generating ? "..." : "Generate"}
@@ -119,7 +119,7 @@ export default function RegistrationCodesPage() {
               Used
             </p>
           </div>
-          <div className="flex-1 rounded-xl px-3 py-2 text-center bg-slate-100 text-slate-600">
+          <div className="flex-1 rounded-xl px-3 py-2 text-center bg-slate-100 text-[var(--text-secondary)]">
             <p className="text-lg font-bold">{expired.length}</p>
             <p className="text-[10px] font-medium uppercase tracking-wide">
               Expired
@@ -151,9 +151,9 @@ export default function RegistrationCodesPage() {
           </div>
         ) : codes.length === 0 ? (
           <div className="text-center py-8">
-            <Key className="w-10 h-10 text-slate-300 mx-auto mb-2" />
-            <p className="text-slate-500">No codes generated yet</p>
-            <p className="text-sm text-slate-400 mt-1">
+            <Key className="w-10 h-10 text-[var(--text-quaternary)] mx-auto mb-2" />
+            <p className="text-[var(--text-tertiary)]">No codes generated yet</p>
+            <p className="text-sm text-[var(--text-tertiary)] mt-1">
               Tap &quot;Generate&quot; to create a registration code
             </p>
           </div>
@@ -164,7 +164,7 @@ export default function RegistrationCodesPage() {
                 key={code.id}
                 className={`card p-4 ${
                   code.isUsed
-                    ? "bg-slate-50"
+                    ? "bg-[var(--bg-tertiary)]"
                     : code.isExpired
                     ? "bg-red-50/50"
                     : ""
@@ -172,13 +172,13 @@ export default function RegistrationCodesPage() {
               >
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
-                    <span className="text-lg font-mono font-bold text-slate-900 tracking-wider">
+                    <span className="text-lg font-mono font-bold text-[var(--text-primary)] tracking-wider">
                       {code.code}
                     </span>
                     {!code.isUsed && !code.isExpired && (
                       <button
                         onClick={() => copyCode(code.code, code.id)}
-                        className="p-1 text-slate-400 hover:text-brand-600 transition-colors"
+                        className="p-1 text-[var(--text-tertiary)] hover:text-brand-600 transition-colors"
                       >
                         {copiedId === code.id ? (
                           <Check className="w-4 h-4 text-green-500" />
@@ -206,7 +206,7 @@ export default function RegistrationCodesPage() {
                   )}
                 </div>
 
-                <div className="text-xs text-slate-400 space-y-0.5">
+                <div className="text-xs text-[var(--text-tertiary)] space-y-0.5">
                   <p>Created: {formatDate(code.createdAt)}</p>
                   <p>Expires: {formatDate(code.expiresAt)}</p>
                   {code.usedBy && (

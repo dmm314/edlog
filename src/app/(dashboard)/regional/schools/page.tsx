@@ -136,12 +136,12 @@ export default function RegionalSchoolsPage() {
       case "SUSPENDED":
         return "bg-red-50 text-red-700";
       default:
-        return "bg-slate-50 text-slate-700";
+        return "bg-[var(--bg-tertiary)] text-[var(--text-secondary)]";
     }
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-24">
+    <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
       {/* Header */}
       <div className="bg-gradient-to-br from-brand-950 to-brand-800 px-5 pt-10 pb-6 rounded-b-2xl">
         <div className="max-w-lg mx-auto">
@@ -164,13 +164,13 @@ export default function RegionalSchoolsPage() {
         {/* Search + Filter button */}
         <div className="flex gap-2">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-tertiary)]" />
             <input
               type="text"
               placeholder="Search by school name or code..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+              className="w-full pl-9 pr-4 py-2.5 bg-[var(--bg-elevated)] border border-[var(--border-primary)] rounded-xl text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
             />
           </div>
           <button
@@ -178,7 +178,7 @@ export default function RegionalSchoolsPage() {
             className={`flex items-center gap-1.5 px-3 py-2.5 rounded-xl text-sm font-medium border transition-colors ${
               hasActiveFilters
                 ? "bg-brand-50 border-brand-200 text-brand-700"
-                : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
+                : "bg-[var(--bg-elevated)] border-[var(--border-primary)] text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)]"
             }`}
           >
             <Filter className="w-4 h-4" />
@@ -192,7 +192,7 @@ export default function RegionalSchoolsPage() {
         {showFilters && (
           <div className="card p-4 space-y-3">
             <div className="flex items-center justify-between">
-              <h4 className="text-sm font-semibold text-slate-700">Filters</h4>
+              <h4 className="text-sm font-semibold text-[var(--text-secondary)]">Filters</h4>
               {hasActiveFilters && (
                 <button
                   onClick={clearFilters}
@@ -267,7 +267,7 @@ export default function RegionalSchoolsPage() {
 
         {/* Results count */}
         {(searchQuery || hasActiveFilters) && (
-          <p className="text-xs text-slate-400">
+          <p className="text-xs text-[var(--text-tertiary)]">
             Showing {sortedSchools.length} of {schools.length} school
             {schools.length !== 1 ? "s" : ""}
           </p>
@@ -285,8 +285,8 @@ export default function RegionalSchoolsPage() {
           </div>
         ) : sortedSchools.length === 0 ? (
           <div className="text-center py-8">
-            <Building2 className="w-10 h-10 text-slate-300 mx-auto mb-2" />
-            <p className="text-slate-500">No schools found</p>
+            <Building2 className="w-10 h-10 text-[var(--text-quaternary)] mx-auto mb-2" />
+            <p className="text-[var(--text-tertiary)]">No schools found</p>
             {(searchQuery || hasActiveFilters) && (
               <button
                 onClick={clearFilters}
@@ -310,7 +310,7 @@ export default function RegionalSchoolsPage() {
                   <div className="flex items-start justify-between">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
-                        <h4 className="font-semibold text-slate-900 truncate">
+                        <h4 className="font-semibold text-[var(--text-primary)] truncate">
                           {school.name}
                         </h4>
                         <span
@@ -321,18 +321,18 @@ export default function RegionalSchoolsPage() {
                           {school.status}
                         </span>
                       </div>
-                      <p className="text-xs text-slate-400">
+                      <p className="text-xs text-[var(--text-tertiary)]">
                         {school.code} &middot; {school.division}
                         {school.schoolType
                           ? ` \u00b7 ${school.schoolType}`
                           : ""}
                       </p>
                     </div>
-                    <ChevronRight className="w-4 h-4 text-slate-400 flex-shrink-0 mt-1" />
+                    <ChevronRight className="w-4 h-4 text-[var(--text-tertiary)] flex-shrink-0 mt-1" />
                   </div>
 
                   {/* Quick stats */}
-                  <div className="flex items-center gap-4 mt-2 text-xs text-slate-500">
+                  <div className="flex items-center gap-4 mt-2 text-xs text-[var(--text-tertiary)]">
                     <span className="flex items-center gap-1">
                       <Users className="w-3.5 h-3.5" />
                       {school.teacherCount} teachers
