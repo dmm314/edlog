@@ -19,9 +19,7 @@ import {
   Award,
   BarChart3,
   Crown,
-  ChevronDown,
   ChevronRight,
-  ListTodo,
   AlertCircle,
 } from "lucide-react";
 import { NotificationBell } from "@/components/NotificationBell";
