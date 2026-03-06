@@ -83,12 +83,7 @@ function getGreeting(): { text: string; icon: React.ElementType } {
   return { text: "Good Evening", icon: Moon };
 }
 
-function getSubjectColor(index: number): string {
-  const opacity = [0.9, 0.75, 0.65, 0.55, 0.8, 0.7];
-  return `opacity-${Math.round((opacity[index % opacity.length] || 0.7) * 100)}`;
-}
- 
-function getSubjectBg(_index: number): string {
+function getSubjectBg(): string {
   return "bg-[var(--accent-light)] text-[var(--accent-text)] border-[var(--border-primary)]";
 }
 
@@ -827,7 +822,9 @@ export default function LogbookPage() {
           </div>
         )}
 
-        <div className="w-20 h-20 bg-[var(--bg-tertiary)] rounded-3xl flex items-center justify-center mx-auto mb-5">
+        {entries.length === 0 && (
+          <div className="text-center py-20 animate-fade-in">
+            <div className="w-20 h-20 bg-[var(--bg-tertiary)] rounded-3xl flex items-center justify-center mx-auto mb-5">
               <BookOpen className="w-10 h-10 text-[var(--text-tertiary)]" />
             </div>
             <p className="text-[var(--text-primary)] font-bold text-lg">No entries yet</p>
