@@ -117,42 +117,42 @@ export default function AdminDashboardPage() {
         {stats && (stats.pendingTeachers ?? 0) > 0 && (
           <Link
             href="/admin/teachers"
-            className="animate-slide-up flex items-center gap-3.5 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200/60 rounded-2xl p-4 shadow-sm hover:shadow-md active:scale-[0.98] transition-all duration-200 group"
+            className="animate-slide-up flex items-center gap-3.5 card p-4 border-l-4 border-l-amber-500 hover:shadow-card-hover active:scale-[0.98] transition-all duration-200 group"
           >
-            <div className="w-11 h-11 bg-gradient-to-br from-amber-400 to-orange-500 rounded-xl flex items-center justify-center shadow-sm flex-shrink-0">
-              <AlertTriangle className="w-5 h-5 text-white" />
+            <div className="w-11 h-11 bg-amber-500/10 rounded-xl flex items-center justify-center flex-shrink-0">
+              <AlertTriangle className="w-5 h-5 text-amber-500" />
             </div>
             <div className="flex-1">
-              <p className="text-sm font-bold text-amber-900">
+              <p className="text-sm font-bold text-[var(--text-primary)]">
                 {stats.pendingTeachers} teacher
                 {(stats.pendingTeachers ?? 0) > 1 ? "s" : ""} awaiting approval
               </p>
-              <p className="text-xs text-amber-600/80 mt-0.5">Tap to review and approve</p>
+              <p className="text-xs text-[var(--text-tertiary)] mt-0.5">Tap to review and approve</p>
             </div>
-            <ChevronRight className="w-4 h-4 text-amber-400 group-hover:translate-x-0.5 transition-transform" />
+            <ChevronRight className="w-4 h-4 text-[var(--text-quaternary)] group-hover:translate-x-0.5 transition-transform" />
           </Link>
         )}
 
         {/* Stats grid */}
         <div className="animate-slide-up animation-delay-75 grid grid-cols-2 gap-3">
           {[
-            { href: "/admin/teachers", icon: Users, label: "Total Teachers", value: stats?.totalTeachers ?? 0, color: "from-blue-500 to-indigo-600", bg: "bg-blue-50", iconColor: "text-blue-500" },
-            { href: "/admin/entries", icon: BookOpen, label: "Total Entries", value: stats?.totalEntries ?? 0, color: "from-emerald-500 to-teal-600", bg: "bg-emerald-50", iconColor: "text-emerald-500" },
-            { href: "/admin/reports", icon: Zap, label: "This Month", value: stats?.entriesThisMonth ?? 0, color: "from-violet-500 to-purple-600", bg: "bg-violet-50", iconColor: "text-violet-500" },
-            { href: "/admin/reports", icon: Calendar, label: "This Week", value: stats?.entriesThisWeek ?? 0, color: "from-amber-500 to-orange-600", bg: "bg-amber-50", iconColor: "text-amber-500" },
-          ].map(({ href, icon: Icon, label, value, bg, iconColor }) => (
+{ href: "/admin/teachers", icon: Users, label: "Total Teachers", value: stats?.totalTeachers ?? 0 },
+            { href: "/admin/entries", icon: BookOpen, label: "Total Entries", value: stats?.totalEntries ?? 0 },
+            { href: "/admin/reports", icon: Zap, label: "This Month", value: stats?.entriesThisMonth ?? 0 },
+            { href: "/admin/reports", icon: Calendar, label: "This Week", value: stats?.entriesThisWeek ?? 0 },
+          ].map(({ href, icon: Icon, label, value }) => (
             <Link
               key={label}
               href={href}
               className="card p-4 hover:-translate-y-1 transition-all duration-200 active:scale-[0.97] group"
             >
-              <div className={`w-11 h-11 ${bg} rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-200`}>
-                <Icon className={`w-5 h-5 ${iconColor}`} />
+              <div className="w-11 h-11 bg-[var(--accent-light)] rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-200">
+                <Icon className="w-5 h-5 text-[var(--accent-text)]" />
               </div>
-              <p className="text-2xl font-black text-slate-900 tabular-nums">
+              <p className="text-2xl font-black text-[var(--text-primary)] tabular-nums">
                 {value}
               </p>
-              <p className="text-[11px] text-slate-400 font-semibold mt-0.5">{label}</p>
+              <p className="text-[11px] text-[var(--text-tertiary)] font-semibold mt-0.5">{label}</p>
             </Link>
           ))}
         </div>
@@ -161,8 +161,8 @@ export default function AdminDashboardPage() {
         {stats && stats.entriesByWeek.length > 0 && (
           <div className="animate-slide-up animation-delay-150 card p-5">
             <div className="flex items-center gap-2 mb-4">
-              <BarChart3 className="w-4 h-4 text-brand-500" />
-              <h3 className="text-sm font-bold text-slate-900">
+              <BarChart3 className="w-4 h-4 text-[var(--accent-text)]" />
+              <h3 className="text-sm font-bold text-[var(--text-primary)]">
                 Entries per Week
               </h3>
             </div>
@@ -177,17 +177,19 @@ export default function AdminDashboardPage() {
                     key={w.week}
                     className="flex-1 flex flex-col items-center gap-1.5 group"
                   >
-                    <span className="text-[11px] text-slate-600 font-bold opacity-0 group-hover:opacity-100 transition-opacity duration-200 tabular-nums">
+                    <span className="text-[11px] text-[var(--text-secondary)] font-bold opacity-0 group-hover:opacity-100 transition-opacity duration-200 tabular-nums">
                       {w.count}
                     </span>
                     <div
-                      className="w-full bg-gradient-to-t from-brand-700 to-brand-500 rounded-lg transition-all duration-500 hover:from-brand-600 hover:to-brand-400 shadow-sm"
+                      className="w-full rounded-lg transition-all duration-500 shadow-sm"
                       style={{
                         height: `${Math.max(height, 8)}%`,
                         animationDelay: `${i * 80}ms`,
+                        backgroundColor: "var(--accent)",
+                        opacity: 0.7 + (height / 100) * 0.3,
                       }}
                     />
-                    <span className="text-[10px] text-slate-400 font-semibold">
+                    <span className="text-[10px] text-[var(--text-tertiary)] font-semibold">
                       W{w.week.split("-W")[1]}
                     </span>
                   </div>
@@ -201,8 +203,8 @@ export default function AdminDashboardPage() {
         {stats && stats.entriesBySubject.length > 0 && (
           <div className="animate-slide-up animation-delay-225 card p-5">
             <div className="flex items-center gap-2 mb-4">
-              <GraduationCap className="w-4 h-4 text-brand-500" />
-              <h3 className="text-sm font-bold text-slate-900">
+               <GraduationCap className="w-4 h-4 text-[var(--accent-text)]" />
+              <h3 className="text-sm font-bold text-[var(--text-primary)]">
                 Entries by Subject
               </h3>
             </div>
@@ -213,10 +215,10 @@ export default function AdminDashboardPage() {
                 return (
                   <div key={s.subject}>
                     <div className="flex justify-between text-xs mb-1.5">
-                      <span className="text-slate-700 font-semibold">{s.subject}</span>
-                      <span className="text-slate-400 font-bold tabular-nums">{s.count}</span>
+                      <span className="text-[var(--text-primary)] font-semibold">{s.subject}</span>
+                      <span className="text-[var(--text-tertiary)] font-bold tabular-nums">{s.count}</span>
                     </div>
-                    <div className="h-2.5 bg-slate-100 rounded-full overflow-hidden shadow-inner">
+                    <div className="h-2.5 rounded-full overflow-hidden" style={{ backgroundColor: "var(--bg-tertiary)" }}>
                       <div
                         className={`h-full bg-gradient-to-r ${getSubjectBarColor(i)} rounded-full animate-progress-fill`}
                         style={{ width: `${width}%` }}
@@ -231,28 +233,28 @@ export default function AdminDashboardPage() {
 
         {/* Quick Actions — 2-column grid */}
         <div className="animate-slide-up animation-delay-300">
-          <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-3 px-1">
+          <h3 className="text-xs font-bold uppercase tracking-widest text-[var(--text-tertiary)] mb-3 px-1">
             Quick Actions
           </h3>
           <div className="grid grid-cols-2 gap-3">
             {[
-              { href: "/admin/entry-timetable", icon: FileText, label: "Entry Grid", desc: "Entries by class/week", gradient: "from-brand-500 to-brand-700" },
-              { href: "/admin/classes", icon: GraduationCap, label: "Classes", desc: "Subjects & divisions", gradient: "from-violet-500 to-purple-600" },
-              { href: "/admin/assignments", icon: UserCheck, label: "Assignments", desc: "Assign teachers", gradient: "from-emerald-500 to-teal-600" },
-              { href: "/admin/entries", icon: Layers, label: "All Entries", desc: "Browse all entries", gradient: "from-rose-500 to-pink-600" },
-              { href: "/admin/hods", icon: UserCheck, label: "HODs", desc: "Dept. heads", gradient: "from-amber-500 to-yellow-600" },
-              { href: "/admin/reports", icon: TrendingUp, label: "Reports", desc: "Analytics & export", gradient: "from-orange-500 to-red-600" },
-            ].map(({ href, icon: Icon, label, desc, gradient }) => (
+              { href: "/admin/entry-timetable", icon: FileText, label: "Entry Grid", desc: "Entries by class/week" },
+              { href: "/admin/classes", icon: GraduationCap, label: "Classes", desc: "Subjects & divisions" },
+              { href: "/admin/assignments", icon: UserCheck, label: "Assignments", desc: "Assign teachers" },
+              { href: "/admin/entries", icon: Layers, label: "All Entries", desc: "Browse all entries" },
+              { href: "/admin/hods", icon: UserCheck, label: "HODs", desc: "Dept. heads" },
+              { href: "/admin/reports", icon: TrendingUp, label: "Reports", desc: "Analytics & export" },
+            ].map(({ href, icon: Icon, label, desc }) => (
               <Link
                 key={href}
                 href={href}
-                className="relative overflow-hidden rounded-2xl border border-slate-100 p-4 group hover:-translate-y-1 transition-all duration-200 active:scale-[0.97] shadow-sm bg-white"
+                className="card p-4 group hover:-translate-y-1 transition-all duration-200 active:scale-[0.97]"
               >
-                <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${gradient} flex items-center justify-center mb-3 shadow-sm`}>
-                  <Icon className="w-5 h-5 text-white" />
+                <div className="w-11 h-11 rounded-xl bg-[var(--accent-light)] flex items-center justify-center mb-3">
+                  <Icon className="w-5 h-5 text-[var(--accent-text)]" />
                 </div>
-                <p className="font-bold text-slate-900 text-sm">{label}</p>
-                <p className="text-[11px] text-slate-400 mt-0.5">{desc}</p>
+                <p className="font-bold text-[var(--text-primary)] text-sm">{label}</p>
+                <p className="text-[11px] text-[var(--text-tertiary)] mt-0.5">{desc}</p>
               </Link>
             ))}
           </div>
