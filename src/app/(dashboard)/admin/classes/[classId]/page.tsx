@@ -1,3 +1,36 @@
+// ============================================================
+// CLASS DETAIL PAGE — Subjects & Divisions management
+// ============================================================
+//
+// This page has TWO tabs:
+//
+// 1. SUBJECTS TAB — Toggle which subjects are taught in this class.
+//    - Subjects come from the global Subject table (seeded via prisma/seed)
+//    - Toggling links/unlinks a ClassSubject record
+//    - "Copy from" copies another class's subject list
+//    - "Sync" pushes subjects to the counterpart class
+//      (Lower Sixth <-> Upper Sixth)
+//
+// 2. DIVISIONS TAB — Split a subject into parts taught by
+//    different teachers (e.g. Chemistry -> Physical / Organic).
+//    - DIVISION_TEMPLATES: pre-defined suggestions per subject code
+//    - Custom divisions can be added with level restrictions
+//    - Divisions are stored in SubjectDivision (school-specific)
+//    - API: /api/admin/divisions (POST, DELETE, PATCH)
+//
+// HOW TO ADD DIVISION TEMPLATES FOR A NEW SUBJECT:
+//   1. Find DIVISION_TEMPLATES below (~line 51)
+//   2. Add a new key matching the subject code (e.g. "ICT")
+//   3. Each template: { name: "Part Name", levels: [...] }
+//      - levels: [] means all levels, or specify e.g. ["Lower Sixth"]
+//
+// RELATED FILES:
+//   - API (subjects):  api/admin/classes/[classId]/subjects/route.ts
+//   - API (divisions): api/admin/divisions/route.ts
+//   - Schema:          prisma/schema.prisma (ClassSubject, SubjectDivision)
+//   - Curriculum:      prisma/seed/curriculum-other.ts (subject definitions)
+// ============================================================
+
 "use client";
 
 import { useState, useEffect, useMemo, useCallback } from "react";

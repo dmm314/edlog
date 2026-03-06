@@ -1,3 +1,27 @@
+// ============================================================
+// SUBJECTS API — /api/admin/subjects
+// ============================================================
+//
+// Manages the school-level subject catalog (which global subjects
+// are available at this school).
+//
+// ENDPOINTS:
+//   GET    — List all global subjects + which ones are linked to
+//            this school. Also returns divisions per subject.
+//   POST   — Link a global subject to this school (body: { subjectId })
+//   DELETE — Unlink a subject (query: ?subjectId=xxx)
+//            Also removes any SubjectDivisions for that subject.
+//            Blocked if teacher assignments exist.
+//
+// NOTE: This is SCHOOL-level linking. CLASS-level subject
+// assignment is handled by api/admin/classes/[classId]/subjects.
+//
+// RELATED FILES:
+//   - Schema:     prisma/schema.prisma (SchoolSubject, Subject)
+//   - Seed data:  prisma/seed/curriculum-other.ts (subject definitions)
+//   - Divisions:  api/admin/divisions/route.ts
+// ============================================================
+
 export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
