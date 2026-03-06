@@ -22,12 +22,12 @@ import type { AdminStats } from "@/types";
 
 function getSubjectBarColor(index: number): string {
   const colors = [
-    "from-blue-500 to-indigo-500",
-    "from-emerald-500 to-teal-500",
-    "from-violet-500 to-purple-500",
-    "from-amber-500 to-orange-500",
-    "from-rose-500 to-pink-500",
-    "from-cyan-500 to-blue-500",
+    "from-[var(--accent)] to-[var(--accent-hover)]",
+    "from-emerald-500 to-emerald-600",
+    "from-amber-500 to-amber-600",
+    "from-slate-500 to-slate-600",
+    "from-rose-500 to-rose-600",
+    "from-cyan-500 to-cyan-600",
   ];
   return colors[index % colors.length];
 }
@@ -59,9 +59,8 @@ export default function AdminDashboardPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100/50 pb-24">
-        <div className="bg-gradient-to-br from-brand-950 via-brand-900 to-brand-800 px-5 pt-10 pb-8 rounded-b-[2rem] shadow-elevated relative overflow-hidden">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-brand-600/20 via-transparent to-transparent" />
+       <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-primary)" }}>
+        <div className="page-header px-5 pt-10 pb-8 rounded-b-[2rem] shadow-elevated">
           <div className="max-w-lg mx-auto relative">
             <div className="skeleton h-6 w-40 !bg-white/15 mb-2" />
             <div className="skeleton h-4 w-28 !bg-white/10" />
@@ -87,22 +86,15 @@ export default function AdminDashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100/50 pb-24">
+    <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-primary)" }}>
       {/* Header */}
-      <div className="bg-gradient-to-br from-brand-950 via-brand-900 to-brand-800 px-5 pt-10 pb-8 rounded-b-[2rem] shadow-elevated relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-brand-600/20 via-transparent to-transparent" />
-        <div className="absolute top-0 right-0 w-64 h-64 bg-brand-500/[0.07] rounded-full -translate-y-1/3 translate-x-1/4 blur-3xl" />
-        <div className="absolute bottom-0 left-0 w-48 h-48 bg-brand-400/[0.05] rounded-full translate-y-1/3 -translate-x-1/4 blur-3xl" />
-
+      <div className="page-header px-5 pt-10 pb-8 rounded-b-[2rem] shadow-elevated">
         <div className="max-w-lg mx-auto relative">
           <div className="flex items-start justify-between">
             <div className="animate-fade-in">
-              <div className="flex items-center gap-2 mb-1">
-                <Sparkles className="w-4 h-4 text-brand-400" />
-                <p className="text-brand-400/80 text-xs font-semibold uppercase tracking-wider">
-                  School Overview
-                </p>
-              </div>
+              <p className="text-white/40 text-xs font-semibold uppercase tracking-wider mb-1">
+                School Overview
+              </p>
               <h1 className="text-2xl font-bold text-white">
                 Admin Dashboard
               </h1>
