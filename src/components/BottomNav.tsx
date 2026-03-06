@@ -51,13 +51,13 @@ function BottomNav({ role }: BottomNavProps) {
   const tabs = getNavTabs(role);
 
   return (
-    <nav className="fixed bottom-0 left-0 w-full z-50 backdrop-blur-xl pb-[env(safe-area-inset-bottom)]"
+   <nav className="fixed bottom-0 left-0 w-full z-50 backdrop-blur-xl pb-[env(safe-area-inset-bottom)]"
       style={{ backgroundColor: "var(--nav-bg)", borderTop: "1px solid var(--nav-border)" }}>
       <div className="flex items-center justify-around h-16 max-w-lg mx-auto">
         {tabs.map((tab) => {
           const isActive = pathname === tab.href || pathname.startsWith(tab.href + "/");
           const Icon = tab.icon;
-
+ 
           if (tab.highlight) {
             return (
               <Link
@@ -75,7 +75,7 @@ function BottomNav({ role }: BottomNavProps) {
               </Link>
             );
           }
-
+ 
           return (
             <Link
               key={tab.href}

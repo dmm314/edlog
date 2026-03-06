@@ -26,26 +26,26 @@ export default function LandingPage() {
             </div>
             <span className="text-white font-bold text-lg tracking-tight">Edlog</span>
           </div>
-
+ 
           {/* Hero content */}
           <div className="space-y-5">
             <div className="inline-flex items-center gap-2 bg-white/[0.07] backdrop-blur-sm rounded-full pl-2 pr-3.5 py-1.5 border border-white/[0.06]">
               <span className="bg-emerald-500/90 text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide">New</span>
               <span className="text-white/70 text-xs font-medium">Subject divisions & smart timetabling</span>
             </div>
-
+ 
             <h1 className="text-[2.5rem] leading-[1.1] font-extrabold text-white tracking-tight">
               The logbook<br />
               <span className="text-[var(--accent-text)] opacity-80">
                 teachers actually use.
               </span>
             </h1>
-
+ 
             <p className="text-white/50 text-base leading-relaxed max-w-sm">
               Fill your curriculum logbook in under 60 seconds. Pre-loaded GCE subjects,
               smart timetable sync, and real-time admin oversight.
             </p>
-
+ 
             {/* CTA Buttons */}
             <div className="flex gap-3 pt-2">
               <Link
@@ -63,7 +63,7 @@ export default function LandingPage() {
               </Link>
             </div>
           </div>
-
+ 
           {/* Trust indicators */}
           <div className="flex items-center gap-6 mt-10 pt-8 border-t border-white/[0.06]">
             <div className="text-center">
@@ -83,7 +83,7 @@ export default function LandingPage() {
           </div>
         </div>
       </div>
-
+ 
       {/* ── WHO IT'S FOR ── */}
       <div className="px-5 py-14 max-w-lg mx-auto">
         <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--accent-text)] mb-2">Built for everyone</p>
@@ -93,7 +93,7 @@ export default function LandingPage() {
         <p className="text-sm text-[var(--text-tertiary)] mt-2 leading-relaxed">
           Whether you teach, manage, or oversee — Edlog gives you the tools you need.
         </p>
-
+ 
         <div className="space-y-3 mt-8">
           {/* Teacher card */}
           <Link href="/register" className="group block">
@@ -113,7 +113,7 @@ export default function LandingPage() {
               </p>
             </div>
           </Link>
-
+ 
           {/* School Admin card */}
           <Link href="/register/school" className="group block">
             <div className="card p-5 hover:-translate-y-1 transition-all duration-200">
@@ -132,7 +132,7 @@ export default function LandingPage() {
               </p>
             </div>
           </Link>
-
+ 
           {/* Regional Admin card */}
           <div className="card p-5">
             <div className="flex items-center gap-3 mb-3">
@@ -150,7 +150,7 @@ export default function LandingPage() {
           </div>
         </div>
       </div>
-
+ 
       {/* ── FEATURES ── */}
       <div className="px-5 py-14" style={{ backgroundColor: "var(--bg-secondary)" }}>
         <div className="max-w-lg mx-auto">
@@ -158,7 +158,7 @@ export default function LandingPage() {
           <h2 className="text-2xl font-extrabold text-[var(--text-primary)] tracking-tight">
             Everything you need,<br />nothing you don&apos;t.
           </h2>
-
+ 
           <div className="grid grid-cols-2 gap-3 mt-8">
             {[
               { icon: Zap, title: "60-Second Entries", desc: "Tap, select, submit. Faster than writing by hand." },
@@ -179,14 +179,14 @@ export default function LandingPage() {
           </div>
         </div>
       </div>
-
+ 
       {/* ── HOW IT WORKS ── */}
       <div className="px-5 py-14 max-w-lg mx-auto">
         <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--accent-text)] mb-2">How it works</p>
         <h2 className="text-2xl font-extrabold text-[var(--text-primary)] tracking-tight mb-8">
           Three steps. That&apos;s it.
         </h2>
-
+ 
         <div className="space-y-6">
           {[
             { n: "1", title: "Open today's schedule", desc: "Your timetable is already loaded. Tap the period you just taught." },
@@ -206,7 +206,7 @@ export default function LandingPage() {
           ))}
         </div>
       </div>
-
+ 
       {/* ── FINAL CTA ── */}
       <div className="page-header px-5 py-14">
         <div className="max-w-lg mx-auto text-center relative">
@@ -216,7 +216,7 @@ export default function LandingPage() {
           <p className="text-white/40 text-sm mt-2 leading-relaxed max-w-xs mx-auto">
             Join schools across Cameroon already using Edlog to streamline curriculum tracking.
           </p>
-
+ 
           <div className="flex flex-col gap-3 mt-8 max-w-xs mx-auto">
             <Link
               href="/register"
@@ -234,7 +234,7 @@ export default function LandingPage() {
           </div>
         </div>
       </div>
-
+ 
       {/* ── FOOTER ── */}
       <div className="px-5 py-8 text-center" style={{ backgroundColor: "var(--bg-secondary)", borderTop: "1px solid var(--border-primary)" }}>
         <div className="flex items-center justify-center gap-2 mb-3">

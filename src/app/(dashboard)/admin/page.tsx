@@ -58,7 +58,7 @@ export default function AdminDashboardPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-primary)" }}>
+       <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-primary)" }}>
         <div className="page-header px-5 pt-10 pb-8 rounded-b-[2rem] shadow-elevated">
           <div className="max-w-lg mx-auto relative">
             <div className="skeleton h-6 w-40 !bg-[var(--bg-elevated)]/15 mb-2" />
@@ -135,7 +135,7 @@ export default function AdminDashboardPage() {
         {/* Stats grid */}
         <div className="animate-slide-up animation-delay-75 grid grid-cols-2 gap-3">
           {[
-            { href: "/admin/teachers", icon: Users, label: "Total Teachers", value: stats?.totalTeachers ?? 0 },
+{ href: "/admin/teachers", icon: Users, label: "Total Teachers", value: stats?.totalTeachers ?? 0 },
             { href: "/admin/entries", icon: BookOpen, label: "Total Entries", value: stats?.totalEntries ?? 0 },
             { href: "/admin/reports", icon: Zap, label: "This Month", value: stats?.entriesThisMonth ?? 0 },
             { href: "/admin/reports", icon: Calendar, label: "This Week", value: stats?.entriesThisWeek ?? 0 },
@@ -202,7 +202,7 @@ export default function AdminDashboardPage() {
         {stats && stats.entriesBySubject.length > 0 && (
           <div className="animate-slide-up animation-delay-225 card p-5">
             <div className="flex items-center gap-2 mb-4">
-              <GraduationCap className="w-4 h-4 text-[var(--accent-text)]" />
+               <GraduationCap className="w-4 h-4 text-[var(--accent-text)]" />
               <h3 className="text-sm font-bold text-[var(--text-primary)]">
                 Entries by Subject
               </h3>

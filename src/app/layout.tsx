@@ -3,7 +3,7 @@ import { SessionProvider } from "next-auth/react";
 import { ToastProvider } from "@/components/ui/Toast";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import "./globals.css";
-
+ 
 export const metadata: Metadata = {
   title: "Edlog — Digital Curriculum Logbook",
   description:
@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     title: "Edlog",
   },
 };
-
+ 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
@@ -23,7 +23,7 @@ export const viewport: Viewport = {
   userScalable: false,
   themeColor: "#0f172a",
 };
-
+ 
 export default function RootLayout({
   children,
 }: {

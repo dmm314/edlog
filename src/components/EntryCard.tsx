@@ -68,7 +68,7 @@ function EntryCard({ entry, onClick }: EntryCardProps) {
             {formattedDate} at {formattedTime}
           </span>
         </div>
-
+ 
         {entry.notes && (
           <p className="mt-2 text-sm text-[var(--text-secondary)] line-clamp-2">
             {entry.notes}

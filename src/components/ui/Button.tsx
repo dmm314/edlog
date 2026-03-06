@@ -12,9 +12,12 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variantClasses: Record<ButtonVariant, string> = {
-  primary: "btn-primary",
-  secondary: "btn-secondary",
-  danger: "btn-danger",
+  primary:
+    "btn-primary",
+  secondary:
+    "btn-secondary",
+  danger:
+    "btn-danger",
 };
 
 const sizeClasses: Record<ButtonSize, string> = {

@@ -12,7 +12,7 @@ function StatsCard({ label, value, icon: Icon, trend }: StatsCardProps) {
   return (
     <div className="card p-4">
       <div className="flex items-start gap-3">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--accent-light)]">
+         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--accent-light)]">
           <Icon className="h-5 w-5 text-[var(--accent-text)]" />
         </div>
         <div className="min-w-0">

@@ -83,7 +83,12 @@ function getGreeting(): { text: string; icon: React.ElementType } {
   return { text: "Good Evening", icon: Moon };
 }
 
-function getSubjectBg(): string {
+function getSubjectColor(index: number): string {
+  const opacity = [0.9, 0.75, 0.65, 0.55, 0.8, 0.7];
+  return `opacity-${Math.round((opacity[index % opacity.length] || 0.7) * 100)}`;
+}
+ 
+function getSubjectBg(_index: number): string {
   return "bg-[var(--accent-light)] text-[var(--accent-text)] border-[var(--border-primary)]";
 }
 
@@ -360,9 +365,9 @@ export default function LogbookPage() {
             <div className="skeleton h-7 w-48 !bg-[var(--bg-elevated)]/15 mb-6" />
             <div className="grid grid-cols-3 gap-3">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="bg-[var(--bg-elevated)]/[0.05] rounded-2xl px-3 py-4">
-                  <div className="skeleton h-8 w-10 mx-auto mb-2 !bg-[var(--bg-elevated)]/10" />
-                  <div className="skeleton h-3 w-14 mx-auto !bg-[var(--bg-elevated)]/[0.06]" />
+                <div key={i} className="bg-white/[0.05] rounded-2xl px-3 py-4">
+                  <div className="skeleton h-8 w-10 mx-auto mb-2 !bg-white/10" />
+                  <div className="skeleton h-3 w-14 mx-auto !bg-white/[0.06]" />
                 </div>
               ))}
             </div>
@@ -403,7 +408,7 @@ export default function LogbookPage() {
             </div>
             <NotificationBell />
           </div>
-
+ 
           {/* Stats cards */}
           <div className="grid grid-cols-3 gap-3">
             {[
@@ -413,7 +418,7 @@ export default function LogbookPage() {
             ].map((stat) => (
               <div
                 key={stat.label}
-                className={`animate-count-up ${stat.delay} bg-[var(--bg-elevated)]/[0.06] backdrop-blur-sm rounded-2xl px-3 py-4 text-center border border-white/[0.04] hover:bg-[var(--bg-elevated)]/[0.1] transition-colors duration-300`}
+                className={`animate-count-up ${stat.delay} bg-white/[0.06] backdrop-blur-sm rounded-2xl px-3 py-4 text-center border border-white/[0.04] hover:bg-white/[0.1] transition-colors duration-300`}
               >
                 <stat.icon className="w-4 h-4 text-white/30 mx-auto mb-1.5" />
                 <p className="text-3xl font-bold text-white tabular-nums leading-none">
@@ -435,7 +440,7 @@ export default function LogbookPage() {
           className="animate-scale-in relative flex items-center justify-center gap-3 text-white font-bold rounded-2xl py-4.5 px-6 shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group overflow-hidden"
           style={{ backgroundColor: "var(--accent)" }}
         >
-          <div className="w-8 h-8 bg-[var(--bg-elevated)]/20 rounded-xl flex items-center justify-center">
+          <div className="w-8 h-8 bg-white/20 rounded-xl flex items-center justify-center">
             <Plus className="w-5 h-5" />
           </div>
           <span className="text-base">New Entry</span>
@@ -708,7 +713,7 @@ export default function LogbookPage() {
         {/* Verification Rate */}
         <div className="animate-slide-up animation-delay-150 card p-5">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-9 h-9 bg-[var(--accent-light)] rounded-xl flex items-center justify-center">
+           <div className="w-9 h-9 bg-[var(--accent-light)] rounded-xl flex items-center justify-center">
               <Award className="w-4.5 h-4.5 text-[var(--accent-text)]" />
             </div>
             <div className="flex-1">
@@ -822,9 +827,7 @@ export default function LogbookPage() {
           </div>
         )}
 
-        {entries.length === 0 && (
-          <div className="text-center py-20 animate-fade-in">
-            <div className="w-20 h-20 bg-[var(--bg-tertiary)] rounded-3xl flex items-center justify-center mx-auto mb-5">
+        <div className="w-20 h-20 bg-[var(--bg-tertiary)] rounded-3xl flex items-center justify-center mx-auto mb-5">
               <BookOpen className="w-10 h-10 text-[var(--text-tertiary)]" />
             </div>
             <p className="text-[var(--text-primary)] font-bold text-lg">No entries yet</p>

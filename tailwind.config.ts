@@ -1,12 +1,12 @@
 import type { Config } from "tailwindcss";
-
+ 
 const config: Config = {
   content: [
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
-  darkMode: "class",
+   darkMode: "class",
   theme: {
     extend: {
       colors: {
@@ -61,7 +61,7 @@ const config: Config = {
         ],
       },
       boxShadow: {
-        card: "var(--shadow-card)",
+         card: "var(--shadow-card)",
         "card-hover": "var(--shadow-card-hover)",
         elevated: "var(--shadow-elevated)",
         glow: "0 0 0 3px var(--accent-light)",
@@ -86,7 +86,7 @@ const config: Config = {
           "0%": { opacity: "0", transform: "scale(0.95)" },
           "100%": { opacity: "1", transform: "scale(1)" },
         },
-        "shimmer": {
+        shimmer: {
           "0%": { backgroundPosition: "-200% 0" },
           "100%": { backgroundPosition: "200% 0" },
         },
@@ -106,15 +106,13 @@ const config: Config = {
         "slide-up": "slide-up 0.35s cubic-bezier(0.16, 1, 0.3, 1)",
         "fade-in": "fade-in 0.2s ease-out",
         "scale-in": "scale-in 0.25s cubic-bezier(0.16, 1, 0.3, 1)",
-        "shimmer": "shimmer 2s linear infinite",
+        shimmer: "shimmer 2s linear infinite",
         "bounce-in": "bounce-in 0.5s cubic-bezier(0.16, 1, 0.3, 1)",
         "count-up": "count-up 0.4s cubic-bezier(0.16, 1, 0.3, 1)",
       },
       backgroundImage: {
-        "shimmer-gradient": "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%)",
-      },
-    },
-  },
+        "shimmer-gradient":
+          "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%)",
   plugins: [],
 };
 export default config;
