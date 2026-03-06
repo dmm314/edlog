@@ -25,23 +25,11 @@ export async function GET(
       return NextResponse.json({ error: "Class not found" }, { status: 404 });
     }
 
-    // Get subjects linked to this school (via SchoolSubject)
-    // If school has no subjects linked yet, fall back to all global subjects
-    const schoolSubjectRecords = await db.schoolSubject.findMany({
-      where: { schoolId: user.schoolId },
-      include: {
-        subject: { select: { id: true, name: true, code: true, category: true } },
-      },
+    // Get all global subjects so every class can toggle any subject
+    const allSubjects = await db.subject.findMany({
+      orderBy: [{ category: "asc" }, { name: "asc" }],
+      select: { id: true, name: true, code: true, category: true },
     });
-
-    const allSubjects = schoolSubjectRecords.length > 0
-      ? schoolSubjectRecords
-          .map((ss) => ss.subject)
-          .sort((a, b) => (a.category || "").localeCompare(b.category || "") || a.name.localeCompare(b.name))
-      : await db.subject.findMany({
-          orderBy: [{ category: "asc" }, { name: "asc" }],
-          select: { id: true, name: true, code: true, category: true },
-        });
 
     // Get subjects already linked to this class
     const classSubjects = await db.classSubject.findMany({
