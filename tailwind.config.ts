@@ -61,7 +61,7 @@ const config: Config = {
         ],
       },
       boxShadow: {
-        card: "var(--shadow-card)",
+         card: "var(--shadow-card)",
         "card-hover": "var(--shadow-card-hover)",
         elevated: "var(--shadow-elevated)",
         glow: "0 0 0 3px var(--accent-light)",
