@@ -49,10 +49,10 @@ function EntryCard({ entry, onClick }: EntryCardProps) {
       <div onClick={onClick} role={onClick ? "button" : undefined} tabIndex={onClick ? 0 : undefined}>
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0 flex-1">
-            <p className="font-bold text-brand-950 truncate">
+            <p className="font-bold text-[var(--text-primary)] truncate">
               {subjectName}
             </p>
-            <p className="text-sm text-slate-600 mt-0.5 truncate">
+            <p className="text-sm text-[var(--text-secondary)] mt-0.5 truncate">
               {topicDisplay}
             </p>
           </div>
@@ -61,16 +61,16 @@ function EntryCard({ entry, onClick }: EntryCardProps) {
           </Badge>
         </div>
 
-        <div className="flex items-center gap-3 mt-3 text-xs text-slate-400">
+        <div className="flex items-center gap-3 mt-3 text-xs text-[var(--text-tertiary)]">
           <span>{entry.class.name}</span>
-          <span className="w-1 h-1 rounded-full bg-slate-300" />
+          <span className="w-1 h-1 rounded-full bg-[var(--text-quaternary)]" />
           <span>
             {formattedDate} at {formattedTime}
           </span>
         </div>
-
+ 
         {entry.notes && (
-          <p className="mt-2 text-sm text-slate-500 line-clamp-2">
+          <p className="mt-2 text-sm text-[var(--text-secondary)] line-clamp-2">
             {entry.notes}
           </p>
         )}
