@@ -100,9 +100,7 @@ export async function GET(
         divisions: divisionsBySubject[s.id] || [],
       })),
       linkedCount: linkedIds.size,
-      otherClasses: otherClasses
-        .filter((c) => (subjectCountByClass[c.id] || 0) > 0)
-        .map((c) => ({
+      otherClasses: otherClasses.map((c) => ({
           id: c.id,
           name: c.name,
           subjectCount: subjectCountByClass[c.id] || 0,
