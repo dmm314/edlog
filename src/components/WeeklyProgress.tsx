@@ -19,46 +19,65 @@ function WeeklyProgress({ days, totalCompleted, totalPeriods }: WeeklyProgressPr
   const maxTotal = Math.max(...days.map((d) => d.total), 1);
 
   return (
-    <div className="card p-4">
+    <div className="card p-5">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-sm font-bold text-[var(--text-primary)]">This Week</h3>
-        <span className="text-xs font-mono tabular-nums text-[var(--text-tertiary)]">
+        <h3 className="text-[13px] font-bold text-[var(--text-primary)]">
+          This Week
+        </h3>
+        <span
+          className="text-xs font-semibold font-mono tabular-nums"
+          style={{ color: "var(--accent-text)" }}
+        >
           {totalCompleted}/{totalPeriods} periods
         </span>
       </div>
-      <div className="flex items-end gap-2 h-20">
+
+      <div className="flex gap-[6px] items-end" style={{ height: "56px" }}>
         {days.map((day) => {
-          const height = day.total > 0 ? (day.completed / maxTotal) * 100 : 0;
-          const bgHeight = day.total > 0 ? (day.total / maxTotal) * 100 : 0;
+          const barHeight = day.total > 0 ? (day.total / maxTotal) * 100 : 8;
+          const fillPct = day.total > 0 ? (day.completed / day.total) * 100 : 0;
           const isComplete = day.completed >= day.total && day.total > 0;
+          const isFuture = day.completed === 0 && !day.isCurrent && day.total > 0;
+
+          // Determine bar colors
+          let fillGradient: string;
+          if (isComplete) {
+            fillGradient = "linear-gradient(180deg, var(--success), #15803D)";
+          } else if (day.isCurrent) {
+            fillGradient = "linear-gradient(180deg, var(--accent-warm), var(--accent))";
+          } else if (day.completed > 0) {
+            fillGradient = "linear-gradient(180deg, var(--accent), var(--accent-hover))";
+          } else {
+            fillGradient = "transparent";
+          }
 
           return (
             <div key={day.day} className="flex-1 flex flex-col items-center gap-1.5">
-              <div className="w-full relative" style={{ height: `${bgHeight}%`, minHeight: "4px" }}>
+              <div
+                className="w-full relative rounded-lg overflow-hidden"
+                style={{
+                  height: `${barHeight}%`,
+                  minHeight: "6px",
+                  backgroundColor: "var(--bg-tertiary)",
+                }}
+              >
+                {/* Fill bar — animated from bottom */}
                 <div
-                  className="absolute bottom-0 w-full rounded-t-sm transition-all duration-500"
+                  className="absolute bottom-0 left-0 right-0 rounded-lg animate-progress-fill"
                   style={{
-                    height: "100%",
-                    backgroundColor: "var(--bg-tertiary)",
-                    borderRadius: "4px",
-                  }}
-                />
-                <div
-                  className="absolute bottom-0 w-full rounded-t-sm animate-progress-fill"
-                  style={{
-                    height: `${day.total > 0 ? (day.completed / day.total) * 100 : 0}%`,
-                    background: day.isCurrent
-                      ? "linear-gradient(to top, var(--accent), var(--accent-warm))"
-                      : isComplete
-                      ? "linear-gradient(to top, #16A34A, #22C55E)"
-                      : "var(--bg-tertiary)",
-                    borderRadius: "4px",
+                    height: `${fillPct}%`,
+                    background: fillGradient,
+                    minHeight: fillPct > 0 ? "4px" : "0",
                   }}
                 />
               </div>
-              <span className={`text-[10px] font-semibold ${
-                day.isCurrent ? "text-[var(--accent-text)]" : "text-[var(--text-tertiary)]"
-              }`}>
+              <span
+                className={`text-[10px] font-mono ${
+                  day.isCurrent
+                    ? "font-extrabold text-[var(--text-primary)]"
+                    : "font-medium text-[var(--text-tertiary)]"
+                }`}
+              >
                 {day.day}
               </span>
             </div>
