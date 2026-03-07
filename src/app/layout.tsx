@@ -1,9 +1,28 @@
 import type { Metadata, Viewport } from "next";
+import { DM_Sans, Fraunces, JetBrains_Mono } from "next/font/google";
 import { SessionProvider } from "next-auth/react";
 import { ToastProvider } from "@/components/ui/Toast";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import "./globals.css";
- 
+
+const dmSans = DM_Sans({
+  subsets: ["latin"],
+  variable: "--font-body",
+  display: "swap",
+});
+
+const fraunces = Fraunces({
+  subsets: ["latin"],
+  variable: "--font-display",
+  display: "swap",
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   title: "Edlog — Digital Curriculum Logbook",
   description:
@@ -15,22 +34,26 @@ export const metadata: Metadata = {
     title: "Edlog",
   },
 };
- 
+
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
-  themeColor: "#0f172a",
+  themeColor: "#1C1917",
 };
- 
+
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={`${dmSans.variable} ${fraunces.variable} ${jetbrainsMono.variable}`}
+    >
       <head>
         <link rel="apple-touch-icon" href="/icon-192.png" />
         <script

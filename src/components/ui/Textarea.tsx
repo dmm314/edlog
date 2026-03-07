@@ -29,17 +29,17 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
           maxLength={maxLength}
           value={value}
           defaultValue={defaultValue}
-          className={`input-field resize-none ${error ? "border-red-400 focus:ring-red-400" : ""} ${className}`}
+          className={`input-field resize-none ${error ? "input-error" : ""} ${className}`}
           {...props}
         />
         <div className="flex justify-between mt-1">
           {error ? (
-            <p className="text-sm text-red-500">{error}</p>
+            <p className="text-sm" style={{ color: "var(--warning)" }}>{error}</p>
           ) : (
             <span />
           )}
           {maxLength && (
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-[var(--text-tertiary)]">
               {currentLength}/{maxLength}
             </p>
           )}

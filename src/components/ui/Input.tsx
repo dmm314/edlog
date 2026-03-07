@@ -19,11 +19,11 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         <input
           ref={ref}
           id={inputId}
-          className={`input-field ${error ? "border-red-400 focus:ring-red-400" : ""} ${className}`}
+          className={`input-field ${error ? "input-error" : ""} ${className}`}
           {...props}
         />
         {error && (
-          <p className="mt-1 text-sm text-red-500">{error}</p>
+          <p className="mt-1 text-sm" style={{ color: "var(--warning)" }}>{error}</p>
         )}
       </div>
     );

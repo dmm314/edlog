@@ -1,7 +1,7 @@
 import React from "react";
 import { LoadingSpinner } from "./LoadingSpinner";
 
-type ButtonVariant = "primary" | "secondary" | "danger";
+type ButtonVariant = "primary" | "secondary" | "danger" | "ghost" | "success";
 type ButtonSize = "sm" | "md" | "lg";
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -12,12 +12,11 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variantClasses: Record<ButtonVariant, string> = {
-  primary:
-    "btn-primary",
-  secondary:
-    "btn-secondary",
-  danger:
-    "btn-danger",
+  primary: "btn-primary",
+  secondary: "btn-secondary",
+  danger: "btn-danger",
+  ghost: "btn-ghost",
+  success: "btn-success",
 };
 
 const sizeClasses: Record<ButtonSize, string> = {

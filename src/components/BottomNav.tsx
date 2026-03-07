@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, PlusCircle, Clock, User, Shield, Globe, BarChart3, Calendar, Users, BookOpen } from "lucide-react";
+import { Home, Plus, Clock, User, Shield, Globe, BarChart3, Calendar, Users, BookOpen } from "lucide-react";
 
 interface BottomNavProps {
   role: string;
@@ -39,7 +39,7 @@ function getNavTabs(role: string): NavItem[] {
   // TEACHER (default)
   return [
     { href: "/logbook", label: "Home", icon: Home },
-    { href: "/logbook/new", label: "New Entry", icon: PlusCircle, highlight: true },
+    { href: "/logbook/new", label: "New Entry", icon: Plus, highlight: true },
     { href: "/timetable", label: "Timetable", icon: Calendar },
     { href: "/history", label: "History", icon: Clock },
     { href: "/profile", label: "Profile", icon: User },
@@ -51,40 +51,53 @@ function BottomNav({ role }: BottomNavProps) {
   const tabs = getNavTabs(role);
 
   return (
-   <nav className="fixed bottom-0 left-0 w-full z-50 backdrop-blur-xl pb-[env(safe-area-inset-bottom)]"
-      style={{ backgroundColor: "var(--nav-bg)", borderTop: "1px solid var(--nav-border)" }}>
+    <nav
+      className="fixed bottom-0 left-0 w-full z-50 backdrop-blur-xl pb-[env(safe-area-inset-bottom)]"
+      style={{ backgroundColor: "var(--nav-bg)", borderTop: "1px solid var(--nav-border)" }}
+    >
       <div className="flex items-center justify-around h-16 max-w-lg mx-auto">
         {tabs.map((tab) => {
           const isActive = pathname === tab.href || pathname.startsWith(tab.href + "/");
           const Icon = tab.icon;
- 
+
           if (tab.highlight) {
             return (
               <Link
                 key={tab.href}
                 href={tab.href}
-                className="flex flex-col items-center gap-0.5 -mt-3"
+                className="flex flex-col items-center gap-0.5 -mt-6"
+                aria-label={tab.label}
               >
-                <div className="flex h-12 w-12 items-center justify-center rounded-full shadow-lg active:scale-95 transition-transform"
-                  style={{ backgroundColor: "var(--accent)" }}>
-                  <Icon className="h-5.5 w-5.5 text-white" />
+                <div
+                  className="flex h-12 w-12 items-center justify-center rounded-full shadow-accent active:scale-95 transition-transform"
+                  style={{
+                    background: "linear-gradient(135deg, var(--accent), var(--accent-hover))",
+                  }}
+                >
+                  <Icon className="h-5 w-5 text-white" strokeWidth={2.5} />
                 </div>
-                <span className="text-[10px] font-semibold" style={{ color: "var(--accent-text)" }}>
+                <span
+                  className="text-[10px] font-bold"
+                  style={{ color: "var(--accent-text)" }}
+                >
                   {tab.label}
                 </span>
               </Link>
             );
           }
- 
+
           return (
             <Link
               key={tab.href}
               href={tab.href}
               className="flex flex-col items-center gap-0.5 px-3 py-1 transition-colors"
               style={{ color: isActive ? "var(--nav-text-active)" : "var(--nav-text)" }}
+              aria-label={tab.label}
             >
-              <Icon className="h-5.5 w-5.5" />
-              <span className={`text-[10px] ${isActive ? "font-semibold" : "font-medium"}`}>{tab.label}</span>
+              <Icon className="h-5 w-5" />
+              <span className={`text-[10px] ${isActive ? "font-bold" : "font-medium"}`}>
+                {tab.label}
+              </span>
             </Link>
           );
         })}

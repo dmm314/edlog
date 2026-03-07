@@ -32,9 +32,9 @@ function applyTheme(theme: Theme) {
   const meta = document.querySelector('meta[name="theme-color"]');
   if (meta) {
     const colors: Record<Theme, string> = {
-      light: "#ffffff",
-      dark: "#09090b",
-      night: "#1c1917",
+      light: "#FAFAF9",
+      dark: "#0C0A09",
+      night: "#131110",
     };
     meta.setAttribute("content", colors[theme]);
   }

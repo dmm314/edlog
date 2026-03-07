@@ -6,7 +6,7 @@ import React, {
   useContext,
   useState,
 } from "react";
-import { CheckCircle, XCircle, Info, X } from "lucide-react";
+import { CheckCircle, XCircle, AlertCircle, X } from "lucide-react";
 
 type ToastType = "success" | "error" | "info";
 
@@ -23,15 +23,9 @@ interface ToastContextValue {
 const ToastContext = createContext<ToastContextValue | null>(null);
 
 const iconMap: Record<ToastType, React.ReactNode> = {
-  success: <CheckCircle className="h-5 w-5 text-green-500 shrink-0" />,
-  error: <XCircle className="h-5 w-5 text-red-500 shrink-0" />,
-  info: <Info className="h-5 w-5 text-blue-500 shrink-0" />,
-};
-
-const bgMap: Record<ToastType, string> = {
-  success: "bg-[var(--bg-elevated)] border-emerald-500/20",
-  error: "bg-[var(--bg-elevated)] border-red-500/20",
-  info: "bg-[var(--bg-elevated)] border-[var(--accent)]/20",
+  success: <CheckCircle className="h-5 w-5 shrink-0" style={{ color: "var(--success)" }} />,
+  error: <XCircle className="h-5 w-5 shrink-0" style={{ color: "var(--warning)" }} />,
+  info: <AlertCircle className="h-5 w-5 shrink-0" style={{ color: "var(--accent)" }} />,
 };
 
 function ToastProvider({ children }: { children: React.ReactNode }) {
@@ -56,11 +50,16 @@ function ToastProvider({ children }: { children: React.ReactNode }) {
   return (
     <ToastContext.Provider value={{ toast: addToast }}>
       {children}
-      <div className="fixed top-0 left-0 right-0 z-[100] flex flex-col items-center gap-2 p-4 pointer-events-none">
+      <div className="fixed bottom-20 left-0 right-0 z-[100] flex flex-col items-center gap-2 px-4 pointer-events-none">
         {toasts.map((t) => (
           <div
             key={t.id}
-            className={`pointer-events-auto flex items-center gap-3 w-full max-w-sm rounded-xl border px-4 py-3 shadow-lg animate-slide-down ${bgMap[t.type]}`}
+            className="pointer-events-auto flex items-center gap-3 w-full max-w-sm px-4 py-3 shadow-elevated animate-slide-up"
+            style={{
+              background: "var(--bg-elevated)",
+              border: "1px solid var(--border-primary)",
+              borderRadius: "var(--radius-base)",
+            }}
             role="alert"
           >
             {iconMap[t.type]}
