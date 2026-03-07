@@ -1,46 +1,43 @@
 import React from "react";
 
+type BadgeStatus = "VERIFIED" | "SUBMITTED" | "FLAGGED" | "DRAFT";
 type BadgeVariant = "success" | "info" | "warning" | "danger" | "default" | "submitted" | "verified" | "flagged" | "draft";
 
 interface BadgeProps {
   variant?: BadgeVariant;
+  status?: BadgeStatus;
   children: React.ReactNode;
   className?: string;
 }
 
+const statusToVariant: Record<BadgeStatus, BadgeVariant> = {
+  VERIFIED: "verified",
+  SUBMITTED: "submitted",
+  FLAGGED: "flagged",
+  DRAFT: "draft",
+};
+
 const variantClasses: Record<BadgeVariant, string> = {
-  success: "bg-[var(--badge-verified-bg)] text-[var(--badge-verified-text)]",
-  info: "bg-[var(--accent-light)] text-[var(--accent-text)]",
-  warning: "bg-[var(--badge-flagged-bg)] text-[var(--badge-flagged-text)]",
-  danger: "bg-[var(--badge-flagged-bg)] text-[var(--badge-flagged-text)]",
-  default: "bg-[var(--bg-tertiary)] text-[var(--text-secondary)]",
+  success: "badge-verified",
+  info: "badge-submitted",
+  warning: "badge-flagged",
+  danger: "badge-flagged",
+  default: "badge-draft",
   submitted: "badge-submitted",
   verified: "badge-verified",
   flagged: "badge-flagged",
   draft: "badge-draft",
 };
 
-const isStatusBadge = (variant: BadgeVariant) =>
-  variant === "submitted" || variant === "verified" || variant === "flagged" || variant === "draft";
-
-function Badge({ variant = "default", children, className = "" }: BadgeProps) {
-  if (isStatusBadge(variant)) {
-    return (
-      <span className={`${variantClasses[variant]} ${className}`}>
-        {children}
-      </span>
-    );
-  }
+function Badge({ variant, status, children, className = "" }: BadgeProps) {
+  const resolvedVariant = status ? statusToVariant[status] : (variant ?? "default");
 
   return (
-    <span
-      className={`inline-flex items-center px-2.5 py-0.5 text-xs font-semibold ${variantClasses[variant]} ${className}`}
-      style={{ borderRadius: "var(--radius-sm)" }}
-    >
+    <span className={`${variantClasses[resolvedVariant]} ${className}`}>
       {children}
     </span>
   );
 }
 
 export { Badge };
-export type { BadgeProps, BadgeVariant };
+export type { BadgeProps, BadgeVariant, BadgeStatus };
