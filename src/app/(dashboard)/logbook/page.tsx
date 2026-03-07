@@ -11,28 +11,21 @@ import {
   CheckCircle,
   ArrowRight,
   Sun,
-  Moon,
-  CloudSun,
-  TrendingUp,
   Zap,
   Award,
-  BarChart3,
   Crown,
   ChevronRight,
   AlertCircle,
   Pen,
-  Bell,
 } from "lucide-react";
 import { NotificationBell } from "@/components/NotificationBell";
 import { StreakBadge } from "@/components/StreakBadge";
 import { WeeklyProgress } from "@/components/WeeklyProgress";
 import type { EntryWithRelations } from "@/types";
 import { formatDate, formatTime } from "@/lib/utils";
-import { useAnimatedCounter } from "@/hooks/useAnimatedCounter";
 import { useStaggeredReveal } from "@/hooks/useStaggeredReveal";
 
 const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-const DAY_SHORT = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 interface TimetableSlotInfo {
   id: string;
@@ -243,16 +236,6 @@ export default function LogbookPage() {
       )
     ).length;
   }, [sortedTodaySlots, entries, todayStr]);
-
-  const unfilledSlots = useMemo(() => {
-    const filledPeriods = new Set(
-      entries
-        .filter((e) => new Date(e.date).toISOString().split("T")[0] === todayStr)
-        .map((e) => e.period)
-        .filter(Boolean)
-    );
-    return todaySlots.filter((s) => !filledPeriods.has(s.periodNumber));
-  }, [todaySlots, entries, todayStr]);
 
   const unfilledWeekSlots = useMemo(() => {
     if (allSlots.length === 0) return [];

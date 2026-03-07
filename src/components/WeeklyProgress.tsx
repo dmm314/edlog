@@ -37,7 +37,6 @@ function WeeklyProgress({ days, totalCompleted, totalPeriods }: WeeklyProgressPr
           const barHeight = day.total > 0 ? (day.total / maxTotal) * 100 : 8;
           const fillPct = day.total > 0 ? (day.completed / day.total) * 100 : 0;
           const isComplete = day.completed >= day.total && day.total > 0;
-          const isFuture = day.completed === 0 && !day.isCurrent && day.total > 0;
 
           // Determine bar colors
           let fillGradient: string;

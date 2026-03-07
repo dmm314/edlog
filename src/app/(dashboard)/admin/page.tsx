@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   Users,
-  BookOpen,
   AlertTriangle,
   ChevronRight,
   Calendar,
@@ -12,9 +11,7 @@ import {
   UserCheck,
   FileText,
   BarChart3,
-  Zap,
   CheckCircle2,
-  TrendingUp,
   Shield,
   Check,
 } from "lucide-react";
