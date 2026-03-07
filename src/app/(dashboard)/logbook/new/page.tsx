@@ -17,6 +17,8 @@ import {
   Save,
   XCircle,
   Copy,
+  Zap,
+  ChevronRight,
 } from "lucide-react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
@@ -26,7 +28,7 @@ const SignaturePad = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="h-24 border-2 border-dashed border-[var(--border-primary)] rounded-xl bg-[var(--bg-elevated)] flex items-center justify-center text-[var(--text-tertiary)] text-sm">
+      <div className="h-24 border-2 border-dashed rounded-xl flex items-center justify-center text-sm" style={{ borderColor: "var(--border-primary)", background: "var(--bg-elevated)", color: "var(--text-tertiary)" }}>
         Loading signature pad...
       </div>
     ),
@@ -100,9 +102,13 @@ function getDayOfWeek(dateStr: string): number {
 }
 
 const DAY_NAMES = ["", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+const STEP_LABELS = ["Module", "Topic", "Details"];
 
 export default function NewEntryPage() {
   const router = useRouter();
+
+  // ─── Step state ───
+  const [step, setStep] = useState(0);
 
   const [seconds, setSeconds] = useState(0);
   const timerRef = useRef<ReturnType<typeof setInterval>>();
@@ -115,9 +121,7 @@ export default function NewEntryPage() {
   const [loadingData, setLoadingData] = useState(true);
   const [loadingSlots, setLoadingSlots] = useState(false);
 
-  // Multi-period selection: up to 4 slots
   const [selectedSlotIds, setSelectedSlotIds] = useState<string[]>([]);
-  // Multi-class selection
   const [additionalClassIds, setAdditionalClassIds] = useState<string[]>([]);
 
   const [date, setDate] = useState(() => {
@@ -249,7 +253,6 @@ export default function NewEntryPage() {
       }));
   }, [assignments, classId]);
 
-  // Other classes that share the same subject (for multi-class entry)
   const otherClassesForSubject = useMemo(() => {
     if (!subjectId || !classId) return [];
     return assignments
@@ -261,27 +264,12 @@ export default function NewEntryPage() {
       }));
   }, [assignments, subjectId, classId]);
 
-  const slotsForClassAndDay = useMemo(() => {
-    if (!classId || !date) return [];
-    const dayOfWeek = getDayOfWeek(date);
-    return timetableSlots.filter(
-      (slot) => slot.assignment.classId === classId && slot.dayOfWeek === dayOfWeek
-    );
-  }, [timetableSlots, classId, date]);
-
   useEffect(() => {
     if (subjectsForClass.length === 1) {
       setSubjectId(subjectsForClass[0].id);
       setAssignmentId(subjectsForClass[0].assignmentId);
     }
   }, [subjectsForClass]);
-
-  useEffect(() => {
-    if (slotsForClassAndDay.length === 1 && selectedSlotIds.length === 0) {
-      handleSlotToggle(slotsForClassAndDay[0]);
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [slotsForClassAndDay]);
 
   const selectedClassLevel = useMemo(() => {
     return assignedClasses.find((c) => c.id === classId)?.level || "";
@@ -434,14 +422,18 @@ export default function NewEntryPage() {
 
   const selectedDayName = date ? DAY_NAMES[getDayOfWeek(date)] || "" : "";
   const isWeekend = date ? getDayOfWeek(date) > 5 : false;
-  const hasTeachingOnDay = !date || loadingSlots || timetableSlots.length > 0;
   const hasPeriodSelected = selectedSlotIds.length > 0 || period !== "";
   const isFormValid = date && classId && subjectId &&
     (classDidNotHold || selectedTopicIds.length > 0 || topicText.trim().length > 0) &&
-    !isWeekend && hasTeachingOnDay && hasPeriodSelected;
+    !isWeekend && hasPeriodSelected;
   const isDraftValid = date && classId && subjectId;
   const hasMultiSlots = selectedSlotIds.length > 1;
   const hasMultiClass = additionalClassIds.length > 0;
+
+  const contextClassName = assignedClasses.find((c) => c.id === classId)?.name || "";
+  const contextSubjectName = subjectsForClass.find((s) => s.assignmentId === assignmentId || s.id === subjectId)?.name || "";
+  const contextSlot = selectedSlotsData[0];
+  const hasContext = classId && subjectId && hasPeriodSelected;
 
   async function handleSubmit(e: React.FormEvent, asDraft = false) {
     e.preventDefault();
@@ -575,6 +567,7 @@ export default function NewEntryPage() {
   }
 
   function resetForm() {
+    setStep(0);
     setDate(new Date().toISOString().split("T")[0]);
     setClassId("");
     setSubjectId("");
@@ -599,64 +592,64 @@ export default function NewEntryPage() {
     timerRef.current = setInterval(() => setSeconds((s) => s + 1), 1000);
   }
 
-  // ───── Success Screen ─────
+  // ─── Success Screen ─────────────────────────────────────────────
   if (success && submittedEntries) {
     return (
-      <div className="min-h-screen flex flex-col" style={{ backgroundColor: "var(--bg-secondary)" }}>
+      <div className="min-h-screen flex flex-col" style={{ backgroundColor: "var(--bg-primary)" }}>
         <div className={`px-5 pt-12 pb-8 rounded-b-3xl ${
           submittedEntries.isDraft ? "bg-gradient-to-br from-amber-600 to-amber-500"
             : submittedEntries.classDidNotHold ? "bg-gradient-to-br from-slate-600 to-slate-500"
             : "bg-gradient-to-br from-emerald-600 to-emerald-500"
         }`}>
           <div className="max-w-lg mx-auto text-center">
-            <div className="inline-flex items-center justify-center w-20 h-20 bg-[var(--bg-elevated)]/20 rounded-full mb-4">
+            <div className="inline-flex items-center justify-center w-20 h-20 bg-white/20 rounded-full mb-4 animate-spring-bounce">
               {submittedEntries.isDraft ? <Save className="w-12 h-12 text-white" />
                 : submittedEntries.classDidNotHold ? <XCircle className="w-12 h-12 text-white" />
                 : <CheckCircle className="w-12 h-12 text-white" />}
             </div>
-            <h1 className="text-2xl font-bold text-white">
+            <h1 className="text-2xl font-bold font-display text-white">
               {submittedEntries.isDraft ? "Draft Saved!"
                 : submittedEntries.classDidNotHold ? "Period Marked"
-                : submittedEntries.periods.length > 1 ? `${submittedEntries.periods.length} Entries Submitted!`
-                : "Entry Submitted!"}
+                : submittedEntries.periods.length > 1 ? `${submittedEntries.periods.length} Entries Logged!`
+                : "Entry Logged!"}
             </h1>
             {submittedEntries.classNames.length > 1 && (
               <p className="text-white/80 text-sm mt-1">Submitted for {submittedEntries.classNames.length} classes</p>
             )}
-            <p className="text-white/70 mt-1">
-              Completed in <span className="font-bold text-white">{completionTime} seconds</span>
+            <p className="text-white/70 mt-1 text-sm">
+              Completed in <span className="font-bold text-white font-mono">{completionTime}s</span>
             </p>
           </div>
         </div>
 
         <div className="px-5 -mt-4 max-w-lg mx-auto w-full flex-1">
           <div className="card overflow-hidden">
-            <div className="bg-gradient-to-r from-brand-600 to-brand-500 px-5 py-3">
+            <div className="px-5 py-4" style={{ background: "linear-gradient(135deg, var(--accent), var(--accent-hover))" }}>
               <p className="text-white font-bold text-base">{submittedEntries.subject}</p>
               <p className="text-white/70 text-xs">{submittedEntries.className} &middot; {submittedEntries.date}</p>
             </div>
-            <div className="p-5 space-y-0 divide-y divide-slate-100">
+            <div className="p-5 space-y-0 divide-y" style={{ borderColor: "var(--border-secondary)" }}>
               {submittedEntries.isDraft && (
                 <div className="pb-3">
-                  <div className="bg-amber-50 border border-amber-200 rounded-xl px-3 py-2 text-sm text-amber-700">
-                    <Save className="w-4 h-4 inline mr-1.5 -mt-0.5" />
-                    Saved as draft — complete this entry later from your logbook
+                  <div className="rounded-xl px-3 py-2 text-sm flex items-center gap-2" style={{ background: "var(--accent-light)", color: "var(--accent-text)" }}>
+                    <Save className="w-4 h-4" />
+                    Saved as draft — complete this entry later
                   </div>
                 </div>
               )}
               {submittedEntries.classDidNotHold && (
                 <div className="pb-3">
-                  <div className="bg-[var(--bg-tertiary)] border border-[var(--border-primary)] rounded-xl px-3 py-2 text-sm text-[var(--text-secondary)]">
-                    <XCircle className="w-4 h-4 inline mr-1.5 -mt-0.5" />
-                    This period has been marked as &ldquo;Class Did Not Hold&rdquo;
+                  <div className="rounded-xl px-3 py-2 text-sm flex items-center gap-2" style={{ background: "var(--bg-tertiary)", color: "var(--text-secondary)" }}>
+                    <XCircle className="w-4 h-4" />
+                    Marked as &ldquo;Class Did Not Hold&rdquo;
                   </div>
                 </div>
               )}
               {!submittedEntries.classDidNotHold && (
                 <div className="pb-3">
                   <div className="flex items-start gap-3">
-                    <div className="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <Layers className="w-4 h-4 text-blue-600" />
+                    <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5" style={{ background: "var(--accent-light)" }}>
+                      <Layers className="w-4 h-4" style={{ color: "var(--accent-text)" }} />
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-[10px] font-semibold uppercase tracking-widest text-[var(--text-tertiary)]">Module</p>
@@ -664,18 +657,18 @@ export default function NewEntryPage() {
                     </div>
                   </div>
                   <div className="flex items-start gap-3 mt-2.5">
-                    <div className="w-8 h-8 bg-purple-50 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <BookOpen className="w-4 h-4 text-purple-600" />
+                    <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5" style={{ background: "var(--success-light)" }}>
+                      <BookOpen className="w-4 h-4" style={{ color: "var(--success)" }} />
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-[10px] font-semibold uppercase tracking-widest text-[var(--text-tertiary)]">
-                        {submittedEntries.topics.length > 1 ? `Topics Covered (${submittedEntries.topics.length})` : "Topic Covered"}
+                        {submittedEntries.topics.length > 1 ? `Topics (${submittedEntries.topics.length})` : "Topic"}
                       </p>
                       {submittedEntries.topics.length > 0 ? (
                         <ul className="mt-1 space-y-1">
                           {submittedEntries.topics.map((t, i) => (
                             <li key={i} className="text-sm text-[var(--text-primary)] flex items-start gap-2">
-                              <Check className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0 mt-0.5" />
+                              <Check className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" style={{ color: "var(--success)" }} />
                               <span>{t}</span>
                             </li>
                           ))}
@@ -689,7 +682,7 @@ export default function NewEntryPage() {
               )}
               <div className="py-3">
                 {submittedEntries.periods.length > 1 && (
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-brand-600 mb-2 flex items-center gap-1">
+                  <p className="text-[10px] font-bold uppercase tracking-widest mb-2 flex items-center gap-1" style={{ color: "var(--accent-text)" }}>
                     <Check className="w-3 h-3" />
                     {submittedEntries.periods.length} periods filled at once
                   </p>
@@ -697,21 +690,17 @@ export default function NewEntryPage() {
                 <div className="space-y-2">
                   {submittedEntries.periods.map((p, i) => (
                     <div key={i} className="grid grid-cols-3 gap-3">
-                      <div className="text-center bg-[var(--bg-tertiary)] rounded-xl py-2.5 px-2">
-                        <Calendar className="w-4 h-4 text-[var(--text-tertiary)] mx-auto mb-1" />
-                        <p className="text-[10px] text-[var(--text-tertiary)] font-medium">Period</p>
-                        <p className="text-xs font-bold text-[var(--text-primary)]">{p.period}</p>
-                      </div>
-                      <div className="text-center bg-[var(--bg-tertiary)] rounded-xl py-2.5 px-2">
-                        <Clock className="w-4 h-4 text-[var(--text-tertiary)] mx-auto mb-1" />
-                        <p className="text-[10px] text-[var(--text-tertiary)] font-medium">Time</p>
-                        <p className="text-xs font-bold text-[var(--text-primary)]">{p.time}</p>
-                      </div>
-                      <div className="text-center bg-[var(--bg-tertiary)] rounded-xl py-2.5 px-2">
-                        <Clock className="w-4 h-4 text-[var(--text-tertiary)] mx-auto mb-1" />
-                        <p className="text-[10px] text-[var(--text-tertiary)] font-medium">Duration</p>
-                        <p className="text-xs font-bold text-[var(--text-primary)]">{p.duration}</p>
-                      </div>
+                      {[
+                        { icon: Calendar, label: "Period", value: p.period },
+                        { icon: Clock, label: "Time", value: p.time },
+                        { icon: Clock, label: "Duration", value: p.duration },
+                      ].map((cell) => (
+                        <div key={cell.label} className="text-center rounded-xl py-2.5 px-2" style={{ background: "var(--bg-tertiary)" }}>
+                          <cell.icon className="w-4 h-4 mx-auto mb-1 text-[var(--text-tertiary)]" />
+                          <p className="text-[10px] text-[var(--text-tertiary)] font-medium">{cell.label}</p>
+                          <p className="text-xs font-bold text-[var(--text-primary)]">{cell.value}</p>
+                        </div>
+                      ))}
                     </div>
                   ))}
                 </div>
@@ -721,7 +710,7 @@ export default function NewEntryPage() {
                   <p className="text-[10px] font-semibold uppercase tracking-widest text-[var(--text-tertiary)] mb-2">Classes</p>
                   <div className="flex flex-wrap gap-1.5">
                     {submittedEntries.classNames.map((cn, i) => (
-                      <span key={i} className="text-xs font-semibold bg-brand-50 text-brand-700 px-2.5 py-1 rounded-lg border border-brand-100">{cn}</span>
+                      <span key={i} className="text-xs font-semibold px-2.5 py-1 rounded-lg border" style={{ background: "var(--accent-light)", color: "var(--accent-text)", borderColor: "var(--accent)" }}>{cn}</span>
                     ))}
                   </div>
                 </div>
@@ -730,13 +719,13 @@ export default function NewEntryPage() {
                 <div className="py-3">
                   <div className="grid grid-cols-2 gap-3">
                     {submittedEntries.attendance && (
-                      <div className="text-center bg-[var(--bg-tertiary)] rounded-xl py-2.5 px-2">
+                      <div className="text-center rounded-xl py-2.5 px-2" style={{ background: "var(--bg-tertiary)" }}>
                         <p className="text-[10px] text-[var(--text-tertiary)] font-medium">Attendance</p>
                         <p className="text-xs font-bold text-[var(--text-primary)]">{submittedEntries.attendance}</p>
                       </div>
                     )}
                     {submittedEntries.engagement && (
-                      <div className="text-center bg-[var(--bg-tertiary)] rounded-xl py-2.5 px-2">
+                      <div className="text-center rounded-xl py-2.5 px-2" style={{ background: "var(--bg-tertiary)" }}>
                         <p className="text-[10px] text-[var(--text-tertiary)] font-medium">Engagement</p>
                         <p className="text-xs font-bold text-[var(--text-primary)]">
                           {submittedEntries.engagement.charAt(0) + submittedEntries.engagement.slice(1).toLowerCase()}
@@ -746,75 +735,111 @@ export default function NewEntryPage() {
                   </div>
                 </div>
               )}
-              {(submittedEntries.notes || submittedEntries.objectives) && (
-                <div className="pt-3 space-y-3">
-                  {submittedEntries.objectives && (
-                    <div className="flex items-start gap-3">
-                      <div className="w-8 h-8 bg-amber-50 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <GraduationCap className="w-4 h-4 text-amber-600" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-[10px] font-semibold uppercase tracking-widest text-[var(--text-tertiary)]">Objectives</p>
-                        <p className="text-sm text-[var(--text-secondary)] mt-0.5">{submittedEntries.objectives}</p>
-                      </div>
-                    </div>
-                  )}
-                  {submittedEntries.notes && (
-                    <div className="flex items-start gap-3">
-                      <div className="w-8 h-8 bg-emerald-50 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <FileText className="w-4 h-4 text-emerald-600" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-[10px] font-semibold uppercase tracking-widest text-[var(--text-tertiary)]">Notes</p>
-                        <p className="text-sm text-[var(--text-secondary)] mt-0.5">{submittedEntries.notes}</p>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
             </div>
           </div>
           <div className="mt-6 space-y-3 pb-8">
             <button onClick={resetForm} className="btn-primary text-center">New Entry</button>
-            <Link href="/history" className="btn-secondary block text-center">View History</Link>
+            <Link href="/logbook" className="btn-secondary block text-center">Back to Dashboard</Link>
           </div>
         </div>
       </div>
     );
   }
 
-  // ───── Entry Form ─────
+  // ─── 3-Step Entry Form ──────────────────────────────────────────
   return (
-    <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
-      <div className="bg-gradient-to-br from-brand-950 via-brand-900 to-brand-800 px-5 pt-10 pb-6 rounded-b-[1.5rem] relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-brand-600/15 via-transparent to-transparent" />
-        <div className="max-w-lg mx-auto relative">
-          <div className="flex items-center justify-between mb-3">
-            <button onClick={() => router.back()} className="w-9 h-9 bg-[var(--bg-elevated)]/[0.08] rounded-xl flex items-center justify-center text-white/80 hover:text-white hover:bg-[var(--bg-elevated)]/[0.12] transition-colors">
+    <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-primary)" }}>
+      {/* ── Persistent Header ─── */}
+      <div className="bg-[var(--bg-elevated)] border-b" style={{ borderColor: "var(--border-primary)" }}>
+        <div className="max-w-lg mx-auto px-5 pt-12 pb-5">
+          <div className="flex items-center gap-3 mb-4">
+            <button
+              onClick={() => step > 0 ? setStep(step - 1) : router.back()}
+              className="w-9 h-9 rounded-xl flex items-center justify-center transition-colors"
+              style={{ background: "var(--bg-secondary)", color: "var(--text-tertiary)" }}
+            >
               <ArrowLeft className="w-5 h-5" />
             </button>
-            <div className={`flex items-center gap-2 rounded-full px-3.5 py-1.5 border transition-colors ${
-              seconds > 60 ? "bg-amber-500/15 border-amber-400/20" : "bg-[var(--bg-elevated)]/[0.08] border-white/[0.06]"
-            }`}>
-              <Clock className={`w-3.5 h-3.5 ${seconds > 60 ? "text-amber-400" : "text-brand-400"}`} />
-              <span className={`text-sm font-mono font-bold tabular-nums ${seconds > 60 ? "text-amber-300" : "text-white"}`}>{seconds}s</span>
+            <h1 className="text-lg font-bold text-[var(--text-primary)] flex-1">
+              New Entry
+            </h1>
+            <div
+              className={`flex items-center gap-1.5 rounded-full px-3 py-1 border text-xs font-mono font-bold tabular-nums ${
+                seconds > 60 ? "border-amber-300 text-amber-700" : ""
+              }`}
+              style={{
+                ...(seconds <= 60 ? { borderColor: "var(--border-primary)", color: "var(--text-tertiary)" } : {}),
+                ...(seconds > 60 ? { background: "var(--accent-light)" } : {}),
+              }}
+            >
+              <Clock className="w-3 h-3" />
+              {seconds}s
             </div>
           </div>
-          <h1 className="text-xl font-extrabold text-white tracking-tight">New Logbook Entry</h1>
-          <p className="text-brand-400/80 text-sm mt-0.5">Fill in under 60 seconds</p>
+
+          {hasContext && (
+            <div
+              className="rounded-2xl px-4 py-3.5 flex items-center gap-3 mb-4 animate-slide-up"
+              style={{ background: "linear-gradient(135deg, var(--accent-light), rgba(253, 230, 138, 0.12))" }}
+            >
+              <div className="flex-1 min-w-0">
+                <p className="text-[10px] font-semibold uppercase tracking-widest" style={{ color: "var(--accent-text)" }}>
+                  Auto-filled from timetable
+                </p>
+                <p className="text-[15px] font-bold text-[var(--text-primary)] mt-1 truncate">
+                  {contextSubjectName} — {contextClassName}
+                </p>
+                <p className="text-xs font-mono mt-0.5 text-[var(--text-tertiary)]">
+                  {selectedDayName}
+                  {contextSlot && ` · ${contextSlot.periodLabel} · ${contextSlot.startTime}–${contextSlot.endTime}`}
+                  {hasMultiSlots && ` (+${selectedSlotIds.length - 1} more)`}
+                </p>
+              </div>
+              <div
+                className="w-11 h-11 rounded-2xl flex items-center justify-center flex-shrink-0"
+                style={{ background: "rgba(255,255,255,0.5)", color: "var(--accent-text)" }}
+              >
+                <Zap className="w-5 h-5" />
+              </div>
+            </div>
+          )}
+
+          <div className="flex gap-1">
+            {STEP_LABELS.map((label, i) => (
+              <div key={label} className="flex-1 flex flex-col items-center gap-1.5">
+                <div
+                  className="h-1 w-full rounded-full transition-all duration-300"
+                  style={{
+                    background: i <= step
+                      ? "linear-gradient(90deg, var(--accent), var(--accent-warm))"
+                      : "var(--bg-tertiary)",
+                  }}
+                />
+                <span
+                  className={`text-[11px] ${
+                    i === step ? "font-bold text-[var(--text-primary)]" : "font-medium text-[var(--text-tertiary)]"
+                  }`}
+                >
+                  {label}
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
+      {/* ── Content ─── */}
       <div className="px-5 mt-4 max-w-lg mx-auto">
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-4 py-3 mb-4">
+          <div className="rounded-xl px-4 py-3 mb-4 text-sm flex items-center gap-2" style={{ background: "var(--warning-light)", color: "var(--warning)" }}>
+            <AlertCircle className="w-4 h-4 flex-shrink-0" />
             {error}
-            <button onClick={() => setError("")} className="ml-2 font-semibold underline">Dismiss</button>
+            <button onClick={() => setError("")} className="ml-auto font-semibold underline text-xs">Dismiss</button>
           </div>
         )}
 
         {draftSaved && (
-          <div className="bg-amber-50 border border-amber-200 text-amber-700 text-sm rounded-xl px-4 py-3 mb-4 flex items-center gap-2">
+          <div className="rounded-xl px-4 py-3 mb-4 text-sm flex items-center gap-2" style={{ background: "var(--accent-light)", color: "var(--accent-text)" }}>
             <Save className="w-4 h-4" />
             Draft saved! You can complete this entry later.
           </div>
@@ -823,385 +848,389 @@ export default function NewEntryPage() {
         {loadingData ? (
           <div className="space-y-4">
             {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="animate-pulse">
-                <div className="h-3 w-20 bg-slate-200 rounded mb-2" />
-                <div className="h-12 bg-slate-200 rounded-xl" />
+              <div key={i}>
+                <div className="skeleton h-3 w-20 mb-2" />
+                <div className="skeleton h-12 w-full rounded-xl" />
               </div>
             ))}
           </div>
         ) : assignments.length === 0 ? (
           <div className="card p-6 text-center">
-            <AlertCircle className="w-10 h-10 text-amber-400 mx-auto mb-3" />
+            <AlertCircle className="w-10 h-10 mx-auto mb-3" style={{ color: "var(--accent)" }} />
             <p className="font-medium text-[var(--text-primary)]">No assignments yet</p>
             <p className="text-sm text-[var(--text-tertiary)] mt-1">
               Your school administrator needs to assign you to classes and subjects before you can create logbook entries.
             </p>
-            <Link href="/timetable" className="text-sm text-brand-600 font-medium mt-3 inline-block">View My Timetable</Link>
+            <Link href="/timetable" className="text-sm font-medium mt-3 inline-block" style={{ color: "var(--accent-text)" }}>View My Timetable</Link>
           </div>
         ) : (
-          <form onSubmit={(e) => handleSubmit(e, false)} onKeyDown={(e) => { if (e.key === "Enter" && e.target instanceof HTMLInputElement) e.preventDefault(); }} className="space-y-4">
-            {/* Date */}
-            <div>
-              <label className="label-field">Date</label>
-              <input type="date" value={date} onChange={(e) => setDate(e.target.value)} max={new Date().toISOString().split("T")[0]} className="input-field" required />
-              {date && !isWeekend && <p className="text-xs text-brand-600 mt-1 font-medium">{selectedDayName}</p>}
-              {isWeekend && <p className="text-xs text-amber-600 mt-1">Weekend — select a weekday teaching date</p>}
-            </div>
+          <form onSubmit={(e) => handleSubmit(e, false)} onKeyDown={(e) => { if (e.key === "Enter" && e.target instanceof HTMLInputElement) e.preventDefault(); }}>
 
-            {/* Timetable Slot Picker — multi-select up to 4 */}
-            {!loadingSlots && timetableSlots.length > 0 && (
-              <div>
-                <label className="label-field flex items-center gap-1.5">
-                  <Calendar className="w-3.5 h-3.5 text-brand-500" />
-                  Your {selectedDayName} Schedule — Tap to Fill
-                </label>
-                <p className="text-[11px] text-[var(--text-tertiary)] mb-2">Select up to 4 periods of the same subject to fill at once</p>
-                <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
-                  {timetableSlots.map((slot) => {
-                    const periodMatch = slot.periodLabel.match(/\d+/);
-                    const periodNum = periodMatch ? parseInt(periodMatch[0]) : null;
-                    const isAlreadyFilled = filledSlotIds.has(slot.id) || (periodNum !== null && filledPeriods.has(periodNum));
-                    const isSelected = selectedSlotIds.includes(slot.id);
-                    const canAdd = (selectedSlotIds.length < 4 || isSelected) && !isAlreadyFilled;
-                    const isCompatible = selectedSlotIds.length === 0 || isSelected ||
-                      (selectedSlotsData.length > 0 &&
-                        slot.assignment.classId === selectedSlotsData[0].assignment.classId &&
-                        slot.assignment.subjectId === selectedSlotsData[0].assignment.subjectId);
-                    return (
-                      <button key={slot.id} type="button" onClick={() => !isAlreadyFilled && handleSlotToggle(slot)} disabled={isAlreadyFilled}
-                        className={`flex-shrink-0 rounded-xl border-2 px-3 py-2.5 text-left transition-all relative ${
-                          isAlreadyFilled ? "border-emerald-200 bg-emerald-50 opacity-70 cursor-not-allowed"
-                            : isSelected ? "border-brand-500 bg-brand-50 shadow-sm"
-                            : !canAdd || !isCompatible ? "border-[var(--border-secondary)] bg-[var(--bg-tertiary)] opacity-50"
-                            : "border-[var(--border-primary)] bg-[var(--bg-elevated)] hover:border-[var(--border-primary)]"
-                        }`}>
-                        {isAlreadyFilled && (
-                          <div className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center shadow-sm">
-                            <Check className="w-3 h-3 text-white" />
-                          </div>
-                        )}
-                        {isSelected && !isAlreadyFilled && (
-                          <div className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-brand-600 rounded-full flex items-center justify-center shadow-sm">
-                            <Check className="w-3 h-3 text-white" />
-                          </div>
-                        )}
-                        <p className={`text-xs font-bold ${isAlreadyFilled ? "text-emerald-700" : "text-[var(--text-primary)]"}`}>{slot.periodLabel}</p>
-                        <p className="text-[10px] text-[var(--text-tertiary)] mt-0.5 font-medium">{slot.startTime} - {slot.endTime}</p>
-                        <p className={`text-[11px] font-semibold mt-1.5 ${isAlreadyFilled ? "text-emerald-600" : "text-brand-700"}`}>{slot.assignment.subjectName}</p>
-                        <p className="text-[10px] text-[var(--text-tertiary)]">{shortClassName(slot.assignment.className)}</p>
-                        {isAlreadyFilled && <p className="text-[9px] font-bold text-emerald-600 mt-1">Already filled</p>}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-            {loadingSlots && (
-              <div className="flex gap-2">
-                {[1, 2].map((i) => (<div key={i} className="flex-shrink-0 w-28 h-20 rounded-xl bg-slate-100 animate-pulse" />))}
-              </div>
-            )}
-
-            {/* Period selection — REQUIRED (manual when no timetable slot) */}
-            {selectedSlotIds.length === 0 && !loadingSlots && (
-              <div>
-                <label className="label-field flex items-center gap-1.5">
-                  <Clock className="w-3.5 h-3.5 text-brand-500" />
-                  Period <span className="text-red-500">*</span>
-                </label>
-                <select value={period} onChange={(e) => setPeriod(e.target.value)} className="input-field" required>
-                  <option value="">Select the period</option>
-                  {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((p) => (
-                    <option key={p} value={p} disabled={filledPeriods.has(p)}>
-                      Period {p} {filledPeriods.has(p) ? "(Already filled)" : ""}
-                    </option>
-                  ))}
-                </select>
-                {!period && <p className="text-xs text-red-500 mt-1">You must select a period to submit</p>}
-              </div>
-            )}
-
-            {/* Class Selection — only show when no slot selected */}
-            {selectedSlotIds.length === 0 && (
-              <div>
-                <label className="label-field">Class <span className="text-red-500">*</span></label>
-                <select value={classId} onChange={(e) => handleClassChange(e.target.value)} className="input-field" required>
-                  <option value="">Select your class</option>
-                  {assignedClasses.map((c) => (<option key={c.id} value={c.id}>{c.name}</option>))}
-                </select>
-              </div>
-            )}
-
-            {/* No timetable slots warning */}
-            {!loadingSlots && timetableSlots.length === 0 && !isWeekend && date && (
-              <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-xs text-red-700 flex items-start gap-2">
-                <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+            {/* ══ STEP 0 — Module ══ */}
+            {step === 0 && (
+              <div className="space-y-4 animate-fade-in">
                 <div>
-                  <p className="font-semibold">You do not teach on {selectedDayName}</p>
-                  <p className="mt-0.5 text-red-600">No timetable slots found for this day. Please select a day you have classes.</p>
+                  <label className="label-field">Date</label>
+                  <input type="date" value={date} onChange={(e) => setDate(e.target.value)} max={new Date().toISOString().split("T")[0]} className="input-field" required />
+                  {date && !isWeekend && <p className="text-xs mt-1 font-medium" style={{ color: "var(--accent-text)" }}>{selectedDayName}</p>}
+                  {isWeekend && <p className="text-xs mt-1" style={{ color: "var(--warning)" }}>Weekend — select a weekday</p>}
                 </div>
-              </div>
-            )}
 
-            {/* Auto-filled display when slot(s) selected */}
-            {selectedSlotIds.length > 0 && (
-              <>
-                <div className="bg-brand-50 border border-brand-200 rounded-xl px-4 py-3">
-                  <div className="flex items-center gap-3 text-sm text-brand-800">
-                    <Clock className="w-4 h-4 text-brand-600 flex-shrink-0" />
-                    <div>
-                      {hasMultiSlots ? (
-                        <span className="font-semibold">
-                          {selectedSlotsData.map((s) => { const m = s.periodLabel.match(/\d+/); return m ? `P${m[0]}` : s.periodLabel; }).join(" & ")}
-                          <span className="text-brand-500 mx-1.5">&middot;</span>
-                          <span className="text-brand-600">{selectedSlotIds.length} periods at once</span>
-                        </span>
-                      ) : (
-                        <>
-                          <span className="font-semibold">Period {period}</span>
-                          <span className="text-brand-500 mx-1.5">&middot;</span>
-                          <span>{duration} min</span>
-                        </>
-                      )}
-                      <span className="text-brand-500 mx-1.5">&middot;</span>
-                      <span className="text-brand-600">Auto-filled from timetable</span>
+                {!loadingSlots && timetableSlots.length > 0 && (
+                  <div>
+                    <label className="label-field flex items-center gap-1.5">
+                      <Calendar className="w-3.5 h-3.5" style={{ color: "var(--accent-text)" }} />
+                      {selectedDayName} Schedule — Tap to Fill
+                    </label>
+                    <p className="text-[11px] text-[var(--text-tertiary)] mb-2">Select up to 4 periods</p>
+                    <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-hide">
+                      {timetableSlots.map((slot) => {
+                        const periodMatch = slot.periodLabel.match(/\d+/);
+                        const periodNum = periodMatch ? parseInt(periodMatch[0]) : null;
+                        const isAlreadyFilled = filledSlotIds.has(slot.id) || (periodNum !== null && filledPeriods.has(periodNum));
+                        const isSelected = selectedSlotIds.includes(slot.id);
+                        const canAdd = (selectedSlotIds.length < 4 || isSelected) && !isAlreadyFilled;
+                        const isCompatible = selectedSlotIds.length === 0 || isSelected ||
+                          (selectedSlotsData.length > 0 &&
+                            slot.assignment.classId === selectedSlotsData[0].assignment.classId &&
+                            slot.assignment.subjectId === selectedSlotsData[0].assignment.subjectId);
+                        return (
+                          <button key={slot.id} type="button" onClick={() => !isAlreadyFilled && handleSlotToggle(slot)} disabled={isAlreadyFilled}
+                            className={`flex-shrink-0 rounded-2xl border-2 px-3 py-2.5 text-left transition-all relative ${
+                              isAlreadyFilled ? "opacity-60 cursor-not-allowed" : isSelected ? "shadow-sm" : !canAdd || !isCompatible ? "opacity-40" : "hover:border-[var(--text-quaternary)]"
+                            }`}
+                            style={{
+                              borderColor: isAlreadyFilled ? "var(--success)" : isSelected ? "var(--accent)" : "var(--border-primary)",
+                              background: isAlreadyFilled ? "var(--success-light)" : isSelected ? "var(--accent-light)" : "var(--bg-elevated)",
+                            }}>
+                            {isAlreadyFilled && (
+                              <div className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full flex items-center justify-center shadow-sm" style={{ background: "var(--success)" }}>
+                                <Check className="w-3 h-3 text-white" />
+                              </div>
+                            )}
+                            {isSelected && !isAlreadyFilled && (
+                              <div className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full flex items-center justify-center shadow-sm" style={{ background: "var(--accent)" }}>
+                                <Check className="w-3 h-3 text-white" />
+                              </div>
+                            )}
+                            <p className="text-xs font-bold text-[var(--text-primary)]">{slot.periodLabel}</p>
+                            <p className="text-[10px] text-[var(--text-tertiary)] mt-0.5 font-mono">{slot.startTime} - {slot.endTime}</p>
+                            <p className="text-[11px] font-semibold mt-1.5" style={{ color: "var(--accent-text)" }}>{slot.assignment.subjectName}</p>
+                            <p className="text-[10px] text-[var(--text-tertiary)]">{shortClassName(slot.assignment.className)}</p>
+                            {isAlreadyFilled && <p className="text-[9px] font-bold mt-1" style={{ color: "var(--success)" }}>Already filled</p>}
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
-                  <button type="button" onClick={() => { setSelectedSlotIds([]); setTimetableSlotId(null); setClassId(""); setSubjectId(""); setAssignmentId(null); setPeriod(""); setDuration("60"); setAdditionalClassIds([]); }}
-                    className="text-xs text-brand-600 font-medium mt-1 underline">Change selection</button>
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="label-field">Class</label>
-                    <div className="input-field bg-[var(--bg-tertiary)] text-[var(--text-secondary)] flex items-center text-sm">{assignedClasses.find((c) => c.id === classId)?.name || "—"}</div>
+                )}
+                {loadingSlots && (
+                  <div className="flex gap-2">
+                    {[1, 2].map((i) => (<div key={i} className="flex-shrink-0 w-28 h-20 rounded-xl skeleton" />))}
                   </div>
-                  <div>
-                    <label className="label-field">Subject</label>
-                    <div className="input-field bg-[var(--bg-tertiary)] text-[var(--text-secondary)] flex items-center text-sm">{subjectsForClass.find((s) => s.assignmentId === assignmentId || s.id === subjectId)?.name || "—"}</div>
-                  </div>
-                </div>
-              </>
-            )}
+                )}
 
-            {/* Subject — manual selection */}
-            {classId && selectedSlotIds.length === 0 && (
-              <div>
-                <label className="label-field">Subject <span className="text-red-500">*</span></label>
-                {subjectsForClass.length === 1 ? (
-                  <div className="input-field bg-[var(--bg-tertiary)] text-[var(--text-secondary)] flex items-center">{subjectsForClass[0].name}</div>
-                ) : (
-                  <select value={assignmentId || subjectId} onChange={(e) => handleSubjectChange(e.target.value)} className="input-field" required>
-                    <option value="">Select subject</option>
-                    {subjectsForClass.map((s) => (<option key={s.assignmentId} value={s.assignmentId}>{s.name}</option>))}
-                  </select>
+                {selectedSlotIds.length === 0 && !loadingSlots && (
+                  <div>
+                    <label className="label-field">Period <span style={{ color: "var(--warning)" }}>*</span></label>
+                    <select value={period} onChange={(e) => setPeriod(e.target.value)} className="input-field" required>
+                      <option value="">Select period</option>
+                      {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((p) => (
+                        <option key={p} value={p} disabled={filledPeriods.has(p)}>Period {p}{filledPeriods.has(p) ? " (filled)" : ""}</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+
+                {selectedSlotIds.length === 0 && (
+                  <div>
+                    <label className="label-field">Class <span style={{ color: "var(--warning)" }}>*</span></label>
+                    <select value={classId} onChange={(e) => handleClassChange(e.target.value)} className="input-field" required>
+                      <option value="">Select class</option>
+                      {assignedClasses.map((c) => (<option key={c.id} value={c.id}>{c.name}</option>))}
+                    </select>
+                  </div>
+                )}
+
+                {!loadingSlots && timetableSlots.length === 0 && !isWeekend && date && (
+                  <div className="rounded-xl px-4 py-3 text-xs flex items-start gap-2" style={{ background: "var(--warning-light)", color: "var(--warning)" }}>
+                    <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-semibold">No classes on {selectedDayName}</p>
+                      <p className="mt-0.5">Select a day you have classes.</p>
+                    </div>
+                  </div>
+                )}
+
+                {selectedSlotIds.length > 0 && (
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="label-field">Class</label>
+                      <div className="input-field flex items-center text-sm" style={{ background: "var(--bg-tertiary)", color: "var(--text-secondary)" }}>{contextClassName || "—"}</div>
+                    </div>
+                    <div>
+                      <label className="label-field">Subject</label>
+                      <div className="input-field flex items-center text-sm" style={{ background: "var(--bg-tertiary)", color: "var(--text-secondary)" }}>{contextSubjectName || "—"}</div>
+                    </div>
+                  </div>
+                )}
+
+                {classId && selectedSlotIds.length === 0 && (
+                  <div>
+                    <label className="label-field">Subject <span style={{ color: "var(--warning)" }}>*</span></label>
+                    {subjectsForClass.length === 1 ? (
+                      <div className="input-field flex items-center" style={{ background: "var(--bg-tertiary)", color: "var(--text-secondary)" }}>{subjectsForClass[0].name}</div>
+                    ) : (
+                      <select value={assignmentId || subjectId} onChange={(e) => handleSubjectChange(e.target.value)} className="input-field" required>
+                        <option value="">Select subject</option>
+                        {subjectsForClass.map((s) => (<option key={s.assignmentId} value={s.assignmentId}>{s.name}</option>))}
+                      </select>
+                    )}
+                  </div>
+                )}
+
+                {subjectId && otherClassesForSubject.length > 0 && (
+                  <div>
+                    <label className="label-field flex items-center gap-1.5">
+                      <Copy className="w-3.5 h-3.5 text-violet-500" />
+                      Also submit for other classes?
+                    </label>
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {otherClassesForSubject.map((oc) => {
+                        const isSel = additionalClassIds.includes(oc.classId);
+                        return (
+                          <button key={oc.classId} type="button" onClick={() => toggleAdditionalClass(oc.classId)}
+                            className="text-xs font-semibold px-3 py-2 rounded-xl border-2 transition-all"
+                            style={{
+                              borderColor: isSel ? "var(--accent)" : "var(--border-primary)",
+                              background: isSel ? "var(--accent-light)" : "var(--bg-elevated)",
+                              color: isSel ? "var(--accent-text)" : "var(--text-secondary)",
+                            }}>
+                            {isSel && <Check className="w-3 h-3 inline mr-1 -mt-0.5" />}
+                            {oc.className}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {subjectId && hasPeriodSelected && (
+                  <button type="button" onClick={() => setClassDidNotHold(!classDidNotHold)}
+                    className="w-full text-left flex items-center gap-3 px-4 py-3 rounded-2xl border-2 transition-all"
+                    style={{
+                      borderColor: classDidNotHold ? "var(--warning)" : "var(--border-primary)",
+                      background: classDidNotHold ? "var(--warning-light)" : "var(--bg-elevated)",
+                    }}>
+                    <div className="w-5 h-5 rounded-md border-2 flex items-center justify-center flex-shrink-0"
+                      style={{ borderColor: classDidNotHold ? "var(--warning)" : "var(--border-primary)", background: classDidNotHold ? "var(--warning)" : "var(--bg-elevated)" }}>
+                      {classDidNotHold && <Check className="w-3 h-3 text-white" />}
+                    </div>
+                    <div>
+                      <p className={`text-sm font-semibold ${classDidNotHold ? "text-[var(--warning)]" : "text-[var(--text-secondary)]"}`}>Class did not hold</p>
+                      <p className="text-[11px] text-[var(--text-tertiary)]">Mark if the class was cancelled</p>
+                    </div>
+                  </button>
+                )}
+
+                {subjectId && !classDidNotHold && modules.length > 0 && (
+                  <div>
+                    <p className="text-[13px] text-[var(--text-tertiary)] mb-3">Select the module you taught:</p>
+                    <div className="flex flex-col gap-2">
+                      {modules.map((mod, i) => (
+                        <button key={mod} type="button"
+                          onClick={() => { setModuleName(mod); setSelectedTopicIds([]); setStep(1); }}
+                          className="flex items-center gap-3.5 p-4 rounded-2xl border text-left transition-all active:scale-[0.98] hover:-translate-y-0.5"
+                          style={{ borderColor: "var(--border-primary)", background: "var(--bg-elevated)", boxShadow: "var(--shadow-card)" }}>
+                          <div className="w-10 h-10 rounded-xl flex items-center justify-center font-display text-base font-bold flex-shrink-0"
+                            style={{ background: "linear-gradient(135deg, var(--accent-light), rgba(253, 230, 138, 0.2))", color: "var(--accent-text)" }}>
+                            {i + 1}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-[15px] font-semibold text-[var(--text-primary)] truncate">{mod}</p>
+                          </div>
+                          <ChevronRight className="w-4 h-4 text-[var(--text-quaternary)]" />
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {subjectId && !classDidNotHold && modules.length === 0 && hasPeriodSelected && (
+                  <button type="button" onClick={() => setStep(1)}
+                    className="w-full py-4 rounded-2xl font-bold text-[15px] text-white transition-all active:scale-[0.98]"
+                    style={{ background: "linear-gradient(135deg, var(--accent), var(--accent-hover))", boxShadow: "var(--shadow-accent)" }}>
+                    Continue to Topic
+                  </button>
+                )}
+
+                {classDidNotHold && hasPeriodSelected && (
+                  <button type="submit" disabled={submitting} className="btn-primary flex items-center justify-center gap-2">
+                    {submitting ? "Submitting..." : "Mark as Class Did Not Hold"}
+                  </button>
                 )}
               </div>
             )}
 
-            {/* Multi-class: Also submit for other classes with the same subject */}
-            {subjectId && otherClassesForSubject.length > 0 && (
-              <div>
-                <label className="label-field flex items-center gap-1.5">
-                  <Copy className="w-3.5 h-3.5 text-violet-500" />
-                  Also submit for other classes?
-                </label>
-                <p className="text-[11px] text-[var(--text-tertiary)] mb-2">
-                  If you taught the same topic to other classes, select them to fill all at once
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {otherClassesForSubject.map((oc) => {
-                    const isSelected = additionalClassIds.includes(oc.classId);
-                    return (
-                      <button key={oc.classId} type="button" onClick={() => toggleAdditionalClass(oc.classId)}
-                        className={`text-xs font-semibold px-3 py-2 rounded-xl border-2 transition-all ${
-                          isSelected ? "border-violet-500 bg-violet-50 text-violet-700" : "border-[var(--border-primary)] bg-[var(--bg-elevated)] text-[var(--text-secondary)] hover:border-[var(--border-primary)]"
-                        }`}>
-                        {isSelected && <Check className="w-3 h-3 inline mr-1 -mt-0.5" />}
-                        {oc.className}
-                      </button>
-                    );
-                  })}
-                </div>
-                {additionalClassIds.length > 0 && (
-                  <p className="text-[11px] text-violet-600 font-medium mt-1.5">
-                    Will create entries for {1 + additionalClassIds.length} classes at once
-                  </p>
+            {/* ══ STEP 1 — Topic ══ */}
+            {step === 1 && (
+              <div className="space-y-4 animate-slide-in-right">
+                {moduleName && (
+                  <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold"
+                    style={{ background: "var(--accent-light)", color: "var(--accent-text)" }}>
+                    <Layers className="w-3 h-3" />
+                    {moduleName}
+                  </div>
                 )}
-              </div>
-            )}
 
-            {/* Class didn't hold toggle */}
-            {subjectId && hasPeriodSelected && (
-              <div>
-                <button type="button" onClick={() => setClassDidNotHold(!classDidNotHold)}
-                  className={`w-full text-left flex items-center gap-3 px-4 py-3 rounded-xl border-2 transition-all ${
-                    classDidNotHold ? "border-red-300 bg-red-50" : "border-[var(--border-primary)] bg-[var(--bg-elevated)] hover:border-[var(--border-primary)]"
-                  }`}>
-                  <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center flex-shrink-0 transition-colors ${
-                    classDidNotHold ? "bg-red-500 border-red-500" : "border-[var(--border-primary)] bg-[var(--bg-elevated)]"
-                  }`}>
-                    {classDidNotHold && <Check className="w-3 h-3 text-white" />}
-                  </div>
-                  <div>
-                    <p className={`text-sm font-semibold ${classDidNotHold ? "text-red-700" : "text-[var(--text-secondary)]"}`}>Class did not hold</p>
-                    <p className="text-[11px] text-[var(--text-tertiary)]">Mark this period if the class was cancelled or didn&apos;t take place</p>
-                  </div>
+                <p className="text-[13px] text-[var(--text-tertiary)]">What topic did you cover?</p>
+
+                <div className="rounded-2xl border overflow-hidden" style={{ borderColor: "var(--border-primary)", background: "var(--bg-elevated)" }}>
+                  <input value={topicText} onChange={(e) => setTopicText(e.target.value.slice(0, 300))}
+                    placeholder="e.g. Laws of reflection, image formation..."
+                    className="w-full px-4 py-3.5 border-none outline-none text-[15px] bg-transparent"
+                    style={{ color: "var(--text-primary)" }} maxLength={300} />
+                </div>
+                {topicText.length > 0 && <p className="text-xs text-[var(--text-tertiary)] text-right">{topicText.length}/300</p>}
+
+                {topicsForModule.length > 0 && (
+                  <>
+                    <p className="text-[11px] font-semibold uppercase tracking-widest text-[var(--text-tertiary)]">Or select from curriculum</p>
+                    <div className="space-y-1.5 max-h-52 overflow-y-auto rounded-xl border p-2" style={{ borderColor: "var(--border-primary)", background: "var(--bg-elevated)" }}>
+                      {topicsForModule.map((topic) => {
+                        const isSel = selectedTopicIds.includes(topic.id);
+                        return (
+                          <button key={topic.id} type="button"
+                            onClick={() => setSelectedTopicIds((prev) => isSel ? prev.filter((id) => id !== topic.id) : [...prev, topic.id])}
+                            className="w-full text-left flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm transition-all"
+                            style={{
+                              background: isSel ? "var(--accent-light)" : "var(--bg-tertiary)",
+                              border: isSel ? "1px solid var(--accent)" : "1px solid transparent",
+                              color: isSel ? "var(--accent-text)" : "var(--text-secondary)",
+                            }}>
+                            <div className="w-5 h-5 rounded-md border-2 flex items-center justify-center flex-shrink-0"
+                              style={{ borderColor: isSel ? "var(--accent)" : "var(--border-primary)", background: isSel ? "var(--accent)" : "var(--bg-elevated)" }}>
+                              {isSel && <Check className="w-3 h-3 text-white" />}
+                            </div>
+                            <span className={isSel ? "font-medium" : ""}>{topic.name}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </>
+                )}
+
+                <button type="button" onClick={() => setStep(2)}
+                  disabled={!topicText.trim() && selectedTopicIds.length === 0}
+                  className="w-full py-4 rounded-2xl font-bold text-[15px] transition-all active:scale-[0.98] disabled:opacity-40"
+                  style={{
+                    background: (topicText.trim() || selectedTopicIds.length > 0) ? "linear-gradient(135deg, var(--accent), var(--accent-hover))" : "var(--bg-tertiary)",
+                    color: (topicText.trim() || selectedTopicIds.length > 0) ? "#FFF" : "var(--text-tertiary)",
+                    boxShadow: (topicText.trim() || selectedTopicIds.length > 0) ? "var(--shadow-accent)" : "none",
+                  }}>
+                  Continue
                 </button>
               </div>
             )}
 
-            {/* Module Picker */}
-            {subjectId && modules.length > 0 && !classDidNotHold && (
-              <div>
-                <label className="label-field flex items-center gap-1.5"><Layers className="w-3.5 h-3.5 text-indigo-500" />Module</label>
-                <select value={moduleName} onChange={(e) => { setModuleName(e.target.value); setSelectedTopicIds([]); }} className="input-field">
-                  <option value="">Select module</option>
-                  {modules.map((m) => (<option key={m} value={m}>{m}</option>))}
-                </select>
-              </div>
-            )}
-
-            {/* Topic Multi-Select */}
-            {subjectId && topicsForModule.length > 0 && !classDidNotHold && (
-              <div>
-                <label className="label-field flex items-center gap-1.5">
-                  <BookOpen className="w-3.5 h-3.5 text-emerald-500" />
-                  Topics Covered
-                  {selectedTopicIds.length > 0 && (
-                    <span className="ml-auto text-[10px] font-bold bg-brand-50 text-brand-700 px-2 py-0.5 rounded-full">
-                      {selectedTopicIds.length} selected
-                    </span>
-                  )}
-                </label>
-                <p className="text-[11px] text-[var(--text-tertiary)] mb-2">Tap to select the topics you covered</p>
-                <div className="space-y-1.5 max-h-52 overflow-y-auto rounded-xl border border-[var(--border-primary)] bg-[var(--bg-elevated)] p-2">
-                  {topicsForModule.map((topic) => {
-                    const isTopicSelected = selectedTopicIds.includes(topic.id);
-                    return (
-                      <button key={topic.id} type="button"
-                        onClick={() => setSelectedTopicIds((prev) => isTopicSelected ? prev.filter((id) => id !== topic.id) : [...prev, topic.id])}
-                        className={`w-full text-left flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm transition-all ${
-                          isTopicSelected ? "bg-brand-50 border border-brand-200 text-brand-800" : "bg-[var(--bg-tertiary)] border border-transparent text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)]"
-                        }`}>
-                        <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center flex-shrink-0 transition-colors ${
-                          isTopicSelected ? "bg-brand-600 border-brand-600" : "border-[var(--border-primary)] bg-[var(--bg-elevated)]"
-                        }`}>
-                          {isTopicSelected && <Check className="w-3 h-3 text-white" />}
-                        </div>
-                        <span className={`flex-1 ${isTopicSelected ? "font-medium" : ""}`}>{topic.name}</span>
-                      </button>
-                    );
-                  })}
+            {/* ══ STEP 2 — Details & Submit ══ */}
+            {step === 2 && (
+              <div className="space-y-4 animate-slide-in-right">
+                <div className="card p-4">
+                  <p className="text-[11px] font-semibold uppercase tracking-widest text-[var(--text-tertiary)] mb-2.5">Entry Summary</p>
+                  {[
+                    ["Subject", contextSubjectName],
+                    ["Class", contextClassName + (additionalClassIds.length > 0 ? ` (+${additionalClassIds.length})` : "")],
+                    ["Module", moduleName || "—"],
+                    ["Topic", topicText || selectedTopicIds.map((id) => topicsForModule.find((t) => t.id === id)?.name).filter(Boolean).join(", ") || "—"],
+                  ].map(([label, value]) => (
+                    <div key={label} className="flex justify-between py-2 border-b" style={{ borderColor: "var(--border-secondary)" }}>
+                      <span className="text-[13px] text-[var(--text-tertiary)]">{label}</span>
+                      <span className="text-[13px] font-semibold text-[var(--text-primary)] text-right max-w-[60%] truncate">{value}</span>
+                    </div>
+                  ))}
                 </div>
-              </div>
-            )}
 
-            {/* Free-text topic */}
-            {subjectId && !classDidNotHold && (
-              <div>
-                <label className="label-field flex items-center gap-1.5">
-                  <PenTool className="w-3.5 h-3.5 text-[var(--text-tertiary)]" />
-                  {topicsForModule.length > 0 ? "Additional Topic (Optional)" : "Topic Covered"}
-                </label>
-                <input type="text" value={topicText} onChange={(e) => setTopicText(e.target.value.slice(0, 300))} className="input-field"
-                  placeholder={topicsForModule.length > 0 ? "Type any additional topic not listed above..." : "Type the topic you taught..."} maxLength={300} />
-                {topicText.length > 0 && <p className="text-xs text-[var(--text-tertiary)] mt-1 text-right">{topicText.length}/300</p>}
-              </div>
-            )}
+                <div className="rounded-2xl border overflow-hidden" style={{ borderColor: "var(--border-primary)", background: "var(--bg-elevated)" }}>
+                  <textarea value={notes} onChange={(e) => setNotes(e.target.value.slice(0, 500))}
+                    placeholder="Optional notes — objectives, observations..." rows={3}
+                    className="w-full px-4 py-3.5 border-none outline-none text-sm bg-transparent resize-none"
+                    style={{ color: "var(--text-primary)" }} maxLength={500} />
+                </div>
 
-            {/* Notes */}
-            {!classDidNotHold && (
-              <div>
-                <label className="label-field">Notes (Optional)</label>
-                <textarea value={notes} onChange={(e) => setNotes(e.target.value.slice(0, 500))} className="input-field resize-none" rows={3} placeholder="Brief notes about the lesson..." maxLength={500} />
-                <p className="text-xs text-[var(--text-tertiary)] mt-1 text-right">{notes.length}/500</p>
-              </div>
-            )}
+                <div className="rounded-2xl border overflow-hidden" style={{ borderColor: "var(--border-primary)", background: "var(--bg-elevated)" }}>
+                  <textarea value={objectives} onChange={(e) => setObjectives(e.target.value.slice(0, 500))}
+                    placeholder="Learning objectives covered..." rows={2}
+                    className="w-full px-4 py-3.5 border-none outline-none text-sm bg-transparent resize-none"
+                    style={{ color: "var(--text-primary)" }} maxLength={500} />
+                </div>
 
-            {/* Objectives */}
-            {!classDidNotHold && (
-              <div>
-                <label className="label-field">Objectives (Optional)</label>
-                <textarea value={objectives} onChange={(e) => setObjectives(e.target.value.slice(0, 500))} className="input-field resize-none" rows={2} placeholder="Learning objectives covered..." maxLength={500} />
-                <p className="text-xs text-[var(--text-tertiary)] mt-1 text-right">{objectives.length}/500</p>
-              </div>
-            )}
+                <div className="flex gap-2">
+                  <div className="flex-1 card p-3.5">
+                    <p className="text-[11px] font-semibold text-[var(--text-tertiary)] mb-1.5">Attendance</p>
+                    <input type="number" value={studentAttendance} onChange={(e) => setStudentAttendance(e.target.value)}
+                      className="w-full text-center py-2.5 rounded-xl text-lg font-bold font-mono bg-transparent"
+                      style={{ background: "var(--bg-tertiary)", color: "var(--text-primary)" }}
+                      placeholder="—" min="0" max="999" />
+                  </div>
+                  <div className="flex-1 card p-3.5">
+                    <p className="text-[11px] font-semibold text-[var(--text-tertiary)] mb-1.5">Engagement</p>
+                    <div className="flex gap-1">
+                      {(["HIGH", "MEDIUM", "LOW"] as const).map((level) => {
+                        const isActive = engagementLevel === level;
+                        const colors: Record<string, { bg: string; text: string }> = {
+                          HIGH: { bg: "var(--success-light)", text: "var(--success)" },
+                          MEDIUM: { bg: "var(--accent-light)", text: "var(--accent-text)" },
+                          LOW: { bg: "var(--warning-light)", text: "var(--warning)" },
+                        };
+                        const c = colors[level];
+                        return (
+                          <button key={level} type="button" onClick={() => setEngagementLevel(isActive ? "" : level)}
+                            className="flex-1 py-2.5 rounded-xl text-xs font-semibold transition-all"
+                            style={{ background: isActive ? c.bg : "var(--bg-tertiary)", color: isActive ? c.text : "var(--text-tertiary)" }}>
+                            {level === "HIGH" ? "High" : level === "MEDIUM" ? "Med" : "Low"}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
 
-            {/* Student Attendance & Engagement */}
-            {!classDidNotHold && (
-              <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="label-field flex items-center gap-1.5">Student Population</label>
-                  <input type="number" value={studentAttendance} onChange={(e) => setStudentAttendance(e.target.value)} className="input-field" placeholder="# present" min="0" max="999" />
+                  <label className="label-field">Digital Signature (Optional)</label>
+                  <SignaturePad onSign={(data: string) => setSignatureData(data)} onClear={() => setSignatureData(null)} />
                 </div>
-                <div>
-                  <label className="label-field flex items-center gap-1.5">Student Engagement</label>
-                  <select value={engagementLevel} onChange={(e) => setEngagementLevel(e.target.value)} className="input-field">
-                    <option value="">Select level</option>
-                    <option value="HIGH">High</option>
-                    <option value="MEDIUM">Medium</option>
-                    <option value="LOW">Low</option>
-                  </select>
-                </div>
-              </div>
-            )}
 
-            {/* Signature */}
-            {!classDidNotHold && (
-              <div>
-                <label className="label-field">Digital Signature (Optional)</label>
-                <SignaturePad onSign={(data: string) => setSignatureData(data)} onClear={() => setSignatureData(null)} />
-              </div>
-            )}
-
-            {/* Period required warning */}
-            {!hasPeriodSelected && classId && subjectId && (
-              <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 text-xs text-amber-700 flex items-center gap-2">
-                <AlertCircle className="w-4 h-4 flex-shrink-0" />
-                You must select a period from the schedule above or the period dropdown to submit your entry.
-              </div>
-            )}
-
-            {/* Action Buttons */}
-            <div className="space-y-3">
-              <button type="submit" disabled={!isFormValid || submitting || savingDraft} className="btn-primary flex items-center justify-center gap-2">
-                {submitting ? (
-                  <>
-                    <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24" fill="none">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                    </svg>
-                    Submitting{(hasMultiSlots || hasMultiClass) ? ` ${Math.max(selectedSlotIds.length, 1) * (1 + additionalClassIds.length)} entries` : ""}...
-                  </>
-                ) : classDidNotHold ? (
-                  "Mark as Class Did Not Hold"
-                ) : (
-                  hasMultiSlots || hasMultiClass
-                    ? `Submit ${Math.max(selectedSlotIds.length, 1) * (1 + additionalClassIds.length)} Entries`
-                    : "Submit Entry"
-                )}
-              </button>
-
-              {isDraftValid && !classDidNotHold && (
-                <button type="button" onClick={(e) => handleSubmit(e, true)} disabled={savingDraft || submitting}
-                  className="w-full flex items-center justify-center gap-2 bg-[var(--bg-elevated)] border-2 border-amber-300 text-amber-700 font-bold rounded-2xl py-3.5 px-6 hover:bg-amber-50 active:scale-[0.98] transition-all">
-                  {savingDraft ? (
+                <button type="submit" disabled={!isFormValid || submitting || savingDraft}
+                  className="w-full py-[18px] rounded-2xl font-bold text-base text-white flex items-center justify-center gap-2 transition-all active:scale-[0.98] disabled:opacity-50"
+                  style={{ background: "linear-gradient(135deg, #16A34A, #15803D)", boxShadow: "var(--shadow-success)" }}>
+                  {submitting ? (
                     <>
                       <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24" fill="none">
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                       </svg>
-                      Saving Draft...
+                      Submitting...
                     </>
                   ) : (
                     <>
-                      <Save className="w-5 h-5" />
-                      Save as Draft (Complete Later)
+                      <CheckCircle className="w-5 h-5" />
+                      {hasMultiSlots || hasMultiClass
+                        ? `Submit ${Math.max(selectedSlotIds.length, 1) * (1 + additionalClassIds.length)} Entries`
+                        : "Submit Entry"}
                     </>
                   )}
                 </button>
-              )}
-            </div>
+
+                {isDraftValid && (
+                  <button type="button" onClick={(e) => handleSubmit(e, true)} disabled={savingDraft || submitting}
+                    className="w-full flex items-center justify-center gap-2 font-bold rounded-2xl py-3.5 px-6 active:scale-[0.98] transition-all border-2"
+                    style={{ borderColor: "var(--accent)", background: "var(--bg-elevated)", color: "var(--accent-text)" }}>
+                    {savingDraft ? "Saving Draft..." : <><Save className="w-5 h-5" />Save as Draft</>}
+                  </button>
+                )}
+              </div>
+            )}
           </form>
         )}
       </div>
