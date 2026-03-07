@@ -55,7 +55,7 @@ function BottomNav({ role }: BottomNavProps) {
       className="fixed bottom-0 left-0 w-full z-50 backdrop-blur-xl pb-[env(safe-area-inset-bottom)]"
       style={{ backgroundColor: "var(--nav-bg)", borderTop: "1px solid var(--nav-border)" }}
     >
-      <div className="flex items-center justify-around h-16 max-w-lg mx-auto">
+      <div className="flex items-end justify-around h-16 max-w-lg mx-auto">
         {tabs.map((tab) => {
           const isActive = pathname === tab.href || pathname.startsWith(tab.href + "/");
           const Icon = tab.icon;
@@ -65,20 +65,25 @@ function BottomNav({ role }: BottomNavProps) {
               <Link
                 key={tab.href}
                 href={tab.href}
-                className="flex flex-col items-center gap-0.5 -mt-6"
+                className="flex flex-col items-center gap-0.5"
                 aria-label={tab.label}
+                style={{ marginTop: "-12px" }}
               >
                 <div
-                  className="flex h-12 w-12 items-center justify-center rounded-full shadow-accent active:scale-95 transition-transform"
+                  className="flex items-center justify-center rounded-full active:scale-95 transition-transform"
                   style={{
+                    width: "48px",
+                    height: "48px",
                     background: "linear-gradient(135deg, var(--accent), var(--accent-hover))",
+                    boxShadow: "0 4px 16px -4px rgba(245, 158, 11, 0.5)",
+                    transitionDuration: "var(--transition-micro)",
                   }}
                 >
-                  <Icon className="h-5 w-5 text-white" strokeWidth={2.5} />
+                  <Plus className="text-white" style={{ width: "22px", height: "22px" }} strokeWidth={2.5} />
                 </div>
                 <span
-                  className="text-[10px] font-bold"
-                  style={{ color: "var(--accent-text)" }}
+                  className="font-bold"
+                  style={{ fontSize: "10px", color: "var(--accent-text)" }}
                 >
                   {tab.label}
                 </span>
@@ -94,8 +99,11 @@ function BottomNav({ role }: BottomNavProps) {
               style={{ color: isActive ? "var(--nav-text-active)" : "var(--nav-text)" }}
               aria-label={tab.label}
             >
-              <Icon className="h-5 w-5" />
-              <span className={`text-[10px] ${isActive ? "font-bold" : "font-medium"}`}>
+              <Icon style={{ width: "20px", height: "20px" }} />
+              <span
+                className={isActive ? "font-bold" : "font-medium"}
+                style={{ fontSize: "10px" }}
+              >
                 {tab.label}
               </span>
             </Link>
