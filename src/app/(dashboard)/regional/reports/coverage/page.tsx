@@ -1,0 +1,193 @@
+"use client";
+
+import React from "react";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
+import { X, AlertTriangle } from "lucide-react";
+import { DataTable } from "@/components/DataTable";
+import type { ColumnDef } from "@/components/DataTable";
+
+interface CoverageRow {
+  id: string;
+  subject: string;
+  subjectCode: string;
+  level: string;
+  moduleNum: number | null;
+  moduleName: string;
+  topic: string;
+  orderIndex: number;
+  schoolsCovering: number;
+  totalSchools: number;
+  coverageRate: number;
+  totalEntries: number;
+  teachersCovering: number;
+  lastTaught: string | null;
+}
+
+function CoverageCell({ row }: { row: CoverageRow }) {
+  const { schoolsCovering, totalSchools, coverageRate } = row;
+  let barColor = "#DC2626"; // red
+  if (coverageRate >= 80) barColor = "#16A34A"; // green
+  else if (coverageRate >= 50) barColor = "#F59E0B"; // amber
+
+  let textColor = "#DC2626";
+  if (coverageRate >= 80) textColor = "#16A34A";
+  else if (coverageRate >= 50) textColor = "#B45309";
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 4, alignItems: "center" }}>
+      <span
+        style={{
+          fontFamily: "var(--font-mono)",
+          fontSize: 13,
+          fontWeight: 600,
+          color: textColor,
+        }}
+      >
+        {schoolsCovering}/{totalSchools}
+      </span>
+      <div
+        style={{
+          width: 64,
+          height: 4,
+          borderRadius: 9999,
+          background: "var(--bg-tertiary)",
+          overflow: "hidden",
+        }}
+      >
+        <div
+          style={{
+            width: `${Math.min(coverageRate, 100)}%`,
+            height: "100%",
+            borderRadius: 9999,
+            background: barColor,
+            transition: "width 400ms ease",
+          }}
+        />
+      </div>
+    </div>
+  );
+}
+
+const columns: ColumnDef<CoverageRow>[] = [
+  {
+    key: "subject",
+    label: "Subject",
+    sortable: true,
+    filterable: true,
+  },
+  {
+    key: "level",
+    label: "Level",
+    sortable: true,
+    filterable: true,
+  },
+  {
+    key: "moduleName",
+    label: "Module",
+    sortable: true,
+    searchable: true,
+    hideOnMobile: true,
+  },
+  {
+    key: "topic",
+    label: "Topic",
+    sortable: true,
+    searchable: true,
+  },
+  {
+    key: "coverageRate",
+    label: "Coverage",
+    sortable: true,
+    align: "center",
+    render: (_value, row) => <CoverageCell row={row} />,
+  },
+  {
+    key: "totalEntries",
+    label: "Total Entries",
+    type: "number",
+    sortable: true,
+    align: "center",
+    hideOnMobile: true,
+  },
+  {
+    key: "teachersCovering",
+    label: "Teachers",
+    type: "number",
+    sortable: true,
+    align: "center",
+    hideOnMobile: true,
+  },
+  {
+    key: "lastTaught",
+    label: "Last Taught",
+    type: "date",
+    sortable: true,
+  },
+];
+
+export default function RegionalCoverageReportPage() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const showGapsOnly = searchParams.get("filter[covered]") === "gaps";
+
+  const toggleGaps = () => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (showGapsOnly) {
+      params.delete("filter[covered]");
+    } else {
+      params.set("filter[covered]", "gaps");
+      params.delete("cursor"); // reset pagination
+    }
+    router.push(`${pathname}?${params.toString()}`, { scroll: false });
+  };
+
+  return (
+    <div>
+      {/* Gaps toggle */}
+      <div style={{ marginBottom: 12 }}>
+        <button
+          onClick={toggleGaps}
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 8,
+            padding: "8px 16px",
+            fontSize: 13,
+            fontWeight: 600,
+            borderRadius: 12,
+            border: showGapsOnly
+              ? "1px solid var(--accent)"
+              : "1px solid var(--border-primary)",
+            background: showGapsOnly
+              ? "var(--accent-light)"
+              : "var(--bg-tertiary)",
+            color: showGapsOnly
+              ? "var(--accent-text)"
+              : "var(--text-secondary)",
+            cursor: "pointer",
+            transition: "all var(--transition-fast) ease",
+          }}
+        >
+          <AlertTriangle size={14} />
+          Show gaps only
+          {showGapsOnly && <X size={14} />}
+        </button>
+      </div>
+
+      <DataTable<CoverageRow>
+        columns={columns}
+        endpoint="/api/regional/reports/coverage"
+        title="Curriculum Coverage"
+        description="National syllabus topics with regional coverage data across all schools."
+        searchPlaceholder="Search topics or modules..."
+        defaultSort="subject"
+        defaultOrder="asc"
+        exportFilename="regional-coverage-report"
+        emptyTitle="No curriculum topics found"
+        emptyDescription="Try selecting a different subject or level."
+      />
+    </div>
+  );
+}
