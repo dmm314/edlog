@@ -16,6 +16,7 @@ import {
   Copy,
   Zap,
   ChevronRight,
+  Info,
 } from "lucide-react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
@@ -1097,7 +1098,9 @@ export default function NewEntryPage() {
                   </div>
                 )}
 
-                <p className="text-[13px] text-[var(--text-tertiary)]">What topic did you cover?</p>
+                <p className="text-[13px] text-[var(--text-tertiary)]">
+                  {topicsForModule.length > 0 ? "Additional notes on topic (optional)" : "What topic did you cover?"}
+                </p>
 
                 <div className="border overflow-hidden" style={{ borderColor: "var(--border-primary)", background: "var(--bg-elevated)", borderRadius: "16px" }}>
                   <input value={topicText} onChange={(e) => setTopicText(e.target.value.slice(0, 300))}
@@ -1109,6 +1112,9 @@ export default function NewEntryPage() {
 
                 {topicsForModule.length > 0 && (
                   <>
+                    <p style={{ fontFamily: "var(--font-body)", fontSize: 12, color: "var(--text-tertiary)", margin: 0 }}>
+                      {contextSubjectName} {selectedClassLevel}{moduleName ? ` · ${moduleName}` : ""} · {topicsForModule.length} topics in syllabus
+                    </p>
                     <p className="text-[11px] font-semibold uppercase text-[var(--text-tertiary)]" style={{ letterSpacing: "0.06em" }}>Or select from curriculum</p>
                     <div className="flex flex-wrap gap-1.5">
                       {topicsForModule.map((topic) => {
@@ -1129,7 +1135,7 @@ export default function NewEntryPage() {
                               border: isSel ? "1px solid var(--accent)" : "1px solid var(--border-primary)",
                               color: isSel ? "var(--accent-text)" : "var(--text-secondary)",
                               borderRadius: "12px",
-                              padding: "6px 12px",
+                              padding: "8px 16px",
                               fontWeight: isSel ? 600 : 500,
                             }}>
                             {topic.name}
@@ -1137,6 +1143,22 @@ export default function NewEntryPage() {
                         );
                       })}
                     </div>
+                    {topicText.length > 0 && selectedTopicIds.length === 0 && (
+                      <div style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 6,
+                        fontFamily: "var(--font-body)",
+                        fontSize: 11,
+                        color: "#D97706",
+                        background: "#FFFBEB",
+                        borderRadius: 8,
+                        padding: "8px 12px",
+                      }}>
+                        <Info size={14} style={{ flexShrink: 0 }} />
+                        Tip: Selecting topics from the curriculum above helps your school track syllabus progress.
+                      </div>
+                    )}
                   </>
                 )}
 

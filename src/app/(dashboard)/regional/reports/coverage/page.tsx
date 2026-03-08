@@ -1,10 +1,11 @@
 "use client";
 
-import React from "react";
+import React, { useState, useCallback } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { X, AlertTriangle } from "lucide-react";
 import { DataTable } from "@/components/DataTable";
 import type { ColumnDef } from "@/components/DataTable";
+import { ReportStatCards, type StatCard } from "@/components/ReportStatCards";
 
 interface CoverageRow {
   id: string;
@@ -129,6 +130,7 @@ export default function RegionalCoverageReportPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
+  const [stats, setStats] = useState<StatCard[]>([]);
 
   const showGapsOnly = searchParams.get("filter[covered]") === "gaps";
 
@@ -143,8 +145,23 @@ export default function RegionalCoverageReportPage() {
     router.push(`${pathname}?${params.toString()}`, { scroll: false });
   };
 
+  const handleDataLoad = useCallback((data: CoverageRow[]) => {
+    const total = data.length;
+    const fullyCovered = data.filter((r) => r.coverageRate === 100).length;
+    const partial = data.filter((r) => r.coverageRate > 0 && r.coverageRate < 100).length;
+    const notCovered = data.filter((r) => r.coverageRate === 0).length;
+    setStats([
+      { label: "Total Topics", value: total },
+      { label: "Fully Covered", value: fullyCovered },
+      { label: "Partial", value: partial },
+      { label: "Not Covered", value: notCovered },
+    ]);
+  }, []);
+
   return (
     <div>
+      {stats.length > 0 && <ReportStatCards stats={stats} />}
+
       {/* Gaps toggle */}
       <div style={{ marginBottom: 12 }}>
         <button
@@ -187,6 +204,7 @@ export default function RegionalCoverageReportPage() {
         exportFilename="regional-coverage-report"
         emptyTitle="No curriculum topics found"
         emptyDescription="Try selecting a different subject or level."
+        onDataLoad={handleDataLoad}
       />
     </div>
   );

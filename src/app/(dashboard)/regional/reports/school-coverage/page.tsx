@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { BarChart3, Check } from "lucide-react";
 import { DataTable } from "@/components/DataTable";
 import type { ColumnDef } from "@/components/DataTable";
+import { ReportStatCards, type StatCard } from "@/components/ReportStatCards";
 
 interface SchoolCoverageRow {
   id: string;
@@ -160,6 +161,7 @@ export default function SchoolComparisonPage() {
   const [subject, setSubject] = useState("");
   const [level, setLevel] = useState("");
   const [subjects, setSubjects] = useState<string[]>([]);
+  const [stats, setStats] = useState<StatCard[]>([]);
 
   // Fetch available subjects
   useEffect(() => {
@@ -171,6 +173,20 @@ export default function SchoolComparisonPage() {
         }
       })
       .catch(() => {});
+  }, []);
+
+  const handleDataLoad = useCallback((data: SchoolCoverageRow[]) => {
+    const count = data.length;
+    const rates = data.map((r) => r.coverageRate);
+    const avg = count > 0 ? Math.round(rates.reduce((a, b) => a + b, 0) / count) : 0;
+    const highest = count > 0 ? Math.max(...rates) : 0;
+    const lowest = count > 0 ? Math.min(...rates) : 0;
+    setStats([
+      { label: "Schools Compared", value: count },
+      { label: "Avg Coverage %", value: `${avg}%` },
+      { label: "Highest", value: `${highest}%` },
+      { label: "Lowest", value: `${lowest}%` },
+    ]);
   }, []);
 
   const bothSelected = subject && level;
@@ -251,6 +267,9 @@ export default function SchoolComparisonPage() {
         </div>
       </div>
 
+      {/* Stat cards (only when data loaded) */}
+      {bothSelected && stats.length > 0 && <ReportStatCards stats={stats} />}
+
       {/* Prompt or DataTable */}
       {!bothSelected ? (
         <div
@@ -301,6 +320,7 @@ export default function SchoolComparisonPage() {
           emptyTitle="No schools found"
           emptyDescription="No schools in your region teach this subject at this level."
           onRowClick={(row) => router.push(`/regional/schools/${row.schoolId}`)}
+          onDataLoad={handleDataLoad}
         />
       )}
 

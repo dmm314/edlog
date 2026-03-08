@@ -1,9 +1,11 @@
 "use client";
 
-import React from "react";
+import React, { useState, useCallback } from "react";
 import { DataTable } from "@/components/DataTable";
 import type { ColumnDef } from "@/components/DataTable";
 import { Badge } from "@/components/ui/Badge";
+import { ReportStatCards, type StatCard } from "@/components/ReportStatCards";
+import type { DataTablePagination } from "@/hooks/useDataTable";
 
 interface CoverageRow {
   id: string;
@@ -88,18 +90,37 @@ const columns: ColumnDef<CoverageRow>[] = [
 ];
 
 export default function CoverageReportPage() {
+  const [stats, setStats] = useState<StatCard[]>([]);
+
+  const handleDataLoad = useCallback((data: CoverageRow[], pagination: DataTablePagination) => {
+    const total = pagination.total;
+    const covered = data.filter((r) => r.covered).length;
+    const gaps = data.length - covered;
+    const rate = data.length > 0 ? Math.round((covered / data.length) * 100) : 0;
+    setStats([
+      { label: "Total Topics", value: total },
+      { label: "Covered", value: covered },
+      { label: "Gaps", value: gaps },
+      { label: "Coverage %", value: `${rate}%` },
+    ]);
+  }, []);
+
   return (
-    <DataTable<CoverageRow>
-      columns={columns}
-      endpoint="/api/admin/reports/coverage"
-      title="Curriculum Coverage"
-      description="National syllabus topics and whether they've been taught."
-      searchPlaceholder="Search topics or modules..."
-      defaultSort="subject"
-      defaultOrder="asc"
-      exportFilename="coverage-report"
-      emptyTitle="No topics found"
-      emptyDescription="No curriculum topics match your current filters."
-    />
+    <div>
+      {stats.length > 0 && <ReportStatCards stats={stats} />}
+      <DataTable<CoverageRow>
+        columns={columns}
+        endpoint="/api/admin/reports/coverage"
+        title="Curriculum Coverage"
+        description="National syllabus topics and whether they've been taught."
+        searchPlaceholder="Search topics or modules..."
+        defaultSort="subject"
+        defaultOrder="asc"
+        exportFilename="coverage-report"
+        emptyTitle="No topics found"
+        emptyDescription="No curriculum topics match your current filters."
+        onDataLoad={handleDataLoad}
+      />
+    </div>
   );
 }
