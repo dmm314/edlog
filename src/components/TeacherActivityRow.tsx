@@ -5,7 +5,7 @@ interface TeacherActivityRowProps {
   initials: string;
   entriesLogged: number;
   entriesExpected: number;
-  color: string; // hex for avatar bg
+  color?: string;
   onClick?: () => void;
 }
 
@@ -14,11 +14,15 @@ function TeacherActivityRow({
   initials,
   entriesLogged,
   entriesExpected,
-  color,
   onClick,
 }: TeacherActivityRowProps) {
   const rate = entriesExpected > 0 ? (entriesLogged / entriesExpected) * 100 : 0;
   const barColor = rate >= 90 ? "progress-green" : rate >= 70 ? "progress-amber" : "progress-red";
+
+  // Avatar colors based on compliance
+  const avatarBg = rate >= 90 ? "#DCFCE7" : rate >= 70 ? "#FEF3C7" : "#FEE2E2";
+  const avatarText = rate >= 90 ? "#16A34A" : rate >= 70 ? "#D97706" : "#DC2626";
+  const countColor = rate >= 90 ? "#16A34A" : rate >= 70 ? "#D97706" : "#DC2626";
 
   return (
     <button
@@ -26,13 +30,13 @@ function TeacherActivityRow({
       className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-[var(--bg-secondary)] transition-colors text-left"
     >
       <div
-        className="w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0"
-        style={{ backgroundColor: color }}
+        className="flex items-center justify-center text-[13px] font-bold shrink-0"
+        style={{ width: "36px", height: "36px", borderRadius: "12px", backgroundColor: avatarBg, color: avatarText }}
       >
         {initials}
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-semibold text-[var(--text-primary)] truncate">{name}</p>
+        <p className="text-[13px] font-semibold text-[var(--text-primary)] truncate">{name}</p>
         <div className="progress-bar mt-1.5">
           <div
             className={`progress-bar-fill ${barColor}`}
@@ -40,7 +44,7 @@ function TeacherActivityRow({
           />
         </div>
       </div>
-      <span className="text-xs font-mono tabular-nums font-bold text-[var(--text-tertiary)] shrink-0">
+      <span className="text-xs font-mono tabular-nums font-semibold shrink-0" style={{ color: countColor }}>
         {entriesLogged}/{entriesExpected}
       </span>
     </button>
