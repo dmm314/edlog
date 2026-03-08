@@ -6,23 +6,13 @@ import {
   Plus,
   BookOpen,
   Calendar,
-  Clock,
-  Edit3,
   CheckCircle,
-  ArrowRight,
-  Sun,
-  Zap,
-  Award,
-  Crown,
-  ChevronRight,
-  AlertCircle,
   Pen,
 } from "lucide-react";
 import { NotificationBell } from "@/components/NotificationBell";
 import { StreakBadge } from "@/components/StreakBadge";
 import { WeeklyProgress } from "@/components/WeeklyProgress";
 import type { EntryWithRelations } from "@/types";
-import { formatDate, formatTime } from "@/lib/utils";
 import { useStaggeredReveal } from "@/hooks/useStaggeredReveal";
 
 const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -57,20 +47,6 @@ interface AllSlotInfo {
   };
 }
 
-function StatusBadge({ status }: { status: string }) {
-  const map: Record<string, string> = {
-    SUBMITTED: "badge-submitted",
-    VERIFIED: "badge-verified",
-    FLAGGED: "badge-flagged",
-    DRAFT: "badge-draft",
-  };
-  return (
-    <span className={map[status] || map.DRAFT}>
-      {status.charAt(0) + status.slice(1).toLowerCase()}
-    </span>
-  );
-}
-
 function isEditable(entry: EntryWithRelations): boolean {
   const oneHour = 60 * 60 * 1000;
   return Date.now() - new Date(entry.createdAt).getTime() < oneHour;
@@ -81,10 +57,6 @@ function getGreeting(): string {
   if (hour < 12) return "Good morning";
   if (hour < 17) return "Good afternoon";
   return "Good evening";
-}
-
-function getSubjectBg(): string {
-  return "bg-[var(--accent-light)] text-[var(--accent-text)] border-[var(--border-primary)]";
 }
 
 function getCurrentPeriodIndex(slots: TimetableSlotInfo[]): number {
@@ -447,7 +419,12 @@ export default function LogbookPage() {
     return (
       <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-primary)" }}>
         {/* Skeleton Header */}
-        <div className="page-header px-5 pt-12 pb-7">
+        <div
+          className="px-5 pt-12 pb-7"
+          style={{
+            background: "linear-gradient(135deg, var(--header-from), var(--header-via), var(--header-to))",
+          }}
+        >
           <div className="max-w-lg mx-auto relative">
             <div className="flex items-start justify-between mb-5">
               <div>
@@ -456,7 +433,7 @@ export default function LogbookPage() {
               </div>
               <div className="skeleton h-10 w-10 rounded-[14px] !bg-white/[0.06]" />
             </div>
-            <div className="flex gap-3">
+            <div className="flex" style={{ gap: "10px" }}>
               <div className="flex-1 rounded-2xl p-3 bg-white/[0.04] border border-white/[0.06]">
                 <div className="flex items-center gap-2.5">
                   <div className="skeleton h-9 w-9 rounded-xl !bg-white/[0.06]" />
@@ -515,25 +492,41 @@ export default function LogbookPage() {
     );
   }
 
-  const syllabusRate = stats.verifiedRate;
+  // TODO: Calculate syllabus coverage as (unique topics logged / total topics in assigned subjects-levels) × 100
+  // Current APIs don't provide total topic counts per subject-level, so hardcoding "—" for now
+  const syllabusDisplay = "—";
 
   return (
     <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-primary)" }}>
       {/* ── Hero Header ─────────────────────────────────────────────── */}
-      <div className="page-header px-5 pt-12 pb-7">
+      <div
+        className="px-5 pt-12 pb-7"
+        style={{
+          background: "linear-gradient(135deg, var(--header-from), var(--header-via), var(--header-to))",
+        }}
+      >
         <div className="max-w-lg mx-auto relative">
           {/* Greeting + Bell */}
           <div className="flex items-start justify-between mb-5">
             <div className="animate-fade-in">
               <p
-                className="text-[13px] font-medium tracking-wide"
-                style={{ color: "var(--header-text-muted)" }}
+                style={{
+                  fontFamily: "var(--font-body)",
+                  fontSize: "13px",
+                  color: "#a8a29e",
+                }}
               >
                 {greeting}
               </p>
               <h1
-                className="font-display text-[26px] font-bold mt-0.5 tracking-tight leading-tight"
-                style={{ color: "var(--header-text)" }}
+                style={{
+                  fontFamily: "var(--font-display)",
+                  fontSize: "26px",
+                  fontWeight: 700,
+                  color: "white",
+                  marginTop: "2px",
+                  lineHeight: 1.2,
+                }}
               >
                 {userName || "My Logbook"}
               </h1>
@@ -542,26 +535,39 @@ export default function LogbookPage() {
           </div>
 
           {/* Streak + Syllabus pods */}
-          <div className="flex gap-3 animate-slide-up animation-delay-75">
+          <div className="flex animate-slide-up animation-delay-75" style={{ gap: "10px" }}>
             <StreakBadge days={streakDays} className="flex-1" />
             <div
-              className="rounded-2xl px-4 py-3 flex flex-col items-center justify-center min-w-[80px] border"
+              className="flex flex-col items-center justify-center"
               style={{
+                minWidth: "80px",
                 background: "rgba(255,255,255,0.04)",
-                borderColor: "rgba(255,255,255,0.06)",
+                border: "1px solid rgba(255,255,255,0.06)",
+                borderRadius: "16px",
+                padding: "12px 14px",
               }}
             >
               <p
-                className="text-xl font-extrabold leading-none tabular-nums"
-                style={{ color: "var(--header-text)" }}
+                className="leading-none tabular-nums"
+                style={{
+                  fontFamily: "var(--font-body)",
+                  fontSize: "20px",
+                  fontWeight: 800,
+                  color: "white",
+                }}
               >
-                {syllabusRate}%
+                {syllabusDisplay}
               </p>
               <p
-                className="text-[10px] uppercase tracking-widest font-medium mt-1"
-                style={{ color: "var(--text-tertiary)" }}
+                className="mt-1"
+                style={{
+                  fontSize: "10px",
+                  color: "var(--text-tertiary)",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.05em",
+                }}
               >
-                Syllabus
+                SYLLABUS
               </p>
             </div>
           </div>
@@ -569,37 +575,29 @@ export default function LogbookPage() {
       </div>
 
       {/* ── Main Content ──────────────────────────────────────────── */}
-      <div className="px-4 -mt-1 max-w-lg mx-auto space-y-4">
-        {/* HOD Banner */}
-        {isHOD && (
-          <Link
-            href="/hod"
-            className="animate-slide-up card p-4 flex items-center gap-3.5 border-l-4 border-l-amber-500 hover:shadow-card-hover active:scale-[0.98] transition-all duration-200 group"
-          >
-            <div className="w-11 h-11 bg-amber-500/10 rounded-xl flex items-center justify-center flex-shrink-0">
-              <Crown className="w-5 h-5 text-amber-500" />
-            </div>
-            <div className="flex-1">
-              <p className="text-sm font-bold text-[var(--text-primary)]">
-                Head of Department
-              </p>
-              <p className="text-[11px] text-[var(--text-tertiary)] mt-0.5">
-                {hodSubjects.join(", ")} — Tap to view department
-              </p>
-            </div>
-            <ArrowRight className="w-4 h-4 text-[var(--text-quaternary)] group-hover:translate-x-0.5 transition-transform" />
-          </Link>
-        )}
-
+      <div className="px-4 mt-4 max-w-lg mx-auto" style={{ paddingBottom: "90px" }}>
         {/* ── Today's Schedule ─────────────────────────────────────── */}
         {isWeekday && sortedTodaySlots.length > 0 && (
           <div className="animate-slide-up">
             {/* Section header */}
             <div className="flex items-center justify-between mb-3 px-1">
-              <h2 className="text-sm font-bold text-[var(--text-primary)] tracking-tight">
+              <h2
+                style={{
+                  fontFamily: "var(--font-body)",
+                  fontSize: "14px",
+                  fontWeight: 700,
+                  color: "var(--text-primary)",
+                }}
+              >
                 Today — {DAY_NAMES[dayOfWeek]}
               </h2>
-              <span className="text-xs font-medium text-[var(--text-tertiary)] font-mono tabular-nums">
+              <span
+                className="tabular-nums"
+                style={{
+                  fontSize: "12px",
+                  color: "var(--text-tertiary)",
+                }}
+              >
                 {todayFilledCount}/{sortedTodaySlots.length} logged
               </span>
             </div>
@@ -718,7 +716,7 @@ export default function LogbookPage() {
         )}
 
         {/* Weekend / No classes notice */}
-        {(!isWeekday || sortedTodaySlots.length === 0) && !nextClassInfo && (
+        {(!isWeekday || sortedTodaySlots.length === 0) && (
           <div className="animate-slide-up card p-6 flex items-center gap-4">
             <div
               className="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0"
@@ -741,283 +739,12 @@ export default function LogbookPage() {
 
         {/* ── Weekly Progress ──────────────────────────────────────── */}
         {weeklyProgressData.totalPeriods > 0 && (
-          <div className="animate-slide-up animation-delay-150">
+          <div className="animate-slide-up animation-delay-150 mt-4">
             <WeeklyProgress
               days={weeklyProgressData.days}
               totalCompleted={weeklyProgressData.totalCompleted}
               totalPeriods={weeklyProgressData.totalPeriods}
             />
-          </div>
-        )}
-
-        {/* Smart next-class card */}
-        {nextClassInfo && (
-          <div className={`animate-slide-up card overflow-hidden border-l-4 ${
-            nextClassInfo.type === "prep" ? "border-l-amber-500" :
-            nextClassInfo.type === "rest-short" ? "border-l-sky-500" :
-            "border-l-emerald-500"
-          }`}>
-            <div className="p-5">
-              <div className="flex items-start gap-3.5">
-                <div className={`w-11 h-11 rounded-2xl flex items-center justify-center flex-shrink-0 ${
-                  nextClassInfo.type === "prep" ? "bg-amber-500/10" :
-                  nextClassInfo.type === "rest-short" ? "bg-sky-500/10" :
-                  "bg-emerald-500/10"
-                }`}>
-                  {nextClassInfo.type === "prep" ? (
-                    <Zap className="w-5 h-5 text-amber-500" />
-                  ) : (
-                    <Sun className="w-5 h-5 text-emerald-500" />
-                  )}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-bold text-[var(--text-primary)]">{nextClassInfo.message}</p>
-                  <p className="text-xs text-[var(--text-secondary)] mt-0.5">{nextClassInfo.detail}</p>
-                  <p className="text-[11px] font-medium mt-2 text-[var(--text-tertiary)]">{nextClassInfo.hint}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Unfilled Periods This Week */}
-        {unfilledWeekSlots.length > 0 && (
-          <div className="animate-slide-up card overflow-hidden">
-            <button
-              onClick={() => setUnfilledOpen(!unfilledOpen)}
-              className="w-full flex items-center gap-3 p-3.5 transition-colors text-left"
-              style={{ backgroundColor: unfilledOpen ? "var(--bg-tertiary)" : "transparent" }}
-            >
-              <div className="w-9 h-9 bg-red-500/10 rounded-xl flex items-center justify-center flex-shrink-0">
-                <AlertCircle className="w-4 h-4 text-red-500" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-bold text-[var(--text-primary)]">Unfilled Periods This Week</p>
-                <p className="text-[11px] text-[var(--text-tertiary)]">
-                  {unfilledWeekSlots.length} period{unfilledWeekSlots.length !== 1 ? "s" : ""} not yet filled
-                </p>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-bold text-red-500 bg-red-500/10 px-2 py-0.5 rounded-full">
-                  {unfilledWeekSlots.length}
-                </span>
-                <ChevronRight className={`w-4 h-4 text-[var(--text-quaternary)] transition-transform ${unfilledOpen ? "rotate-90" : ""}`} />
-              </div>
-            </button>
-
-            {unfilledOpen && (
-              <div className="divide-y" style={{ borderColor: "var(--border-primary)" }}>
-                {[1, 2, 3, 4, 5].map((dow) => {
-                  const daySlots = unfilledWeekSlots.filter((s) => s.dayOfWeek === dow);
-                  if (daySlots.length === 0) return null;
-                  return (
-                    <div key={dow} className="px-4 py-2.5">
-                      <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-tertiary)] mb-1.5">
-                        {daySlots[0].dayName}
-                      </p>
-                      <div className="space-y-1.5">
-                        {daySlots.map((slot, i) => (
-                          <Link
-                            key={i}
-                            href="/logbook/new"
-                            className="w-full flex items-center gap-2.5 bg-red-500/5 hover:bg-red-500/10 border rounded-lg px-3 py-2 text-left transition-colors"
-                            style={{ borderColor: "var(--border-primary)" }}
-                          >
-                            <div className="w-7 h-7 rounded-lg bg-red-500/10 text-red-500 flex items-center justify-center font-bold text-[10px] flex-shrink-0">
-                              {slot.slotLabel.replace(/[^0-9P]/g, "").slice(0, 3) || slot.slotLabel.slice(0, 2)}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="text-xs font-semibold text-[var(--text-primary)] truncate">
-                                {slot.subjectName} &middot; {slot.className}
-                              </p>
-                              <p className="text-[10px] text-[var(--text-tertiary)]">
-                                {slot.slotLabel} &middot; Not filled
-                              </p>
-                            </div>
-                            <span className="text-[10px] font-bold text-red-500">Fill</span>
-                          </Link>
-                        ))}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Editable Entries */}
-        {stats.editableEntries.length > 0 && (
-          <div className="animate-slide-up card overflow-hidden border-l-4 border-l-amber-500">
-            <div className="px-5 pt-4 pb-2.5 flex items-center gap-3">
-              <div className="w-9 h-9 bg-amber-500/10 rounded-xl flex items-center justify-center">
-                <Edit3 className="w-4 h-4 text-amber-500" />
-              </div>
-              <div className="flex-1">
-                <h3 className="text-sm font-bold text-[var(--text-primary)]">
-                  Editable Entries
-                </h3>
-                <p className="text-[11px] text-[var(--text-tertiary)]">
-                  Edit within the 1-hour window
-                </p>
-              </div>
-              <span className="text-[10px] bg-amber-500/10 text-amber-600 font-bold px-2.5 py-1 rounded-full">
-                <Clock className="w-3 h-3 inline mr-0.5 -mt-px" />
-                1hr window
-              </span>
-            </div>
-            <div className="divide-y" style={{ borderColor: "var(--border-secondary)" }}>
-              {stats.editableEntries.map((entry) => {
-                const minutesLeft = Math.max(
-                  0,
-                  Math.floor(
-                    (60 * 60 * 1000 -
-                      (Date.now() - new Date(entry.createdAt).getTime())) /
-                      60000
-                  )
-                );
-                return (
-                  <Link
-                    key={entry.id}
-                    href={`/logbook/${entry.id}/edit`}
-                    className="flex items-center gap-3.5 px-5 py-3.5 transition-colors group"
-                  >
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-[var(--text-primary)] truncate">
-                        {entry.topics?.[0]?.subject?.name ?? "Entry"} &middot;{" "}
-                        {entry.class.name}
-                      </p>
-                      <p className="text-[11px] text-[var(--text-tertiary)] truncate">
-                        {entry.topics?.[0]?.name ?? "—"}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-2 bg-amber-500/10 rounded-xl px-3 py-1.5 flex-shrink-0">
-                      <Clock className="w-3 h-3 text-amber-500" />
-                      <span className="text-[11px] text-amber-600 font-bold tabular-nums">
-                        {minutesLeft}m left
-                      </span>
-                    </div>
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
-        {/* Verification Rate */}
-        <div className="animate-slide-up animation-delay-225 card p-5">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-9 h-9 bg-[var(--accent-light)] rounded-xl flex items-center justify-center">
-              <Award className="w-4.5 h-4.5 text-[var(--accent-text)]" />
-            </div>
-            <div className="flex-1">
-              <h3 className="text-sm font-bold text-[var(--text-primary)]">
-                Verification Rate
-              </h3>
-              <p className="text-[11px] text-[var(--text-tertiary)]">
-                Last 30 days performance
-              </p>
-            </div>
-            <div className={`text-lg font-black tabular-nums ${
-              stats.verifiedRate >= 70
-                ? "text-emerald-600"
-                : stats.verifiedRate >= 40
-                ? "text-amber-600"
-                : "text-red-500"
-            }`}>
-              {stats.verifiedRate}%
-            </div>
-          </div>
-          <div className="h-3 rounded-full overflow-hidden" style={{ backgroundColor: "var(--bg-tertiary)" }}>
-            <div
-              className={`h-full rounded-full animate-progress-fill transition-all duration-500 ${
-                stats.verifiedRate >= 70
-                  ? "bg-emerald-500"
-                  : stats.verifiedRate >= 40
-                  ? "bg-amber-500"
-                  : "bg-red-500"
-              }`}
-              style={{ width: `${stats.verifiedRate}%` }}
-            />
-          </div>
-          {stats.verifiedRate >= 70 && (
-            <p className="text-[11px] text-emerald-600 font-medium mt-2.5 flex items-center gap-1">
-              <CheckCircle className="w-3 h-3" />
-              Great progress! Keep it up
-            </p>
-          )}
-        </div>
-
-        {/* Recent Entries */}
-        {stats.recentEntries.length > 0 && (
-          <div className="animate-slide-up animation-delay-300">
-            <div className="flex items-center justify-between mb-3 px-1">
-              <h3 className="text-xs font-bold uppercase tracking-widest text-[var(--text-tertiary)]">
-                Recent Entries
-              </h3>
-              <Link
-                href="/history"
-                className="text-xs font-bold flex items-center gap-1 hover:gap-2 transition-all group"
-                style={{ color: "var(--accent-text)" }}
-              >
-                View All
-                <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
-              </Link>
-            </div>
-            <div className="space-y-2.5">
-              {stats.recentEntries.map((entry, i) => {
-                const subjectName = entry.topics?.[0]?.subject?.name ?? "—";
-                return (
-                  <div
-                    key={entry.id}
-                    className="card p-4 hover:-translate-y-0.5 hover:shadow-card-hover transition-all duration-200 group"
-                    style={{ animationDelay: `${300 + i * 60}ms` }}
-                  >
-                    <div className="flex items-start justify-between mb-2">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border ${getSubjectBg()}`}>
-                          {subjectName}
-                        </span>
-                        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md border" style={{ backgroundColor: "var(--bg-tertiary)", color: "var(--text-secondary)", borderColor: "var(--border-primary)" }}>
-                          {entry.class.name}
-                        </span>
-                      </div>
-                      <StatusBadge status={entry.status} />
-                    </div>
-                    <p className="text-sm text-[var(--text-primary)] font-semibold truncate">
-                      {entry.topics?.[0]?.moduleName
-                        ? `${entry.topics[0].moduleName}: `
-                        : ""}
-                      {entry.topics?.[0]?.name ?? "—"}
-                    </p>
-                    <div className="flex items-center gap-2.5 mt-2.5 text-[11px] text-[var(--text-tertiary)]">
-                      <span className="flex items-center gap-1">
-                        <Calendar className="w-3 h-3" />
-                        {formatDate(entry.date)}
-                      </span>
-                      <span className="text-[var(--text-quaternary)]">&middot;</span>
-                      <span>{formatTime(entry.createdAt)}</span>
-                      {entry.period && (
-                        <>
-                          <span className="text-[var(--text-quaternary)]">&middot;</span>
-                          <span className="font-semibold text-[var(--text-secondary)]">P{entry.period}</span>
-                        </>
-                      )}
-                      {isEditable(entry) && (
-                        <Link
-                          href={`/logbook/${entry.id}/edit`}
-                          className="ml-auto font-bold flex items-center gap-0.5 transition-colors opacity-0 group-hover:opacity-100"
-                          style={{ color: "var(--accent-text)" }}
-                        >
-                          <Edit3 className="w-3 h-3" />
-                          Edit
-                        </Link>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
           </div>
         )}
 
