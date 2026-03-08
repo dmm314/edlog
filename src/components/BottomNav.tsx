@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Plus, Clock, User, Shield, Globe, BarChart3, Calendar, Users, BookOpen } from "lucide-react";
+import { Home, Plus, Clock, User, Shield, Globe, BarChart3, Calendar, Users } from "lucide-react";
 
 interface BottomNavProps {
   role: string;
