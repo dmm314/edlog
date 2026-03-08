@@ -297,6 +297,14 @@ export default function NewEntryPage() {
     return topicsToUse;
   }, [subjects, subjectId, selectedClassLevel, moduleName]);
 
+  const topicsForModuleCount = useCallback((mod: string) => {
+    const subject = subjects.find((s) => s.id === subjectId);
+    if (!subject) return 0;
+    const filtered = subject.topics.filter((t) => t.classLevel === selectedClassLevel);
+    const topicsToUse = filtered.length > 0 ? filtered : subject.topics;
+    return topicsToUse.filter((t) => t.moduleName === mod).length;
+  }, [subjects, subjectId, selectedClassLevel]);
+
   const selectedSlotsData = useMemo(() => {
     return selectedSlotIds
       .map((id) => timetableSlots.find((s) => s.id === id))
@@ -735,7 +743,10 @@ export default function NewEntryPage() {
             </div>
           </div>
           <div className="mt-6 space-y-3 pb-8">
-            <button onClick={resetForm} className="btn-primary text-center">New Entry</button>
+            <button onClick={resetForm} className="btn-primary text-center"
+              style={{ background: "linear-gradient(135deg, var(--accent), var(--accent-hover))" }}>
+              New Entry
+            </button>
             <Link href="/logbook" className="btn-secondary block text-center">Back to Dashboard</Link>
           </div>
         </div>
@@ -752,8 +763,8 @@ export default function NewEntryPage() {
           <div className="flex items-center gap-3 mb-4">
             <button
               onClick={() => step > 0 ? setStep(step - 1) : router.back()}
-              className="w-9 h-9 rounded-xl flex items-center justify-center transition-colors"
-              style={{ background: "var(--bg-secondary)", color: "var(--text-tertiary)" }}
+              className="w-9 h-9 rounded-[12px] flex items-center justify-center transition-colors"
+              style={{ background: "var(--bg-tertiary)", color: "var(--text-tertiary)" }}
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
@@ -776,25 +787,25 @@ export default function NewEntryPage() {
 
           {hasContext && (
             <div
-              className="rounded-2xl px-4 py-3.5 flex items-center gap-3 mb-4 animate-slide-up"
-              style={{ background: "linear-gradient(135deg, var(--accent-light), rgba(253, 230, 138, 0.12))" }}
+              className="flex items-center gap-3 mb-4 animate-slide-up"
+              style={{ background: "linear-gradient(135deg, #FEF3C7, #FDE68A)", borderRadius: "14px", padding: "14px 16px" }}
             >
               <div className="flex-1 min-w-0">
-                <p className="text-[10px] font-semibold uppercase tracking-widest" style={{ color: "var(--accent-text)" }}>
+                <p className="text-[10px] font-semibold uppercase" style={{ color: "#92400E", letterSpacing: "0.06em" }}>
                   Auto-filled from timetable
                 </p>
                 <p className="text-[15px] font-bold text-[var(--text-primary)] mt-1 truncate">
                   {contextSubjectName} — {contextClassName}
                 </p>
-                <p className="text-xs font-mono mt-0.5 text-[var(--text-tertiary)]">
+                <p className="text-xs font-mono mt-0.5 text-[var(--text-secondary)]">
                   {selectedDayName}
-                  {contextSlot && ` · ${contextSlot.periodLabel} · ${contextSlot.startTime}–${contextSlot.endTime}`}
+                  {contextSlot && ` \u00B7 ${contextSlot.periodLabel} \u00B7 ${contextSlot.startTime}\u2013${contextSlot.endTime}`}
                   {hasMultiSlots && ` (+${selectedSlotIds.length - 1} more)`}
                 </p>
               </div>
               <div
-                className="w-11 h-11 rounded-2xl flex items-center justify-center flex-shrink-0"
-                style={{ background: "rgba(255,255,255,0.5)", color: "var(--accent-text)" }}
+                className="flex items-center justify-center flex-shrink-0"
+                style={{ width: "44px", height: "44px", borderRadius: "14px", background: "rgba(255,255,255,0.5)", color: "#D97706" }}
               >
                 <Zap className="w-5 h-5" />
               </div>
@@ -1034,21 +1045,27 @@ export default function NewEntryPage() {
                   <div>
                     <p className="text-[13px] text-[var(--text-tertiary)] mb-3">Select the module you taught:</p>
                     <div className="flex flex-col gap-2">
-                      {modules.map((mod, i) => (
-                        <button key={mod} type="button"
-                          onClick={() => { setModuleName(mod); setSelectedTopicIds([]); setStep(1); }}
-                          className="flex items-center gap-3.5 p-4 rounded-2xl border text-left transition-all active:scale-[0.98] hover:-translate-y-0.5"
-                          style={{ borderColor: "var(--border-primary)", background: "var(--bg-elevated)", boxShadow: "var(--shadow-card)" }}>
-                          <div className="w-10 h-10 rounded-xl flex items-center justify-center font-display text-base font-bold flex-shrink-0"
-                            style={{ background: "linear-gradient(135deg, var(--accent-light), rgba(253, 230, 138, 0.2))", color: "var(--accent-text)" }}>
-                            {i + 1}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-[15px] font-semibold text-[var(--text-primary)] truncate">{mod}</p>
-                          </div>
-                          <ChevronRight className="w-4 h-4 text-[var(--text-quaternary)]" />
-                        </button>
-                      ))}
+                      {modules.map((mod, i) => {
+                        const topicCount = topicsForModuleCount(mod);
+                        return (
+                          <button key={mod} type="button"
+                            onClick={() => { setModuleName(mod); setSelectedTopicIds([]); setStep(1); }}
+                            className="flex items-center gap-3.5 p-4 border text-left transition-all active:scale-[0.98] hover:-translate-y-0.5"
+                            style={{ borderColor: "var(--border-primary)", background: "var(--bg-elevated)", boxShadow: "var(--shadow-card)", borderRadius: "16px" }}>
+                            <div className="w-10 h-10 flex items-center justify-center font-display text-base font-bold flex-shrink-0"
+                              style={{ background: "linear-gradient(135deg, #FEF3C7, #FDE68A)", color: "#92400E", borderRadius: "12px" }}>
+                              {i + 1}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-[15px] font-semibold text-[var(--text-primary)] truncate">{mod}</p>
+                              {topicCount > 0 && (
+                                <p className="text-xs text-[var(--text-tertiary)]">{topicCount} topics</p>
+                              )}
+                            </div>
+                            <ChevronRight className="w-4 h-4 text-[var(--text-quaternary)]" />
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
                 )}
@@ -1073,8 +1090,8 @@ export default function NewEntryPage() {
             {step === 1 && (
               <div className="space-y-4 animate-slide-in-right">
                 {moduleName && (
-                  <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold"
-                    style={{ background: "var(--accent-light)", color: "var(--accent-text)" }}>
+                  <div className="inline-flex items-center gap-2 text-xs font-semibold"
+                    style={{ background: "#FEF3C7", border: "1px solid #F59E0B", color: "#92400E", borderRadius: "10px", padding: "6px 12px" }}>
                     <Layers className="w-3 h-3" />
                     {moduleName}
                   </div>
@@ -1082,7 +1099,7 @@ export default function NewEntryPage() {
 
                 <p className="text-[13px] text-[var(--text-tertiary)]">What topic did you cover?</p>
 
-                <div className="rounded-2xl border overflow-hidden" style={{ borderColor: "var(--border-primary)", background: "var(--bg-elevated)" }}>
+                <div className="border overflow-hidden" style={{ borderColor: "var(--border-primary)", background: "var(--bg-elevated)", borderRadius: "16px" }}>
                   <input value={topicText} onChange={(e) => setTopicText(e.target.value.slice(0, 300))}
                     placeholder="e.g. Laws of reflection, image formation..."
                     className="w-full px-4 py-3.5 border-none outline-none text-[15px] bg-transparent"
@@ -1092,24 +1109,30 @@ export default function NewEntryPage() {
 
                 {topicsForModule.length > 0 && (
                   <>
-                    <p className="text-[11px] font-semibold uppercase tracking-widest text-[var(--text-tertiary)]">Or select from curriculum</p>
-                    <div className="space-y-1.5 max-h-52 overflow-y-auto rounded-xl border p-2" style={{ borderColor: "var(--border-primary)", background: "var(--bg-elevated)" }}>
+                    <p className="text-[11px] font-semibold uppercase text-[var(--text-tertiary)]" style={{ letterSpacing: "0.06em" }}>Or select from curriculum</p>
+                    <div className="flex flex-wrap gap-1.5">
                       {topicsForModule.map((topic) => {
                         const isSel = selectedTopicIds.includes(topic.id);
                         return (
                           <button key={topic.id} type="button"
-                            onClick={() => setSelectedTopicIds((prev) => isSel ? prev.filter((id) => id !== topic.id) : [...prev, topic.id])}
-                            className="w-full text-left flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm transition-all"
+                            onClick={() => {
+                              if (isSel) {
+                                setSelectedTopicIds((prev) => prev.filter((id) => id !== topic.id));
+                              } else {
+                                setSelectedTopicIds((prev) => [...prev, topic.id]);
+                                setTopicText(topic.name);
+                              }
+                            }}
+                            className="text-sm transition-all"
                             style={{
-                              background: isSel ? "var(--accent-light)" : "var(--bg-tertiary)",
-                              border: isSel ? "1px solid var(--accent)" : "1px solid transparent",
+                              background: isSel ? "var(--accent-light)" : "var(--bg-elevated)",
+                              border: isSel ? "1px solid var(--accent)" : "1px solid var(--border-primary)",
                               color: isSel ? "var(--accent-text)" : "var(--text-secondary)",
+                              borderRadius: "12px",
+                              padding: "6px 12px",
+                              fontWeight: isSel ? 600 : 500,
                             }}>
-                            <div className="w-5 h-5 rounded-md border-2 flex items-center justify-center flex-shrink-0"
-                              style={{ borderColor: isSel ? "var(--accent)" : "var(--border-primary)", background: isSel ? "var(--accent)" : "var(--bg-elevated)" }}>
-                              {isSel && <Check className="w-3 h-3 text-white" />}
-                            </div>
-                            <span className={isSel ? "font-medium" : ""}>{topic.name}</span>
+                            {topic.name}
                           </button>
                         );
                       })}
@@ -1119,11 +1142,13 @@ export default function NewEntryPage() {
 
                 <button type="button" onClick={() => setStep(2)}
                   disabled={!topicText.trim() && selectedTopicIds.length === 0}
-                  className="w-full py-4 rounded-2xl font-bold text-[15px] transition-all active:scale-[0.98] disabled:opacity-40"
+                  className="w-full font-bold text-[15px] transition-all active:scale-[0.98] disabled:opacity-40"
                   style={{
                     background: (topicText.trim() || selectedTopicIds.length > 0) ? "linear-gradient(135deg, var(--accent), var(--accent-hover))" : "var(--bg-tertiary)",
                     color: (topicText.trim() || selectedTopicIds.length > 0) ? "#FFF" : "var(--text-tertiary)",
                     boxShadow: (topicText.trim() || selectedTopicIds.length > 0) ? "var(--shadow-accent)" : "none",
+                    padding: "16px",
+                    borderRadius: "16px",
                   }}>
                   Continue
                 </button>
@@ -1133,58 +1158,61 @@ export default function NewEntryPage() {
             {/* ══ STEP 2 — Details & Submit ══ */}
             {step === 2 && (
               <div className="space-y-4 animate-slide-in-right">
-                <div className="card p-4">
-                  <p className="text-[11px] font-semibold uppercase tracking-widest text-[var(--text-tertiary)] mb-2.5">Entry Summary</p>
+                <div className="border" style={{ background: "var(--bg-elevated)", borderColor: "var(--border-primary)", borderRadius: "16px", padding: "16px" }}>
                   {[
                     ["Subject", contextSubjectName],
                     ["Class", contextClassName + (additionalClassIds.length > 0 ? ` (+${additionalClassIds.length})` : "")],
                     ["Module", moduleName || "—"],
                     ["Topic", topicText || selectedTopicIds.map((id) => topicsForModule.find((t) => t.id === id)?.name).filter(Boolean).join(", ") || "—"],
-                  ].map(([label, value]) => (
-                    <div key={label} className="flex justify-between py-2 border-b" style={{ borderColor: "var(--border-secondary)" }}>
+                  ].map(([label, value], idx) => (
+                    <div key={label} className="flex justify-between py-2" style={{ borderBottom: idx < 3 ? "1px solid #F5F5F4" : "none" }}>
                       <span className="text-[13px] text-[var(--text-tertiary)]">{label}</span>
                       <span className="text-[13px] font-semibold text-[var(--text-primary)] text-right max-w-[60%] truncate">{value}</span>
                     </div>
                   ))}
                 </div>
 
-                <div className="rounded-2xl border overflow-hidden" style={{ borderColor: "var(--border-primary)", background: "var(--bg-elevated)" }}>
+                <div className="border overflow-hidden" style={{ borderColor: "var(--border-primary)", background: "var(--bg-elevated)", borderRadius: "16px" }}>
                   <textarea value={notes} onChange={(e) => setNotes(e.target.value.slice(0, 500))}
                     placeholder="Optional notes — objectives, observations..." rows={3}
                     className="w-full px-4 py-3.5 border-none outline-none text-sm bg-transparent resize-none"
-                    style={{ color: "var(--text-primary)" }} maxLength={500} />
+                    style={{ color: "var(--text-primary)", fontFamily: "var(--font-body)" }} maxLength={500} />
                 </div>
 
-                <div className="rounded-2xl border overflow-hidden" style={{ borderColor: "var(--border-primary)", background: "var(--bg-elevated)" }}>
+                <div className="border overflow-hidden" style={{ borderColor: "var(--border-primary)", background: "var(--bg-elevated)", borderRadius: "16px" }}>
                   <textarea value={objectives} onChange={(e) => setObjectives(e.target.value.slice(0, 500))}
                     placeholder="Learning objectives covered..." rows={2}
                     className="w-full px-4 py-3.5 border-none outline-none text-sm bg-transparent resize-none"
-                    style={{ color: "var(--text-primary)" }} maxLength={500} />
+                    style={{ color: "var(--text-primary)", fontFamily: "var(--font-body)" }} maxLength={500} />
                 </div>
 
                 <div className="flex gap-2">
                   <div className="flex-1 card p-3.5">
-                    <p className="text-[11px] font-semibold text-[var(--text-tertiary)] mb-1.5">Attendance</p>
+                    <p className="text-[11px] font-semibold mb-1.5" style={{ color: "#A8A29E" }}>Attendance</p>
                     <input type="number" value={studentAttendance} onChange={(e) => setStudentAttendance(e.target.value)}
-                      className="w-full text-center py-2.5 rounded-xl text-lg font-bold font-mono bg-transparent"
-                      style={{ background: "var(--bg-tertiary)", color: "var(--text-primary)" }}
+                      className="w-full text-center py-2.5 text-lg font-bold font-mono bg-transparent"
+                      style={{ background: "#F5F5F4", color: "var(--text-primary)", borderRadius: "10px" }}
                       placeholder="—" min="0" max="999" />
                   </div>
                   <div className="flex-1 card p-3.5">
-                    <p className="text-[11px] font-semibold text-[var(--text-tertiary)] mb-1.5">Engagement</p>
+                    <p className="text-[11px] font-semibold mb-1.5" style={{ color: "#A8A29E" }}>Engagement</p>
                     <div className="flex gap-1">
                       {(["HIGH", "MEDIUM", "LOW"] as const).map((level) => {
                         const isActive = engagementLevel === level;
                         const colors: Record<string, { bg: string; text: string }> = {
-                          HIGH: { bg: "var(--success-light)", text: "var(--success)" },
-                          MEDIUM: { bg: "var(--accent-light)", text: "var(--accent-text)" },
-                          LOW: { bg: "var(--warning-light)", text: "var(--warning)" },
+                          HIGH: { bg: "#DCFCE7", text: "#16A34A" },
+                          MEDIUM: { bg: "#FEF3C7", text: "#D97706" },
+                          LOW: { bg: "#FEE2E2", text: "#DC2626" },
                         };
                         const c = colors[level];
                         return (
                           <button key={level} type="button" onClick={() => setEngagementLevel(isActive ? "" : level)}
-                            className="flex-1 py-2.5 rounded-xl text-xs font-semibold transition-all"
-                            style={{ background: isActive ? c.bg : "var(--bg-tertiary)", color: isActive ? c.text : "var(--text-tertiary)" }}>
+                            className="flex-1 py-2.5 text-xs font-semibold transition-all"
+                            style={{
+                              background: isActive ? c.bg : "#F5F5F4",
+                              color: isActive ? c.text : "#A8A29E",
+                              borderRadius: "10px",
+                            }}>
                             {level === "HIGH" ? "High" : level === "MEDIUM" ? "Med" : "Low"}
                           </button>
                         );
@@ -1199,8 +1227,8 @@ export default function NewEntryPage() {
                 </div>
 
                 <button type="submit" disabled={!isFormValid || submitting || savingDraft}
-                  className="w-full py-[18px] rounded-2xl font-bold text-base text-white flex items-center justify-center gap-2 transition-all active:scale-[0.98] disabled:opacity-50"
-                  style={{ background: "linear-gradient(135deg, #16A34A, #15803D)", boxShadow: "var(--shadow-success)" }}>
+                  className="w-full font-bold text-base text-white flex items-center justify-center gap-2 transition-all active:scale-[0.97] disabled:opacity-50"
+                  style={{ background: "linear-gradient(135deg, #16A34A, #15803D)", boxShadow: "0 4px 16px -4px rgba(22,163,74,0.4)", padding: "18px", borderRadius: "16px" }}>
                   {submitting ? (
                     <>
                       <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24" fill="none">
@@ -1221,8 +1249,8 @@ export default function NewEntryPage() {
 
                 {isDraftValid && (
                   <button type="button" onClick={(e) => handleSubmit(e, true)} disabled={savingDraft || submitting}
-                    className="w-full flex items-center justify-center gap-2 font-bold rounded-2xl py-3.5 px-6 active:scale-[0.98] transition-all border-2"
-                    style={{ borderColor: "var(--accent)", background: "var(--bg-elevated)", color: "var(--accent-text)" }}>
+                    className="w-full flex items-center justify-center gap-2 font-bold py-3.5 px-6 active:scale-[0.97] transition-all border-2"
+                    style={{ borderColor: "var(--accent)", background: "var(--bg-elevated)", color: "var(--accent-text)", borderRadius: "16px" }}>
                     {savingDraft ? "Saving Draft..." : <><Save className="w-5 h-5" />Save as Draft</>}
                   </button>
                 )}
