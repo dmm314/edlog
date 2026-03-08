@@ -28,13 +28,19 @@ export function NotificationBell() {
   return (
     <Link
       href="/notifications"
-      className="relative text-white/80 hover:text-white transition-colors"
+      className="relative flex items-center justify-center w-10 h-10 rounded-[14px] transition-colors"
+      style={{ background: "rgba(255,255,255,0.06)" }}
+      aria-label={`Notifications${unreadCount > 0 ? ` (${unreadCount} unread)` : ""}`}
     >
-      <Bell className="w-5 h-5" />
+      <Bell className="w-5 h-5" style={{ color: "var(--header-text-muted)" }} />
       {unreadCount > 0 && (
-        <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] bg-red-500 rounded-full flex items-center justify-center text-[10px] font-bold text-white px-1">
-          {unreadCount > 9 ? "9+" : unreadCount}
-        </span>
+        <span
+          className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full"
+          style={{
+            backgroundColor: "#F59E0B",
+            border: "2px solid var(--header-from)",
+          }}
+        />
       )}
     </Link>
   );
