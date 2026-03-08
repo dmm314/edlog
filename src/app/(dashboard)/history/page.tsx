@@ -18,6 +18,7 @@ import {
   Send,
   FolderOpen,
 } from "lucide-react";
+import { Badge } from "@/components/ui/Badge";
 
 const DAY_NAMES = ["Mon", "Tue", "Wed", "Thu", "Fri"];
 const DAY_NAMES_FULL = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
@@ -101,10 +102,10 @@ function StatusIcon({ status }: { status: string }) {
 
 function getStatusColor(status: string): string {
   switch (status) {
-    case "VERIFIED": return "border-emerald-400 bg-[var(--badge-verified-bg)]";
-    case "FLAGGED": return "border-red-400 bg-[var(--badge-flagged-bg)]";
-    case "SUBMITTED": return "border-amber-400 bg-[var(--badge-submitted-bg)]";
-    default: return "border-[var(--border-primary)] bg-[var(--bg-tertiary)]";
+    case "VERIFIED": return "border-l-emerald-500 bg-[var(--badge-verified-bg)]";
+    case "FLAGGED": return "border-l-red-500 bg-[var(--badge-flagged-bg)]";
+    case "SUBMITTED": return "border-l-amber-500 bg-[var(--badge-submitted-bg)]";
+    default: return "border-l-[var(--text-quaternary)] bg-[var(--bg-tertiary)]";
   }
 }
 
@@ -305,9 +306,9 @@ export default function HistoryPage() {
           <div className="max-w-lg mx-auto">
             <div className="flex items-center gap-3 mb-1">
               <FolderOpen className="w-6 h-6 text-white" />
-              <h1 className="text-xl font-bold text-white">My Entries</h1>
+              <h1 className="text-xl font-bold text-white" style={{ fontFamily: "var(--font-display)" }}>My Entries</h1>
             </div>
-            <p className="text-[var(--header-text-muted)] text-sm">Browse your logbook entries by class</p>
+            <p className="text-[var(--header-text-muted)] text-sm" style={{ fontFamily: "var(--font-body)" }}>Browse your logbook entries by class</p>
           </div>
         </div>
 
@@ -331,24 +332,25 @@ export default function HistoryPage() {
             </div>
           ) : (
             <div className="space-y-3">
-              {levels.map((lvl) => {
+              {levels.map((lvl, i) => {
                 const lc = getLevelColor(lvl.level);
                 const totalSubjects = new Set(lvl.classes.flatMap((c) => c.subjects)).size;
                 return (
                   <button
                     key={lvl.level}
                     onClick={() => selectLevel(lvl.level)}
-                    className="card w-full text-left p-4 flex items-center gap-4 group hover:-translate-y-0.5 transition-all duration-200 active:scale-[0.98]"
+                    className="card w-full text-left p-4 flex items-center gap-4 group hover:-translate-y-0.5 transition-all duration-200 active:scale-[0.98] animate-fade-slide-in"
+                    style={{ animationDelay: `${i * 80}ms` }}
                   >
                     <div className={`w-12 h-12 ${lc.bg} ${lc.border} border rounded-xl flex items-center justify-center flex-shrink-0`}>
-                      <span className={`text-sm font-bold ${lc.text}`}>
+                      <span className={`text-sm font-bold ${lc.text}`} style={{ fontFamily: "var(--font-mono)" }}>
                         {lvl.level.replace("Form ", "F").replace("Lower Sixth", "L6").replace("Upper Sixth", "U6")}
                       </span>
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-bold text-[var(--text-primary)] text-[15px]">{lvl.level}</p>
-                      <p className="text-xs text-[var(--text-tertiary)] mt-0.5">
-                        {lvl.classes.length} {lvl.classes.length === 1 ? "class" : "classes"} &middot; {totalSubjects} {totalSubjects === 1 ? "subject" : "subjects"}
+                      <p className="font-bold text-[var(--text-primary)] text-[15px]" style={{ fontFamily: "var(--font-body)" }}>{lvl.level}</p>
+                      <p className="text-xs text-[var(--text-tertiary)] mt-0.5" style={{ fontFamily: "var(--font-body)" }}>
+                        <span style={{ fontFamily: "var(--font-mono)" }}>{lvl.classes.length}</span> {lvl.classes.length === 1 ? "class" : "classes"} &middot; <span style={{ fontFamily: "var(--font-mono)" }}>{totalSubjects}</span> {totalSubjects === 1 ? "subject" : "subjects"}
                       </p>
                     </div>
                     <ChevronRight className="w-5 h-5 text-[var(--text-quaternary)] group-hover:text-[var(--text-tertiary)] group-hover:translate-x-0.5 transition-all duration-200 flex-shrink-0" />
@@ -373,8 +375,8 @@ export default function HistoryPage() {
               <ArrowLeft className="w-4 h-4" />
               Back to Levels
             </button>
-            <h1 className="text-xl font-bold text-white">{selectedLevel}</h1>
-            <p className="text-[var(--header-text-muted)] text-sm mt-0.5">Select a class to view entries</p>
+            <h1 className="text-xl font-bold text-white" style={{ fontFamily: "var(--font-display)" }}>{selectedLevel}</h1>
+            <p className="text-[var(--header-text-muted)] text-sm mt-0.5" style={{ fontFamily: "var(--font-body)" }}>Select a class to view entries</p>
           </div>
         </div>
 
@@ -385,26 +387,27 @@ export default function HistoryPage() {
             </div>
           ) : (
             <div className="grid grid-cols-2 gap-3">
-              {classesForLevel.map((cls) => (
+              {classesForLevel.map((cls, i) => (
                 <button
                   key={cls.id}
                   onClick={() => selectClass(cls)}
-                  className="card p-4 text-left group hover:-translate-y-0.5 transition-all duration-200 active:scale-[0.98]"
+                  className="card p-4 text-left group hover:-translate-y-0.5 transition-all duration-200 active:scale-[0.98] animate-fade-slide-in"
+                  style={{ animationDelay: `${i * 80}ms` }}
                 >
                   <div className={`w-10 h-10 ${lc.bg} ${lc.border} border rounded-xl flex items-center justify-center mb-3`}>
-                    <span className={`text-xs font-bold ${lc.text}`}>
+                    <span className={`text-xs font-bold ${lc.text}`} style={{ fontFamily: "var(--font-mono)" }}>
                       {cls.section || cls.name.split(" ").pop()}
                     </span>
                   </div>
-                  <p className="font-bold text-[var(--text-primary)] text-sm">{cls.name}</p>
+                  <p className="font-bold text-[var(--text-primary)] text-sm" style={{ fontFamily: "var(--font-body)" }}>{cls.name}</p>
                   <div className="flex flex-wrap gap-1 mt-2">
                     {cls.subjects.slice(0, 3).map((s) => (
-                      <span key={s} className="text-[9px] font-semibold bg-[var(--bg-tertiary)] text-[var(--text-tertiary)] rounded-full px-2 py-0.5">
+                      <span key={s} className="text-[9px] font-semibold bg-[var(--bg-tertiary)] text-[var(--text-tertiary)] rounded-full px-2 py-0.5" style={{ fontFamily: "var(--font-body)" }}>
                         {s}
                       </span>
                     ))}
                     {cls.subjects.length > 3 && (
-                      <span className="text-[9px] font-semibold bg-[var(--bg-tertiary)] text-[var(--text-tertiary)] rounded-full px-2 py-0.5">
+                      <span className="text-[9px] font-semibold bg-[var(--bg-tertiary)] text-[var(--text-tertiary)] rounded-full px-2 py-0.5" style={{ fontFamily: "var(--font-mono)" }}>
                         +{cls.subjects.length - 3}
                       </span>
                     )}
@@ -428,9 +431,9 @@ export default function HistoryPage() {
             <ArrowLeft className="w-4 h-4" />
             Back to {selectedLevel}
           </button>
-          <h1 className="text-xl font-bold text-white">{selectedClassName}</h1>
-          <p className="text-[var(--header-text-muted)] text-sm mt-0.5">
-            {totalEntryCount} {totalEntryCount === 1 ? "entry" : "entries"} this week
+          <h1 className="text-xl font-bold text-white" style={{ fontFamily: "var(--font-display)" }}>{selectedClassName}</h1>
+          <p className="text-[var(--header-text-muted)] text-sm mt-0.5" style={{ fontFamily: "var(--font-body)" }}>
+            <span style={{ fontFamily: "var(--font-mono)" }}>{totalEntryCount}</span> {totalEntryCount === 1 ? "entry" : "entries"} this week
           </p>
         </div>
       </div>
@@ -510,9 +513,9 @@ export default function HistoryPage() {
                 <div key={period.periodNum} className="grid grid-cols-[56px_repeat(5,1fr)] border-b border-[var(--border-secondary)] last:border-b-0">
                   {/* Period label */}
                   <div className="p-1.5 flex flex-col items-center justify-center border-r border-[var(--border-secondary)]">
-                    <span className="text-[10px] font-bold text-[var(--text-secondary)]">P{period.periodNum}</span>
-                    <span className="text-[8px] text-[var(--text-tertiary)] leading-tight">{period.startTime}</span>
-                    <span className="text-[8px] text-[var(--text-tertiary)] leading-tight">{period.endTime}</span>
+                    <span className="text-[10px] font-bold text-[var(--text-secondary)]" style={{ fontFamily: "var(--font-mono)" }}>P{period.periodNum}</span>
+                    <span className="text-[8px] text-[var(--text-tertiary)] leading-tight" style={{ fontFamily: "var(--font-mono)" }}>{period.startTime}</span>
+                    <span className="text-[8px] text-[var(--text-tertiary)] leading-tight" style={{ fontFamily: "var(--font-mono)" }}>{period.endTime}</span>
                   </div>
 
                   {/* Day cells */}
@@ -531,13 +534,13 @@ export default function HistoryPage() {
                         <button
                           key={dayOfWeek}
                           onClick={() => setSelectedEntry(hasEntry)}
-                          className={`p-1 m-0.5 rounded-lg border-l-[3px] text-left transition-all active:scale-95 ${getStatusColor(hasEntry.status)} ${isToday ? "ring-1 ring-[var(--accent)]" : ""}`}
+                          className={`p-1 m-0.5 rounded-lg border-l-[4px] text-left transition-all active:scale-95 ${getStatusColor(hasEntry.status)} ${isToday ? "ring-1 ring-[var(--accent)]" : ""}`}
                         >
                           <div className="flex items-center gap-0.5 mb-0.5">
                             <StatusIcon status={hasEntry.status} />
-                            <span className="text-[8px] font-bold text-[var(--text-secondary)] truncate">{hasEntry.subject}</span>
+                            <span className="text-[8px] font-bold text-[var(--text-secondary)] truncate" style={{ fontFamily: "var(--font-body)" }}>{hasEntry.subject}</span>
                           </div>
-                          <p className="text-[7px] text-[var(--text-tertiary)] line-clamp-2 leading-tight">
+                          <p className="text-[7px] text-[var(--text-tertiary)] line-clamp-2 leading-tight" style={{ fontFamily: "var(--font-body)" }}>
                             {hasEntry.topicText || "No topic"}
                           </p>
                         </button>
@@ -612,15 +615,9 @@ export default function HistoryPage() {
                     {selectedClassName} &middot; {new Date(selectedEntry.date + "T00:00:00Z").toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric" })}
                   </p>
                 </div>
-                <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider ${
-                  selectedEntry.status === "VERIFIED" ? "bg-[var(--badge-verified-bg)] text-[var(--badge-verified-text)]" :
-                  selectedEntry.status === "FLAGGED" ? "bg-[var(--badge-flagged-bg)] text-[var(--badge-flagged-text)]" :
-                  selectedEntry.status === "SUBMITTED" ? "bg-[var(--badge-submitted-bg)] text-[var(--badge-submitted-text)]" :
-                  "bg-[var(--bg-tertiary)] text-[var(--text-secondary)]"
-                }`}>
-                  <StatusIcon status={selectedEntry.status} />
+                <Badge status={selectedEntry.status as "VERIFIED" | "SUBMITTED" | "FLAGGED" | "DRAFT"}>
                   {selectedEntry.status.charAt(0) + selectedEntry.status.slice(1).toLowerCase()}
-                </span>
+                </Badge>
               </div>
             </div>
 
@@ -655,18 +652,18 @@ export default function HistoryPage() {
                 <div className="grid grid-cols-3 gap-2.5">
                   <div className="text-center bg-[var(--bg-tertiary)] rounded-xl py-3 px-2">
                     <Calendar className="w-4 h-4 text-[var(--text-tertiary)] mx-auto mb-1" />
-                    <p className="text-[9px] text-[var(--text-tertiary)] font-medium uppercase">Period</p>
-                    <p className="text-xs font-bold text-[var(--text-primary)]">P{selectedEntry.period || "—"}</p>
+                    <p className="text-[9px] text-[var(--text-tertiary)] font-medium uppercase" style={{ fontFamily: "var(--font-body)" }}>Period</p>
+                    <p className="text-xs font-bold text-[var(--text-primary)]" style={{ fontFamily: "var(--font-mono)" }}>P{selectedEntry.period || "—"}</p>
                   </div>
                   <div className="text-center bg-[var(--bg-tertiary)] rounded-xl py-3 px-2">
                     <BookOpen className="w-4 h-4 text-[var(--text-tertiary)] mx-auto mb-1" />
-                    <p className="text-[9px] text-[var(--text-tertiary)] font-medium uppercase">Duration</p>
-                    <p className="text-xs font-bold text-[var(--text-primary)]">{selectedEntry.duration} min</p>
+                    <p className="text-[9px] text-[var(--text-tertiary)] font-medium uppercase" style={{ fontFamily: "var(--font-body)" }}>Duration</p>
+                    <p className="text-xs font-bold text-[var(--text-primary)]" style={{ fontFamily: "var(--font-mono)" }}>{selectedEntry.duration} min</p>
                   </div>
                   <div className="text-center bg-[var(--bg-tertiary)] rounded-xl py-3 px-2">
                     <Clock className="w-4 h-4 text-[var(--text-tertiary)] mx-auto mb-1" />
-                    <p className="text-[9px] text-[var(--text-tertiary)] font-medium uppercase">Day</p>
-                    <p className="text-xs font-bold text-[var(--text-primary)]">{DAY_NAMES_FULL[selectedEntry.dayOfWeek - 1] || "—"}</p>
+                    <p className="text-[9px] text-[var(--text-tertiary)] font-medium uppercase" style={{ fontFamily: "var(--font-body)" }}>Day</p>
+                    <p className="text-xs font-bold text-[var(--text-primary)]" style={{ fontFamily: "var(--font-body)" }}>{DAY_NAMES_FULL[selectedEntry.dayOfWeek - 1] || "—"}</p>
                   </div>
                 </div>
               </div>
@@ -677,8 +674,8 @@ export default function HistoryPage() {
                   <div className="grid grid-cols-2 gap-2.5">
                     {selectedEntry.studentAttendance !== null && (
                       <div className="text-center bg-[var(--bg-tertiary)] rounded-xl py-3 px-2">
-                        <p className="text-[9px] text-[var(--text-tertiary)] font-medium uppercase">Attendance</p>
-                        <p className="text-sm font-bold text-[var(--text-primary)]">{selectedEntry.studentAttendance} students</p>
+                        <p className="text-[9px] text-[var(--text-tertiary)] font-medium uppercase" style={{ fontFamily: "var(--font-body)" }}>Attendance</p>
+                        <p className="text-sm font-bold text-[var(--text-primary)]"><span style={{ fontFamily: "var(--font-mono)" }}>{selectedEntry.studentAttendance}</span> students</p>
                       </div>
                     )}
                     {selectedEntry.engagementLevel && (
