@@ -7,30 +7,14 @@ import {
   AlertTriangle,
   ChevronRight,
   Calendar,
-  GraduationCap,
-  UserCheck,
-  FileText,
   BarChart3,
   CheckCircle2,
-  Shield,
   Check,
 } from "lucide-react";
 import { NotificationBell } from "@/components/NotificationBell";
 import { TeacherActivityRow } from "@/components/TeacherActivityRow";
 import type { AdminStats, TeacherWithStats } from "@/types";
 
-// Deterministic avatar colors from teacher name
-function getAvatarColor(name: string): string {
-  const colors = [
-    "#818CF8", "#F59E0B", "#10B981", "#F472B6",
-    "#06B6D4", "#8B5CF6", "#EC4899", "#14B8A6",
-  ];
-  let hash = 0;
-  for (let i = 0; i < name.length; i++) {
-    hash = name.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  return colors[Math.abs(hash) % colors.length];
-}
 
 interface SchoolInfo {
   name: string;
@@ -125,11 +109,17 @@ export default function AdminDashboardPage() {
     return `${days}d ago`;
   }
 
-  // Sort teachers by entries, top performers first
+  // Sort teachers by compliance ascending (lowest first — admin sees who's behind)
   const topTeachers = teachers
     .filter((t) => t.membershipStatus === "ACTIVE")
-    .sort((a, b) => b.entryCount - a.entryCount)
-    .slice(0, 5);
+    .sort((a, b) => {
+      const aExpected = Math.max(a.subjects.length * 5, 5);
+      const bExpected = Math.max(b.subjects.length * 5, 5);
+      const aRate = a.entryCount / aExpected;
+      const bRate = b.entryCount / bExpected;
+      return aRate - bRate;
+    })
+    .slice(0, 6);
 
   // Loading skeleton
   if (loading) {
@@ -205,18 +195,20 @@ export default function AdminDashboardPage() {
           <div className="flex items-start justify-between animate-fade-in">
             <div>
               <div className="flex items-center gap-2 mb-1">
-                <p className="text-slate-400 text-xs font-semibold uppercase tracking-wider">
+                <p style={{ fontFamily: "var(--font-body)", fontSize: "12px", fontWeight: 500, color: "#94A3B8" }}>
                   School Admin
                 </p>
                 {school && (
-                  <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[10px] font-bold ${
-                    school.status === "ACTIVE"
-                      ? "bg-emerald-500/10 border border-emerald-500/15 text-emerald-400"
-                      : "bg-amber-500/10 border border-amber-500/15 text-amber-400"
-                  }`}>
-                    <span className={`w-1.5 h-1.5 rounded-full ${
-                      school.status === "ACTIVE" ? "bg-emerald-400" : "bg-amber-400"
-                    }`} />
+                  <span
+                    className="inline-flex items-center gap-1 text-[10px] font-bold"
+                    style={{
+                      background: school.status === "ACTIVE" ? "rgba(74,222,128,0.1)" : "rgba(251,191,36,0.1)",
+                      border: school.status === "ACTIVE" ? "1px solid rgba(74,222,128,0.15)" : "1px solid rgba(251,191,36,0.15)",
+                      color: school.status === "ACTIVE" ? "#4ADE80" : "#FBBF24",
+                      borderRadius: "10px",
+                      padding: "6px 12px",
+                    }}
+                  >
                     {school.status === "ACTIVE" ? "Active" : school.status}
                   </span>
                 )}
@@ -229,7 +221,7 @@ export default function AdminDashboardPage() {
           </div>
 
           {/* 3 stat pods */}
-          <div className="flex gap-2.5 mt-5 animate-slide-up animation-delay-75">
+          <div className="flex mt-5 animate-slide-up animation-delay-75" style={{ gap: "8px" }}>
             {[
               { value: stats?.totalTeachers ?? 0, label: "Teachers", color: "#818CF8" },
               { value: stats?.entriesThisWeek ?? 0, label: "This week", color: "#F59E0B" },
@@ -237,19 +229,21 @@ export default function AdminDashboardPage() {
             ].map((stat) => (
               <div
                 key={stat.label}
-                className="flex-1 rounded-[14px] p-3 text-center"
+                className="flex-1 text-center"
                 style={{
                   background: "rgba(255,255,255,0.04)",
                   border: "1px solid rgba(255,255,255,0.06)",
+                  borderRadius: "14px",
+                  padding: "12px",
                 }}
               >
                 <p
-                  className="font-mono text-xl font-extrabold leading-none tabular-nums"
-                  style={{ color: stat.color }}
+                  className="leading-none tabular-nums"
+                  style={{ fontFamily: "var(--font-body)", fontSize: "22px", fontWeight: 800, color: stat.color }}
                 >
                   {stat.value}
                 </p>
-                <p className="text-[10px] text-slate-500 mt-1.5 font-semibold uppercase tracking-wider">
+                <p style={{ fontSize: "10px", color: "#64748B", marginTop: "6px" }}>
                   {stat.label}
                 </p>
               </div>
@@ -293,7 +287,7 @@ export default function AdminDashboardPage() {
           <h3 className="text-xs font-bold uppercase tracking-widest text-[var(--text-tertiary)] mb-3 px-1">
             Quick Actions
           </h3>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2" style={{ gap: "8px" }}>
             {[
               {
                 href: "/admin/entries",
@@ -301,7 +295,6 @@ export default function AdminDashboardPage() {
                 label: "Verify Entries",
                 count: `${pendingEntries.length} pending`,
                 gradient: "linear-gradient(135deg, #EEF2FF, #E0E7FF)",
-                gradientDark: "linear-gradient(135deg, rgba(99,102,241,0.12), rgba(99,102,241,0.06))",
                 iconColor: "#4F46E5",
               },
               {
@@ -310,7 +303,6 @@ export default function AdminDashboardPage() {
                 label: "Timetable",
                 count: "Manage schedule",
                 gradient: "linear-gradient(135deg, #F0FDF4, #DCFCE7)",
-                gradientDark: "linear-gradient(135deg, rgba(34,197,94,0.12), rgba(34,197,94,0.06))",
                 iconColor: "#16A34A",
               },
               {
@@ -319,7 +311,6 @@ export default function AdminDashboardPage() {
                 label: "Reports",
                 count: "Analytics & export",
                 gradient: "linear-gradient(135deg, #FEF3C7, #FDE68A)",
-                gradientDark: "linear-gradient(135deg, rgba(245,158,11,0.12), rgba(245,158,11,0.06))",
                 iconColor: "#D97706",
               },
               {
@@ -328,23 +319,22 @@ export default function AdminDashboardPage() {
                 label: "Teachers",
                 count: `${stats?.totalTeachers ?? 0} active`,
                 gradient: "linear-gradient(135deg, #FFF1F2, #FFE4E6)",
-                gradientDark: "linear-gradient(135deg, rgba(225,29,72,0.12), rgba(225,29,72,0.06))",
                 iconColor: "#E11D48",
               },
-            ].map((action, i) => {
+            ].map((action) => {
               const Icon = action.icon;
               return (
                 <Link
                   key={action.href}
                   href={action.href}
-                  className={`rounded-[var(--radius-lg)] p-4 transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.97] group stagger-${i + 1}`}
-                  style={{ background: action.gradient }}
+                  className="p-4 transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.97] cursor-pointer"
+                  style={{ background: action.gradient, borderRadius: "16px" }}
                 >
                   <div className="mb-2.5" style={{ color: action.iconColor }}>
-                    <Icon className="w-5 h-5" />
+                    <Icon style={{ width: "18px", height: "18px" }} />
                   </div>
-                  <p className="font-bold text-[var(--text-primary)] text-sm">{action.label}</p>
-                  <p className="text-xs text-[var(--text-tertiary)] mt-0.5">{action.count}</p>
+                  <p style={{ fontFamily: "var(--font-body)", fontSize: "14px", fontWeight: 700, color: "var(--text-primary)" }}>{action.label}</p>
+                  <p className="mt-0.5" style={{ fontSize: "12px", color: "var(--text-secondary)" }}>{action.count}</p>
                 </Link>
               );
             })}
@@ -353,19 +343,21 @@ export default function AdminDashboardPage() {
 
         {/* ── TEACHER ACTIVITY ── */}
         {topTeachers.length > 0 && (
-          <div className="animate-slide-up animation-delay-225 card p-5">
+          <div
+            className="animate-slide-up animation-delay-225 border"
+            style={{ background: "var(--bg-elevated)", borderColor: "var(--border-primary)", borderRadius: "20px", padding: "18px" }}
+          >
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-bold text-[var(--text-primary)]">
+              <h3 style={{ fontFamily: "var(--font-body)", fontSize: "14px", fontWeight: 700, color: "var(--text-primary)" }}>
                 Teacher Activity
               </h3>
-              <Link href="/admin/teachers" className="text-xs font-semibold text-[var(--accent-text)] hover:underline">
+              <Link href="/admin/teachers" className="text-xs font-semibold hover:underline" style={{ color: "var(--accent-text)" }}>
                 View all →
               </Link>
             </div>
             <div className="space-y-1">
               {topTeachers.map((t) => {
                 const name = `${t.firstName} ${t.lastName}`;
-                // Estimate expected entries per week (assume 5 per week per subject)
                 const expectedPerWeek = Math.max(t.subjects.length * 5, 5);
                 return (
                   <TeacherActivityRow
@@ -374,8 +366,6 @@ export default function AdminDashboardPage() {
                     initials={`${t.firstName[0]}${t.lastName[0]}`}
                     entriesLogged={t.entryCount}
                     entriesExpected={expectedPerWeek}
-                    color={getAvatarColor(name)}
-                    onClick={() => {/* could navigate to teacher detail */}}
                   />
                 );
               })}
@@ -385,14 +375,14 @@ export default function AdminDashboardPage() {
 
         {/* ── PENDING VERIFICATION ── */}
         {pendingEntries.length > 0 && (
-          <div className="animate-slide-up animation-delay-300 card p-5">
+          <div
+            className="animate-slide-up animation-delay-300 border"
+            style={{ background: "var(--bg-elevated)", borderColor: "var(--border-primary)", borderRadius: "20px", padding: "18px" }}
+          >
             <div className="flex items-center justify-between mb-3">
-              <h3 className="text-sm font-bold text-[var(--text-primary)]">
+              <h3 style={{ fontFamily: "var(--font-body)", fontSize: "14px", fontWeight: 700, color: "var(--text-primary)" }}>
                 Pending Verification
               </h3>
-              <Link href="/admin/entries" className="text-xs font-semibold text-[var(--accent-text)] hover:underline">
-                View all →
-              </Link>
             </div>
             <div className="divide-y" style={{ borderColor: "var(--border-secondary)" }}>
               {pendingEntries.map((entry) => {
@@ -417,15 +407,18 @@ export default function AdminDashboardPage() {
                     <button
                       onClick={() => handleVerify(entry.id)}
                       disabled={isVerifying}
-                      className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ml-3 transition-all active:scale-90 disabled:opacity-50"
+                      className="flex items-center justify-center flex-shrink-0 ml-3 transition-all active:scale-90 disabled:opacity-50"
                       style={{
-                        background: "var(--success-light)",
-                        color: "var(--success)",
+                        width: "36px",
+                        height: "36px",
+                        borderRadius: "12px",
+                        background: "#DCFCE7",
+                        color: "#16A34A",
                       }}
                       aria-label="Verify entry"
                     >
                       {isVerifying ? (
-                        <div className="w-4 h-4 border-2 rounded-full animate-spin" style={{ borderColor: "var(--success)", borderTopColor: "transparent" }} />
+                        <div className="w-4 h-4 border-2 rounded-full animate-spin" style={{ borderColor: "#16A34A", borderTopColor: "transparent" }} />
                       ) : (
                         <Check className="w-4 h-4" />
                       )}
@@ -434,6 +427,9 @@ export default function AdminDashboardPage() {
                 );
               })}
             </div>
+            <Link href="/admin/entries" className="block text-center text-xs font-semibold mt-3 pt-3" style={{ color: "var(--accent-text)", borderTop: "1px solid var(--border-secondary)" }}>
+              View all pending →
+            </Link>
           </div>
         )}
 
@@ -479,64 +475,6 @@ export default function AdminDashboardPage() {
           </div>
         )}
 
-        {/* ── ENTRIES BY SUBJECT ── */}
-        {stats && stats.entriesBySubject.length > 0 && (
-          <div className="animate-slide-up animation-delay-450 card p-5">
-            <div className="flex items-center gap-2 mb-4">
-              <GraduationCap className="w-4 h-4 text-[var(--accent-text)]" />
-              <h3 className="text-sm font-bold text-[var(--text-primary)]">
-                Entries by Subject
-              </h3>
-            </div>
-            <div className="space-y-3">
-              {stats.entriesBySubject.slice(0, 6).map((s) => {
-                const maxCount = stats.entriesBySubject[0].count;
-                const width = maxCount > 0 ? (s.count / maxCount) * 100 : 0;
-                return (
-                  <div key={s.subject}>
-                    <div className="flex justify-between text-xs mb-1.5">
-                      <span className="text-[var(--text-primary)] font-semibold truncate mr-2">{s.subject}</span>
-                      <span className="text-[var(--text-tertiary)] font-mono font-bold tabular-nums flex-shrink-0">{s.count}</span>
-                    </div>
-                    <div className="progress-bar">
-                      <div
-                        className="progress-bar-fill animate-progress-fill"
-                        style={{ width: `${width}%` }}
-                      />
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
-        {/* ── MORE QUICK ACTIONS ── */}
-        <div className="animate-slide-up animation-delay-525">
-          <h3 className="text-xs font-bold uppercase tracking-widest text-[var(--text-tertiary)] mb-3 px-1">
-            Management
-          </h3>
-          <div className="grid grid-cols-2 gap-3">
-            {[
-              { href: "/admin/entry-timetable", icon: FileText, label: "Entry Grid", desc: "Entries by class/week" },
-              { href: "/admin/classes", icon: GraduationCap, label: "Classes", desc: "Subjects & divisions" },
-              { href: "/admin/assignments", icon: UserCheck, label: "Assignments", desc: "Assign teachers" },
-              { href: "/admin/hods", icon: Shield, label: "HODs", desc: "Dept. heads" },
-            ].map(({ href, icon: Icon, label, desc }) => (
-              <Link
-                key={href}
-                href={href}
-                className="card p-4 group hover:-translate-y-0.5 transition-all duration-200 active:scale-[0.97]"
-              >
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-2.5" style={{ background: "var(--accent-light)" }}>
-                  <Icon className="w-4.5 h-4.5 text-[var(--accent-text)]" />
-                </div>
-                <p className="font-bold text-[var(--text-primary)] text-sm">{label}</p>
-                <p className="text-[11px] text-[var(--text-tertiary)] mt-0.5">{desc}</p>
-              </Link>
-            ))}
-          </div>
-        </div>
       </div>
     </div>
   );
