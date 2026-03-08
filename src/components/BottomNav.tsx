@@ -14,6 +14,7 @@ interface NavItem {
   label: string;
   icon: React.ElementType;
   highlight?: boolean;
+  activePrefix?: string;
 }
 
 function getNavTabs(role: string): NavItem[] {
@@ -30,8 +31,8 @@ function getNavTabs(role: string): NavItem[] {
     return [
       { href: "/admin", label: "Dashboard", icon: Shield },
       { href: "/admin/teachers", label: "Teachers", icon: Users },
+      { href: "/admin/reports/teachers", label: "Reports", icon: BarChart3, activePrefix: "/admin/reports" },
       { href: "/admin/timetable", label: "Timetable", icon: Calendar },
-      { href: "/admin/entry-timetable", label: "Entries", icon: BookOpen },
       { href: "/profile", label: "Profile", icon: User },
     ];
   }
@@ -57,7 +58,8 @@ function BottomNav({ role }: BottomNavProps) {
     >
       <div className="flex items-end justify-around h-16 max-w-lg mx-auto">
         {tabs.map((tab) => {
-          const isActive = pathname === tab.href || pathname.startsWith(tab.href + "/");
+          const prefix = tab.activePrefix || tab.href;
+          const isActive = pathname === prefix || pathname.startsWith(prefix + "/");
           const Icon = tab.icon;
 
           if (tab.highlight) {
