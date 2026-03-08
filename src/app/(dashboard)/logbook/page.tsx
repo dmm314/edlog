@@ -620,6 +620,17 @@ export default function LogbookPage() {
                 const isCurrent = i === currentPeriodIndex && !isFilled;
                 const moduleName = matchingEntry?.moduleName;
 
+                // Period time status for Log button behavior
+                const nowDate = new Date();
+                const currentMins = nowDate.getHours() * 60 + nowDate.getMinutes();
+                const [slotStartH, slotStartM] = slot.startTime.split(":").map(Number);
+                const [slotEndH, slotEndM] = slot.endTime.split(":").map(Number);
+                const slotStartMins = slotStartH * 60 + slotStartM;
+                const slotEndMins = slotEndH * 60 + slotEndM;
+                const hasEnded = currentMins >= slotEndMins;
+                const isInProgress = currentMins >= slotStartMins && currentMins < slotEndMins;
+                const minutesUntilEnd = slotEndMins - currentMins;
+
                 return (
                   <div
                     key={slot.id}
@@ -691,7 +702,7 @@ export default function LogbookPage() {
                           >
                             <CheckCircle className="w-[18px] h-[18px]" style={{ color: "#16A34A" }} />
                           </div>
-                        ) : isCurrent ? (
+                        ) : hasEnded ? (
                           <Link
                             href={`/logbook/new?slotId=${slot.id}&period=${slot.periodNumber}&date=${todayStr}&assignmentId=${slot.assignment.id}&classId=${slot.class.id}`}
                             className="flex items-center gap-1.5 rounded-[10px] px-3.5 py-1.5 text-xs font-bold text-white active:scale-95 transition-transform flex-shrink-0"
@@ -703,6 +714,17 @@ export default function LogbookPage() {
                             <Pen className="w-3.5 h-3.5" />
                             Log
                           </Link>
+                        ) : isInProgress ? (
+                          <span
+                            className="flex items-center gap-1.5 rounded-[10px] px-3 py-1.5 text-[11px] font-semibold flex-shrink-0"
+                            style={{
+                              background: "var(--bg-tertiary)",
+                              color: "var(--text-tertiary)",
+                            }}
+                          >
+                            <Clock className="w-3 h-3" />
+                            {minutesUntilEnd}m
+                          </span>
                         ) : (
                           <div
                             className="w-7 h-7 rounded-[10px] flex-shrink-0"

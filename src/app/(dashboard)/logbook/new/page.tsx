@@ -436,6 +436,17 @@ export default function NewEntryPage() {
   const hasMultiSlots = selectedSlotIds.length > 1;
   const hasMultiClass = additionalClassIds.length > 0;
 
+  const selectedPeriodNotEnded = useMemo(() => {
+    const isToday = date === new Date().toISOString().split("T")[0];
+    if (!isToday || selectedSlotsData.length === 0) return false;
+    const now = new Date();
+    const currentMins = now.getHours() * 60 + now.getMinutes();
+    return selectedSlotsData.some((s) => {
+      const [eh, em] = s.endTime.split(":").map(Number);
+      return currentMins < eh * 60 + em;
+    });
+  }, [date, selectedSlotsData]);
+
   const contextClassName = assignedClasses.find((c) => c.id === classId)?.name || "";
   const contextSubjectName = subjectsForClass.find((s) => s.assignmentId === assignmentId || s.id === subjectId)?.name || "";
   const contextSlot = selectedSlotsData[0];
@@ -813,6 +824,29 @@ export default function NewEntryPage() {
             </div>
           )}
 
+          {(() => {
+            const isToday = date === new Date().toISOString().split("T")[0];
+            if (isToday && selectedSlotsData.length > 0) {
+              const now = new Date();
+              const currentMins = now.getHours() * 60 + now.getMinutes();
+              const unendedSlot = selectedSlotsData.find((s) => {
+                const [eh, em] = s.endTime.split(":").map(Number);
+                return currentMins < eh * 60 + em;
+              });
+              if (unendedSlot) {
+                return (
+                  <div className="flex items-center gap-2 mb-3 animate-slide-up" style={{ background: "#FFFBEB", border: "1px solid #FDE68A", borderRadius: "12px", padding: "12px" }}>
+                    <Clock className="w-4 h-4 flex-shrink-0" style={{ color: "#B45309" }} />
+                    <p className="text-xs font-medium" style={{ color: "#B45309" }}>
+                      This period hasn&apos;t ended yet. You can save as draft now and submit after {unendedSlot.endTime}.
+                    </p>
+                  </div>
+                );
+              }
+            }
+            return null;
+          })()}
+
           <div className="flex gap-1">
             {STEP_LABELS.map((label, i) => (
               <div key={label} className="flex-1 flex flex-col items-center gap-1.5">
@@ -897,16 +931,20 @@ export default function NewEntryPage() {
                         const periodMatch = slot.periodLabel.match(/\d+/);
                         const periodNum = periodMatch ? parseInt(periodMatch[0]) : null;
                         const isAlreadyFilled = filledSlotIds.has(slot.id) || (periodNum !== null && filledPeriods.has(periodNum));
+                        const isToday = date === new Date().toISOString().split("T")[0];
+                        const now = new Date();
+                        const [slotEndH, slotEndM] = slot.endTime.split(":").map(Number);
+                        const periodNotEnded = isToday && (now.getHours() * 60 + now.getMinutes()) < (slotEndH * 60 + slotEndM);
                         const isSelected = selectedSlotIds.includes(slot.id);
-                        const canAdd = (selectedSlotIds.length < 4 || isSelected) && !isAlreadyFilled;
+                        const canAdd = (selectedSlotIds.length < 4 || isSelected) && !isAlreadyFilled && !periodNotEnded;
                         const isCompatible = selectedSlotIds.length === 0 || isSelected ||
                           (selectedSlotsData.length > 0 &&
                             slot.assignment.classId === selectedSlotsData[0].assignment.classId &&
                             slot.assignment.subjectId === selectedSlotsData[0].assignment.subjectId);
                         return (
-                          <button key={slot.id} type="button" onClick={() => !isAlreadyFilled && handleSlotToggle(slot)} disabled={isAlreadyFilled}
+                          <button key={slot.id} type="button" onClick={() => !isAlreadyFilled && !periodNotEnded && handleSlotToggle(slot)} disabled={isAlreadyFilled || periodNotEnded}
                             className={`flex-shrink-0 rounded-2xl border-2 px-3 py-2.5 text-left transition-all relative ${
-                              isAlreadyFilled ? "opacity-60 cursor-not-allowed" : isSelected ? "shadow-sm" : !canAdd || !isCompatible ? "opacity-40" : "hover:border-[var(--text-quaternary)]"
+                              isAlreadyFilled || periodNotEnded ? "opacity-60 cursor-not-allowed" : isSelected ? "shadow-sm" : !canAdd || !isCompatible ? "opacity-40" : "hover:border-[var(--text-quaternary)]"
                             }`}
                             style={{
                               borderColor: isAlreadyFilled ? "var(--success)" : isSelected ? "var(--accent)" : "var(--border-primary)",
@@ -927,6 +965,12 @@ export default function NewEntryPage() {
                             <p className="text-[11px] font-semibold mt-1.5" style={{ color: "var(--accent-text)" }}>{slot.assignment.subjectName}</p>
                             <p className="text-[10px] text-[var(--text-tertiary)]">{shortClassName(slot.assignment.className)}</p>
                             {isAlreadyFilled && <p className="text-[9px] font-bold mt-1" style={{ color: "var(--success)" }}>Already filled</p>}
+                            {periodNotEnded && !isAlreadyFilled && (
+                              <p className="text-[9px] font-bold mt-1 flex items-center gap-0.5" style={{ color: "#92400E" }}>
+                                <Clock className="w-2.5 h-2.5" />
+                                Available at {slot.endTime}
+                              </p>
+                            )}
                           </button>
                         );
                       })}
@@ -1248,7 +1292,7 @@ export default function NewEntryPage() {
                   <SignaturePad onSign={(data: string) => setSignatureData(data)} onClear={() => setSignatureData(null)} />
                 </div>
 
-                <button type="submit" disabled={!isFormValid || submitting || savingDraft}
+                <button type="submit" disabled={!isFormValid || submitting || savingDraft || selectedPeriodNotEnded}
                   className="w-full font-bold text-base text-white flex items-center justify-center gap-2 transition-all active:scale-[0.97] disabled:opacity-50"
                   style={{ background: "linear-gradient(135deg, #16A34A, #15803D)", boxShadow: "0 4px 16px -4px rgba(22,163,74,0.4)", padding: "18px", borderRadius: "16px" }}>
                   {submitting ? (

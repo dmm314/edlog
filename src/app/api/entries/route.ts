@@ -253,6 +253,59 @@ export async function POST(request: Request) {
       );
     }
 
+    // Prevent pre-filling: if the entry date is today, check that the period has ended
+    if (data.status !== "DRAFT") {
+      const entryDateStr = entryDate.toISOString().split("T")[0];
+      const todayStr = new Date().toISOString().split("T")[0];
+
+      if (entryDateStr === todayStr && data.timetableSlotId) {
+        // Look up the timetable slot to get its endTime
+        const slot = await db.timetableSlot.findUnique({
+          where: { id: data.timetableSlotId },
+        });
+
+        if (slot) {
+          const now = new Date();
+          const [endHour, endMin] = slot.endTime.split(":").map(Number);
+          const periodEnd = new Date();
+          periodEnd.setHours(endHour, endMin, 0, 0);
+
+          if (now < periodEnd) {
+            return NextResponse.json(
+              { error: `You cannot fill this entry yet. Period ${data.period || ''} ends at ${slot.endTime}. Please wait until the class is over.` },
+              { status: 400 }
+            );
+          }
+        }
+      }
+
+      // Also check by period number if no slot ID but period is provided
+      if (entryDateStr === todayStr && data.period && !data.timetableSlotId) {
+        // Find the timetable slot for this teacher on this day with this period
+        const matchingSlot = await db.timetableSlot.findFirst({
+          where: {
+            dayOfWeek: timetableDow,
+            assignment: { teacherId: user.id },
+            periodLabel: { contains: String(data.period) },
+          },
+        });
+
+        if (matchingSlot) {
+          const now = new Date();
+          const [endHour, endMin] = matchingSlot.endTime.split(":").map(Number);
+          const periodEnd = new Date();
+          periodEnd.setHours(endHour, endMin, 0, 0);
+
+          if (now < periodEnd) {
+            return NextResponse.json(
+              { error: `You cannot fill this entry yet. Period ${data.period} ends at ${matchingSlot.endTime}. Please wait until the class is over.` },
+              { status: 400 }
+            );
+          }
+        }
+      }
+    }
+
     // Prevent duplicate entries for the same teacher + date + period
     if (data.period) {
       const existingEntry = await db.logbookEntry.findFirst({
