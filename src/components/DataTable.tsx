@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { Search, X, SearchX, Download, ArrowUpDown, ArrowUp, ArrowDown, ChevronLeft, ChevronRight, AlertCircle, RefreshCw } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
-import { useDataTable } from "@/hooks/useDataTable";
+import { useDataTable, type DataTablePagination } from "@/hooks/useDataTable";
 
 // ── Types ──────────────────────────────────────────────────────────
 
@@ -39,6 +39,7 @@ export interface DataTableProps<T = Record<string, unknown>> {
   onRowClick?: (row: T) => void;
   emptyTitle?: string;
   emptyDescription?: string;
+  onDataLoad?: (data: T[], pagination: DataTablePagination) => void;
 }
 
 // ── Helpers ────────────────────────────────────────────────────────
@@ -90,6 +91,7 @@ export function DataTable<T = Record<string, unknown>>({
   onRowClick,
   emptyTitle = "No results found",
   emptyDescription = "Try adjusting your search or filters.",
+  onDataLoad,
 }: DataTableProps<T>) {
   const router = useRouter();
   const pathname = usePathname();
@@ -129,6 +131,13 @@ export function DataTable<T = Record<string, unknown>>({
   }, [searchParams]);
 
   const { data, loading, error, pagination, filters, refetch } = useDataTable<T>(endpointWithLimit);
+
+  useEffect(() => {
+    if (!loading && data.length > 0 && onDataLoad) {
+      onDataLoad(data, pagination);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data, loading]);
 
   // ── URL update helper ───────────────────────────────────────────
 

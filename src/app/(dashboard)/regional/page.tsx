@@ -298,6 +298,8 @@ export default function RegionalDashboardPage() {
         {/* Quick Links */}
         <div className="animate-fade-slide-in space-y-2" style={{ animationDelay: "240ms" }}>
           {[
+            { href: "/regional/reports/schools", icon: Building2, label: "Explore school data", sub: "Compare schools across your region" },
+            { href: "/regional/reports/coverage", icon: BookOpen, label: "Curriculum coverage", sub: "Regional syllabus tracking" },
             { href: "/regional/schools", icon: Building2, label: "Manage Schools" },
             { href: "/regional/codes", icon: Key, label: "Registration Codes" },
             { href: "/regional/reports", icon: BarChart3, label: "View Reports" },

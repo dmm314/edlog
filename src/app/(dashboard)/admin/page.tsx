@@ -341,6 +341,26 @@ export default function AdminDashboardPage() {
           </div>
         </div>
 
+        {/* ── REPORTS LINK ── */}
+        <Link
+          href="/admin/reports/teachers"
+          className="animate-slide-up animation-delay-175 flex items-center justify-between p-4 group active:scale-[0.98] transition-all duration-200"
+          style={{
+            background: "var(--bg-elevated)",
+            border: "1px solid var(--border-primary)",
+            borderRadius: "16px",
+            boxShadow: "var(--shadow-card)",
+          }}
+        >
+          <div className="flex items-center gap-3">
+            <BarChart3 className="w-5 h-5 text-[var(--accent-text)]" />
+            <span style={{ fontFamily: "var(--font-body)", fontSize: 14, fontWeight: 600, color: "var(--text-primary)" }}>
+              View detailed reports
+            </span>
+          </div>
+          <ChevronRight className="w-4 h-4 text-[var(--text-quaternary)] group-hover:translate-x-0.5 transition-transform" />
+        </Link>
+
         {/* ── TEACHER ACTIVITY ── */}
         {topTeachers.length > 0 && (
           <div

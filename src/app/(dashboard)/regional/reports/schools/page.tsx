@@ -1,9 +1,11 @@
 "use client";
 
-import React from "react";
+import React, { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { DataTable } from "@/components/DataTable";
 import type { ColumnDef } from "@/components/DataTable";
+import { ReportStatCards, type StatCard } from "@/components/ReportStatCards";
+import type { DataTablePagination } from "@/hooks/useDataTable";
 
 interface SchoolRow {
   id: string;
@@ -98,20 +100,40 @@ const columns: ColumnDef<SchoolRow>[] = [
 
 export default function SchoolsReportPage() {
   const router = useRouter();
+  const [stats, setStats] = useState<StatCard[]>([]);
+
+  const handleDataLoad = useCallback((data: SchoolRow[], pagination: DataTablePagination) => {
+    const totalSchools = pagination.total;
+    const totalTeachers = data.reduce((sum, s) => sum + s.teacherCount, 0);
+    const avgCompliance = data.length > 0
+      ? Math.round(data.reduce((sum, s) => sum + s.complianceRate, 0) / data.length)
+      : 0;
+    const entriesMonth = data.reduce((sum, s) => sum + s.entriesThisMonth, 0);
+    setStats([
+      { label: "Total Schools", value: totalSchools },
+      { label: "Total Teachers", value: totalTeachers },
+      { label: "Avg Compliance", value: `${avgCompliance}%` },
+      { label: "Entries This Month", value: entriesMonth },
+    ]);
+  }, []);
 
   return (
-    <DataTable<SchoolRow>
-      columns={columns}
-      endpoint="/api/regional/reports/schools"
-      title="Schools"
-      description="All schools in your region with compliance data."
-      searchPlaceholder="Search by school name, code, or principal..."
-      defaultSort="complianceRate"
-      defaultOrder="asc"
-      exportFilename="regional-schools-report"
-      emptyTitle="No schools found"
-      emptyDescription="No schools match your current filters."
-      onRowClick={(row) => router.push(`/regional/schools/${row.id}`)}
-    />
+    <div>
+      {stats.length > 0 && <ReportStatCards stats={stats} />}
+      <DataTable<SchoolRow>
+        columns={columns}
+        endpoint="/api/regional/reports/schools"
+        title="Schools"
+        description="All schools in your region with compliance data."
+        searchPlaceholder="Search by school name, code, or principal..."
+        defaultSort="complianceRate"
+        defaultOrder="asc"
+        exportFilename="regional-schools-report"
+        emptyTitle="No schools found"
+        emptyDescription="No schools match your current filters."
+        onRowClick={(row) => router.push(`/regional/schools/${row.id}`)}
+        onDataLoad={handleDataLoad}
+      />
+    </div>
   );
 }
