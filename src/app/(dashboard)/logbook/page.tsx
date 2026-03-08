@@ -8,12 +8,15 @@ import {
   Calendar,
   CheckCircle,
   Pen,
+  ChevronDown,
+  ChevronUp,
+  Shield,
+  Clock,
 } from "lucide-react";
 import { NotificationBell } from "@/components/NotificationBell";
 import { StreakBadge } from "@/components/StreakBadge";
 import { WeeklyProgress } from "@/components/WeeklyProgress";
 import type { EntryWithRelations } from "@/types";
-import { useStaggeredReveal } from "@/hooks/useStaggeredReveal";
 
 const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
@@ -413,7 +416,9 @@ export default function LogbookPage() {
     return null;
   }, [allSlots, hasMultipleSchools]);
 
-  const { containerRef, getItemStyle } = useStaggeredReveal(sortedTodaySlots.length);
+  const allLoggedToday = useMemo(() => {
+    return sortedTodaySlots.length > 0 && todayFilledCount === sortedTodaySlots.length;
+  }, [sortedTodaySlots, todayFilledCount]);
 
   if (loading) {
     return (
@@ -603,21 +608,26 @@ export default function LogbookPage() {
             </div>
 
             {/* Period cards */}
-            <div ref={containerRef} className="flex flex-col gap-2">
+            <div className="flex flex-col gap-2">
               {sortedTodaySlots.map((slot, i) => {
-                const isFilled = entries.some(
+                const matchingEntry = entries.find(
                   (e) =>
                     new Date(e.date).toISOString().split("T")[0] === todayStr &&
                     e.period === slot.periodNumber
                 );
+                const isFilled = !!matchingEntry;
                 const isCurrent = i === currentPeriodIndex && !isFilled;
-                const isPast = i < currentPeriodIndex || isFilled;
+                const moduleName = matchingEntry?.moduleName;
 
                 return (
                   <div
                     key={slot.id}
                     className="flex gap-3 items-stretch"
-                    style={getItemStyle(i)}
+                    style={{
+                      opacity: 0,
+                      animation: "fadeSlideIn 400ms ease forwards",
+                      animationDelay: `${i * 80}ms`,
+                    }}
                   >
                     {/* Time column */}
                     <div className="w-12 flex-shrink-0 flex flex-col items-center pt-3.5">
@@ -641,18 +651,14 @@ export default function LogbookPage() {
                           : "border"
                       }`}
                       style={{
-                        background: isCurrent
-                          ? "var(--bg-elevated)"
-                          : isPast
-                          ? "var(--bg-secondary)"
-                          : "var(--bg-elevated)",
+                        background: "var(--bg-elevated)",
                         borderColor: isCurrent
                           ? "var(--accent)"
                           : "var(--border-primary)",
                         boxShadow: isCurrent
                           ? "var(--shadow-accent)"
                           : "var(--shadow-card)",
-                        opacity: isPast && isFilled ? 0.6 : 1,
+                        opacity: isFilled ? 0.55 : 1,
                       }}
                     >
                       {/* Amber top bar for current period */}
@@ -671,24 +677,23 @@ export default function LogbookPage() {
                             {slot.assignment.subject.name}
                           </p>
                           <p className="text-[13px] text-[var(--text-tertiary)] mt-0.5">
-                            {slot.class.name}
+                            {slot.class.name}{isFilled && moduleName ? ` \u00B7 ${moduleName}` : ""}
                           </p>
                         </div>
 
                         {isFilled ? (
                           <div
-                            className="w-7 h-7 rounded-xl flex items-center justify-center flex-shrink-0"
+                            className="w-7 h-7 rounded-[10px] flex items-center justify-center flex-shrink-0"
                             style={{
-                              background: "var(--success-light)",
-                              color: "var(--success)",
+                              background: "#DCFCE7",
                             }}
                           >
-                            <CheckCircle className="w-[18px] h-[18px]" />
+                            <CheckCircle className="w-[18px] h-[18px]" style={{ color: "#16A34A" }} />
                           </div>
                         ) : isCurrent ? (
                           <Link
-                            href="/logbook/new"
-                            className="flex items-center gap-1.5 rounded-xl px-3.5 py-1.5 text-xs font-bold text-white active:scale-95 transition-transform flex-shrink-0"
+                            href={`/logbook/new?slotId=${slot.id}&period=${slot.periodNumber}&date=${todayStr}&assignmentId=${slot.assignment.id}&classId=${slot.class.id}`}
+                            className="flex items-center gap-1.5 rounded-[10px] px-3.5 py-1.5 text-xs font-bold text-white active:scale-95 transition-transform flex-shrink-0"
                             style={{
                               background: "linear-gradient(135deg, var(--accent), var(--accent-hover))",
                               boxShadow: "var(--shadow-accent)",
@@ -699,10 +704,10 @@ export default function LogbookPage() {
                           </Link>
                         ) : (
                           <div
-                            className="w-7 h-7 rounded-xl flex-shrink-0"
+                            className="w-7 h-7 rounded-[10px] flex-shrink-0"
                             style={{
-                              background: "var(--bg-secondary)",
-                              border: "2px dashed var(--text-quaternary)",
+                              background: "#F5F5F4",
+                              border: "2px dashed #D6D3D1",
                             }}
                           />
                         )}
@@ -712,6 +717,26 @@ export default function LogbookPage() {
                 );
               })}
             </div>
+          </div>
+        )}
+
+        {/* All caught up celebration */}
+        {isWeekday && allLoggedToday && sortedTodaySlots.length > 0 && (
+          <div className="animate-scale-in mt-4 card p-6 text-center">
+            <div
+              className="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-3"
+              style={{ background: "#DCFCE7" }}
+            >
+              <CheckCircle className="w-7 h-7" style={{ color: "#16A34A" }} />
+            </div>
+            <p className="font-display text-xl font-bold text-[var(--text-primary)]">
+              All caught up!
+            </p>
+            {streakDays > 0 && (
+              <p className="text-sm text-[var(--text-tertiary)] mt-1.5">
+                {streakDays} day streak
+              </p>
+            )}
           </div>
         )}
 
@@ -726,13 +751,48 @@ export default function LogbookPage() {
             </div>
             <div>
               <p className="text-base font-bold text-[var(--text-primary)]">
-                {!isWeekday ? "Weekend Mode" : "No Classes Today"}
+                No classes today
               </p>
-              <p className="text-sm text-[var(--text-tertiary)] mt-0.5">
-                {!isWeekday
-                  ? "No classes scheduled. Enjoy your rest!"
-                  : "Your timetable is clear today."}
-              </p>
+              <div className="flex gap-3 mt-2">
+                <Link
+                  href="/timetable"
+                  className="text-sm font-medium text-[var(--text-secondary)] underline underline-offset-2"
+                >
+                  View timetable
+                </Link>
+                {unfilledWeekSlots.length > 0 && (
+                  <Link
+                    href="/history"
+                    className="text-sm font-medium text-[var(--text-secondary)] underline underline-offset-2"
+                  >
+                    Catch up on entries
+                  </Link>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── Next Class Info ──────────────────────────────────────── */}
+        {nextClassInfo && (
+          <div className="animate-slide-up animation-delay-75 mt-4 card p-4 flex items-start gap-3">
+            <div
+              className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5"
+              style={{
+                background: nextClassInfo.type === "prep" ? "var(--accent-light)" : "var(--bg-tertiary)",
+              }}
+            >
+              <Clock
+                className="w-5 h-5"
+                style={{
+                  color: nextClassInfo.type === "prep" ? "var(--accent-text)" : "var(--text-tertiary)",
+                }}
+              />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-bold text-[var(--text-primary)]">{nextClassInfo.message}</p>
+              <p className="text-xs text-[var(--text-tertiary)] mt-0.5">{nextClassInfo.detail}</p>
+              <p className="text-xs text-[var(--text-quaternary)] mt-1 italic">{nextClassInfo.hint}</p>
             </div>
           </div>
         )}
@@ -745,6 +805,83 @@ export default function LogbookPage() {
               totalCompleted={weeklyProgressData.totalCompleted}
               totalPeriods={weeklyProgressData.totalPeriods}
             />
+          </div>
+        )}
+
+        {/* ── Unfilled Periods This Week (collapsible) ─────────────── */}
+        {unfilledWeekSlots.length > 0 && (
+          <div className="animate-slide-up animation-delay-225 mt-4">
+            <button
+              onClick={() => setUnfilledOpen(!unfilledOpen)}
+              className="w-full card px-4 py-3 flex items-center justify-between"
+            >
+              <span className="text-sm font-bold text-[var(--text-primary)]">
+                Unfilled periods this week
+              </span>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-mono tabular-nums" style={{ color: "var(--accent-text)" }}>
+                  {unfilledWeekSlots.length}
+                </span>
+                {unfilledOpen ? (
+                  <ChevronUp className="w-4 h-4 text-[var(--text-tertiary)]" />
+                ) : (
+                  <ChevronDown className="w-4 h-4 text-[var(--text-tertiary)]" />
+                )}
+              </div>
+            </button>
+            {unfilledOpen && (
+              <div className="mt-1 space-y-1">
+                {unfilledWeekSlots.map((slot, idx) => (
+                  <div
+                    key={`${slot.dateStr}-${slot.slotLabel}-${idx}`}
+                    className="card px-4 py-2.5 flex items-center justify-between"
+                  >
+                    <div>
+                      <p className="text-sm font-medium text-[var(--text-primary)]">
+                        {slot.subjectName}
+                      </p>
+                      <p className="text-xs text-[var(--text-tertiary)]">
+                        {slot.dayName} &middot; {slot.slotLabel} &middot; {slot.className}
+                      </p>
+                    </div>
+                    <Link
+                      href="/logbook/new"
+                      className="text-xs font-semibold px-2.5 py-1 rounded-[10px]"
+                      style={{
+                        background: "var(--accent-light)",
+                        color: "var(--accent-text)",
+                      }}
+                    >
+                      Log
+                    </Link>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ── HOD Banner ───────────────────────────────────────────── */}
+        {isHOD && hodSubjects.length > 0 && (
+          <div className="animate-slide-up animation-delay-300 mt-4">
+            <Link
+              href="/hod"
+              className="card p-4 flex items-center gap-3 cursor-pointer"
+            >
+              <div
+                className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                style={{ background: "var(--accent-light)" }}
+              >
+                <Shield className="w-5 h-5" style={{ color: "var(--accent-text)" }} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-bold text-[var(--text-primary)]">Head of Department</p>
+                <p className="text-xs text-[var(--text-tertiary)]">
+                  {hodSubjects.join(", ")}
+                </p>
+              </div>
+              <ChevronDown className="w-4 h-4 text-[var(--text-tertiary)] -rotate-90" />
+            </Link>
           </div>
         )}
 
