@@ -94,6 +94,8 @@ model User {
   sessions     Session[]
   notifications Notification[]
   hodSubjects  HeadOfDepartment[]
+
+  @@index([schoolId, role])
 }
 
 model Session {
@@ -353,6 +355,7 @@ model TeacherAssignment {
   @@unique([teacherId, classId, subjectId, divisionId])
   @@index([teacherId])
   @@index([schoolId])
+  @@index([teacherId, schoolId])
 }
 
 model TimetableSlot {
