@@ -74,23 +74,32 @@ export default function LoginForm() {
 
   return (
     <div
-      className="min-h-screen flex flex-col items-center justify-center px-5 py-10"
+      className="min-h-screen flex flex-col items-center justify-center px-5 py-10 relative"
       style={{
-        background: "linear-gradient(135deg, #1B1512 0%, #2D2420 50%, #3D322C 100%)",
+        background: "linear-gradient(135deg, var(--header-from) 0%, var(--header-via) 50%, var(--header-to) 100%)",
       }}
     >
+      {/* Dot pattern overlay */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          backgroundImage: "radial-gradient(circle at 2px 2px, rgba(255,255,255,0.03) 1px, transparent 0)",
+          backgroundSize: "24px 24px",
+        }}
+      />
+
       {/* Centered form card */}
       <div
-        className="w-full max-w-sm"
+        className="w-full max-w-[400px] relative z-10 animate-scale-in"
         style={{
-          background: "#fff",
+          background: "var(--bg-elevated)",
           borderRadius: "20px",
           padding: "24px",
           boxShadow: "var(--shadow-elevated)",
         }}
       >
         {/* Logo */}
-        <div className="flex items-center gap-2.5 mb-6">
+        <div className="flex items-center justify-center gap-2.5 mb-6">
           <div
             className="w-10 h-10 flex items-center justify-center"
             style={{
@@ -101,26 +110,23 @@ export default function LoginForm() {
             <BookOpen className="w-5 h-5 text-white" />
           </div>
           <span
-            className="font-bold text-stone-900"
-            style={{ fontFamily: "var(--font-display)", fontSize: "24px", fontWeight: 700 }}
+            className="font-bold"
+            style={{ fontFamily: "var(--font-display)", fontSize: "24px", fontWeight: 700, color: "var(--text-primary)" }}
           >
             Edlog
           </span>
         </div>
 
-        <h1
-          className="text-xl font-bold text-stone-900 tracking-tight mb-1"
-          style={{ fontFamily: "var(--font-display)" }}
-        >
+        <p className="text-center text-sm mb-5" style={{ fontFamily: "var(--font-body)", color: "var(--text-tertiary)" }}>
           Welcome back
-        </h1>
-        <p className="text-sm text-stone-500 mb-5" style={{ fontFamily: "var(--font-body)" }}>
-          Sign in to continue to your dashboard
         </p>
 
         {/* Success banner after registration */}
         {registered && (
-          <div className="text-sm rounded-xl px-4 py-3 mb-5 flex items-center gap-2 bg-emerald-50 text-emerald-700">
+          <div
+            className="text-sm rounded-xl px-4 py-3 mb-5 flex items-center gap-2"
+            style={{ background: "rgba(16,185,129,0.08)", color: "#10b981" }}
+          >
             <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
               <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
             </svg>
@@ -130,7 +136,10 @@ export default function LoginForm() {
 
         {/* Error messages */}
         {error && (
-          <div className="text-sm rounded-xl px-4 py-3 mb-5 flex items-center gap-2 bg-red-50 text-red-500">
+          <div
+            className="text-sm rounded-xl px-4 py-3 mb-5 flex items-center gap-2"
+            style={{ background: "rgba(239,68,68,0.08)", color: "#ef4444" }}
+          >
             <AlertCircle className="w-4 h-4 flex-shrink-0" />
             {error}
           </div>
@@ -138,28 +147,18 @@ export default function LoginForm() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-widest mb-1.5 text-stone-500" style={{ fontFamily: "var(--font-body)" }}>
+            <label
+              className="block text-[13px] font-semibold mb-1.5"
+              style={{ fontFamily: "var(--font-body)", color: "var(--text-secondary)" }}
+            >
               Email Address
             </label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-3 bg-white text-stone-900 placeholder-stone-400 transition-all outline-none"
-              style={{
-                fontSize: "16px",
-                fontFamily: "var(--font-body)",
-                border: "1px solid var(--border-primary)",
-                borderRadius: "14px",
-              }}
-              onFocus={(e) => {
-                e.currentTarget.style.borderColor = "var(--accent)";
-                e.currentTarget.style.boxShadow = "0 0 0 3px rgba(245,158,11,0.25)";
-              }}
-              onBlur={(e) => {
-                e.currentTarget.style.borderColor = "var(--border-primary)";
-                e.currentTarget.style.boxShadow = "none";
-              }}
+              className="input-field"
+              style={{ fontSize: "16px" }}
               placeholder="you@school.cm"
               required
               autoComplete="email"
@@ -167,7 +166,10 @@ export default function LoginForm() {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-widest mb-1.5 text-stone-500" style={{ fontFamily: "var(--font-body)" }}>
+            <label
+              className="block text-[13px] font-semibold mb-1.5"
+              style={{ fontFamily: "var(--font-body)", color: "var(--text-secondary)" }}
+            >
               Password
             </label>
             <div className="relative">
@@ -175,21 +177,8 @@ export default function LoginForm() {
                 type={showPassword ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-3 pr-12 bg-white text-stone-900 placeholder-stone-400 transition-all outline-none"
-                style={{
-                  fontSize: "16px",
-                  fontFamily: "var(--font-body)",
-                  border: "1px solid var(--border-primary)",
-                  borderRadius: "14px",
-                }}
-                onFocus={(e) => {
-                  e.currentTarget.style.borderColor = "var(--accent)";
-                  e.currentTarget.style.boxShadow = "0 0 0 3px rgba(245,158,11,0.25)";
-                }}
-                onBlur={(e) => {
-                  e.currentTarget.style.borderColor = "var(--border-primary)";
-                  e.currentTarget.style.boxShadow = "none";
-                }}
+                className="input-field pr-12"
+                style={{ fontSize: "16px" }}
                 placeholder="Enter your password"
                 required
                 autoComplete="current-password"
@@ -197,7 +186,8 @@ export default function LoginForm() {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 transition-colors"
+                className="absolute right-3 top-1/2 -translate-y-1/2 transition-colors"
+                style={{ color: "var(--text-tertiary)" }}
               >
                 {showPassword ? <EyeOff className="w-4.5 h-4.5" /> : <Eye className="w-4.5 h-4.5" />}
               </button>
@@ -207,10 +197,11 @@ export default function LoginForm() {
           <button
             type="submit"
             disabled={loading || !email || !password}
-            className="w-full flex items-center justify-center gap-2 py-3.5 font-bold text-white rounded-xl disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.97] transition-all duration-[80ms]"
+            className="w-full flex items-center justify-center gap-2 py-4 font-bold text-white rounded-[14px] disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.97] transition-all duration-[80ms]"
             style={{
               background: "linear-gradient(135deg, var(--accent), var(--accent-hover))",
               fontSize: "16px",
+              boxShadow: "0 4px 16px -4px rgba(245,158,11,0.3)",
             }}
           >
             {loading ? (
@@ -229,10 +220,15 @@ export default function LoginForm() {
             )}
           </button>
         </form>
+
+        <p className="text-center text-sm mt-5" style={{ fontFamily: "var(--font-body)", color: "var(--text-tertiary)" }}>
+          Don&apos;t have an account?{" "}
+          <Link href="/register" className="font-semibold" style={{ color: "var(--accent-text)" }}>Get Started</Link>
+        </p>
       </div>
 
       {/* Registration options */}
-      <div className="w-full max-w-sm mt-8">
+      <div className="w-full max-w-[400px] mt-8 relative z-10">
         <p className="text-xs font-bold uppercase tracking-[0.15em] text-white/40 mb-3 px-1" style={{ fontFamily: "var(--font-body)" }}>
           New to Edlog? Create an account
         </p>
@@ -284,8 +280,8 @@ export default function LoginForm() {
               borderRadius: "16px",
             }}
           >
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "rgba(139,92,246,0.15)" }}>
-              <Globe className="w-5 h-5 text-purple-400" />
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "rgba(20,184,166,0.15)" }}>
+              <Globe className="w-5 h-5 text-teal-400" />
             </div>
             <div className="flex-1 min-w-0">
               <h3 className="font-bold text-white text-sm" style={{ fontFamily: "var(--font-body)" }}>Regional Inspector</h3>

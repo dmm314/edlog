@@ -3,7 +3,15 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { BookOpen, Eye, EyeOff, ChevronRight, ChevronLeft, Shield } from "lucide-react";
+import {
+  BookOpen,
+  Eye,
+  EyeOff,
+  ChevronRight,
+  ChevronLeft,
+  Shield,
+  AlertCircle,
+} from "lucide-react";
 
 interface Division {
   id: string;
@@ -135,28 +143,51 @@ export default function SchoolRegisterPage() {
     }
   }
 
+  function FieldError({ msg }: { msg?: string }) {
+    if (!msg) return null;
+    return (
+      <p className="text-xs mt-1 flex items-center gap-1" style={{ color: "#ef4444" }}>
+        <AlertCircle className="w-3 h-3" />{msg}
+      </p>
+    );
+  }
+
   return (
-    <div className="min-h-screen pb-8" style={{ backgroundColor: "var(--bg-primary)" }}>
+    <div
+      className="min-h-screen pb-8 relative"
+      style={{
+        background: "linear-gradient(135deg, var(--header-from) 0%, var(--header-via) 50%, var(--header-to) 100%)",
+      }}
+    >
+      {/* Dot pattern overlay */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          backgroundImage: "radial-gradient(circle at 2px 2px, rgba(255,255,255,0.03) 1px, transparent 0)",
+          backgroundSize: "24px 24px",
+        }}
+      />
+
       {/* Header */}
-      <div className="page-header px-5 pt-14 pb-12">
-        <div className="max-w-lg mx-auto relative">
+      <div className="relative z-10 px-5 pt-14 pb-12">
+        <div className="max-w-lg mx-auto">
           <Link href="/" className="inline-flex items-center gap-2.5 mb-8">
             <div className="w-9 h-9 rounded-xl flex items-center justify-center"
               style={{ background: "linear-gradient(135deg, var(--accent), var(--accent-hover))" }}>
               <BookOpen className="w-4.5 h-4.5 text-white" />
             </div>
-            <span className="text-white font-display font-bold text-base">Edlog</span>
+            <span className="text-white font-bold text-base" style={{ fontFamily: "var(--font-display)" }}>Edlog</span>
           </Link>
 
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "var(--success-light)" }}>
-              <Shield className="w-5 h-5" style={{ color: "var(--success)" }} />
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(16,185,129,0.15)" }}>
+              <Shield className="w-5 h-5" style={{ color: "#10b981" }} />
             </div>
             <div>
-              <h1 className="font-display text-2xl font-extrabold text-white tracking-tight">
+              <h1 className="text-2xl font-extrabold text-white tracking-tight" style={{ fontFamily: "var(--font-display)" }}>
                 Register Your School
               </h1>
-              <p className="text-sm mt-0.5" style={{ color: "var(--header-text-muted)" }}>
+              <p className="text-sm mt-0.5 text-white/50" style={{ fontFamily: "var(--font-body)" }}>
                 Set up your school on Edlog
               </p>
             </div>
@@ -176,23 +207,31 @@ export default function SchoolRegisterPage() {
       </div>
 
       {/* Form */}
-      <div className="px-5 -mt-5 max-w-lg mx-auto">
-        <div className="card p-6">
+      <div className="relative z-10 px-5 -mt-5 max-w-lg mx-auto">
+        <div
+          className="p-6"
+          style={{
+            background: "var(--bg-elevated)",
+            border: "1px solid var(--border-primary)",
+            borderRadius: "16px",
+            boxShadow: "var(--shadow-elevated)",
+          }}
+        >
           {/* Success: Show generated school code */}
           {registeredCode && (
             <div className="text-center space-y-4">
-              <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto" style={{ background: "var(--success-light)" }}>
-                <svg className="w-8 h-8" style={{ color: "var(--success)" }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+              <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto" style={{ background: "rgba(16,185,129,0.10)" }}>
+                <svg className="w-8 h-8" style={{ color: "#10b981" }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                 </svg>
               </div>
-              <h2 className="text-lg font-bold text-[var(--text-primary)]">School Registered Successfully!</h2>
-              <p className="text-sm text-[var(--text-secondary)]">
+              <h2 className="text-lg font-bold" style={{ color: "var(--text-primary)" }}>School Registered Successfully!</h2>
+              <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
                 Your unique school code has been generated. Share this code with your teachers so they can register.
               </p>
               <div className="rounded-xl p-4" style={{ background: "var(--bg-secondary)", border: "2px dashed var(--border-primary)" }}>
-                <p className="text-xs text-[var(--text-tertiary)] mb-1">Your School Code</p>
-                <p className="text-2xl font-mono font-bold text-[var(--text-primary)] tracking-wider">{registeredCode}</p>
+                <p className="text-xs mb-1" style={{ color: "var(--text-tertiary)" }}>Your School Code</p>
+                <p className="text-2xl font-bold tracking-wider" style={{ fontFamily: "var(--font-mono)", color: "var(--text-primary)" }}>{registeredCode}</p>
               </div>
               <button
                 onClick={() => { navigator.clipboard.writeText(registeredCode); setCodeCopied(true); setTimeout(() => setCodeCopied(false), 2000); }}
@@ -210,7 +249,11 @@ export default function SchoolRegisterPage() {
           )}
 
           {!registeredCode && serverError && (
-            <div className="text-sm rounded-xl px-4 py-3 mb-4" style={{ background: "var(--warning-light)", color: "var(--warning)" }}>
+            <div
+              className="text-sm rounded-xl px-4 py-3 mb-4 flex items-center gap-2"
+              style={{ background: "rgba(239,68,68,0.08)", color: "#ef4444" }}
+            >
+              <AlertCircle className="w-4 h-4 flex-shrink-0" />
               {serverError}
             </div>
           )}
@@ -219,57 +262,106 @@ export default function SchoolRegisterPage() {
           {!registeredCode && step === 1 && (
             <div className="space-y-4">
               <div>
-                <h2 className="text-base font-bold text-[var(--text-primary)]">School Information</h2>
-                <p className="text-xs text-[var(--text-tertiary)] mt-0.5">Enter your school details to get started</p>
+                <h2 className="text-base font-bold" style={{ color: "var(--text-primary)" }}>School Information</h2>
+                <p className="text-xs mt-0.5" style={{ color: "var(--text-tertiary)" }}>Enter your school details to get started</p>
               </div>
 
               <div>
-                <label className="label-field">Registration Code</label>
-                <input type="text" value={form.registrationCode} onChange={(e) => updateField("registrationCode", e.target.value.toUpperCase())}
-                  className={`input-field font-mono tracking-wider ${errors.registrationCode ? "input-error" : ""}`} placeholder="REG-XXXXXX" />
-                {errors.registrationCode && <p className="text-xs mt-1" style={{ color: "var(--warning)" }}>{errors.registrationCode}</p>}
-                <p className="text-xs text-[var(--text-quaternary)] mt-1">Get this code from your Regional Education Admin</p>
+                <label className="block text-[13px] font-semibold mb-1.5" style={{ fontFamily: "var(--font-body)", color: "var(--text-secondary)" }}>Registration Code</label>
+                <input
+                  type="text"
+                  value={form.registrationCode}
+                  onChange={(e) => updateField("registrationCode", e.target.value.toUpperCase())}
+                  className={`input-field tracking-wider ${errors.registrationCode ? "input-error" : ""}`}
+                  style={{ fontFamily: "var(--font-mono)", fontSize: "17px", letterSpacing: "0.08em" }}
+                  placeholder="REG-XXXXXX"
+                />
+                <FieldError msg={errors.registrationCode} />
+                <p className="text-xs mt-1" style={{ color: "var(--text-quaternary)" }}>Get this code from your Regional Education Admin</p>
               </div>
 
               <div>
-                <label className="label-field">School Name</label>
-                <input type="text" value={form.schoolName} onChange={(e) => updateField("schoolName", e.target.value)}
-                  className={`input-field ${errors.schoolName ? "input-error" : ""}`} placeholder="e.g. Government Bilingual High School Yaound&eacute;" />
-                {errors.schoolName && <p className="text-xs mt-1" style={{ color: "var(--warning)" }}>{errors.schoolName}</p>}
+                <label className="block text-[13px] font-semibold mb-1.5" style={{ fontFamily: "var(--font-body)", color: "var(--text-secondary)" }}>School Name</label>
+                <input
+                  type="text"
+                  value={form.schoolName}
+                  onChange={(e) => updateField("schoolName", e.target.value)}
+                  className={`input-field ${errors.schoolName ? "input-error" : ""}`}
+                  style={{ fontSize: "16px" }}
+                  placeholder="e.g. Government Bilingual High School"
+                />
+                <FieldError msg={errors.schoolName} />
               </div>
 
               <div>
-                <label className="label-field">Region</label>
-                <select value={form.regionId} onChange={(e) => handleRegionChange(e.target.value)}
-                  className={`input-field ${errors.regionId ? "input-error" : ""}`} disabled={regionsLoading}>
+                <label className="block text-[13px] font-semibold mb-1.5" style={{ fontFamily: "var(--font-body)", color: "var(--text-secondary)" }}>Region</label>
+                <select
+                  value={form.regionId}
+                  onChange={(e) => handleRegionChange(e.target.value)}
+                  className={`input-field ${errors.regionId ? "input-error" : ""}`}
+                  style={{ fontSize: "16px" }}
+                  disabled={regionsLoading}
+                >
                   <option value="">{regionsLoading ? "Loading regions..." : "Select a region"}</option>
                   {regions.map((region) => (<option key={region.id} value={region.id}>{region.name}</option>))}
                 </select>
-                {errors.regionId && <p className="text-xs mt-1" style={{ color: "var(--warning)" }}>{errors.regionId}</p>}
+                <FieldError msg={errors.regionId} />
               </div>
 
               <div>
-                <label className="label-field">Division (Optional)</label>
-                <select value={form.divisionId} onChange={(e) => updateField("divisionId", e.target.value)}
-                  className="input-field" disabled={!form.regionId || divisions.length === 0}>
+                <label className="block text-[13px] font-semibold mb-1.5" style={{ fontFamily: "var(--font-body)", color: "var(--text-secondary)" }}>
+                  Division <span style={{ color: "var(--text-quaternary)", fontWeight: 400 }}>(Optional)</span>
+                </label>
+                <select
+                  value={form.divisionId}
+                  onChange={(e) => updateField("divisionId", e.target.value)}
+                  className="input-field"
+                  style={{ fontSize: "16px" }}
+                  disabled={!form.regionId || divisions.length === 0}
+                >
                   <option value="">{!form.regionId ? "Select a region first" : divisions.length === 0 ? "No divisions available" : "Select a division"}</option>
                   {divisions.map((div) => (<option key={div.id} value={div.id}>{div.name}</option>))}
                 </select>
               </div>
 
               <div>
-                <label className="label-field">Address (Optional)</label>
-                <input type="text" value={form.address} onChange={(e) => updateField("address", e.target.value)}
-                  className="input-field" placeholder="e.g. Quartier Melen, Yaound&eacute;" />
+                <label className="block text-[13px] font-semibold mb-1.5" style={{ fontFamily: "var(--font-body)", color: "var(--text-secondary)" }}>
+                  Address <span style={{ color: "var(--text-quaternary)", fontWeight: 400 }}>(Optional)</span>
+                </label>
+                <input
+                  type="text"
+                  value={form.address}
+                  onChange={(e) => updateField("address", e.target.value)}
+                  className="input-field"
+                  style={{ fontSize: "16px" }}
+                  placeholder="e.g. Quartier Melen"
+                />
               </div>
 
               <div>
-                <label className="label-field">Phone (Optional)</label>
-                <input type="tel" value={form.phone} onChange={(e) => updateField("phone", e.target.value)}
-                  className="input-field" placeholder="+237 2XX XXX XXX" />
+                <label className="block text-[13px] font-semibold mb-1.5" style={{ fontFamily: "var(--font-body)", color: "var(--text-secondary)" }}>
+                  Phone <span style={{ color: "var(--text-quaternary)", fontWeight: 400 }}>(Optional)</span>
+                </label>
+                <input
+                  type="tel"
+                  value={form.phone}
+                  onChange={(e) => updateField("phone", e.target.value)}
+                  className="input-field"
+                  style={{ fontSize: "16px" }}
+                  placeholder="+237 2XX XXX XXX"
+                />
               </div>
 
-              <button type="button" onClick={handleNext} className="btn-primary flex items-center justify-center gap-2">
+              <button
+                type="button"
+                onClick={handleNext}
+                className="w-full flex items-center justify-center gap-2 py-4 font-bold text-white rounded-[14px] active:scale-[0.97] transition-all duration-[80ms]"
+                style={{
+                  background: "linear-gradient(135deg, var(--accent), var(--accent-hover))",
+                  fontSize: "16px",
+                  boxShadow: "0 4px 16px -4px rgba(245,158,11,0.3)",
+                }}
+              >
                 Continue <ChevronRight className="w-5 h-5" />
               </button>
             </div>
@@ -279,58 +371,108 @@ export default function SchoolRegisterPage() {
           {!registeredCode && step === 2 && (
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <h2 className="text-base font-bold text-[var(--text-primary)]">Admin Account</h2>
-                <p className="text-xs text-[var(--text-tertiary)] mt-0.5">Create the administrator account for your school</p>
+                <h2 className="text-base font-bold" style={{ color: "var(--text-primary)" }}>Admin Account</h2>
+                <p className="text-xs mt-0.5" style={{ color: "var(--text-tertiary)" }}>Create the administrator account for your school</p>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="label-field">First Name</label>
-                  <input type="text" value={form.adminFirstName} onChange={(e) => updateField("adminFirstName", e.target.value)}
-                    className={`input-field ${errors.adminFirstName ? "input-error" : ""}`} placeholder="Darren" />
-                  {errors.adminFirstName && <p className="text-xs mt-1" style={{ color: "var(--warning)" }}>{errors.adminFirstName}</p>}
+                  <label className="block text-[13px] font-semibold mb-1.5" style={{ fontFamily: "var(--font-body)", color: "var(--text-secondary)" }}>First Name</label>
+                  <input
+                    type="text"
+                    value={form.adminFirstName}
+                    onChange={(e) => updateField("adminFirstName", e.target.value)}
+                    className={`input-field ${errors.adminFirstName ? "input-error" : ""}`}
+                    style={{ fontSize: "16px" }}
+                    placeholder="Darren"
+                  />
+                  <FieldError msg={errors.adminFirstName} />
                 </div>
                 <div>
-                  <label className="label-field">Last Name</label>
-                  <input type="text" value={form.adminLastName} onChange={(e) => updateField("adminLastName", e.target.value)}
-                    className={`input-field ${errors.adminLastName ? "input-error" : ""}`} placeholder="Monyongo" />
-                  {errors.adminLastName && <p className="text-xs mt-1" style={{ color: "var(--warning)" }}>{errors.adminLastName}</p>}
+                  <label className="block text-[13px] font-semibold mb-1.5" style={{ fontFamily: "var(--font-body)", color: "var(--text-secondary)" }}>Last Name</label>
+                  <input
+                    type="text"
+                    value={form.adminLastName}
+                    onChange={(e) => updateField("adminLastName", e.target.value)}
+                    className={`input-field ${errors.adminLastName ? "input-error" : ""}`}
+                    style={{ fontSize: "16px" }}
+                    placeholder="Monyongo"
+                  />
+                  <FieldError msg={errors.adminLastName} />
                 </div>
               </div>
 
               <div>
-                <label className="label-field">Email</label>
-                <input type="email" value={form.adminEmail} onChange={(e) => updateField("adminEmail", e.target.value)}
-                  className={`input-field ${errors.adminEmail ? "input-error" : ""}`} placeholder="admin@school.cm" autoComplete="email" />
-                {errors.adminEmail && <p className="text-xs mt-1" style={{ color: "var(--warning)" }}>{errors.adminEmail}</p>}
+                <label className="block text-[13px] font-semibold mb-1.5" style={{ fontFamily: "var(--font-body)", color: "var(--text-secondary)" }}>Email</label>
+                <input
+                  type="email"
+                  value={form.adminEmail}
+                  onChange={(e) => updateField("adminEmail", e.target.value)}
+                  className={`input-field ${errors.adminEmail ? "input-error" : ""}`}
+                  style={{ fontSize: "16px" }}
+                  placeholder="admin@school.cm"
+                  autoComplete="email"
+                />
+                <FieldError msg={errors.adminEmail} />
               </div>
 
               <div>
-                <label className="label-field">Password</label>
+                <label className="block text-[13px] font-semibold mb-1.5" style={{ fontFamily: "var(--font-body)", color: "var(--text-secondary)" }}>Password</label>
                 <div className="relative">
-                  <input type={showPassword ? "text" : "password"} value={form.adminPassword}
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    value={form.adminPassword}
                     onChange={(e) => updateField("adminPassword", e.target.value)}
-                    className={`input-field pr-12 ${errors.adminPassword ? "input-error" : ""}`} placeholder="Min. 6 characters" autoComplete="new-password" />
-                  <button type="button" onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] transition-colors">
+                    className={`input-field pr-12 ${errors.adminPassword ? "input-error" : ""}`}
+                    style={{ fontSize: "16px" }}
+                    placeholder="Min. 6 characters"
+                    autoComplete="new-password"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 transition-colors"
+                    style={{ color: "var(--text-tertiary)" }}
+                  >
                     {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
                 </div>
-                {errors.adminPassword && <p className="text-xs mt-1" style={{ color: "var(--warning)" }}>{errors.adminPassword}</p>}
+                <FieldError msg={errors.adminPassword} />
               </div>
 
               <div>
-                <label className="label-field">Confirm Password</label>
-                <input type="password" value={form.adminConfirmPassword} onChange={(e) => updateField("adminConfirmPassword", e.target.value)}
-                  className={`input-field ${errors.adminConfirmPassword ? "input-error" : ""}`} placeholder="Repeat your password" autoComplete="new-password" />
-                {errors.adminConfirmPassword && <p className="text-xs mt-1" style={{ color: "var(--warning)" }}>{errors.adminConfirmPassword}</p>}
+                <label className="block text-[13px] font-semibold mb-1.5" style={{ fontFamily: "var(--font-body)", color: "var(--text-secondary)" }}>Confirm Password</label>
+                <input
+                  type="password"
+                  value={form.adminConfirmPassword}
+                  onChange={(e) => updateField("adminConfirmPassword", e.target.value)}
+                  className={`input-field ${errors.adminConfirmPassword ? "input-error" : ""}`}
+                  style={{ fontSize: "16px" }}
+                  placeholder="Repeat your password"
+                  autoComplete="new-password"
+                />
+                <FieldError msg={errors.adminConfirmPassword} />
               </div>
 
               <div className="flex gap-3">
-                <button type="button" onClick={handleBack} className="btn-secondary flex items-center justify-center gap-2 flex-1">
+                <button
+                  type="button"
+                  onClick={handleBack}
+                  className="flex items-center justify-center gap-2 py-3 px-4 font-semibold rounded-[14px] active:scale-[0.97] transition-all duration-[80ms] flex-1"
+                  style={{ background: "var(--bg-tertiary)", color: "var(--text-secondary)" }}
+                >
                   <ChevronLeft className="w-5 h-5" /> Back
                 </button>
-                <button type="submit" disabled={loading} className="btn-primary flex-[2]">
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="flex-[2] flex items-center justify-center gap-2 py-4 font-bold text-white rounded-[14px] disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.97] transition-all duration-[80ms]"
+                  style={{
+                    background: "linear-gradient(135deg, var(--accent), var(--accent-hover))",
+                    fontSize: "16px",
+                    boxShadow: "0 4px 16px -4px rgba(245,158,11,0.3)",
+                  }}
+                >
                   {loading ? (
                     <>
                       <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24" fill="none">
@@ -347,13 +489,13 @@ export default function SchoolRegisterPage() {
 
           {!registeredCode && (
             <>
-              <p className="text-center text-sm text-[var(--text-tertiary)] mt-6">
+              <p className="text-center text-sm mt-6" style={{ color: "var(--text-tertiary)" }}>
                 Already have an account?{" "}
-                <Link href="/login" className="text-[var(--accent-text)] font-semibold hover:underline">Sign in</Link>
+                <Link href="/login" className="font-semibold" style={{ color: "var(--accent-text)" }}>Sign in</Link>
               </p>
-              <p className="text-center text-sm text-[var(--text-tertiary)] mt-2">
+              <p className="text-center text-sm mt-2" style={{ color: "var(--text-tertiary)" }}>
                 Registering as a teacher?{" "}
-                <Link href="/register" className="text-[var(--accent-text)] font-semibold hover:underline">Teacher registration</Link>
+                <Link href="/register" className="font-semibold" style={{ color: "var(--accent-text)" }}>Teacher registration</Link>
               </p>
             </>
           )}
