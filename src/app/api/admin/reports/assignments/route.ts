@@ -85,7 +85,7 @@ export async function GET(request: NextRequest) {
     });
 
     // Format data
-    let data = assignments.map((a) => ({
+    const data = assignments.map((a) => ({
       id: a.id,
       teacher: `${a.teacher.firstName} ${a.teacher.lastName}`,
       subject: a.subject.name,

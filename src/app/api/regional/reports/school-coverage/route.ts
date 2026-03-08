@@ -213,7 +213,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Format and enrich data
-    let data = rows.map((r) => {
+    const data = rows.map((r) => {
       const topicsCovered = Number(r.topics_covered);
       const coverageRate = totalTopics > 0
         ? Math.round((topicsCovered / totalTopics) * 100)

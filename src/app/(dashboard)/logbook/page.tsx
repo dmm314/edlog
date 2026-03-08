@@ -165,6 +165,7 @@ export default function LogbookPage() {
     fetchData();
   }, [dayOfWeek, isWeekday]);
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const stats = useMemo(() => {
     const todayEntries = entries.filter(
       (e) => new Date(e.date).toISOString().split("T")[0] === todayStr
