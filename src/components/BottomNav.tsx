@@ -22,7 +22,7 @@ function getNavTabs(role: string): NavItem[] {
     return [
       { href: "/regional", label: "Overview", icon: Globe },
       { href: "/regional/schools", label: "Schools", icon: Home },
-      { href: "/regional/reports", label: "Reports", icon: BarChart3 },
+      { href: "/regional/reports/schools", label: "Reports", icon: BarChart3, activePrefix: "/regional/reports" },
       { href: "/profile", label: "Profile", icon: User },
     ];
   }
