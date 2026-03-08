@@ -1,8 +1,10 @@
 "use client";
 
 import { useState, useEffect, useMemo, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Calendar, Clock, BookOpen, ArrowLeft } from "lucide-react";
+import { Calendar, Clock, ArrowLeft } from "lucide-react";
+import { getSubjectColor } from "@/lib/colors";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -38,35 +40,38 @@ const DAYS = [
   { value: 5, label: "Friday", short: "Fri" },
 ];
 
-const COLORS = [
-  { bg: "bg-blue-50", border: "border-blue-200", text: "text-blue-700", accent: "bg-blue-500" },
-  { bg: "bg-emerald-50", border: "border-emerald-200", text: "text-emerald-700", accent: "bg-emerald-500" },
-  { bg: "bg-purple-50", border: "border-purple-200", text: "text-purple-700", accent: "bg-purple-500" },
-  { bg: "bg-amber-50", border: "border-amber-200", text: "text-amber-700", accent: "bg-amber-500" },
-  { bg: "bg-rose-50", border: "border-rose-200", text: "text-rose-700", accent: "bg-rose-500" },
-  { bg: "bg-cyan-50", border: "border-cyan-200", text: "text-cyan-700", accent: "bg-cyan-500" },
-  { bg: "bg-indigo-50", border: "border-indigo-200", text: "text-indigo-700", accent: "bg-indigo-500" },
-  { bg: "bg-orange-50", border: "border-orange-200", text: "text-orange-700", accent: "bg-orange-500" },
-];
-
 /* ------------------------------------------------------------------ */
 /*  Helpers                                                            */
 /* ------------------------------------------------------------------ */
 
-/** Simple string hash -> deterministic colour index */
-function hashColor(str: string) {
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    hash = str.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  return COLORS[Math.abs(hash) % COLORS.length];
-}
-
 /** Get JS day-of-week (1=Mon … 5=Fri) for today, or 0 if weekend */
 function getTodayDow(): number {
-  const jsDay = new Date().getDay(); // 0=Sun … 6=Sat
+  const jsDay = new Date().getDay();
   if (jsDay === 0 || jsDay === 6) return 0;
-  return jsDay; // 1=Mon … 5=Fri
+  return jsDay;
+}
+
+/** Get subject abbreviation (first 3-4 chars) */
+function abbrev(name: string): string {
+  if (name.length <= 4) return name;
+  // Use first letters of words if multi-word
+  const words = name.split(/\s+/);
+  if (words.length >= 2) {
+    return words.map((w) => w[0]).join("").toUpperCase().slice(0, 4);
+  }
+  return name.slice(0, 4);
+}
+
+/** Get class abbreviation */
+function classAbbrev(name: string): string {
+  // e.g. "Form 3 A" -> "F3A", "Lower Sixth Science" -> "LS-Sci"
+  return name
+    .replace("Form ", "F")
+    .replace("Lower Sixth", "L6")
+    .replace("Upper Sixth", "U6")
+    .split(" ")
+    .join("")
+    .slice(0, 6);
 }
 
 /** Collect every unique period across all days, sorted by startTime */
@@ -86,33 +91,42 @@ function buildPeriodTimeline(slotsByDay: Record<number, TimetableSlot[]>) {
   return Array.from(seen.values()).sort((a, b) => a.startTime.localeCompare(b.startTime));
 }
 
+/** Determine if a period is the "current" one right now */
+function isCurrentPeriod(startTime: string, endTime: string): boolean {
+  const now = new Date();
+  const [sh, sm] = startTime.split(":").map(Number);
+  const [eh, em] = endTime.split(":").map(Number);
+  const nowMin = now.getHours() * 60 + now.getMinutes();
+  const startMin = sh * 60 + sm;
+  const endMin = eh * 60 + em;
+  return nowMin >= startMin && nowMin < endMin;
+}
+
 /* ------------------------------------------------------------------ */
 /*  Skeleton loader                                                    */
 /* ------------------------------------------------------------------ */
 
 function TimetableSkeleton() {
   return (
-    <div className="space-y-4">
-      {/* Tab skeleton */}
-      <div className="flex gap-2">
+    <div className="card overflow-hidden">
+      <div className="grid grid-cols-[48px_repeat(5,1fr)] bg-[var(--bg-tertiary)]">
+        <div className="p-2" />
         {[1, 2, 3, 4, 5].map((i) => (
-          <div
-            key={i}
-            className="flex-1 h-10 bg-[var(--skeleton-base)] rounded-xl animate-pulse"
-          />
+          <div key={i} className="p-2">
+            <div className="h-3 bg-[var(--skeleton-base)] rounded w-8 mx-auto animate-pulse" />
+          </div>
         ))}
       </div>
-      {/* Slot skeletons */}
       {[1, 2, 3, 4, 5, 6].map((i) => (
-        <div key={i} className="card p-4 animate-pulse">
-          <div className="flex items-center gap-3">
-            <div className="w-1 h-12 bg-[var(--skeleton-base)] rounded-full" />
-            <div className="flex-1 space-y-2">
-              <div className="h-3 bg-[var(--skeleton-base)] rounded w-1/4" />
-              <div className="h-4 bg-[var(--skeleton-base)] rounded w-1/2" />
-              <div className="h-3 bg-[var(--skeleton-base)] rounded w-1/3" />
-            </div>
+        <div key={i} className="grid grid-cols-[48px_repeat(5,1fr)] border-b border-[var(--border-secondary)]">
+          <div className="p-2 flex items-center justify-center">
+            <div className="h-3 w-6 bg-[var(--skeleton-base)] rounded animate-pulse" />
           </div>
+          {[1, 2, 3, 4, 5].map((j) => (
+            <div key={j} className="p-1">
+              <div className="h-12 bg-[var(--bg-tertiary)] rounded-lg animate-pulse" />
+            </div>
+          ))}
         </div>
       ))}
     </div>
@@ -129,95 +143,12 @@ function EmptyState() {
       <div className="w-16 h-16 bg-[var(--bg-tertiary)] rounded-2xl flex items-center justify-center mx-auto mb-4">
         <Calendar className="w-8 h-8 text-[var(--text-quaternary)]" />
       </div>
-      <p className="text-[var(--text-tertiary)] font-medium text-base">No timetable yet</p>
-      <p className="text-[var(--text-tertiary)] text-sm mt-1.5 max-w-[260px] mx-auto leading-relaxed">
+      <p className="text-[var(--text-tertiary)] font-medium text-base" style={{ fontFamily: "var(--font-body)" }}>
+        No timetable yet
+      </p>
+      <p className="text-[var(--text-tertiary)] text-sm mt-1.5 max-w-[260px] mx-auto leading-relaxed" style={{ fontFamily: "var(--font-body)" }}>
         Your school administrator will set up your weekly timetable once classes and subjects are assigned.
       </p>
-    </div>
-  );
-}
-
-/* ------------------------------------------------------------------ */
-/*  Slot card                                                          */
-/* ------------------------------------------------------------------ */
-
-function SlotCard({ slot }: { slot: TimetableSlot }) {
-  const color = hashColor(slot.assignment.subjectName);
-
-  return (
-    <div
-      className={`relative overflow-hidden rounded-xl border ${color.border} ${color.bg} p-4 transition-all hover:shadow-md`}
-    >
-      {/* Accent left bar */}
-      <div
-        className={`absolute left-0 top-0 bottom-0 w-1 ${color.accent} rounded-l-xl`}
-      />
-
-      <div className="ml-2">
-        {/* Period & time */}
-        <div className="flex items-center gap-2 mb-1.5">
-          <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-tertiary)]">
-            {slot.periodLabel}
-          </span>
-          <span className="text-[var(--text-quaternary)]">&middot;</span>
-          <span className="flex items-center gap-1 text-[11px] text-[var(--text-tertiary)]">
-            <Clock className="w-3 h-3" />
-            {slot.startTime} &ndash; {slot.endTime}
-          </span>
-        </div>
-
-        {/* Subject */}
-        <p className={`font-bold text-[15px] leading-tight ${color.text}`}>
-          {slot.assignment.subjectName}
-        </p>
-
-        {/* Class */}
-        <div className="flex items-center gap-1.5 mt-1.5">
-          <BookOpen className="w-3.5 h-3.5 text-[var(--text-tertiary)]" />
-          <span className="text-xs font-medium text-[var(--text-tertiary)]">
-            {slot.assignment.className}
-          </span>
-        </div>
-
-        {/* Joint class indicator */}
-        {slot.jointWith && slot.jointWith.length > 0 && (
-          <div className="mt-2 text-[11px] font-semibold text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-2 py-1">
-            Joint class with {slot.jointWith.join(" & ")}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-/* ------------------------------------------------------------------ */
-/*  Free period placeholder                                            */
-/* ------------------------------------------------------------------ */
-
-function FreePeriod({
-  periodLabel,
-  startTime,
-  endTime,
-}: {
-  periodLabel: string;
-  startTime: string;
-  endTime: string;
-}) {
-  return (
-    <div className="rounded-xl border-2 border-dashed border-[var(--border-primary)] bg-[var(--bg-tertiary)] p-4">
-      <div className="ml-2">
-        <div className="flex items-center gap-2 mb-1.5">
-          <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-quaternary)]">
-            {periodLabel}
-          </span>
-          <span className="text-[var(--text-quaternary)]">&middot;</span>
-          <span className="flex items-center gap-1 text-[11px] text-[var(--text-quaternary)]">
-            <Clock className="w-3 h-3" />
-            {startTime} &ndash; {endTime}
-          </span>
-        </div>
-        <p className="text-sm font-medium text-[var(--text-quaternary)] italic">Free Period</p>
-      </div>
     </div>
   );
 }
@@ -227,13 +158,12 @@ function FreePeriod({
 /* ------------------------------------------------------------------ */
 
 export default function TimetablePage() {
+  const router = useRouter();
   const [slotsByDay, setSlotsByDay] = useState<Record<number, TimetableSlot[]>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Default to today if weekday, otherwise Monday
   const todayDow = getTodayDow();
-  const [activeDay, setActiveDay] = useState(todayDow || 1);
 
   /* ----- Fetch all 5 days in parallel ----- */
   useEffect(() => {
@@ -269,29 +199,6 @@ export default function TimetablePage() {
 
   const periodTimeline = useMemo(() => buildPeriodTimeline(slotsByDay), [slotsByDay]);
 
-  /** For a given day, build an ordered list of period rows (slot or free) */
-  const buildDaySchedule = useCallback(
-    (dayOfWeek: number) => {
-      const daySlots = slotsByDay[dayOfWeek] || [];
-      // Index slots by periodLabel for quick lookup
-      const slotMap = new Map<string, TimetableSlot>();
-      for (const s of daySlots) {
-        slotMap.set(s.periodLabel, s);
-      }
-      return periodTimeline.map((period) => ({
-        ...period,
-        slot: slotMap.get(period.periodLabel) ?? null,
-      }));
-    },
-    [slotsByDay, periodTimeline]
-  );
-
-  const activeSchedule = useMemo(
-    () => buildDaySchedule(activeDay),
-    [activeDay, buildDaySchedule]
-  );
-
-  /* ----- Unique subjects count ----- */
   const uniqueSubjects = useMemo(() => {
     const set = new Set<string>();
     for (const slots of Object.values(slotsByDay)) {
@@ -301,6 +208,25 @@ export default function TimetablePage() {
     }
     return set.size;
   }, [slotsByDay]);
+
+  /** Build a lookup: dayOfWeek-periodLabel -> slot */
+  const slotGrid = useMemo(() => {
+    const grid: Record<string, TimetableSlot> = {};
+    for (const [day, slots] of Object.entries(slotsByDay)) {
+      for (const slot of slots) {
+        grid[`${day}-${slot.periodLabel}`] = slot;
+      }
+    }
+    return grid;
+  }, [slotsByDay]);
+
+  function handleCellTap(slot: TimetableSlot) {
+    const params = new URLSearchParams({
+      assignmentId: slot.assignment.id,
+      slotId: slot.id,
+    });
+    router.push(`/logbook/new?${params.toString()}`);
+  }
 
   return (
     <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
@@ -316,12 +242,14 @@ export default function TimetablePage() {
           </Link>
 
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-[var(--bg-elevated)]/10 rounded-xl flex items-center justify-center">
+            <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center">
               <Calendar className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-white">My Timetable</h1>
-              <p className="text-[var(--header-text-muted)] text-sm">
+              <h1 className="text-xl font-bold text-white" style={{ fontFamily: "var(--font-display)" }}>
+                My Timetable
+              </h1>
+              <p className="text-[var(--header-text-muted)] text-sm" style={{ fontFamily: "var(--font-body)" }}>
                 {loading
                   ? "Loading..."
                   : `${totalSlots} slot${totalSlots !== 1 ? "s" : ""} across ${uniqueSubjects} subject${uniqueSubjects !== 1 ? "s" : ""}`}
@@ -332,27 +260,31 @@ export default function TimetablePage() {
           {/* Quick stats */}
           {!loading && totalSlots > 0 && (
             <div className="grid grid-cols-3 gap-3 mt-4">
-              <div className="bg-[var(--bg-elevated)]/10 rounded-xl px-3 py-2.5 text-center">
-                <p className="text-lg font-bold text-white">{totalSlots}</p>
-                <p className="text-[10px] uppercase tracking-wider text-[var(--header-text-muted)] font-semibold">
+              <div className="bg-white/10 rounded-xl px-3 py-2.5 text-center">
+                <p className="text-lg font-bold text-white" style={{ fontFamily: "var(--font-mono)" }}>
+                  {totalSlots}
+                </p>
+                <p className="text-[10px] uppercase tracking-wider text-[var(--header-text-muted)] font-semibold" style={{ fontFamily: "var(--font-body)" }}>
                   Periods
                 </p>
               </div>
-              <div className="bg-[var(--bg-elevated)]/10 rounded-xl px-3 py-2.5 text-center">
-                <p className="text-lg font-bold text-white">{uniqueSubjects}</p>
-                <p className="text-[10px] uppercase tracking-wider text-[var(--header-text-muted)] font-semibold">
+              <div className="bg-white/10 rounded-xl px-3 py-2.5 text-center">
+                <p className="text-lg font-bold text-white" style={{ fontFamily: "var(--font-mono)" }}>
+                  {uniqueSubjects}
+                </p>
+                <p className="text-[10px] uppercase tracking-wider text-[var(--header-text-muted)] font-semibold" style={{ fontFamily: "var(--font-body)" }}>
                   Subjects
                 </p>
               </div>
-              <div className="bg-[var(--bg-elevated)]/10 rounded-xl px-3 py-2.5 text-center">
-                <p className="text-lg font-bold text-white">
+              <div className="bg-white/10 rounded-xl px-3 py-2.5 text-center">
+                <p className="text-lg font-bold text-white" style={{ fontFamily: "var(--font-mono)" }}>
                   {new Set(
                     Object.values(slotsByDay)
                       .flat()
                       .map((s) => s.assignment.classId)
                   ).size}
                 </p>
-                <p className="text-[10px] uppercase tracking-wider text-[var(--header-text-muted)] font-semibold">
+                <p className="text-[10px] uppercase tracking-wider text-[var(--header-text-muted)] font-semibold" style={{ fontFamily: "var(--font-body)" }}>
                   Classes
                 </p>
               </div>
@@ -367,7 +299,7 @@ export default function TimetablePage() {
           <TimetableSkeleton />
         ) : error ? (
           <div className="card p-6 text-center">
-            <p className="text-red-500 font-medium text-sm">{error}</p>
+            <p className="text-red-500 font-medium text-sm" style={{ fontFamily: "var(--font-body)" }}>{error}</p>
             <button
               onClick={() => window.location.reload()}
               className="mt-3 text-sm text-[var(--accent-text)] font-semibold"
@@ -379,95 +311,128 @@ export default function TimetablePage() {
           <EmptyState />
         ) : (
           <>
-            {/* ---- Day tabs ---- */}
-            <div className="flex gap-1.5 mb-5">
-              {DAYS.map((day) => {
-                const isActive = activeDay === day.value;
-                const isToday = todayDow === day.value;
-                const daySlotCount = (slotsByDay[day.value] || []).length;
-
-                return (
-                  <button
-                    key={day.value}
-                    onClick={() => setActiveDay(day.value)}
-                    className={`
-                      relative flex-1 py-2.5 rounded-xl text-center transition-all
-                      ${
-                        isActive
-                          ? "text-white shadow-lg" + " bg-[var(--accent)] shadow-[var(--accent)]/25"
-                          : "bg-[var(--bg-elevated)] text-[var(--text-tertiary)] hover:bg-[var(--bg-tertiary)] border border-[var(--border-primary)]"
-                      }
-                    `}
-                  >
-                    <span className="text-xs font-bold">{day.short}</span>
-                    {/* Slot count dot */}
-                    {daySlotCount > 0 && !isActive && (
-                      <span className="block text-[10px] text-[var(--text-tertiary)] leading-tight">
-                        {daySlotCount}
-                      </span>
-                    )}
-                    {daySlotCount > 0 && isActive && (
-                      <span className="block text-[10px] text-white/70 leading-tight">
-                        {daySlotCount}
-                      </span>
-                    )}
-                    {daySlotCount === 0 && (
-                      <span className="block text-[10px] text-[var(--text-quaternary)] leading-tight">
-                        &mdash;
-                      </span>
-                    )}
-                    {/* Today indicator */}
-                    {isToday && (
+            {/* ---- 5-column Grid ---- */}
+            <div className="card overflow-hidden animate-fade-slide-in">
+              {/* Column headers: Mon–Fri */}
+              <div className="grid grid-cols-[48px_repeat(5,1fr)] border-b border-[var(--border-primary)]">
+                <div className="p-2" />
+                {DAYS.map((day) => {
+                  const isToday = todayDow === day.value;
+                  return (
+                    <div
+                      key={day.value}
+                      className={`p-2 text-center ${isToday ? "bg-amber-100/60" : "bg-[var(--bg-tertiary)]"}`}
+                    >
                       <span
-                        className={`absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full border-2 ${
-                          isActive
-                            ? "bg-[var(--accent-warm)] border-[var(--accent)]"
-                            : "bg-[var(--accent)] border-[var(--bg-elevated)]"
+                        className={`text-[11px] font-bold uppercase tracking-wider ${
+                          isToday ? "text-[var(--accent-text)]" : "text-[var(--text-tertiary)]"
                         }`}
-                      />
-                    )}
-                  </button>
+                        style={{ fontFamily: "var(--font-body)" }}
+                      >
+                        {day.short}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Period rows */}
+              {periodTimeline.map((period, rowIdx) => {
+                const isCurrent = todayDow > 0 && isCurrentPeriod(period.startTime, period.endTime);
+                return (
+                  <div
+                    key={period.periodLabel}
+                    className="grid grid-cols-[48px_repeat(5,1fr)] border-b border-[var(--border-secondary)] last:border-b-0 animate-fade-slide-in"
+                    style={{ animationDelay: `${rowIdx * 80}ms` }}
+                  >
+                    {/* Period label */}
+                    <div className="p-1.5 flex flex-col items-center justify-center border-r border-[var(--border-secondary)]">
+                      <span
+                        className="text-[10px] font-bold text-[var(--text-secondary)]"
+                        style={{ fontFamily: "var(--font-mono)" }}
+                      >
+                        {period.periodLabel}
+                      </span>
+                      <span
+                        className="text-[8px] text-[var(--text-tertiary)] leading-tight"
+                        style={{ fontFamily: "var(--font-mono)" }}
+                      >
+                        {period.startTime}
+                      </span>
+                    </div>
+
+                    {/* Day cells */}
+                    {DAYS.map((day) => {
+                      const slot = slotGrid[`${day.value}-${period.periodLabel}`];
+                      const isToday = todayDow === day.value;
+                      const isCurrentCell = isToday && isCurrent;
+
+                      if (slot) {
+                        const color = getSubjectColor(slot.assignment.subjectName);
+                        return (
+                          <button
+                            key={day.value}
+                            onClick={() => handleCellTap(slot)}
+                            className={`p-1 m-0.5 rounded-lg text-left transition-all active:scale-[0.97] duration-[80ms] ${color.bg} ${
+                              isCurrentCell ? "ring-2 ring-[var(--accent)]" : ""
+                            } ${isToday && !isCurrentCell ? "bg-amber-50/50" : ""}`}
+                            style={{ borderRadius: "8px" }}
+                          >
+                            <p
+                              className={`text-[12px] font-bold leading-tight ${color.text}`}
+                              style={{ fontFamily: "var(--font-body)" }}
+                            >
+                              {abbrev(slot.assignment.subjectName)}
+                            </p>
+                            <p
+                              className="text-[10px] font-medium text-[var(--text-tertiary)] leading-tight mt-0.5"
+                              style={{ fontFamily: "var(--font-body)" }}
+                            >
+                              {classAbbrev(slot.assignment.className)}
+                            </p>
+                          </button>
+                        );
+                      }
+
+                      return (
+                        <div
+                          key={day.value}
+                          className={`m-0.5 rounded-lg ${
+                            isToday ? "bg-amber-50/30" : ""
+                          } ${isCurrentCell ? "ring-2 ring-[var(--accent-muted)]" : ""}`}
+                        />
+                      );
+                    })}
+                  </div>
                 );
               })}
             </div>
 
-            {/* ---- Day label ---- */}
-            <div className="flex items-center justify-between mb-3">
-              <h2 className="text-sm font-bold text-[var(--text-secondary)]">
-                {DAYS.find((d) => d.value === activeDay)?.label}
-                {todayDow === activeDay && (
-                  <span className="ml-2 text-[10px] uppercase tracking-wider font-bold text-[var(--accent-text)] bg-[var(--accent-light)] px-2 py-0.5 rounded-full">
-                    Today
-                  </span>
-                )}
-              </h2>
-              <span className="text-xs text-[var(--text-tertiary)]">
-                {(slotsByDay[activeDay] || []).length} period
-                {(slotsByDay[activeDay] || []).length !== 1 ? "s" : ""}
-              </span>
+            {/* Legend */}
+            <div className="mt-4 px-1">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-tertiary)] mb-2" style={{ fontFamily: "var(--font-body)" }}>
+                Subjects
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {Array.from(
+                  new Map(
+                    Object.values(slotsByDay)
+                      .flat()
+                      .map((s) => [s.assignment.subjectId, s.assignment.subjectName])
+                  ).entries()
+                ).map(([id, name]) => {
+                  const color = getSubjectColor(name);
+                  return (
+                    <div key={id} className="flex items-center gap-1.5">
+                      <div className={`w-2.5 h-2.5 rounded-sm ${color.accent}`} />
+                      <span className="text-[10px] text-[var(--text-tertiary)]" style={{ fontFamily: "var(--font-body)" }}>
+                        {name}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
-
-            {/* ---- Slots for the active day ---- */}
-            {activeSchedule.length === 0 ? (
-              <div className="text-center py-10">
-                <p className="text-[var(--text-tertiary)] text-sm">No periods scheduled</p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {activeSchedule.map((row) =>
-                  row.slot ? (
-                    <SlotCard key={row.slot.id} slot={row.slot} />
-                  ) : (
-                    <FreePeriod
-                      key={`free-${row.periodLabel}`}
-                      periodLabel={row.periodLabel}
-                      startTime={row.startTime}
-                      endTime={row.endTime}
-                    />
-                  )
-                )}
-              </div>
-            )}
           </>
         )}
       </div>
