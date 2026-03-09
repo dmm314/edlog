@@ -12,6 +12,7 @@ import {
   BarChart3,
   Key,
   Layers,
+  Megaphone,
 } from "lucide-react";
 import { NotificationBell } from "@/components/NotificationBell";
 import { ProgressBar } from "@/components/ui/ProgressBar";
@@ -298,6 +299,7 @@ export default function RegionalDashboardPage() {
         {/* Quick Links */}
         <div className="animate-fade-slide-in space-y-2" style={{ animationDelay: "240ms" }}>
           {[
+            { href: "/regional/announcements", icon: Megaphone, label: "Send Announcement", sub: "Broadcast to all teachers in region" },
             { href: "/regional/reports/schools", icon: Building2, label: "Explore school data", sub: "Compare schools across your region" },
             { href: "/regional/reports/coverage", icon: BookOpen, label: "Curriculum coverage", sub: "Regional syllabus tracking" },
             { href: "/regional/schools", icon: Building2, label: "Manage Schools" },
