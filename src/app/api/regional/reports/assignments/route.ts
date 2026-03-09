@@ -45,11 +45,24 @@ export async function GET(request: NextRequest) {
     }
 
     if (search) {
-      where.OR = [
-        { teacher: { firstName: { contains: search, mode: "insensitive" } } },
-        { teacher: { lastName: { contains: search, mode: "insensitive" } } },
-        { subject: { name: { contains: search, mode: "insensitive" } } },
-      ];
+      const searchWords = search.trim().split(/\s+/);
+      if (searchWords.length === 1) {
+        where.OR = [
+          { teacher: { firstName: { contains: searchWords[0], mode: "insensitive" } } },
+          { teacher: { lastName: { contains: searchWords[0], mode: "insensitive" } } },
+          { subject: { name: { contains: searchWords[0], mode: "insensitive" } } },
+        ];
+      } else {
+        where.OR = [
+          { AND: searchWords.map((word: string) => ({
+            OR: [
+              { teacher: { firstName: { contains: word, mode: "insensitive" } } },
+              { teacher: { lastName: { contains: word, mode: "insensitive" } } },
+            ],
+          })) },
+          { subject: { name: { contains: search, mode: "insensitive" } } },
+        ];
+      }
     }
 
     // Count total
