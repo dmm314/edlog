@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Plus, Clock, User, Shield, Globe, BarChart3, Calendar, Users } from "lucide-react";
+import { Home, Plus, Clock, User, Shield, Globe, BarChart3, Calendar, Users, ClipboardList } from "lucide-react";
 
 interface BottomNavProps {
   role: string;
@@ -31,7 +31,7 @@ function getNavTabs(role: string): NavItem[] {
     return [
       { href: "/admin", label: "Dashboard", icon: Shield },
       { href: "/admin/teachers", label: "Teachers", icon: Users },
-      { href: "/admin/reports/teachers", label: "Reports", icon: BarChart3, activePrefix: "/admin/reports" },
+      { href: "/admin/entry-timetable", label: "Entries", icon: ClipboardList, activePrefix: "/admin/entry-timetable" },
       { href: "/admin/timetable", label: "Timetable", icon: Calendar },
       { href: "/profile", label: "Profile", icon: User },
     ];

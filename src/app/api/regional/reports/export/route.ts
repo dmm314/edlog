@@ -189,10 +189,20 @@ async function exportTeachers(
     };
   }
   if (search) {
-    where.OR = [
-      { firstName: { contains: search, mode: "insensitive" } },
-      { lastName: { contains: search, mode: "insensitive" } },
-    ];
+    const searchWords = search.trim().split(/\s+/);
+    if (searchWords.length === 1) {
+      where.OR = [
+        { firstName: { contains: searchWords[0], mode: "insensitive" } },
+        { lastName: { contains: searchWords[0], mode: "insensitive" } },
+      ];
+    } else {
+      where.AND = searchWords.map((word: string) => ({
+        OR: [
+          { firstName: { contains: word, mode: "insensitive" } },
+          { lastName: { contains: word, mode: "insensitive" } },
+        ],
+      }));
+    }
   }
 
   const teachers = await db.user.findMany({
@@ -271,11 +281,24 @@ async function exportAssignments(
   if (filters.subject) where.subject = { name: filters.subject };
   if (filters.level) where.class = { level: filters.level };
   if (search) {
-    where.OR = [
-      { teacher: { firstName: { contains: search, mode: "insensitive" } } },
-      { teacher: { lastName: { contains: search, mode: "insensitive" } } },
-      { subject: { name: { contains: search, mode: "insensitive" } } },
-    ];
+    const searchWords = search.trim().split(/\s+/);
+    if (searchWords.length === 1) {
+      where.OR = [
+        { teacher: { firstName: { contains: searchWords[0], mode: "insensitive" } } },
+        { teacher: { lastName: { contains: searchWords[0], mode: "insensitive" } } },
+        { subject: { name: { contains: searchWords[0], mode: "insensitive" } } },
+      ];
+    } else {
+      where.OR = [
+        { AND: searchWords.map((word: string) => ({
+          OR: [
+            { teacher: { firstName: { contains: word, mode: "insensitive" } } },
+            { teacher: { lastName: { contains: word, mode: "insensitive" } } },
+          ],
+        })) },
+        { subject: { name: { contains: search, mode: "insensitive" } } },
+      ];
+    }
   }
 
   const assignments = await db.teacherAssignment.findMany({
@@ -341,12 +364,26 @@ async function exportActivity(
   if (filters.level) where.class = { ...(where.class as object), level: filters.level };
   if (filters.subject) where.assignment = { subject: { name: filters.subject } };
   if (search) {
-    where.OR = [
-      { teacher: { firstName: { contains: search, mode: "insensitive" } } },
-      { teacher: { lastName: { contains: search, mode: "insensitive" } } },
-      { moduleName: { contains: search, mode: "insensitive" } },
-      { topicText: { contains: search, mode: "insensitive" } },
-    ];
+    const searchWords = search.trim().split(/\s+/);
+    if (searchWords.length === 1) {
+      where.OR = [
+        { teacher: { firstName: { contains: searchWords[0], mode: "insensitive" } } },
+        { teacher: { lastName: { contains: searchWords[0], mode: "insensitive" } } },
+        { moduleName: { contains: searchWords[0], mode: "insensitive" } },
+        { topicText: { contains: searchWords[0], mode: "insensitive" } },
+      ];
+    } else {
+      where.OR = [
+        { AND: searchWords.map((word: string) => ({
+          OR: [
+            { teacher: { firstName: { contains: word, mode: "insensitive" } } },
+            { teacher: { lastName: { contains: word, mode: "insensitive" } } },
+          ],
+        })) },
+        { moduleName: { contains: search, mode: "insensitive" } },
+        { topicText: { contains: search, mode: "insensitive" } },
+      ];
+    }
   }
 
   const entries = await db.logbookEntry.findMany({

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ArrowLeft, Save, Building2, CheckCircle } from "lucide-react";
+import { ArrowLeft, Save, Building2, CheckCircle, GraduationCap } from "lucide-react";
 import Link from "next/link";
 
 const SCHOOL_TYPES = [
@@ -172,6 +172,21 @@ export default function SchoolProfilePage() {
                 </div>
               </div>
             </div>
+
+            {/* Quick Actions */}
+            <Link
+              href="/admin/classes"
+              className="card p-4 flex items-center gap-3 hover:shadow-md transition-shadow"
+            >
+              <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-brand-50 text-brand-600">
+                <GraduationCap className="w-5 h-5" />
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-semibold text-[var(--text-primary)]">Manage Classes</p>
+                <p className="text-xs text-[var(--text-tertiary)]">Add classes and assign subjects</p>
+              </div>
+              <ArrowLeft className="w-4 h-4 text-[var(--text-quaternary)] rotate-180" />
+            </Link>
 
             {/* Editable Profile */}
             <form onSubmit={handleSave} className="space-y-4">

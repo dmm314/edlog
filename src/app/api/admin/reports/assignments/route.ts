@@ -35,12 +35,24 @@ export async function GET(request: NextRequest) {
     }
 
     if (search) {
-      where.teacher = {
-        OR: [
-          { firstName: { contains: search, mode: "insensitive" } },
-          { lastName: { contains: search, mode: "insensitive" } },
-        ],
-      };
+      const searchWords = search.trim().split(/\s+/);
+      if (searchWords.length === 1) {
+        where.teacher = {
+          OR: [
+            { firstName: { contains: searchWords[0], mode: "insensitive" } },
+            { lastName: { contains: searchWords[0], mode: "insensitive" } },
+          ],
+        };
+      } else {
+        where.teacher = {
+          AND: searchWords.map((word: string) => ({
+            OR: [
+              { firstName: { contains: word, mode: "insensitive" } },
+              { lastName: { contains: word, mode: "insensitive" } },
+            ],
+          })),
+        };
+      }
     }
 
     // Count total

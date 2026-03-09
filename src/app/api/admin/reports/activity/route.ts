@@ -53,21 +53,47 @@ export async function GET(request: NextRequest) {
     }
 
     if (filters.teacher) {
-      where.teacher = {
-        OR: [
-          { firstName: { contains: filters.teacher, mode: "insensitive" } },
-          { lastName: { contains: filters.teacher, mode: "insensitive" } },
-        ],
-      };
+      const filterWords = filters.teacher.trim().split(/\s+/);
+      if (filterWords.length === 1) {
+        where.teacher = {
+          OR: [
+            { firstName: { contains: filterWords[0], mode: "insensitive" } },
+            { lastName: { contains: filterWords[0], mode: "insensitive" } },
+          ],
+        };
+      } else {
+        where.teacher = {
+          AND: filterWords.map((word: string) => ({
+            OR: [
+              { firstName: { contains: word, mode: "insensitive" } },
+              { lastName: { contains: word, mode: "insensitive" } },
+            ],
+          })),
+        };
+      }
     }
 
     if (search) {
-      where.OR = [
-        { teacher: { firstName: { contains: search, mode: "insensitive" } } },
-        { teacher: { lastName: { contains: search, mode: "insensitive" } } },
-        { moduleName: { contains: search, mode: "insensitive" } },
-        { topicText: { contains: search, mode: "insensitive" } },
-      ];
+      const searchWords = search.trim().split(/\s+/);
+      if (searchWords.length === 1) {
+        where.OR = [
+          { teacher: { firstName: { contains: searchWords[0], mode: "insensitive" } } },
+          { teacher: { lastName: { contains: searchWords[0], mode: "insensitive" } } },
+          { moduleName: { contains: searchWords[0], mode: "insensitive" } },
+          { topicText: { contains: searchWords[0], mode: "insensitive" } },
+        ];
+      } else {
+        where.OR = [
+          { AND: searchWords.map((word: string) => ({
+            OR: [
+              { teacher: { firstName: { contains: word, mode: "insensitive" } } },
+              { teacher: { lastName: { contains: word, mode: "insensitive" } } },
+            ],
+          })) },
+          { moduleName: { contains: search, mode: "insensitive" } },
+          { topicText: { contains: search, mode: "insensitive" } },
+        ];
+      }
     }
 
     // Count total
