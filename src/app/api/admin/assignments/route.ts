@@ -67,7 +67,7 @@ export async function GET() {
       }).catch((e) => { console.error("classSubjects query failed:", e); return []; }),
       db.subjectDivision.findMany({
         where: { schoolId: user.schoolId },
-        select: { id: true, name: true, subjectId: true },
+        select: { id: true, name: true, subjectId: true, levels: true },
         orderBy: { name: "asc" },
       }).catch((e) => { console.error("divisions query failed:", e); return []; }),
     ]);
@@ -80,10 +80,10 @@ export async function GET() {
     }
 
     // Build a map of subjectId -> divisions
-    const divisionsBySubject: Record<string, { id: string; name: string }[]> = {};
+    const divisionsBySubject: Record<string, { id: string; name: string; levels: string[] }[]> = {};
     for (const d of divisions) {
       if (!divisionsBySubject[d.subjectId]) divisionsBySubject[d.subjectId] = [];
-      divisionsBySubject[d.subjectId].push({ id: d.id, name: d.name });
+      divisionsBySubject[d.subjectId].push({ id: d.id, name: d.name, levels: d.levels });
     }
 
     // Dedupe all subjects across classes for backward compat

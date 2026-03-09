@@ -16,6 +16,7 @@ import {
 interface DivisionOption {
   id: string;
   name: string;
+  levels: string[];
 }
 
 interface AssignmentItem {
@@ -104,9 +105,8 @@ export default function AssignmentsPage() {
     e.preventDefault();
     if (!form.teacherId || !form.classId || !form.subjectId) return;
 
-    // If subject has divisions, a division must be selected
-    const subjectDivisions = divisionsBySubject[form.subjectId] || [];
-    if (subjectDivisions.length > 0 && !form.divisionId) {
+    // If subject has divisions applicable to this class level, a division must be selected
+    if (availableDivisions.length > 0 && !form.divisionId) {
       setError("Please select a division for this subject");
       return;
     }
@@ -202,10 +202,17 @@ export default function AssignmentsPage() {
     ? subjectsByClass[form.classId] || []
     : [];
 
-  // Divisions available for the selected subject
-  const availableDivisions = form.subjectId
-    ? divisionsBySubject[form.subjectId] || []
-    : [];
+  // Divisions available for the selected subject, filtered by selected class level
+  const availableDivisions = useMemo(() => {
+    if (!form.subjectId) return [];
+    const allDivisions = divisionsBySubject[form.subjectId] || [];
+    if (!form.classId) return allDivisions;
+    const selectedClass = classes.find((c) => c.id === form.classId);
+    if (!selectedClass) return allDivisions;
+    return allDivisions.filter(
+      (d) => d.levels.length === 0 || d.levels.includes(selectedClass.level)
+    );
+  }, [form.subjectId, form.classId, divisionsBySubject, classes]);
 
   const hasSetup = teachers.length > 0 && classes.length > 0 && subjects.length > 0;
 
