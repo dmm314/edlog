@@ -130,6 +130,8 @@ export interface NotificationData {
   message: string;
   isRead: boolean;
   link: string | null;
+  senderRole: string | null;
+  schoolId: string | null;
   createdAt: string;
 }
 

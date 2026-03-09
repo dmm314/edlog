@@ -46,6 +46,8 @@ enum NotificationType {
   CURRICULUM_GAP
   GENERAL
   SCHOOL_INVITATION
+  SCHOOL_ANNOUNCEMENT
+  REGIONAL_ANNOUNCEMENT
 }
 
 enum TeacherSchoolStatus {
@@ -422,6 +424,11 @@ model Notification {
   message   String           @db.Text
   isRead    Boolean          @default(false)
   link      String?
+
+  // Track who sent this notification
+  senderRole  String?        // "SCHOOL_ADMIN" or "REGIONAL_ADMIN" — null for system notifications
+  schoolId    String?        // School that sent it (for school broadcasts)
+
   createdAt DateTime         @default(now())
 
   @@index([userId, isRead])

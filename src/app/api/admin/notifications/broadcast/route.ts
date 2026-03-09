@@ -10,19 +10,41 @@ export async function GET() {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const teacherCount = await db.user.count({
-      where: {
-        role: "TEACHER",
-        teacherSchools: {
-          some: {
-            schoolId: user.schoolId!,
-            status: "ACTIVE",
+    const [teacherCount, recentAnnouncements] = await Promise.all([
+      db.user.count({
+        where: {
+          role: "TEACHER",
+          teacherSchools: {
+            some: {
+              schoolId: user.schoolId!,
+              status: "ACTIVE",
+            },
           },
         },
-      },
-    });
+      }),
+      db.notification.findMany({
+        where: {
+          type: "SCHOOL_ANNOUNCEMENT",
+          schoolId: user.schoolId!,
+        },
+        orderBy: { createdAt: "desc" },
+        take: 50,
+      }),
+    ]);
 
-    return NextResponse.json({ teacherCount });
+    // Group by title+message to deduplicate broadcast copies
+    const seen = new Map<string, { title: string; message: string; createdAt: Date; count: number }>();
+    for (const n of recentAnnouncements) {
+      const key = `${n.title}|||${n.message}`;
+      if (!seen.has(key)) {
+        seen.set(key, { title: n.title, message: n.message, createdAt: n.createdAt, count: 1 });
+      } else {
+        seen.get(key)!.count++;
+      }
+    }
+    const grouped = Array.from(seen.values()).slice(0, 5);
+
+    return NextResponse.json({ teacherCount, recentAnnouncements: grouped });
   } catch (error) {
     console.error("GET /api/admin/notifications/broadcast error:", error);
     return NextResponse.json({ error: "Failed to fetch teacher count" }, { status: 500 });
@@ -76,11 +98,13 @@ export async function POST(request: NextRequest) {
     await db.notification.createMany({
       data: teachers.map((t) => ({
         userId: t.id,
-        type: "GENERAL" as const,
+        type: "SCHOOL_ANNOUNCEMENT" as const,
         title: title.trim(),
         message: message.trim(),
         isRead: false,
         link: null,
+        senderRole: "SCHOOL_ADMIN",
+        schoolId: user.schoolId,
       })),
     });
 
