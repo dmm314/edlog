@@ -17,9 +17,14 @@ import {
   Zap,
   ChevronRight,
   Info,
+  Pencil,
+  Globe,
+  Monitor,
+  Smartphone,
 } from "lucide-react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
+import { getFamilyOfSituation } from "@/lib/family-of-situation";
 
 const SignaturePad = dynamic(
   () => import("@/components/SignaturePad").then((mod) => mod.SignaturePad),
@@ -142,6 +147,18 @@ export default function NewEntryPage() {
   const [timetableSlotId, setTimetableSlotId] = useState<string | null>(null);
   const [classDidNotHold, setClassDidNotHold] = useState(false);
 
+  // CBA fields
+  const [familyOfSituation, setFamilyOfSituation] = useState("");
+  const [familyOfSitEditing, setFamilyOfSitEditing] = useState(false);
+  const [bilingualActivity, setBilingualActivity] = useState(false);
+  const [bilingualType, setBilingualType] = useState("");
+  const [bilingualNote, setBilingualNote] = useState("");
+  const [integrationActivity, setIntegrationActivity] = useState("");
+  const [integrationLevel, setIntegrationLevel] = useState("");
+  const [integrationStatus, setIntegrationStatus] = useState("");
+  const [lessonMode, setLessonMode] = useState("physical");
+  const [digitalTools, setDigitalTools] = useState<string[]>([]);
+
   const [submitting, setSubmitting] = useState(false);
   const [savingDraft, setSavingDraft] = useState(false);
   const [error, setError] = useState("");
@@ -163,6 +180,12 @@ export default function NewEntryPage() {
     engagement: string;
     isDraft: boolean;
     classDidNotHold: boolean;
+    // CBA
+    familyOfSituation: string;
+    bilingualActivity: boolean;
+    bilingualType: string;
+    lessonMode: string;
+    integrationActivity: string;
   } | null>(null);
 
   useEffect(() => {
@@ -426,6 +449,31 @@ export default function NewEntryPage() {
     );
   }, []);
 
+  // Auto-populate Family of Situation from curriculum data
+  const subjectCode = useMemo(() => {
+    if (!subjectId) return "";
+    const subject = subjects.find((s) => s.id === subjectId);
+    return subject?.code || "";
+  }, [subjects, subjectId]);
+
+  const moduleNum = useMemo(() => {
+    if (!moduleName) return 0;
+    const match = moduleName.match(/(\d+)/);
+    return match ? parseInt(match[1]) : 0;
+  }, [moduleName]);
+
+  const autoFamilyOfSit = useMemo(() => {
+    if (!subjectCode || !selectedClassLevel || !moduleNum) return null;
+    return getFamilyOfSituation(subjectCode, selectedClassLevel, moduleNum);
+  }, [subjectCode, selectedClassLevel, moduleNum]);
+
+  // Update familyOfSituation when auto data changes (only if not manually edited)
+  useEffect(() => {
+    if (autoFamilyOfSit && !familyOfSitEditing) {
+      setFamilyOfSituation(autoFamilyOfSit);
+    }
+  }, [autoFamilyOfSit, familyOfSitEditing]);
+
   const selectedDayName = date ? DAY_NAMES[getDayOfWeek(date)] || "" : "";
   const isWeekend = date ? getDayOfWeek(date) > 5 : false;
   const hasPeriodSelected = selectedSlotIds.length > 0 || period !== "";
@@ -510,6 +558,16 @@ export default function NewEntryPage() {
           studentAttendance: studentAttendance ? parseInt(studentAttendance) : null,
           engagementLevel: engagementLevel || null,
           signatureData,
+          // CBA fields
+          familyOfSituation: familyOfSituation || null,
+          bilingualActivity: bilingualActivity || false,
+          bilingualType: bilingualActivity ? (bilingualType || null) : null,
+          bilingualNote: bilingualActivity ? (bilingualNote || null) : null,
+          integrationActivity: integrationActivity || null,
+          integrationLevel: integrationLevel || null,
+          integrationStatus: integrationStatus || null,
+          lessonMode: lessonMode || "physical",
+          digitalTools: (lessonMode === "digital" || lessonMode === "hybrid") ? digitalTools : [],
           status: asDraft ? "DRAFT" : "SUBMITTED",
           classDidNotHold: classDidNotHold || undefined,
         };
@@ -566,6 +624,12 @@ export default function NewEntryPage() {
         engagement: firstEntry.engagementLevel || "",
         isDraft: asDraft,
         classDidNotHold,
+        // CBA
+        familyOfSituation: familyOfSituation || "",
+        bilingualActivity,
+        bilingualType: bilingualType || "",
+        lessonMode: lessonMode || "physical",
+        integrationActivity: integrationActivity || "",
       });
 
       if (asDraft) {
@@ -603,6 +667,17 @@ export default function NewEntryPage() {
     setSelectedSlotIds([]);
     setAdditionalClassIds([]);
     setClassDidNotHold(false);
+    // Reset CBA fields
+    setFamilyOfSituation("");
+    setFamilyOfSitEditing(false);
+    setBilingualActivity(false);
+    setBilingualType("");
+    setBilingualNote("");
+    setIntegrationActivity("");
+    setIntegrationLevel("");
+    setIntegrationStatus("");
+    setLessonMode("physical");
+    setDigitalTools([]);
     setSuccess(false);
     setSeconds(0);
     setError("");
@@ -747,6 +822,40 @@ export default function NewEntryPage() {
                         <p className="text-xs font-bold text-[var(--text-primary)]">
                           {submittedEntries.engagement.charAt(0) + submittedEntries.engagement.slice(1).toLowerCase()}
                         </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+              {/* CBA fields summary */}
+              {(submittedEntries.familyOfSituation || submittedEntries.bilingualActivity || submittedEntries.integrationActivity || submittedEntries.lessonMode !== "physical") && (
+                <div className="py-3 space-y-2">
+                  <p className="text-[10px] font-semibold uppercase tracking-widest text-[var(--text-tertiary)]">CBA Details</p>
+                  <div className="flex flex-wrap gap-2">
+                    {submittedEntries.familyOfSituation && (
+                      <div className="rounded-xl py-2 px-3" style={{ background: "var(--bg-tertiary)" }}>
+                        <p className="text-[10px] text-[var(--text-tertiary)]">Family of Situation</p>
+                        <p className="text-xs font-semibold text-[var(--text-primary)]">{submittedEntries.familyOfSituation}</p>
+                      </div>
+                    )}
+                    {submittedEntries.lessonMode !== "physical" && (
+                      <div className="rounded-xl py-2 px-3" style={{ background: "var(--bg-tertiary)" }}>
+                        <p className="text-[10px] text-[var(--text-tertiary)]">Lesson Mode</p>
+                        <p className="text-xs font-semibold text-[var(--text-primary)]">{submittedEntries.lessonMode.charAt(0).toUpperCase() + submittedEntries.lessonMode.slice(1)}</p>
+                      </div>
+                    )}
+                    {submittedEntries.bilingualActivity && (
+                      <div className="rounded-xl py-2 px-3" style={{ background: "#FFFBEB" }}>
+                        <p className="text-[10px] text-amber-600">Bilingual Activity</p>
+                        <p className="text-xs font-semibold text-amber-700">
+                          {submittedEntries.bilingualType ? submittedEntries.bilingualType.replace("_", " ").replace(/\b\w/g, (c) => c.toUpperCase()) : "Yes"}
+                        </p>
+                      </div>
+                    )}
+                    {submittedEntries.integrationActivity && (
+                      <div className="rounded-xl py-2 px-3" style={{ background: "var(--bg-tertiary)" }}>
+                        <p className="text-[10px] text-[var(--text-tertiary)]">Integration</p>
+                        <p className="text-xs font-semibold text-[var(--text-primary)]">Learners are able to {submittedEntries.integrationActivity}</p>
                       </div>
                     )}
                   </div>
@@ -1236,6 +1345,183 @@ export default function NewEntryPage() {
                       <span className="text-[13px] font-semibold text-[var(--text-primary)] text-right max-w-[60%] truncate">{value}</span>
                     </div>
                   ))}
+                </div>
+
+                {/* ── CBA: Family of Situation ── */}
+                {moduleName && (
+                  <div>
+                    <p className="text-[13px] font-semibold text-[var(--text-primary)] mb-2">Family of Situation</p>
+                    {familyOfSituation && !familyOfSitEditing ? (
+                      <div className="flex items-center gap-2 rounded-2xl px-4 py-3" style={{ background: "var(--bg-secondary)" }}>
+                        <p className="text-sm font-medium text-[var(--text-primary)] flex-1">{familyOfSituation}</p>
+                        <button type="button" onClick={() => setFamilyOfSitEditing(true)}
+                          className="flex items-center gap-1 text-xs font-medium"
+                          style={{ color: "var(--accent-text)" }}>
+                          <Pencil className="w-3 h-3" />
+                          Edit
+                        </button>
+                      </div>
+                    ) : (
+                      <input
+                        value={familyOfSituation}
+                        onChange={(e) => { setFamilyOfSituation(e.target.value); setFamilyOfSitEditing(true); }}
+                        placeholder="e.g. Social and family environment"
+                        className="input-field text-sm"
+                        maxLength={200}
+                      />
+                    )}
+                  </div>
+                )}
+
+                {/* ── CBA: Integration Activity ── */}
+                <div>
+                  <div className="flex items-center gap-1.5 mb-2">
+                    <p className="text-[13px] font-semibold text-[var(--text-primary)]">Integration Activity</p>
+                    <div className="relative group">
+                      <Info className="w-3.5 h-3.5 text-[var(--text-tertiary)] cursor-help" />
+                      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 hidden group-hover:block w-48 text-[11px] rounded-lg px-3 py-2 z-10"
+                        style={{ background: "var(--bg-elevated)", border: "1px solid var(--border-primary)", color: "var(--text-secondary)", boxShadow: "var(--shadow-card)" }}>
+                        What can learners demonstrate after this lesson?
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-0 rounded-2xl border overflow-hidden" style={{ borderColor: "var(--border-primary)", background: "var(--bg-elevated)" }}>
+                    <span className="text-sm font-medium text-[var(--text-tertiary)] pl-4 flex-shrink-0 whitespace-nowrap">Learners are able to</span>
+                    <input
+                      value={integrationActivity}
+                      onChange={(e) => setIntegrationActivity(e.target.value.slice(0, 500))}
+                      placeholder="...identify and name measuring instruments"
+                      className="flex-1 px-2 py-3.5 border-none outline-none text-sm bg-transparent"
+                      style={{ color: "var(--text-primary)" }}
+                      maxLength={500}
+                    />
+                  </div>
+                  {integrationActivity && (
+                    <div className="flex gap-3 mt-2">
+                      <div className="flex-1">
+                        <p className="text-[11px] font-semibold text-[var(--text-tertiary)] mb-1.5">Difficulty</p>
+                        <div className="flex gap-1">
+                          {(["basic", "intermediate", "advanced"] as const).map((lvl) => (
+                            <button key={lvl} type="button" onClick={() => setIntegrationLevel(integrationLevel === lvl ? "" : lvl)}
+                              className="flex-1 py-2 text-xs font-semibold transition-all"
+                              style={{
+                                background: integrationLevel === lvl ? "var(--accent-light)" : "var(--bg-tertiary)",
+                                color: integrationLevel === lvl ? "var(--accent-text)" : "var(--text-tertiary)",
+                                borderRadius: "10px",
+                              }}>
+                              {lvl.charAt(0).toUpperCase() + lvl.slice(1)}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-[11px] font-semibold text-[var(--text-tertiary)] mb-1.5">Status</p>
+                        <div className="flex gap-1">
+                          {([["completed", "Done"], ["partial", "Partial"], ["carried_over", "Carried"]] as const).map(([val, label]) => (
+                            <button key={val} type="button" onClick={() => setIntegrationStatus(integrationStatus === val ? "" : val)}
+                              className="flex-1 py-2 text-xs font-semibold transition-all"
+                              style={{
+                                background: integrationStatus === val ? "var(--accent-light)" : "var(--bg-tertiary)",
+                                color: integrationStatus === val ? "var(--accent-text)" : "var(--text-tertiary)",
+                                borderRadius: "10px",
+                              }}>
+                              {label}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* ── CBA: Bilingual Activity ── */}
+                <div>
+                  <button type="button" onClick={() => setBilingualActivity(!bilingualActivity)}
+                    className="w-full text-left flex items-center gap-3 px-4 py-3 rounded-2xl border-2 transition-all"
+                    style={{
+                      borderColor: bilingualActivity ? "#F59E0B" : "var(--border-primary)",
+                      background: bilingualActivity ? "#FFFBEB" : "var(--bg-elevated)",
+                    }}>
+                    <div className="w-5 h-5 rounded-md border-2 flex items-center justify-center flex-shrink-0"
+                      style={{ borderColor: bilingualActivity ? "#F59E0B" : "var(--border-primary)", background: bilingualActivity ? "#F59E0B" : "var(--bg-elevated)" }}>
+                      {bilingualActivity && <Check className="w-3 h-3 text-white" />}
+                    </div>
+                    <div className="flex-1">
+                      <p className={`text-sm font-semibold ${bilingualActivity ? "text-amber-700" : "text-[var(--text-secondary)]"}`}>
+                        <Globe className="w-3.5 h-3.5 inline -mt-0.5 mr-1" />
+                        Bilingual activity conducted
+                      </p>
+                    </div>
+                  </button>
+                  {bilingualActivity && (
+                    <div className="mt-2 space-y-2 animate-fade-in">
+                      <div className="flex flex-wrap gap-1.5">
+                        {([["game", "Game"], ["discussion", "Discussion"], ["quiz", "Quiz"], ["role_play", "Role Play"], ["exercise", "Exercise"], ["translation", "Translation"], ["song", "Song/Poem"]] as const).map(([val, label]) => (
+                          <button key={val} type="button" onClick={() => setBilingualType(bilingualType === val ? "" : val)}
+                            className="text-sm transition-all"
+                            style={{
+                              background: bilingualType === val ? "var(--accent-light)" : "var(--bg-elevated)",
+                              border: bilingualType === val ? "1px solid var(--accent)" : "1px solid var(--border-primary)",
+                              color: bilingualType === val ? "var(--accent-text)" : "var(--text-secondary)",
+                              borderRadius: "12px",
+                              padding: "8px 16px",
+                              fontWeight: bilingualType === val ? 600 : 500,
+                            }}>
+                            {label}
+                          </button>
+                        ))}
+                      </div>
+                      <input
+                        value={bilingualNote}
+                        onChange={(e) => setBilingualNote(e.target.value.slice(0, 200))}
+                        placeholder="Brief description (optional)"
+                        className="input-field text-sm"
+                        maxLength={200}
+                      />
+                    </div>
+                  )}
+                </div>
+
+                {/* ── CBA: Lesson Mode ── */}
+                <div>
+                  <p className="text-[13px] font-semibold text-[var(--text-primary)] mb-2">Lesson Mode</p>
+                  <div className="flex gap-1">
+                    {([["physical", "Physical", null], ["digital", "Digital", Monitor], ["hybrid", "Hybrid", Smartphone]] as const).map(([val, label, Icon]) => (
+                      <button key={val} type="button" onClick={() => { setLessonMode(val); if (val === "physical") setDigitalTools([]); }}
+                        className="flex-1 py-3 text-sm font-semibold transition-all flex items-center justify-center gap-1.5"
+                        style={{
+                          background: lessonMode === val ? "var(--accent-light)" : "var(--bg-tertiary)",
+                          color: lessonMode === val ? "var(--accent-text)" : "var(--text-tertiary)",
+                          borderRadius: "12px",
+                        }}>
+                        {Icon && <Icon className="w-3.5 h-3.5" />}
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+                  {(lessonMode === "digital" || lessonMode === "hybrid") && (
+                    <div className="flex flex-wrap gap-1.5 mt-2 animate-fade-in">
+                      {["Projector", "YouTube", "Zoom/Google Meet", "WhatsApp", "PowerPoint", "Phone/Tablet", "Smart Board", "Other"].map((tool) => {
+                        const isSelected = digitalTools.includes(tool);
+                        return (
+                          <button key={tool} type="button"
+                            onClick={() => setDigitalTools((prev) => isSelected ? prev.filter((t) => t !== tool) : [...prev, tool])}
+                            className="text-sm transition-all"
+                            style={{
+                              background: isSelected ? "var(--accent-light)" : "var(--bg-elevated)",
+                              border: isSelected ? "1px solid var(--accent)" : "1px solid var(--border-primary)",
+                              color: isSelected ? "var(--accent-text)" : "var(--text-secondary)",
+                              borderRadius: "12px",
+                              padding: "8px 14px",
+                              fontWeight: isSelected ? 600 : 500,
+                            }}>
+                            {isSelected && <Check className="w-3 h-3 inline mr-1 -mt-0.5" />}
+                            {tool}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
 
                 <div className="border overflow-hidden" style={{ borderColor: "var(--border-primary)", background: "var(--bg-elevated)", borderRadius: "16px" }}>

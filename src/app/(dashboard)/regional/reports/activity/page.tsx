@@ -16,6 +16,8 @@ interface ActivityRow {
   topicText: string;
   period: number | null;
   status: string;
+  lessonMode: string;
+  bilingual: string;
 }
 
 const columns: ColumnDef<ActivityRow>[] = [
@@ -70,6 +72,20 @@ const columns: ColumnDef<ActivityRow>[] = [
     label: "Status",
     type: "badge",
     filterable: true,
+  },
+  {
+    key: "lessonMode",
+    label: "Lesson Mode",
+    filterable: true,
+    filterKey: "lessonMode",
+    hideOnMobile: true,
+  },
+  {
+    key: "bilingual",
+    label: "Bilingual",
+    filterable: true,
+    filterKey: "bilingual",
+    hideOnMobile: true,
   },
 ];
 

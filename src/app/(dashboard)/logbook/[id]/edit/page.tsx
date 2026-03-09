@@ -25,6 +25,16 @@ interface EntryData {
   class: { id: string; name: string };
   topics: { id: string; name: string; subject: { name: string } }[];
   assignment?: { subject: { name: string } } | null;
+  // CBA fields
+  familyOfSituation?: string | null;
+  bilingualActivity?: boolean;
+  bilingualType?: string | null;
+  bilingualNote?: string | null;
+  integrationActivity?: string | null;
+  integrationLevel?: string | null;
+  integrationStatus?: string | null;
+  lessonMode?: string | null;
+  digitalTools?: string[];
 }
 
 export default function EditEntryPage() {
@@ -244,6 +254,67 @@ export default function EditEntryPage() {
             )}
           </div>
         </div>
+
+        {/* CBA Fields (read-only) */}
+        {(entry.familyOfSituation || entry.bilingualActivity || entry.integrationActivity || (entry.lessonMode && entry.lessonMode !== "physical")) && (
+          <div className="card p-4">
+            <h3 className="text-xs font-semibold uppercase tracking-widest text-[var(--text-tertiary)] mb-2">
+              CBA Details
+            </h3>
+            <div className="space-y-1.5 text-sm">
+              {entry.familyOfSituation && (
+                <div className="flex justify-between">
+                  <span className="text-[var(--text-tertiary)]">Family of Situation</span>
+                  <span className="font-medium text-[var(--text-primary)] text-right max-w-[60%]">{entry.familyOfSituation}</span>
+                </div>
+              )}
+              {entry.lessonMode && entry.lessonMode !== "physical" && (
+                <div className="flex justify-between">
+                  <span className="text-[var(--text-tertiary)]">Lesson Mode</span>
+                  <span className="font-medium text-[var(--text-primary)]">{entry.lessonMode.charAt(0).toUpperCase() + entry.lessonMode.slice(1)}</span>
+                </div>
+              )}
+              {entry.digitalTools && entry.digitalTools.length > 0 && (
+                <div className="flex justify-between">
+                  <span className="text-[var(--text-tertiary)]">Digital Tools</span>
+                  <span className="font-medium text-[var(--text-primary)] text-right max-w-[60%]">{entry.digitalTools.join(", ")}</span>
+                </div>
+              )}
+              {entry.bilingualActivity && (
+                <div className="flex justify-between">
+                  <span className="text-[var(--text-tertiary)]">Bilingual Activity</span>
+                  <span className="font-medium text-[var(--text-primary)]">
+                    {entry.bilingualType ? entry.bilingualType.replace("_", " ").replace(/\b\w/g, (c: string) => c.toUpperCase()) : "Yes"}
+                  </span>
+                </div>
+              )}
+              {entry.bilingualNote && (
+                <div className="flex justify-between">
+                  <span className="text-[var(--text-tertiary)]">Bilingual Note</span>
+                  <span className="font-medium text-[var(--text-primary)] text-right max-w-[60%]">{entry.bilingualNote}</span>
+                </div>
+              )}
+              {entry.integrationActivity && (
+                <div className="flex justify-between">
+                  <span className="text-[var(--text-tertiary)]">Integration</span>
+                  <span className="font-medium text-[var(--text-primary)] text-right max-w-[60%]">Learners are able to {entry.integrationActivity}</span>
+                </div>
+              )}
+              {entry.integrationLevel && (
+                <div className="flex justify-between">
+                  <span className="text-[var(--text-tertiary)]">Difficulty</span>
+                  <span className="font-medium text-[var(--text-primary)]">{entry.integrationLevel.charAt(0).toUpperCase() + entry.integrationLevel.slice(1)}</span>
+                </div>
+              )}
+              {entry.integrationStatus && (
+                <div className="flex justify-between">
+                  <span className="text-[var(--text-tertiary)]">Status</span>
+                  <span className="font-medium text-[var(--text-primary)]">{entry.integrationStatus.replace("_", " ").replace(/\b\w/g, (c: string) => c.toUpperCase())}</span>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Editable Fields */}
         <div className="card p-4 space-y-4">

@@ -60,6 +60,14 @@ export async function GET(request: NextRequest) {
       where.assignment = { subject: { name: filters.subject } };
     }
 
+    if (filters.lessonMode) {
+      where.lessonMode = filters.lessonMode;
+    }
+
+    if (filters.bilingual) {
+      where.bilingualActivity = filters.bilingual === "true";
+    }
+
     if (search) {
       const searchWords = search.trim().split(/\s+/);
       if (searchWords.length === 1) {
@@ -112,6 +120,8 @@ export async function GET(request: NextRequest) {
         status: true,
         moduleName: true,
         topicText: true,
+        lessonMode: true,
+        bilingualActivity: true,
         teacher: {
           select: { firstName: true, lastName: true },
         },
@@ -149,6 +159,8 @@ export async function GET(request: NextRequest) {
       topicText: e.topicText || "—",
       period: e.period,
       status: e.status,
+      lessonMode: e.lessonMode || "physical",
+      bilingual: e.bilingualActivity ? "Yes" : "No",
     }));
 
     // Filter options
@@ -181,6 +193,8 @@ export async function GET(request: NextRequest) {
       subject: subjectOptions.map((a) => a.subject.name).sort(),
       level: levelOptions.map((c) => c.level).sort(),
       status: ["SUBMITTED", "VERIFIED", "FLAGGED"],
+      lessonMode: ["physical", "digital", "hybrid"],
+      bilingual: ["true", "false"],
     };
 
     return NextResponse.json(
