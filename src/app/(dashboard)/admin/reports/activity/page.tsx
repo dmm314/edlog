@@ -16,6 +16,8 @@ interface ActivityRow {
   status: string;
   engagementLevel: string;
   studentAttendance: number | null;
+  lessonMode: string;
+  bilingual: string;
 }
 
 const columns: ColumnDef<ActivityRow>[] = [
@@ -84,6 +86,20 @@ const columns: ColumnDef<ActivityRow>[] = [
     type: "number",
     sortable: true,
     align: "center",
+    hideOnMobile: true,
+  },
+  {
+    key: "lessonMode",
+    label: "Lesson Mode",
+    filterable: true,
+    filterKey: "lessonMode",
+    hideOnMobile: true,
+  },
+  {
+    key: "bilingual",
+    label: "Bilingual",
+    filterable: true,
+    filterKey: "bilingual",
     hideOnMobile: true,
   },
 ];

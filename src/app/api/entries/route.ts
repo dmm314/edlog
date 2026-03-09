@@ -183,6 +183,9 @@ export async function POST(request: Request) {
       : null;
     const topicText = data.topicText ? sanitizeHtml(data.topicText) : null;
     const moduleName = data.moduleName ? sanitizeHtml(data.moduleName) : null;
+    const bilingualNote = data.bilingualNote ? sanitizeHtml(data.bilingualNote) : null;
+    const integrationActivity = data.integrationActivity ? sanitizeHtml(data.integrationActivity) : null;
+    const familyOfSituation = data.familyOfSituation ? sanitizeHtml(data.familyOfSituation) : null;
 
     // Build topic connections (support single topicId or array of topicIds)
     const topicIds = data.topicIds?.length
@@ -383,6 +386,16 @@ export async function POST(request: Request) {
           signatureData: data.signatureData ?? null,
           studentAttendance: data.classDidNotHold ? 0 : (data.studentAttendance ?? null),
           engagementLevel: data.engagementLevel ?? null,
+          // CBA fields
+          familyOfSituation: familyOfSituation,
+          bilingualActivity: data.bilingualActivity || false,
+          bilingualType: data.bilingualActivity ? (data.bilingualType || null) : null,
+          bilingualNote: data.bilingualActivity ? bilingualNote : null,
+          integrationActivity: integrationActivity,
+          integrationLevel: data.integrationLevel || null,
+          integrationStatus: data.integrationStatus || null,
+          lessonMode: data.lessonMode || "physical",
+          digitalTools: data.digitalTools || [],
           status: data.status || "SUBMITTED",
           teacherId: user.id,
         },

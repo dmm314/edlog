@@ -406,6 +406,20 @@ model LogbookEntry {
   timetableSlotId String?
   timetableSlot   TimetableSlot?    @relation(fields: [timetableSlotId], references: [id])
 
+  // CBA Fields (Cameroon Competency-Based Approach)
+  familyOfSituation   String?          // Auto-populated from curriculum, teacher can override
+
+  bilingualActivity   Boolean          @default(false)  // Was a bilingual activity conducted?
+  bilingualType       String?          // "game", "discussion", "quiz", "role_play", "exercise", "translation", "song"
+  bilingualNote       String?          // Brief description if needed
+
+  integrationActivity String?          // "Learners are able to..." completion text
+  integrationLevel    String?          // "basic", "intermediate", "advanced"
+  integrationStatus   String?          // "completed", "partial", "carried_over"
+
+  lessonMode          String?          // "physical", "digital", "hybrid"
+  digitalTools        String[]         // If digital/hybrid: ["projector", "youtube", "zoom", "whatsapp", "powerpoint", etc.]
+
   // Many-to-many topics (kept for backward compat)
   topics Topic[] @relation("EntryTopics")
 

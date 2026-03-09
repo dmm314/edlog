@@ -66,6 +66,16 @@ export const createEntrySchema = z.object({
   status: z.enum(["DRAFT", "SUBMITTED"]).optional(),
   // Mark a period as "class didn't hold"
   classDidNotHold: z.boolean().optional(),
+  // CBA Fields (Cameroon Competency-Based Approach)
+  familyOfSituation: z.string().max(200).optional().nullable(),
+  bilingualActivity: z.boolean().optional(),
+  bilingualType: z.enum(["game", "discussion", "quiz", "role_play", "exercise", "translation", "song"]).optional().nullable(),
+  bilingualNote: z.string().max(200).optional().nullable(),
+  integrationActivity: z.string().max(500).optional().nullable(),
+  integrationLevel: z.enum(["basic", "intermediate", "advanced"]).optional().nullable(),
+  integrationStatus: z.enum(["completed", "partial", "carried_over"]).optional().nullable(),
+  lessonMode: z.enum(["physical", "digital", "hybrid"]).optional().nullable(),
+  digitalTools: z.array(z.string()).optional(),
 }).refine(
   (data) => {
     // Period is required when submitting (not for drafts)
