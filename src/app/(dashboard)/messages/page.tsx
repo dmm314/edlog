@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ArrowLeft, Megaphone, Building2, Globe, Mail } from "lucide-react";
+import { ArrowLeft, Building2, Globe, Mail } from "lucide-react";
 import type { NotificationData } from "@/types";
 
 type Tab = "school" | "regional";
