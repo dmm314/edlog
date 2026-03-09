@@ -12,6 +12,8 @@ import {
   ChevronUp,
   Shield,
   Clock,
+  Megaphone,
+  ChevronRight,
 } from "lucide-react";
 import { NotificationBell } from "@/components/NotificationBell";
 import { StreakBadge } from "@/components/StreakBadge";
@@ -91,6 +93,7 @@ export default function LogbookPage() {
   const [unfilledOpen, setUnfilledOpen] = useState(false);
   const [hodSubjects, setHodSubjects] = useState<string[]>([]);
   const [userName, setUserName] = useState("");
+  const [unreadAnnouncements, setUnreadAnnouncements] = useState(0);
 
   const today = useMemo(() => new Date(), []);
   const dayOfWeek = today.getDay();
@@ -152,6 +155,21 @@ export default function LogbookPage() {
           if (sessionRes.ok) {
             const sessionData = await sessionRes.json();
             setUserName(sessionData?.user?.name || "");
+          }
+        } catch {
+          // silently fail
+        }
+
+        // Check for unread announcements
+        try {
+          const notiRes = await fetch("/api/notifications?unreadOnly=true");
+          if (notiRes.ok) {
+            const notifs = await notiRes.json();
+            const announcementCount = notifs.filter(
+              (n: { type: string }) =>
+                n.type === "SCHOOL_ANNOUNCEMENT" || n.type === "REGIONAL_ANNOUNCEMENT"
+            ).length;
+            setUnreadAnnouncements(announcementCount);
           }
         } catch {
           // silently fail
@@ -582,6 +600,28 @@ export default function LogbookPage() {
 
       {/* ── Main Content ──────────────────────────────────────────── */}
       <div className="px-4 mt-4 max-w-lg mx-auto" style={{ paddingBottom: "90px" }}>
+        {/* ── Unread Announcements Banner ─────────────────────────── */}
+        {unreadAnnouncements > 0 && (
+          <Link
+            href="/messages"
+            className="flex items-center justify-between p-3.5 mb-3 rounded-2xl border active:scale-[0.98] transition-all animate-slide-up"
+            style={{
+              background: "linear-gradient(135deg, #FFFBEB, #FEF3C7)",
+              border: "1px solid #FDE68A",
+            }}
+          >
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center">
+                <Megaphone className="w-4 h-4 text-amber-600" />
+              </div>
+              <span className="text-sm font-semibold" style={{ color: "#92400E" }}>
+                You have {unreadAnnouncements} new announcement{unreadAnnouncements > 1 ? "s" : ""}
+              </span>
+            </div>
+            <ChevronRight className="w-4 h-4 text-amber-400" />
+          </Link>
+        )}
+
         {/* ── Today's Schedule ─────────────────────────────────────── */}
         {isWeekday && sortedTodaySlots.length > 0 && (
           <div className="animate-slide-up">

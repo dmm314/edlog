@@ -2,7 +2,15 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { ArrowLeft, Megaphone, CheckCircle, AlertTriangle } from "lucide-react";
+import { ArrowLeft, Megaphone, CheckCircle, AlertTriangle, Clock } from "lucide-react";
+import { formatDate } from "@/lib/utils";
+
+interface RecentAnnouncement {
+  title: string;
+  message: string;
+  createdAt: string;
+  count: number;
+}
 
 export default function AdminAnnouncementsPage() {
   const [title, setTitle] = useState("");
@@ -12,20 +20,22 @@ export default function AdminAnnouncementsPage() {
   const [showConfirm, setShowConfirm] = useState(false);
   const [success, setSuccess] = useState<number | null>(null);
   const [error, setError] = useState("");
+  const [recentAnnouncements, setRecentAnnouncements] = useState<RecentAnnouncement[]>([]);
 
   useEffect(() => {
-    async function fetchCount() {
+    async function fetchData() {
       try {
         const res = await fetch("/api/admin/notifications/broadcast");
         if (res.ok) {
           const data = await res.json();
           setTeacherCount(data.teacherCount);
+          setRecentAnnouncements(data.recentAnnouncements || []);
         }
       } catch {
         // silently fail
       }
     }
-    fetchCount();
+    fetchData();
   }, []);
 
   function handleSubmit(e: React.FormEvent) {
@@ -57,6 +67,11 @@ export default function AdminAnnouncementsPage() {
       if (res.ok) {
         const data = await res.json();
         setSuccess(data.teacherCount);
+        // Add to recent
+        setRecentAnnouncements((prev) => [
+          { title: title.trim(), message: message.trim(), createdAt: new Date().toISOString(), count: data.teacherCount },
+          ...prev,
+        ].slice(0, 5));
         setTitle("");
         setMessage("");
         setTimeout(() => setSuccess(null), 5000);
@@ -93,7 +108,7 @@ export default function AdminAnnouncementsPage() {
             <div>
               <h1 className="text-xl font-bold text-white">Send Announcement</h1>
               <p className="text-slate-400 text-sm mt-0.5">
-                Broadcast a message to all teachers
+                Message all your teachers
               </p>
             </div>
           </div>
@@ -230,6 +245,52 @@ export default function AdminAnnouncementsPage() {
             )}
           </button>
         </form>
+
+        {/* Recent Announcements */}
+        {recentAnnouncements.length > 0 && (
+          <div
+            className="border"
+            style={{
+              background: "var(--bg-elevated)",
+              borderColor: "var(--border-primary)",
+              borderRadius: "16px",
+              padding: "18px",
+            }}
+          >
+            <h3
+              className="text-xs font-semibold uppercase tracking-widest text-[var(--text-tertiary)] mb-3"
+            >
+              Recent Announcements
+            </h3>
+            <div className="space-y-3">
+              {recentAnnouncements.map((ann, i) => (
+                <div
+                  key={i}
+                  className="pb-3"
+                  style={{
+                    borderBottom: i < recentAnnouncements.length - 1 ? "1px solid var(--border-secondary)" : "none",
+                  }}
+                >
+                  <p className="text-sm font-semibold text-[var(--text-primary)]" style={{ fontFamily: "var(--font-body)" }}>
+                    {ann.title}
+                  </p>
+                  <p className="text-xs text-[var(--text-secondary)] mt-0.5 line-clamp-2" style={{ fontFamily: "var(--font-body)" }}>
+                    {ann.message}
+                  </p>
+                  <div className="flex items-center gap-2 mt-1.5">
+                    <Clock className="w-3 h-3 text-[var(--text-quaternary)]" />
+                    <span className="text-[11px] text-[var(--text-tertiary)]" style={{ fontFamily: "var(--font-mono)" }}>
+                      {formatDate(ann.createdAt)}
+                    </span>
+                    <span className="text-[11px] text-[var(--text-tertiary)]">
+                      · {ann.count} recipient{ann.count !== 1 ? "s" : ""}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Confirmation Modal */}

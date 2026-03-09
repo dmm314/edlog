@@ -1,18 +1,50 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { ArrowLeft, Megaphone, CheckCircle, AlertTriangle } from "lucide-react";
+import { ArrowLeft, Megaphone, CheckCircle, AlertTriangle, Search, Clock } from "lucide-react";
+import { formatDate } from "@/lib/utils";
+
+type TargetMode = "all" | "school" | "teacher";
+
+interface SchoolOption {
+  id: string;
+  name: string;
+  code: string;
+}
+
+interface TeacherResult {
+  id: string;
+  name: string;
+  schoolName: string;
+}
+
+interface RecentAnnouncement {
+  title: string;
+  message: string;
+  createdAt: string;
+  count: number;
+}
 
 export default function RegionalAnnouncementsPage() {
   const [title, setTitle] = useState("");
   const [message, setMessage] = useState("");
   const [teacherCount, setTeacherCount] = useState<number | null>(null);
   const [schoolCount, setSchoolCount] = useState<number | null>(null);
+  const [schools, setSchools] = useState<SchoolOption[]>([]);
   const [sending, setSending] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [success, setSuccess] = useState<number | null>(null);
   const [error, setError] = useState("");
+  const [recentAnnouncements, setRecentAnnouncements] = useState<RecentAnnouncement[]>([]);
+
+  // Targeting state
+  const [targetMode, setTargetMode] = useState<TargetMode>("all");
+  const [selectedSchoolId, setSelectedSchoolId] = useState("");
+  const [teacherQuery, setTeacherQuery] = useState("");
+  const [teacherResults, setTeacherResults] = useState<TeacherResult[]>([]);
+  const [selectedTeacher, setSelectedTeacher] = useState<TeacherResult | null>(null);
+  const [searchingTeachers, setSearchingTeachers] = useState(false);
 
   useEffect(() => {
     async function fetchCounts() {
@@ -22,6 +54,8 @@ export default function RegionalAnnouncementsPage() {
           const data = await res.json();
           setTeacherCount(data.teacherCount);
           setSchoolCount(data.schoolCount);
+          setSchools(data.schools || []);
+          setRecentAnnouncements(data.recentAnnouncements || []);
         }
       } catch {
         // silently fail
@@ -30,17 +64,66 @@ export default function RegionalAnnouncementsPage() {
     fetchCounts();
   }, []);
 
+  // Debounced teacher search
+  const searchTeachers = useCallback(async (q: string) => {
+    if (q.length < 2) {
+      setTeacherResults([]);
+      return;
+    }
+    setSearchingTeachers(true);
+    try {
+      const res = await fetch(`/api/regional/teachers?q=${encodeURIComponent(q)}`);
+      if (res.ok) {
+        setTeacherResults(await res.json());
+      }
+    } catch {
+      // silently fail
+    } finally {
+      setSearchingTeachers(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (targetMode === "teacher" && !selectedTeacher) {
+        searchTeachers(teacherQuery);
+      }
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [teacherQuery, targetMode, selectedTeacher, searchTeachers]);
+
+  function getRecipientCount(): string {
+    if (targetMode === "teacher") return selectedTeacher ? "1" : "0";
+    if (targetMode === "school") {
+      return selectedSchoolId ? "school's teachers" : "0";
+    }
+    return teacherCount !== null ? `${teacherCount}` : "all";
+  }
+
+  function getRecipientLabel(): string {
+    if (targetMode === "teacher" && selectedTeacher) return `Send to ${selectedTeacher.name}`;
+    if (targetMode === "school" && selectedSchoolId) {
+      const school = schools.find((s) => s.id === selectedSchoolId);
+      return school ? `Send to teachers at ${school.name}` : "Send Announcement";
+    }
+    if (teacherCount !== null) return `Send to ${teacherCount} teacher${teacherCount !== 1 ? "s" : ""}`;
+    return "Send Announcement";
+  }
+
+  function canSend(): boolean {
+    if (!title.trim() || !message.trim()) return false;
+    if (targetMode === "school" && !selectedSchoolId) return false;
+    if (targetMode === "teacher" && !selectedTeacher) return false;
+    return true;
+  }
+
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
-    if (!title.trim()) {
-      setError("Please enter a title");
-      return;
-    }
-    if (!message.trim()) {
-      setError("Please enter a message");
-      return;
-    }
+    if (!title.trim()) { setError("Please enter a title"); return; }
+    if (!message.trim()) { setError("Please enter a message"); return; }
+    if (targetMode === "school" && !selectedSchoolId) { setError("Please select a school"); return; }
+    if (targetMode === "teacher" && !selectedTeacher) { setError("Please select a teacher"); return; }
     setShowConfirm(true);
   }
 
@@ -50,17 +133,31 @@ export default function RegionalAnnouncementsPage() {
     setError("");
 
     try {
+      const payload: Record<string, string> = {
+        title: title.trim(),
+        message: message.trim(),
+        target: targetMode,
+      };
+      if (targetMode === "school") payload.schoolId = selectedSchoolId;
+      if (targetMode === "teacher" && selectedTeacher) payload.teacherId = selectedTeacher.id;
+
       const res = await fetch("/api/regional/notifications/broadcast", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title: title.trim(), message: message.trim() }),
+        body: JSON.stringify(payload),
       });
 
       if (res.ok) {
         const data = await res.json();
         setSuccess(data.teacherCount);
+        setRecentAnnouncements((prev) => [
+          { title: title.trim(), message: message.trim(), createdAt: new Date().toISOString(), count: data.teacherCount },
+          ...prev,
+        ].slice(0, 5));
         setTitle("");
         setMessage("");
+        setSelectedTeacher(null);
+        setTeacherQuery("");
         setTimeout(() => setSuccess(null), 5000);
       } else {
         const data = await res.json();
@@ -95,7 +192,7 @@ export default function RegionalAnnouncementsPage() {
             <div>
               <h1 className="text-xl font-bold text-white">Regional Announcement</h1>
               <p className="text-slate-400 text-sm mt-0.5">
-                Broadcast to all teachers in your region
+                Broadcast to teachers in your region
               </p>
             </div>
           </div>
@@ -120,12 +217,140 @@ export default function RegionalAnnouncementsPage() {
         )}
 
         {/* Large audience warning */}
-        {teacherCount !== null && teacherCount > 50 && (
+        {targetMode === "all" && teacherCount !== null && teacherCount > 50 && (
           <div className="flex items-center gap-2 bg-amber-50 border border-amber-200 text-amber-700 text-sm rounded-xl px-4 py-3">
             <AlertTriangle className="w-4 h-4 flex-shrink-0" />
-            This will send to {teacherCount} teachers across {schoolCount ?? "multiple"} schools in your region.
+            This will send to {teacherCount} teachers across {schoolCount ?? "multiple"} schools.
           </div>
         )}
+
+        {/* Targeting Options */}
+        <div
+          className="border"
+          style={{
+            background: "var(--bg-elevated)",
+            borderColor: "var(--border-primary)",
+            borderRadius: "16px",
+            padding: "18px",
+          }}
+        >
+          <label className="block text-xs font-semibold uppercase tracking-widest text-[var(--text-tertiary)] mb-3">
+            Send to
+          </label>
+          <div className="space-y-2">
+            {[
+              { value: "all" as const, label: "All teachers in region", sub: teacherCount !== null ? `${teacherCount} teachers` : "" },
+              { value: "school" as const, label: "Teachers at a specific school", sub: "" },
+              { value: "teacher" as const, label: "A specific teacher", sub: "" },
+            ].map((opt) => (
+              <label
+                key={opt.value}
+                className="flex items-start gap-3 p-3 rounded-xl cursor-pointer transition-colors"
+                style={{
+                  background: targetMode === opt.value ? "rgba(20,184,166,0.08)" : "var(--bg-secondary)",
+                  border: targetMode === opt.value ? "1px solid rgba(20,184,166,0.3)" : "1px solid var(--border-secondary)",
+                }}
+              >
+                <input
+                  type="radio"
+                  name="target"
+                  value={opt.value}
+                  checked={targetMode === opt.value}
+                  onChange={() => {
+                    setTargetMode(opt.value);
+                    setSelectedTeacher(null);
+                    setTeacherQuery("");
+                    setSelectedSchoolId("");
+                  }}
+                  className="mt-0.5 accent-teal-500"
+                />
+                <div>
+                  <p className="text-sm font-medium text-[var(--text-primary)]">{opt.label}</p>
+                  {opt.sub && <p className="text-xs text-[var(--text-tertiary)] mt-0.5">{opt.sub}</p>}
+                </div>
+              </label>
+            ))}
+          </div>
+
+          {/* School selector */}
+          {targetMode === "school" && (
+            <div className="mt-3">
+              <select
+                value={selectedSchoolId}
+                onChange={(e) => setSelectedSchoolId(e.target.value)}
+                className="input-field text-sm"
+                style={{ fontFamily: "var(--font-body)" }}
+              >
+                <option value="">Select a school...</option>
+                {schools.map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {s.name} ({s.code})
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          {/* Teacher search */}
+          {targetMode === "teacher" && (
+            <div className="mt-3">
+              {selectedTeacher ? (
+                <div
+                  className="flex items-center justify-between p-3 rounded-xl"
+                  style={{ background: "rgba(20,184,166,0.08)", border: "1px solid rgba(20,184,166,0.3)" }}
+                >
+                  <div>
+                    <p className="text-sm font-semibold text-[var(--text-primary)]">{selectedTeacher.name}</p>
+                    <p className="text-xs text-[var(--text-tertiary)]">{selectedTeacher.schoolName}</p>
+                  </div>
+                  <button
+                    onClick={() => { setSelectedTeacher(null); setTeacherQuery(""); }}
+                    className="text-xs font-semibold text-red-500 hover:text-red-600"
+                  >
+                    Change
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-tertiary)]" />
+                    <input
+                      type="text"
+                      value={teacherQuery}
+                      onChange={(e) => setTeacherQuery(e.target.value)}
+                      className="input-field pl-9 text-sm"
+                      placeholder="Search teacher name..."
+                      style={{ fontFamily: "var(--font-body)" }}
+                    />
+                  </div>
+                  {searchingTeachers && (
+                    <p className="text-xs text-[var(--text-tertiary)] mt-2 px-1">Searching...</p>
+                  )}
+                  {teacherResults.length > 0 && (
+                    <div className="mt-2 space-y-1">
+                      {teacherResults.map((t) => (
+                        <button
+                          key={t.id}
+                          onClick={() => {
+                            setSelectedTeacher(t);
+                            setTeacherResults([]);
+                          }}
+                          className="w-full text-left p-2.5 rounded-xl hover:bg-[var(--bg-secondary)] transition-colors"
+                        >
+                          <p className="text-sm font-medium text-[var(--text-primary)]">{t.name}</p>
+                          <p className="text-xs text-[var(--text-tertiary)]">{t.schoolName}</p>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                  {teacherQuery.length >= 2 && !searchingTeachers && teacherResults.length === 0 && (
+                    <p className="text-xs text-[var(--text-tertiary)] mt-2 px-1">No teachers found</p>
+                  )}
+                </>
+              )}
+            </div>
+          )}
+        </div>
 
         {/* Form */}
         <form onSubmit={handleSubmit}>
@@ -169,7 +394,7 @@ export default function RegionalAnnouncementsPage() {
                   }}
                   rows={4}
                   className="input-field resize-none"
-                  placeholder="Write your message to all teachers in the region..."
+                  placeholder="Write your message to teachers..."
                   style={{ fontFamily: "var(--font-body)", fontSize: "14px" }}
                 />
                 <p className="text-right text-xs text-[var(--text-tertiary)] mt-1" style={{ fontFamily: "var(--font-body)" }}>
@@ -207,7 +432,7 @@ export default function RegionalAnnouncementsPage() {
           {/* Send button */}
           <button
             type="submit"
-            disabled={sending || !title.trim() || !message.trim()}
+            disabled={sending || !canSend()}
             className="w-full mt-4 flex items-center justify-center gap-2 py-3.5 rounded-2xl text-sm font-bold transition-all active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed"
             style={{
               background: "linear-gradient(135deg, #14B8A6, #0D9488)",
@@ -226,13 +451,55 @@ export default function RegionalAnnouncementsPage() {
             ) : (
               <>
                 <Megaphone className="w-4 h-4" />
-                {teacherCount !== null
-                  ? `Send to ${teacherCount} teacher${teacherCount !== 1 ? "s" : ""}`
-                  : "Send Announcement"}
+                {getRecipientLabel()}
               </>
             )}
           </button>
         </form>
+
+        {/* Recent Announcements */}
+        {recentAnnouncements.length > 0 && (
+          <div
+            className="border"
+            style={{
+              background: "var(--bg-elevated)",
+              borderColor: "var(--border-primary)",
+              borderRadius: "16px",
+              padding: "18px",
+            }}
+          >
+            <h3 className="text-xs font-semibold uppercase tracking-widest text-[var(--text-tertiary)] mb-3">
+              Recent Announcements
+            </h3>
+            <div className="space-y-3">
+              {recentAnnouncements.map((ann, i) => (
+                <div
+                  key={i}
+                  className="pb-3"
+                  style={{
+                    borderBottom: i < recentAnnouncements.length - 1 ? "1px solid var(--border-secondary)" : "none",
+                  }}
+                >
+                  <p className="text-sm font-semibold text-[var(--text-primary)]" style={{ fontFamily: "var(--font-body)" }}>
+                    {ann.title}
+                  </p>
+                  <p className="text-xs text-[var(--text-secondary)] mt-0.5 line-clamp-2" style={{ fontFamily: "var(--font-body)" }}>
+                    {ann.message}
+                  </p>
+                  <div className="flex items-center gap-2 mt-1.5">
+                    <Clock className="w-3 h-3 text-[var(--text-quaternary)]" />
+                    <span className="text-[11px] text-[var(--text-tertiary)]" style={{ fontFamily: "var(--font-mono)" }}>
+                      {formatDate(ann.createdAt)}
+                    </span>
+                    <span className="text-[11px] text-[var(--text-tertiary)]">
+                      · {ann.count} recipient{ann.count !== 1 ? "s" : ""}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Confirmation Modal */}
@@ -257,13 +524,13 @@ export default function RegionalAnnouncementsPage() {
               </h3>
             </div>
             <p className="text-sm text-[var(--text-secondary)] mb-1" style={{ fontFamily: "var(--font-body)" }}>
-              Send this announcement to{" "}
-              <strong className="text-[var(--text-primary)]">
-                {teacherCount ?? "all"} teacher{teacherCount !== 1 ? "s" : ""}
-              </strong>
-              ?
+              {targetMode === "teacher" && selectedTeacher
+                ? `Send this announcement to ${selectedTeacher.name}?`
+                : targetMode === "school" && selectedSchoolId
+                ? `Send this announcement to teachers at ${schools.find((s) => s.id === selectedSchoolId)?.name}?`
+                : `Send this announcement to ${getRecipientCount()} teachers?`}
             </p>
-            {schoolCount !== null && (
+            {targetMode === "all" && schoolCount !== null && (
               <p className="text-xs text-[var(--text-tertiary)] mb-4" style={{ fontFamily: "var(--font-body)" }}>
                 Across {schoolCount} school{schoolCount !== 1 ? "s" : ""} in your region
               </p>

@@ -11,6 +11,9 @@ import {
   BarChart3,
   Users,
   Info,
+  ChevronUp,
+  Megaphone,
+  ChevronRight,
 } from "lucide-react";
 import { formatDate } from "@/lib/utils";
 import type { NotificationData } from "@/types";
@@ -29,6 +32,9 @@ function getNotificationIcon(type: string) {
       return <Users className="w-4 h-4 text-indigo-500" />;
     case "CURRICULUM_GAP":
       return <AlertTriangle className="w-4 h-4 text-red-500" />;
+    case "SCHOOL_ANNOUNCEMENT":
+    case "REGIONAL_ANNOUNCEMENT":
+      return <Megaphone className="w-4 h-4 text-amber-500" />;
     default:
       return <Info className="w-4 h-4 text-[var(--text-tertiary)]" />;
   }
@@ -37,10 +43,21 @@ function getNotificationIcon(type: string) {
 export default function NotificationsPage() {
   const [notifications, setNotifications] = useState<NotificationData[]>([]);
   const [loading, setLoading] = useState(true);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [unreadAnnouncements, setUnreadAnnouncements] = useState(0);
 
   useEffect(() => {
     fetchNotifications();
   }, []);
+
+  useEffect(() => {
+    const count = notifications.filter(
+      (n) =>
+        !n.isRead &&
+        (n.type === "SCHOOL_ANNOUNCEMENT" || n.type === "REGIONAL_ANNOUNCEMENT")
+    ).length;
+    setUnreadAnnouncements(count);
+  }, [notifications]);
 
   async function fetchNotifications() {
     try {
@@ -83,6 +100,18 @@ export default function NotificationsPage() {
     }
   }
 
+  function handleNotificationTap(notification: NotificationData) {
+    if (notification.link) return;
+    if (expandedId === notification.id) {
+      setExpandedId(null);
+    } else {
+      setExpandedId(notification.id);
+      if (!notification.isRead) {
+        markAsRead(notification.id);
+      }
+    }
+  }
+
   const unreadCount = notifications.filter((n) => !n.isRead).length;
 
   return (
@@ -117,6 +146,31 @@ export default function NotificationsPage() {
       </div>
 
       <div className="px-5 mt-4 max-w-lg mx-auto">
+        {/* View Announcements link */}
+        <Link
+          href="/messages"
+          className="flex items-center justify-between p-3.5 mb-3 rounded-2xl border active:scale-[0.98] transition-all"
+          style={{
+            background: "var(--bg-elevated)",
+            borderColor: "var(--border-primary)",
+          }}
+        >
+          <div className="flex items-center gap-2.5">
+            <Megaphone className="w-4 h-4 text-amber-500" />
+            <span className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>
+              View Announcements
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            {unreadAnnouncements > 0 && (
+              <span className="text-[10px] font-bold text-white bg-amber-500 rounded-full px-1.5 py-0.5 min-w-[18px] text-center">
+                {unreadAnnouncements}
+              </span>
+            )}
+            <ChevronRight className="w-4 h-4" style={{ color: "var(--text-tertiary)" }} />
+          </div>
+        </Link>
+
         {loading ? (
           <div className="space-y-3">
             {[1, 2, 3].map((i) => (
@@ -137,6 +191,9 @@ export default function NotificationsPage() {
         ) : (
           <div className="space-y-2">
             {notifications.map((notification) => {
+              const isExpanded = expandedId === notification.id;
+              const isLongMessage = notification.message.length > 80;
+
               const content = (
                 <div
                   className={`card p-4 flex gap-3 transition-colors ${
@@ -163,9 +220,32 @@ export default function NotificationsPage() {
                         <div className="w-2 h-2 rounded-full bg-brand-500 flex-shrink-0 mt-1.5" />
                       )}
                     </div>
-                    <p className="text-xs text-[var(--text-tertiary)] mt-0.5 line-clamp-2">
+                    <p
+                      className={`text-xs text-[var(--text-tertiary)] mt-0.5 ${
+                        isExpanded ? "" : "line-clamp-2"
+                      }`}
+                    >
                       {notification.message}
                     </p>
+                    {/* "Tap to read more" for long collapsed messages without link */}
+                    {!isExpanded && !notification.link && isLongMessage && (
+                      <p
+                        className="mt-1"
+                        style={{ fontSize: "11px", color: "var(--text-tertiary)" }}
+                      >
+                        Tap to read more
+                      </p>
+                    )}
+                    {/* Collapse indicator when expanded */}
+                    {isExpanded && (
+                      <div
+                        className="flex items-center gap-1 mt-2 pb-1"
+                        style={{ color: "var(--text-tertiary)" }}
+                      >
+                        <ChevronUp className="w-3 h-3" />
+                        <span style={{ fontSize: "11px" }}>Show less</span>
+                      </div>
+                    )}
                     <p className="text-[10px] text-[var(--text-tertiary)] mt-1.5">
                       {formatDate(notification.createdAt)}
                     </p>
@@ -191,9 +271,7 @@ export default function NotificationsPage() {
                 <button
                   key={notification.id}
                   className="w-full text-left"
-                  onClick={() => {
-                    if (!notification.isRead) markAsRead(notification.id);
-                  }}
+                  onClick={() => handleNotificationTap(notification)}
                 >
                   {content}
                 </button>

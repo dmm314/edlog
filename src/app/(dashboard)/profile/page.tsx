@@ -995,6 +995,13 @@ export default function ProfilePage() {
             Quick Actions
           </h3>
           <div className="divide-y" style={{ borderColor: "var(--border-secondary)" }}>
+            {role === "TEACHER" && (
+              <QuickLink
+                href="/messages"
+                icon={<Megaphone className="w-4.5 h-4.5" />}
+                label="Messages & Announcements"
+              />
+            )}
             <QuickLink
               href="/appearance"
               icon={<Palette className="w-4.5 h-4.5" />}
