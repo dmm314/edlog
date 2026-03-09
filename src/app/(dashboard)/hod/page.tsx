@@ -15,6 +15,8 @@ import {
   FileText,
   ArrowLeft,
   GraduationCap,
+  Megaphone,
+  ChevronRight,
 } from "lucide-react";
 
 interface HODStats {
@@ -295,6 +297,32 @@ export default function HODDashboard() {
             </p>
           </div>
         </div>
+
+        {/* Send Announcement */}
+        <Link
+          href="/hod/announcements"
+          className="flex items-center justify-between p-4 group active:scale-[0.98] transition-all duration-200"
+          style={{
+            background: "linear-gradient(135deg, #FFFBEB, #FEF3C7)",
+            border: "1px solid #FDE68A",
+            borderRadius: "16px",
+          }}
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center">
+              <Megaphone className="w-5 h-5 text-amber-600" />
+            </div>
+            <div>
+              <span style={{ fontFamily: "var(--font-body)", fontSize: 14, fontWeight: 700, color: "#92400E" }}>
+                Send Announcement
+              </span>
+              <span className="block" style={{ fontFamily: "var(--font-body)", fontSize: 12, color: "#B45309" }}>
+                Message teachers in your department
+              </span>
+            </div>
+          </div>
+          <ChevronRight className="w-4 h-4 text-amber-400 group-hover:translate-x-0.5 transition-transform" />
+        </Link>
 
         {/* Tab switcher */}
         <div className="flex bg-[var(--bg-elevated)] rounded-xl border border-[var(--border-primary)] p-1">

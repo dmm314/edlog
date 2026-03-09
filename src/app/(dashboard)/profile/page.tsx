@@ -26,6 +26,7 @@ import {
   MapPin,
   CheckCircle,
   XCircle,
+  Megaphone,
 } from "lucide-react";
 import Link from "next/link";
 import { formatDate } from "@/lib/utils";
@@ -892,6 +893,9 @@ export default function ProfilePage() {
               </h3>
               <div className="divide-y" style={{ borderColor: "var(--border-secondary)" }}>
                 <QuickLink href="/admin/teachers" icon={<Users className="w-4.5 h-4.5" />} label="Manage Teachers" />
+                <QuickLink href="/admin/classes" icon={<GraduationCap className="w-4.5 h-4.5" />} label="Manage Classes" />
+                <QuickLink href="/admin/subjects" icon={<Layers className="w-4.5 h-4.5" />} label="Manage Subjects" />
+                <QuickLink href="/admin/announcements" icon={<Megaphone className="w-4.5 h-4.5" />} label="Send Announcement" />
                 <QuickLink href="/admin/reports/teachers" icon={<BarChart3 className="w-4.5 h-4.5" />} label="View Reports" />
                 <QuickLink href="/admin/timetable" icon={<CalendarCheck className="w-4.5 h-4.5" />} label="Timetable" />
               </div>
@@ -975,6 +979,7 @@ export default function ProfilePage() {
                 Quick Links
               </h3>
               <div className="divide-y" style={{ borderColor: "var(--border-secondary)" }}>
+                <QuickLink href="/regional/announcements" icon={<Megaphone className="w-4.5 h-4.5" />} label="Send Announcement" />
                 <QuickLink href="/regional/schools" icon={<Building2 className="w-4.5 h-4.5" />} label="View Schools" />
                 <QuickLink href="/regional/reports/schools" icon={<BarChart3 className="w-4.5 h-4.5" />} label="Reports" />
                 <QuickLink href="/regional/reports/coverage" icon={<Layers className="w-4.5 h-4.5" />} label="Curriculum Coverage" />
