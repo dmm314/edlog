@@ -74,7 +74,6 @@ export default function AdminAnnouncementsPage() {
         ].slice(0, 5));
         setTitle("");
         setMessage("");
-        setTimeout(() => setSuccess(null), 5000);
       } else {
         const data = await res.json();
         setError(data.error || "Failed to send announcement");
@@ -108,7 +107,7 @@ export default function AdminAnnouncementsPage() {
             <div>
               <h1 className="text-xl font-bold text-white">Send Announcement</h1>
               <p className="text-slate-400 text-sm mt-0.5">
-                Message all your teachers
+                Message all teachers in your school
               </p>
             </div>
           </div>
@@ -116,14 +115,6 @@ export default function AdminAnnouncementsPage() {
       </div>
 
       <div className="px-5 mt-4 max-w-lg mx-auto space-y-4">
-        {/* Success message */}
-        {success !== null && (
-          <div className="flex items-center gap-2 bg-green-50 border border-green-200 text-green-700 text-sm rounded-xl px-4 py-3 animate-slide-down">
-            <CheckCircle className="w-4 h-4 flex-shrink-0" />
-            Announcement sent to {success} teacher{success !== 1 ? "s" : ""}!
-          </div>
-        )}
-
         {/* Error */}
         {error && (
           <div className="flex items-center gap-2 bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-4 py-3">
@@ -132,7 +123,36 @@ export default function AdminAnnouncementsPage() {
           </div>
         )}
 
-        {/* Form */}
+        {/* Success state — replaces the form */}
+        {success !== null ? (
+          <div
+            className="border text-center"
+            style={{
+              background: "var(--bg-elevated)",
+              borderColor: "var(--border-primary)",
+              borderRadius: "16px",
+              padding: "32px 18px",
+            }}
+          >
+            <div className="w-14 h-14 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
+              <CheckCircle className="w-7 h-7 text-green-600" />
+            </div>
+            <p className="text-lg font-bold text-[var(--text-primary)]" style={{ fontFamily: "var(--font-body)" }}>
+              Announcement sent to {success} teacher{success !== 1 ? "s" : ""}!
+            </p>
+            <button
+              onClick={() => setSuccess(null)}
+              className="mt-5 px-6 py-2.5 rounded-xl text-sm font-semibold transition-all active:scale-[0.97]"
+              style={{
+                background: "linear-gradient(135deg, #F59E0B, #D97706)",
+                color: "#FFFBEB",
+              }}
+            >
+              Send another
+            </button>
+          </div>
+        ) : (
+        /* Form */
         <form onSubmit={handleSubmit}>
           <div
             className="border"
@@ -146,7 +166,8 @@ export default function AdminAnnouncementsPage() {
             <div className="space-y-4">
               <div>
                 <label
-                  className="block text-xs font-semibold uppercase tracking-widest text-[var(--text-tertiary)] mb-2"
+                  className="block font-semibold text-[var(--text-tertiary)] mb-2"
+                  style={{ fontSize: "13px" }}
                 >
                   Title
                 </label>
@@ -167,7 +188,8 @@ export default function AdminAnnouncementsPage() {
 
               <div>
                 <label
-                  className="block text-xs font-semibold uppercase tracking-widest text-[var(--text-tertiary)] mb-2"
+                  className="block font-semibold text-[var(--text-tertiary)] mb-2"
+                  style={{ fontSize: "13px" }}
                 >
                   Message
                 </label>
@@ -176,7 +198,7 @@ export default function AdminAnnouncementsPage() {
                   onChange={(e) => {
                     if (e.target.value.length <= 500) setMessage(e.target.value);
                   }}
-                  rows={4}
+                  rows={5}
                   className="input-field resize-none"
                   placeholder="Write your message to all teachers..."
                   style={{ fontFamily: "var(--font-body)", fontSize: "14px" }}
@@ -245,6 +267,7 @@ export default function AdminAnnouncementsPage() {
             )}
           </button>
         </form>
+        )}
 
         {/* Recent Announcements */}
         {recentAnnouncements.length > 0 && (
