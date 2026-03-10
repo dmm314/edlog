@@ -517,7 +517,7 @@ export default function NewEntryPage() {
       const allClassIds = [classId, ...additionalClassIds];
       const allAssignmentIds = allClassIds.map((cId) => {
         const match = assignments.find((a) => a.class.id === cId && a.subject.id === subjectId);
-        return match?.id || assignmentId;
+        return match?.id || null;
       });
 
       for (const slot of slotsToSubmit) {

@@ -309,54 +309,6 @@ export async function POST(request: Request) {
       }
     }
 
-    // Prevent duplicate entries for the same teacher + date + period
-    if (data.period) {
-      const existingEntry = await db.logbookEntry.findFirst({
-        where: {
-          teacherId: user.id,
-          date: entryDate,
-          period: data.period,
-          status: { not: "DRAFT" }, // Allow overwriting drafts
-        },
-      });
-
-      if (existingEntry) {
-        return NextResponse.json(
-          { error: `You already have an entry for Period ${data.period} on this date. You cannot fill the same period twice.` },
-          { status: 409 }
-        );
-      }
-
-      // If there's an existing draft for this period, delete it before creating new one
-      await db.logbookEntry.deleteMany({
-        where: {
-          teacherId: user.id,
-          date: entryDate,
-          period: data.period,
-          status: "DRAFT",
-        },
-      });
-    }
-
-    // Also check by timetable slot ID to catch duplicates even without period
-    if (data.timetableSlotId) {
-      const existingBySlot = await db.logbookEntry.findFirst({
-        where: {
-          teacherId: user.id,
-          date: entryDate,
-          timetableSlotId: data.timetableSlotId,
-          status: { not: "DRAFT" },
-        },
-      });
-
-      if (existingBySlot) {
-        return NextResponse.json(
-          { error: "You already have an entry for this timetable slot on this date. You cannot fill the same slot twice." },
-          { status: 409 }
-        );
-      }
-    }
-
     // Determine the class IDs to create entries for
     // Multi-class: if classIds is provided, create an entry for each class
     const classIdsToCreate = data.classIds?.length ? data.classIds : [data.classId];
@@ -368,6 +320,69 @@ export async function POST(request: Request) {
       const thisClassId = classIdsToCreate[i];
       const thisAssignmentId = assignmentIdsToUse[i] ?? assignmentIdsToUse[0] ?? null;
 
+      // Prevent duplicate entries for the same teacher + date + period + class
+      if (data.period) {
+        const existingEntry = await db.logbookEntry.findFirst({
+          where: {
+            teacherId: user.id,
+            date: entryDate,
+            period: data.period,
+            classId: thisClassId,
+            status: { not: "DRAFT" },
+          },
+        });
+
+        if (existingEntry) {
+          return NextResponse.json(
+            { error: `You already have an entry for Period ${data.period} on this date for this class. You cannot fill the same period twice.` },
+            { status: 409 }
+          );
+        }
+
+        // If there's an existing draft for this period+class, delete it before creating new one
+        await db.logbookEntry.deleteMany({
+          where: {
+            teacherId: user.id,
+            date: entryDate,
+            period: data.period,
+            classId: thisClassId,
+            status: "DRAFT",
+          },
+        });
+      }
+
+      // Also check by timetable slot ID + class to catch duplicates even without period
+      if (data.timetableSlotId && i === 0) {
+        const existingBySlot = await db.logbookEntry.findFirst({
+          where: {
+            teacherId: user.id,
+            date: entryDate,
+            timetableSlotId: data.timetableSlotId,
+            classId: thisClassId,
+            status: { not: "DRAFT" },
+          },
+        });
+
+        if (existingBySlot) {
+          return NextResponse.json(
+            { error: "You already have an entry for this timetable slot on this date. You cannot fill the same slot twice." },
+            { status: 409 }
+          );
+        }
+      }
+
+      // Validate assignment belongs to this class (if provided)
+      let validAssignmentId = thisAssignmentId;
+      if (thisAssignmentId) {
+        const assignment = await db.teacherAssignment.findUnique({
+          where: { id: thisAssignmentId },
+        });
+        if (assignment && assignment.classId !== thisClassId) {
+          // Assignment doesn't match this class — clear it rather than fail
+          validAssignmentId = null;
+        }
+      }
+
       const entry = await db.logbookEntry.create({
         data: {
           date: new Date(data.date),
@@ -377,7 +392,7 @@ export async function POST(request: Request) {
             : {}),
           moduleName: data.classDidNotHold ? "Class Did Not Hold" : moduleName,
           topicText: data.classDidNotHold ? "Class did not hold" : topicText,
-          assignmentId: thisAssignmentId,
+          assignmentId: validAssignmentId,
           timetableSlotId: i === 0 ? (data.timetableSlotId ?? null) : null,
           period: data.period ?? null,
           duration: data.classDidNotHold ? 0 : data.duration,
