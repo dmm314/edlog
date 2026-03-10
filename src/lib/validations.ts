@@ -102,8 +102,46 @@ export const updateEntrySchema = z.object({
   engagementLevel: z.enum(["LOW", "MEDIUM", "HIGH"]).optional().nullable(),
 });
 
+// ── Assessments ──────────────────────────────────────────
+
+export const createAssessmentSchema = z.object({
+  classId: z.string().min(1, "Class is required"),
+  subjectId: z.string().min(1, "Subject is required"),
+  title: z.string().min(1, "Title is required").max(200),
+  type: z.enum(["sequence_test", "class_test", "assignment", "mock_exam", "exam"]),
+  date: z.string().min(1, "Date is required"),
+  totalMarks: z.number().int().min(1, "Total marks must be at least 1").max(1000),
+  passMark: z.number().int().min(0),
+  topicIds: z.array(z.string()).optional(),
+  topicsNote: z.string().max(500).optional().nullable(),
+});
+
+export const updateAssessmentResultsSchema = z.object({
+  corrected: z.boolean().optional(),
+  correctionDate: z.string().optional().nullable(),
+  totalStudents: z.number().int().min(0).optional().nullable(),
+  totalMale: z.number().int().min(0).optional().nullable(),
+  totalFemale: z.number().int().min(0).optional().nullable(),
+  totalPassed: z.number().int().min(0).optional().nullable(),
+  malePassed: z.number().int().min(0).optional().nullable(),
+  femalePassed: z.number().int().min(0).optional().nullable(),
+  highestMark: z.number().min(0).optional().nullable(),
+  lowestMark: z.number().min(0).optional().nullable(),
+  averageMark: z.number().min(0).optional().nullable(),
+}).refine(
+  (data) => {
+    if (data.totalStudents != null && data.totalPassed != null && data.totalPassed > data.totalStudents) {
+      return false;
+    }
+    return true;
+  },
+  { message: "Total passed cannot exceed total students", path: ["totalPassed"] }
+);
+
 export type LoginInput = z.infer<typeof loginSchema>;
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type SchoolRegisterInput = z.infer<typeof schoolRegisterSchema>;
 export type CreateEntryInput = z.infer<typeof createEntrySchema>;
 export type UpdateEntryInput = z.infer<typeof updateEntrySchema>;
+export type CreateAssessmentInput = z.infer<typeof createAssessmentSchema>;
+export type UpdateAssessmentResultsInput = z.infer<typeof updateAssessmentResultsSchema>;

@@ -96,6 +96,7 @@ model User {
   sessions     Session[]
   notifications Notification[]
   hodSubjects  HeadOfDepartment[]
+  assessments  Assessment[]
 
   @@index([schoolId, role])
 }
@@ -190,6 +191,7 @@ model School {
   timetableSlots TimetableSlot[]
   periodSchedule PeriodSchedule[]
   hods           HeadOfDepartment[]
+  assessments    Assessment[]
 }
 
 // ── PERIOD SCHEDULE (school-wide bell times) ─────────────
@@ -242,6 +244,7 @@ model Class {
   entries     LogbookEntry[]
   assignments TeacherAssignment[]
   subjects    ClassSubject[]
+  assessments Assessment[]
 
   @@unique([schoolId, name, year])
 }
@@ -260,6 +263,7 @@ model Subject {
   assignments TeacherAssignment[]
   divisions   SubjectDivision[]
   hods        HeadOfDepartment[]
+  assessments Assessment[]
 }
 
 model Topic {
@@ -274,6 +278,7 @@ model Topic {
   subject    Subject  @relation(fields: [subjectId], references: [id])
 
   entries LogbookEntry[] @relation("EntryTopics")
+  assessments Assessment[] @relation("AssessmentTopics")
 
   @@unique([subjectId, classLevel, name])
   @@index([subjectId, classLevel])
@@ -425,6 +430,53 @@ model LogbookEntry {
 
   @@index([teacherId, date])
   @@index([classId, date])
+}
+
+// ── ASSESSMENTS ─────────────────────────────────────────
+
+model Assessment {
+  id            String   @id @default(cuid())
+  teacherId     String
+  teacher       User     @relation(fields: [teacherId], references: [id])
+  classId       String
+  class         Class    @relation(fields: [classId], references: [id])
+  subjectId     String
+  subject       Subject  @relation(fields: [subjectId], references: [id])
+  schoolId      String
+  school        School   @relation(fields: [schoolId], references: [id])
+
+  title         String            // "First Sequence Test", "Mock Exam", "Class Test 3"
+  type          String            // "sequence_test", "class_test", "assignment", "mock_exam", "exam"
+  date          DateTime          // Date the test was administered
+  totalMarks    Int               // Maximum possible marks (e.g., 20, 50, 100)
+  passMark      Int               // Minimum marks to pass (e.g., 10 out of 20)
+
+  // Topics tested (links to curriculum)
+  topicsTested  Topic[]           @relation("AssessmentTopics")
+  topicsNote    String?           // Free-text description of what was tested
+
+  // Results (entered later, after correction)
+  corrected         Boolean   @default(false)
+  correctionDate    DateTime?
+  totalStudents     Int?           // Total who sat the test
+  totalMale         Int?           // Male students who sat
+  totalFemale       Int?           // Female students who sat
+  totalPassed       Int?           // Students who scored >= passMark
+  malePassed        Int?
+  femalePassed      Int?
+  highestMark       Float?
+  lowestMark        Float?
+  averageMark       Float?
+
+  // Notification tracking
+  notifiedParents   Boolean   @default(false)
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([teacherId, classId])
+  @@index([schoolId, date])
+  @@index([classId, subjectId])
 }
 
 // ── NOTIFICATIONS ────────────────────────────────────────
