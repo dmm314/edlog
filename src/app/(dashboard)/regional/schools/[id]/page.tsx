@@ -139,8 +139,8 @@ export default function SchoolDetailPage() {
         <div className="px-5 mt-4 max-w-lg mx-auto space-y-4">
           {[1, 2, 3].map((i) => (
             <div key={i} className="card p-4 animate-pulse">
-              <div className="h-4 bg-slate-200 rounded w-1/2 mb-2" />
-              <div className="h-3 bg-slate-200 rounded w-1/3" />
+              <div className="h-4 bg-[var(--skeleton-base)] rounded w-1/2 mb-2" />
+              <div className="h-3 bg-[var(--skeleton-base)] rounded w-1/3" />
             </div>
           ))}
         </div>
@@ -242,7 +242,7 @@ export default function SchoolDetailPage() {
 
       {/* Tab Selector */}
       <div className="px-5 mt-4 max-w-lg mx-auto">
-        <div className="flex gap-1 bg-slate-100 rounded-xl p-1">
+        <div className="flex gap-1 bg-[var(--bg-tertiary)] rounded-xl p-1">
           {(["overview", "classes", "teachers"] as const).map((tab) => (
             <button
               key={tab}

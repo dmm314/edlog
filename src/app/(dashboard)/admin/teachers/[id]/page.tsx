@@ -115,8 +115,8 @@ export default function TeacherDetailPage() {
         <div className="px-5 -mt-6 max-w-lg mx-auto space-y-3">
           {[1, 2, 3].map((i) => (
             <div key={i} className="card p-5 animate-pulse">
-              <div className="h-4 bg-slate-200 rounded w-1/2 mb-2" />
-              <div className="h-3 bg-slate-200 rounded w-1/3" />
+              <div className="h-4 bg-[var(--skeleton-base)] rounded w-1/2 mb-2" />
+              <div className="h-3 bg-[var(--skeleton-base)] rounded w-1/3" />
             </div>
           ))}
         </div>
@@ -223,11 +223,11 @@ export default function TeacherDetailPage() {
         {/* Stats row */}
         <div className="animate-slide-up grid grid-cols-3 gap-3">
           <div className="card p-3.5 text-center">
-            <p className="text-xl font-bold text-brand-950">{teacher.totalEntries}</p>
+            <p className="text-xl font-bold text-[var(--text-primary)]">{teacher.totalEntries}</p>
             <p className="text-[10px] text-[var(--text-tertiary)] font-semibold uppercase tracking-wider mt-0.5">Entries</p>
           </div>
           <div className="card p-3.5 text-center">
-            <p className="text-xl font-bold text-brand-950">{teacher.assignments.length}</p>
+            <p className="text-xl font-bold text-[var(--text-primary)]">{teacher.assignments.length}</p>
             <p className="text-[10px] text-[var(--text-tertiary)] font-semibold uppercase tracking-wider mt-0.5">Assignments</p>
           </div>
           <div className="card p-3.5 text-center">
@@ -243,7 +243,7 @@ export default function TeacherDetailPage() {
           <div className="px-5 pt-4 pb-2">
             <h3 className="text-xs font-bold uppercase tracking-widest text-[var(--text-tertiary)]">Contact Information</h3>
           </div>
-          <div className="divide-y divide-slate-50">
+          <div className="divide-y divide-[var(--border-secondary)]">
             <div className="flex items-center gap-3 px-5 py-3">
               <div className="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center">
                 <Mail className="w-4 h-4 text-blue-500" />
@@ -277,7 +277,7 @@ export default function TeacherDetailPage() {
         </div>
 
         {/* Tabs */}
-        <div className="animate-slide-up animation-delay-150 flex gap-1 bg-slate-100/80 rounded-2xl p-1.5 shadow-inner-glow">
+        <div className="animate-slide-up animation-delay-150 flex gap-1 bg-[var(--bg-tertiary)] rounded-2xl p-1.5 shadow-inner-glow">
           <button
             onClick={() => setTab("entries")}
             className={`flex-1 flex items-center justify-center gap-1.5 rounded-xl px-3 py-2.5 text-sm font-semibold transition-all duration-200 ${

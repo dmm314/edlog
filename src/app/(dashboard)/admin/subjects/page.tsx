@@ -418,8 +418,8 @@ export default function ManageSubjectsPage() {
           <div className="space-y-3">
             {[1, 2, 3, 4].map((i) => (
               <div key={i} className="card p-4 animate-pulse">
-                <div className="h-4 bg-slate-200 rounded w-1/2 mb-2" />
-                <div className="h-3 bg-slate-200 rounded w-1/3" />
+                <div className="h-4 bg-[var(--skeleton-base)] rounded w-1/2 mb-2" />
+                <div className="h-3 bg-[var(--skeleton-base)] rounded w-1/3" />
               </div>
             ))}
           </div>
@@ -482,7 +482,7 @@ export default function ManageSubjectsPage() {
                                 </span>
                               )}
                               {subject.linked && subject.divisions.length === 0 && (
-                                <span className="text-[10px] text-[var(--text-tertiary)] bg-slate-100 px-1.5 py-0.5 rounded font-medium">
+                                <span className="text-[10px] text-[var(--text-tertiary)] bg-[var(--bg-tertiary)] px-1.5 py-0.5 rounded font-medium">
                                   No divisions
                                 </span>
                               )}

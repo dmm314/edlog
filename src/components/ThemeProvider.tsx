@@ -2,7 +2,7 @@
  
 import React, { createContext, useCallback, useContext, useEffect, useState } from "react";
  
-export type Theme = "light" | "dark" | "night";
+export type Theme = "light" | "dark";
  
 interface ThemeContextValue {
   theme: Theme;
@@ -17,15 +17,15 @@ const STORAGE_KEY = "edlog-theme";
 function getStoredTheme(): Theme {
   if (typeof window === "undefined") return "light";
   const stored = localStorage.getItem(STORAGE_KEY);
-  if (stored === "dark" || stored === "night" || stored === "light") return stored;
-  // Check system preference
+  if (stored === "light") return "light";
+  if (stored === "dark" || stored === "night") return "dark"; // night → dark fallback
   if (window.matchMedia("(prefers-color-scheme: dark)").matches) return "dark";
   return "light";
 }
  
 function applyTheme(theme: Theme) {
   const root = document.documentElement;
-  root.classList.remove("light", "dark", "night");
+  root.classList.remove("light", "dark");
   root.classList.add(theme);
  
   // Update meta theme-color
@@ -33,8 +33,7 @@ function applyTheme(theme: Theme) {
   if (meta) {
     const colors: Record<Theme, string> = {
       light: "#FAFAF9",
-      dark: "#0C0A09",
-      night: "#131110",
+      dark: "#1C1917",
     };
     meta.setAttribute("content", colors[theme]);
   }

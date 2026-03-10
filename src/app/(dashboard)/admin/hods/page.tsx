@@ -287,10 +287,10 @@ export default function HODsPage() {
             {[1, 2, 3].map((i) => (
               <div key={i} className="card p-4 animate-pulse">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-slate-200 rounded-xl" />
+                  <div className="w-12 h-12 bg-[var(--skeleton-base)] rounded-xl" />
                   <div className="flex-1">
-                    <div className="h-4 bg-slate-200 rounded w-1/2 mb-2" />
-                    <div className="h-3 bg-slate-200 rounded w-1/3" />
+                    <div className="h-4 bg-[var(--skeleton-base)] rounded w-1/2 mb-2" />
+                    <div className="h-3 bg-[var(--skeleton-base)] rounded w-1/3" />
                   </div>
                 </div>
               </div>

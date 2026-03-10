@@ -122,8 +122,8 @@ function SignaturePad({ onSign, onClear }: SignaturePadProps) {
           ref={canvasRef}
           width={600}
           height={200}
-          className="w-full border-2 border-dashed border-slate-300 rounded-xl bg-white cursor-crosshair"
-          style={{ touchAction: "none" }}
+          className="w-full border-2 border-dashed rounded-xl cursor-crosshair"
+          style={{ touchAction: "none", borderColor: "var(--border-primary)", backgroundColor: "#FFFFFF" }}
           onMouseDown={startDrawing}
           onMouseMove={draw}
           onMouseUp={stopDrawing}
@@ -134,14 +134,15 @@ function SignaturePad({ onSign, onClear }: SignaturePadProps) {
         />
         {isEmpty && (
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <p className="text-slate-400 text-sm">Sign here</p>
+            <p className="text-sm" style={{ color: "var(--text-tertiary)" }}>Sign here</p>
           </div>
         )}
       </div>
       <button
         type="button"
         onClick={handleClear}
-        className="mt-2 text-sm text-slate-500 hover:text-slate-700 transition-colors"
+        className="mt-2 text-sm transition-colors"
+        style={{ color: "var(--text-tertiary)" }}
       >
         Clear
       </button>

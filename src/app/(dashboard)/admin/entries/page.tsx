@@ -459,14 +459,14 @@ export default function AdminEntriesPage() {
             {[1, 2, 3, 4].map((i) => (
               <div key={i} className="card p-5 animate-pulse">
                 <div className="flex items-center justify-between mb-3">
-                  <div className="h-4 bg-slate-200 rounded w-1/3" />
-                  <div className="h-4 bg-slate-200 rounded w-16" />
+                  <div className="h-4 bg-[var(--skeleton-base)] rounded w-1/3" />
+                  <div className="h-4 bg-[var(--skeleton-base)] rounded w-16" />
                 </div>
                 <div className="flex items-center gap-2 mb-2">
-                  <div className="h-7 w-7 bg-slate-200 rounded-xl" />
-                  <div className="h-4 bg-slate-200 rounded w-24" />
+                  <div className="h-7 w-7 bg-[var(--skeleton-base)] rounded-xl" />
+                  <div className="h-4 bg-[var(--skeleton-base)] rounded w-24" />
                 </div>
-                <div className="h-3 bg-slate-200 rounded w-1/2" />
+                <div className="h-3 bg-[var(--skeleton-base)] rounded w-1/2" />
               </div>
             ))}
           </div>
