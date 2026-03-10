@@ -40,7 +40,6 @@ const TYPE_LABELS: Record<string, string> = {
 
 export default function AssessmentResultsPage() {
   const params = useParams();
-  const router = useRouter();
   const id = params.id as string;
 
   const [assessment, setAssessment] = useState<AssessmentDetail | null>(null);
