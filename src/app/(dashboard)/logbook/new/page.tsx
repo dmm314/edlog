@@ -18,7 +18,6 @@ import {
   ChevronRight,
   ChevronDown,
   Info,
-  Pencil,
   Globe,
   Monitor,
   Smartphone,
@@ -143,7 +142,7 @@ export default function NewEntryPage() {
   const [period, setPeriod] = useState("");
   const [duration, setDuration] = useState("60");
   const [notes, setNotes] = useState("");
-  const [objectives, setObjectives] = useState("");
+  const [, setObjectives] = useState("");
   const [studentAttendance, setStudentAttendance] = useState("");
   const [engagementLevel, setEngagementLevel] = useState("");
   const [signatureData, setSignatureData] = useState<string | null>(null);

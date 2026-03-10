@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
-import { ArrowLeft, Megaphone, CheckCircle, AlertTriangle, Clock } from "lucide-react";
+import { ArrowLeft, Megaphone, CheckCircle, AlertTriangle, Clock, Users, Search, X, Check } from "lucide-react";
 import { formatDate } from "@/lib/utils";
 
 interface RecentAnnouncement {
@@ -10,6 +10,14 @@ interface RecentAnnouncement {
   message: string;
   createdAt: string;
   count: number;
+}
+
+interface TeacherInfo {
+  id: string;
+  firstName: string;
+  lastName: string;
+  subjects: string[];
+  membershipStatus: string;
 }
 
 export default function AdminAnnouncementsPage() {
@@ -21,6 +29,13 @@ export default function AdminAnnouncementsPage() {
   const [success, setSuccess] = useState<number | null>(null);
   const [error, setError] = useState("");
   const [recentAnnouncements, setRecentAnnouncements] = useState<RecentAnnouncement[]>([]);
+
+  // Teacher filtering
+  const [sendToAll, setSendToAll] = useState(true);
+  const [teachers, setTeachers] = useState<TeacherInfo[]>([]);
+  const [selectedTeacherIds, setSelectedTeacherIds] = useState<Set<string>>(new Set());
+  const [teacherSearch, setTeacherSearch] = useState("");
+  const [loadingTeachers, setLoadingTeachers] = useState(false);
 
   useEffect(() => {
     async function fetchData() {
@@ -37,6 +52,55 @@ export default function AdminAnnouncementsPage() {
     }
     fetchData();
   }, []);
+
+  useEffect(() => {
+    if (!sendToAll && teachers.length === 0) {
+      setLoadingTeachers(true);
+      fetch("/api/admin/teachers")
+        .then((r) => r.json())
+        .then((data: TeacherInfo[]) => {
+          const active = (Array.isArray(data) ? data : []).filter(
+            (t) => t.membershipStatus === "ACTIVE"
+          );
+          setTeachers(active);
+        })
+        .catch(() => {})
+        .finally(() => setLoadingTeachers(false));
+    }
+  }, [sendToAll, teachers.length]);
+
+  const filteredTeachers = useMemo(() => {
+    if (!teacherSearch.trim()) return teachers;
+    const q = teacherSearch.toLowerCase();
+    return teachers.filter(
+      (t) =>
+        `${t.firstName} ${t.lastName}`.toLowerCase().includes(q) ||
+        t.subjects.some((s) => s.toLowerCase().includes(q))
+    );
+  }, [teachers, teacherSearch]);
+
+  const recipientCount = sendToAll ? teacherCount : selectedTeacherIds.size;
+
+  function toggleTeacher(id: string) {
+    setSelectedTeacherIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  function selectAllFiltered() {
+    setSelectedTeacherIds((prev) => {
+      const next = new Set(prev);
+      for (const t of filteredTeachers) next.add(t.id);
+      return next;
+    });
+  }
+
+  function deselectAll() {
+    setSelectedTeacherIds(new Set());
+  }
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -61,7 +125,11 @@ export default function AdminAnnouncementsPage() {
       const res = await fetch("/api/admin/notifications/broadcast", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title: title.trim(), message: message.trim() }),
+        body: JSON.stringify({
+          title: title.trim(),
+          message: message.trim(),
+          ...(sendToAll ? {} : { teacherIds: Array.from(selectedTeacherIds) }),
+        }),
       });
 
       if (res.ok) {
@@ -141,7 +209,7 @@ export default function AdminAnnouncementsPage() {
               Announcement sent to {success} teacher{success !== 1 ? "s" : ""}!
             </p>
             <button
-              onClick={() => setSuccess(null)}
+              onClick={() => { setSuccess(null); setSendToAll(true); setSelectedTeacherIds(new Set()); }}
               className="mt-5 px-6 py-2.5 rounded-xl text-sm font-semibold transition-all active:scale-[0.97]"
               style={{
                 background: "linear-gradient(135deg, #F59E0B, #D97706)",
@@ -209,6 +277,158 @@ export default function AdminAnnouncementsPage() {
               </div>
             </div>
 
+            {/* Recipient selector */}
+            <div>
+              <label
+                className="block font-semibold text-[var(--text-tertiary)] mb-2"
+                style={{ fontSize: "13px" }}
+              >
+                Recipients
+              </label>
+              <div
+                className="flex rounded-xl overflow-hidden border"
+                style={{
+                  borderColor: "var(--border-primary)",
+                  background: "var(--bg-secondary)",
+                }}
+              >
+                <button
+                  type="button"
+                  onClick={() => { setSendToAll(true); setSelectedTeacherIds(new Set()); }}
+                  className="flex-1 flex items-center justify-center gap-1.5 py-2.5 text-sm font-semibold transition-colors"
+                  style={{
+                    background: sendToAll ? "var(--accent)" : "transparent",
+                    color: sendToAll ? "white" : "var(--text-secondary)",
+                    borderRadius: sendToAll ? "10px" : "0",
+                  }}
+                >
+                  <Users className="w-3.5 h-3.5" />
+                  All Teachers
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSendToAll(false)}
+                  className="flex-1 flex items-center justify-center gap-1.5 py-2.5 text-sm font-semibold transition-colors"
+                  style={{
+                    background: !sendToAll ? "var(--accent)" : "transparent",
+                    color: !sendToAll ? "white" : "var(--text-secondary)",
+                    borderRadius: !sendToAll ? "10px" : "0",
+                  }}
+                >
+                  <Search className="w-3.5 h-3.5" />
+                  Select Teachers
+                </button>
+              </div>
+
+              {/* Teacher picker */}
+              {!sendToAll && (
+                <div
+                  className="mt-3 border rounded-xl overflow-hidden"
+                  style={{
+                    borderColor: "var(--border-primary)",
+                    background: "var(--bg-secondary)",
+                  }}
+                >
+                  {/* Search */}
+                  <div className="relative px-3 py-2" style={{ borderBottom: "1px solid var(--border-secondary)" }}>
+                    <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[var(--text-quaternary)]" />
+                    <input
+                      type="text"
+                      value={teacherSearch}
+                      onChange={(e) => setTeacherSearch(e.target.value)}
+                      placeholder="Search by name or subject..."
+                      className="w-full bg-transparent pl-6 pr-6 py-1 text-sm outline-none"
+                      style={{ fontFamily: "var(--font-body)", color: "var(--text-primary)" }}
+                    />
+                    {teacherSearch && (
+                      <button
+                        type="button"
+                        onClick={() => setTeacherSearch("")}
+                        className="absolute right-5 top-1/2 -translate-y-1/2"
+                      >
+                        <X className="w-3.5 h-3.5 text-[var(--text-quaternary)]" />
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Select all / Deselect */}
+                  <div className="flex items-center justify-between px-3 py-2" style={{ borderBottom: "1px solid var(--border-secondary)" }}>
+                    <span className="text-xs font-semibold text-[var(--text-tertiary)]">
+                      {selectedTeacherIds.size} selected
+                    </span>
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={selectAllFiltered}
+                        className="text-xs font-semibold hover:underline"
+                        style={{ color: "var(--accent-text)" }}
+                      >
+                        Select all
+                      </button>
+                      {selectedTeacherIds.size > 0 && (
+                        <button
+                          type="button"
+                          onClick={deselectAll}
+                          className="text-xs font-semibold hover:underline"
+                          style={{ color: "var(--text-tertiary)" }}
+                        >
+                          Clear
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Teacher list */}
+                  <div className="max-h-48 overflow-y-auto">
+                    {loadingTeachers ? (
+                      <div className="py-6 text-center">
+                        <div className="w-5 h-5 border-2 rounded-full animate-spin mx-auto" style={{ borderColor: "var(--accent)", borderTopColor: "transparent" }} />
+                      </div>
+                    ) : filteredTeachers.length === 0 ? (
+                      <p className="py-4 text-center text-xs text-[var(--text-tertiary)]">
+                        {teachers.length === 0 ? "No active teachers found" : "No teachers match your search"}
+                      </p>
+                    ) : (
+                      filteredTeachers.map((t) => {
+                        const selected = selectedTeacherIds.has(t.id);
+                        return (
+                          <button
+                            key={t.id}
+                            type="button"
+                            onClick={() => toggleTeacher(t.id)}
+                            className="w-full flex items-center gap-2.5 px-3 py-2.5 text-left transition-colors hover:bg-[var(--bg-tertiary)]"
+                            style={{
+                              borderBottom: "1px solid var(--border-secondary)",
+                            }}
+                          >
+                            <div
+                              className="w-5 h-5 rounded-md flex items-center justify-center flex-shrink-0 transition-colors"
+                              style={{
+                                background: selected ? "var(--accent)" : "var(--bg-elevated)",
+                                border: selected ? "none" : "1.5px solid var(--border-primary)",
+                              }}
+                            >
+                              {selected && <Check className="w-3 h-3 text-white" />}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-semibold text-[var(--text-primary)] truncate">
+                                {t.firstName} {t.lastName}
+                              </p>
+                              {t.subjects.length > 0 && (
+                                <p className="text-[11px] text-[var(--text-tertiary)] truncate">
+                                  {t.subjects.join(", ")}
+                                </p>
+                              )}
+                            </div>
+                          </button>
+                        );
+                      })
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+
             {/* Preview */}
             {(title.trim() || message.trim()) && (
               <div className="mt-4 pt-4" style={{ borderTop: "1px solid var(--border-secondary)" }}>
@@ -241,7 +461,7 @@ export default function AdminAnnouncementsPage() {
           {/* Send button */}
           <button
             type="submit"
-            disabled={sending || !title.trim() || !message.trim()}
+            disabled={sending || !title.trim() || !message.trim() || (!sendToAll && selectedTeacherIds.size === 0)}
             className="w-full mt-4 flex items-center justify-center gap-2 py-3.5 rounded-2xl text-sm font-bold transition-all active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed"
             style={{
               background: "linear-gradient(135deg, #F59E0B, #D97706)",
@@ -260,9 +480,11 @@ export default function AdminAnnouncementsPage() {
             ) : (
               <>
                 <Megaphone className="w-4 h-4" />
-                {teacherCount !== null
-                  ? `Send to ${teacherCount} teacher${teacherCount !== 1 ? "s" : ""}`
-                  : "Send Announcement"}
+                {recipientCount !== null && recipientCount > 0
+                  ? `Send to ${recipientCount} teacher${recipientCount !== 1 ? "s" : ""}`
+                  : sendToAll
+                    ? "Send Announcement"
+                    : "Select teachers to send"}
               </>
             )}
           </button>
@@ -340,9 +562,9 @@ export default function AdminAnnouncementsPage() {
             <p className="text-sm text-[var(--text-secondary)] mb-5" style={{ fontFamily: "var(--font-body)" }}>
               Send this announcement to{" "}
               <strong className="text-[var(--text-primary)]">
-                {teacherCount ?? "all"} teacher{teacherCount !== 1 ? "s" : ""}
+                {recipientCount ?? "all"} teacher{recipientCount !== 1 ? "s" : ""}
               </strong>
-              ?
+              {!sendToAll && " (selected)"}?
             </p>
 
             {/* Preview in modal */}
