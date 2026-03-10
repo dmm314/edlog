@@ -114,7 +114,7 @@ export default function AdminAnnouncementsPage() {
         </div>
       </div>
 
-      <div className="px-5 mt-4 max-w-lg mx-auto space-y-4">
+      <div className="px-5 mt-4 max-w-lg mx-auto space-y-4 desktop-content-form">
         {/* Error */}
         {error && (
           <div className="flex items-center gap-2 bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-4 py-3">

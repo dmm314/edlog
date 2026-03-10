@@ -53,7 +53,7 @@ function BottomNav({ role }: BottomNavProps) {
 
   return (
     <nav
-      className="fixed bottom-0 left-0 w-full z-50 backdrop-blur-xl pb-[env(safe-area-inset-bottom)]"
+      className="fixed bottom-0 left-0 w-full z-50 backdrop-blur-xl pb-[env(safe-area-inset-bottom)] bottom-nav"
       style={{ backgroundColor: "var(--nav-bg)", borderTop: "1px solid var(--nav-border)" }}
     >
       <div className="flex items-end justify-around h-16 max-w-lg mx-auto">

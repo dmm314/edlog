@@ -9,6 +9,7 @@ const tabs = [
   { href: "/regional/reports/teachers", label: "Teachers" },
   { href: "/regional/reports/assignments", label: "Assignments" },
   { href: "/regional/reports/activity", label: "Teaching Activity" },
+  { href: "/regional/reports/assessments", label: "Assessments" },
   { href: "/regional/reports/coverage", label: "Curriculum" },
   { href: "/regional/reports/school-coverage", label: "School Comparison" },
 ];
@@ -17,7 +18,7 @@ export default function RegionalReportsLayout({ children }: { children: React.Re
   const pathname = usePathname();
 
   return (
-    <div style={{ paddingBottom: 80 }}>
+    <div className="desktop-content-wide" style={{ paddingBottom: 80 }}>
       {/* Header */}
       <div style={{ padding: "24px 16px 0" }}>
         <h1

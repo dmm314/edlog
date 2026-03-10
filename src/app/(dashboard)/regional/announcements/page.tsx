@@ -199,7 +199,7 @@ export default function RegionalAnnouncementsPage() {
         </div>
       </div>
 
-      <div className="px-5 mt-4 max-w-lg mx-auto space-y-4">
+      <div className="px-5 mt-4 max-w-lg mx-auto space-y-4 desktop-content-form">
         {/* Success */}
         {success !== null && (
           <div className="flex items-center gap-2 bg-green-50 border border-green-200 text-green-700 text-sm rounded-xl px-4 py-3 animate-slide-down">

@@ -8,6 +8,7 @@ const tabs = [
   { href: "/admin/reports/teachers", label: "Teachers" },
   { href: "/admin/reports/assignments", label: "Assignments" },
   { href: "/admin/reports/activity", label: "Teaching Activity" },
+  { href: "/admin/reports/assessments", label: "Assessments" },
   { href: "/admin/reports/coverage", label: "Curriculum Coverage" },
 ];
 
@@ -15,7 +16,7 @@ export default function ReportsLayout({ children }: { children: React.ReactNode 
   const pathname = usePathname();
 
   return (
-    <div style={{ paddingBottom: 80 }}>
+    <div className="desktop-content-wide" style={{ paddingBottom: 80 }}>
       {/* Header */}
       <div style={{ padding: "24px 16px 0" }}>
         <h1

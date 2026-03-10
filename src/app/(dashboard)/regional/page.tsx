@@ -119,7 +119,7 @@ export default function RegionalDashboardPage() {
         </div>
       </div>
 
-      <div className="px-5 mt-4 max-w-lg mx-auto space-y-4">
+      <div className="px-5 mt-4 max-w-lg mx-auto space-y-4 desktop-content">
         {/* Pending schools alert */}
         {stats && stats.pendingSchools > 0 && (
           <Link
@@ -142,7 +142,7 @@ export default function RegionalDashboardPage() {
         )}
 
         {/* Stat pods — 2×2 grid */}
-        <div className="animate-fade-slide-in grid grid-cols-2 gap-3" style={{ animationDelay: "80ms" }}>
+        <div className="animate-fade-slide-in grid grid-cols-2 gap-3 desktop-stats-row" style={{ animationDelay: "80ms" }}>
           <div
             className="p-4 active:scale-[0.97] transition-all duration-[80ms]"
             style={{
