@@ -414,6 +414,10 @@ export async function POST(request: Request) {
           integrationStatus: data.integrationStatus || null,
           lessonMode: data.lessonMode || "physical",
           digitalTools: data.digitalTools || [],
+          // Assignment tracking
+          assignmentGiven: data.assignmentGiven || false,
+          assignmentDetails: data.assignmentGiven ? (data.assignmentDetails ? sanitizeHtml(data.assignmentDetails) : null) : null,
+          assignmentReviewed: data.assignmentReviewed ?? null,
           status: data.status || "SUBMITTED",
           teacherId: user.id,
         },

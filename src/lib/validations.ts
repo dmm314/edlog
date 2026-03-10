@@ -78,6 +78,10 @@ export const createEntrySchema = z.object({
   integrationStatus: z.enum(["completed", "partial", "carried_over"]).optional().nullable(),
   lessonMode: z.enum(["physical", "digital", "hybrid"]).optional().nullable(),
   digitalTools: z.array(z.string()).optional(),
+  // Assignment tracking
+  assignmentGiven: z.boolean().optional(),
+  assignmentDetails: z.string().max(300).optional().nullable(),
+  assignmentReviewed: z.boolean().optional().nullable(),
 }).refine(
   (data) => {
     // Period is required when submitting (not for drafts)
