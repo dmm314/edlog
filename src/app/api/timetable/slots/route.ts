@@ -83,6 +83,7 @@ export async function GET(request: NextRequest) {
           id: slot.assignment.id,
           classId: slot.assignment.classId,
           className: slot.assignment.class.name,
+          classLevel: slot.assignment.class.level,
           subjectId: slot.assignment.subjectId,
           subjectName: slot.assignment.division
             ? `${slot.assignment.subject.name} (${slot.assignment.division.name})`

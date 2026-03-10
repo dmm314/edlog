@@ -64,6 +64,7 @@ interface TimetableSlot {
     id: string;
     classId: string;
     className: string;
+    classLevel: string;
     subjectId: string;
     subjectName: string;
   };
@@ -1034,7 +1035,7 @@ export default function NewEntryPage() {
                       <Calendar className="w-3.5 h-3.5" style={{ color: "var(--accent-text)" }} />
                       {selectedDayName} Schedule — Tap to Fill
                     </label>
-                    <p className="text-[11px] text-[var(--text-tertiary)] mb-2">Select up to 4 periods</p>
+                    <p className="text-[11px] text-[var(--text-tertiary)] mb-2">Select up to 4 periods (same subject and level)</p>
                     <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-hide">
                       {timetableSlots.map((slot) => {
                         const periodMatch = slot.periodLabel.match(/\d+/);
@@ -1048,8 +1049,11 @@ export default function NewEntryPage() {
                         const canAdd = (selectedSlotIds.length < 4 || isSelected) && !isAlreadyFilled && !periodNotEnded;
                         const isCompatible = selectedSlotIds.length === 0 || isSelected ||
                           (selectedSlotsData.length > 0 &&
-                            slot.assignment.classId === selectedSlotsData[0].assignment.classId &&
-                            slot.assignment.subjectId === selectedSlotsData[0].assignment.subjectId);
+                            slot.assignment.subjectId === selectedSlotsData[0].assignment.subjectId &&
+                            slot.assignment.classLevel === selectedSlotsData[0].assignment.classLevel);
+                        const incompatibleReason = !isCompatible && selectedSlotsData.length > 0
+                          ? (slot.assignment.subjectId !== selectedSlotsData[0].assignment.subjectId ? "Different subject" : "Different level")
+                          : null;
                         return (
                           <button key={slot.id} type="button" onClick={() => !isAlreadyFilled && !periodNotEnded && handleSlotToggle(slot)} disabled={isAlreadyFilled || periodNotEnded}
                             className={`flex-shrink-0 rounded-2xl border-2 px-3 py-2.5 text-left transition-all relative ${
@@ -1079,6 +1083,9 @@ export default function NewEntryPage() {
                                 <Clock className="w-2.5 h-2.5" />
                                 Available at {slot.endTime}
                               </p>
+                            )}
+                            {incompatibleReason && !isAlreadyFilled && !periodNotEnded && (
+                              <p className="text-[9px] font-medium mt-1" style={{ color: "var(--text-quaternary)" }}>{incompatibleReason}</p>
                             )}
                           </button>
                         );
