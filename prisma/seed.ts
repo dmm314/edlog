@@ -1,4 +1,4 @@
-import { PrismaClient, Role } from "@prisma/client";
+import { Prisma, PrismaClient, Role } from "@prisma/client";
 import { hash } from "bcryptjs";
 import { REGIONS } from "./seed/regions";
 import {
@@ -317,7 +317,7 @@ async function main() {
         period: entry.period,
         duration: 60,
         notes: entry.notes || null,
-        objectives: entry.objectives || null,
+        objectives: entry.objectives || Prisma.JsonNull,
         status: (entry as Record<string, unknown>).status as string || "SUBMITTED",
         studentAttendance: entry.attendance || null,
         engagementLevel: entry.engagement || null,
