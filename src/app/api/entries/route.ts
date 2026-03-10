@@ -178,9 +178,12 @@ export async function POST(request: Request) {
 
     // Sanitize text fields
     const notes = data.notes ? sanitizeHtml(data.notes) : null;
-    const objectives = data.objectives
-      ? sanitizeHtml(data.objectives)
-      : null;
+    // objectives can be a structured array or a legacy string — stored as Json in DB
+    const objectives: unknown = Array.isArray(data.objectives)
+      ? data.objectives.map((o) => ({ text: sanitizeHtml(o.text), proportion: o.proportion }))
+      : data.objectives
+        ? sanitizeHtml(data.objectives)
+        : null;
     const topicText = data.topicText ? sanitizeHtml(data.topicText) : null;
     const moduleName = data.moduleName ? sanitizeHtml(data.moduleName) : null;
     const bilingualNote = data.bilingualNote ? sanitizeHtml(data.bilingualNote) : null;
@@ -397,7 +400,7 @@ export async function POST(request: Request) {
           period: data.period ?? null,
           duration: data.classDidNotHold ? 0 : data.duration,
           notes: data.classDidNotHold ? (notes || "Class did not hold for this period") : notes,
-          objectives,
+          objectives: (objectives ?? undefined) as string | undefined,
           signatureData: data.signatureData ?? null,
           studentAttendance: data.classDidNotHold ? 0 : (data.studentAttendance ?? null),
           engagementLevel: data.engagementLevel ?? null,

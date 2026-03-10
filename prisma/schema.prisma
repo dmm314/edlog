@@ -393,7 +393,7 @@ model LogbookEntry {
   moduleName        String?          // Selected module name
   topicText         String?          // Free-text topic typed by teacher
   notes             String?          @db.Text
-  objectives        String?          @db.Text
+  objectives        Json?            // Array of { text: string, proportion: string } or legacy plain string
   signatureData     String?          @db.Text
   status            String           @default("SUBMITTED")
   studentAttendance Int?

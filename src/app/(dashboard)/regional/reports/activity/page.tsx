@@ -14,6 +14,7 @@ interface ActivityRow {
   level: string;
   moduleName: string;
   topicText: string;
+  familyOfSituation: string;
   period: number | null;
   status: string;
   lessonMode: string;
@@ -65,6 +66,13 @@ const columns: ColumnDef<ActivityRow>[] = [
     key: "topicText",
     label: "Topic",
     searchable: true,
+    hideOnMobile: true,
+  },
+  {
+    key: "familyOfSituation",
+    label: "Family of Situation",
+    filterable: true,
+    filterKey: "familyOfSituation",
     hideOnMobile: true,
   },
   {

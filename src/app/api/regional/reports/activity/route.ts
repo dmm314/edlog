@@ -68,6 +68,10 @@ export async function GET(request: NextRequest) {
       where.bilingualActivity = filters.bilingual === "true";
     }
 
+    if (filters.familyOfSituation) {
+      where.familyOfSituation = filters.familyOfSituation;
+    }
+
     if (search) {
       const searchWords = search.trim().split(/\s+/);
       if (searchWords.length === 1) {
@@ -120,6 +124,7 @@ export async function GET(request: NextRequest) {
         status: true,
         moduleName: true,
         topicText: true,
+        familyOfSituation: true,
         lessonMode: true,
         bilingualActivity: true,
         teacher: {
@@ -157,6 +162,7 @@ export async function GET(request: NextRequest) {
       level: e.class.level,
       moduleName: e.moduleName || "—",
       topicText: e.topicText || "—",
+      familyOfSituation: e.familyOfSituation || "—",
       period: e.period,
       status: e.status,
       lessonMode: e.lessonMode || "physical",
@@ -187,11 +193,18 @@ export async function GET(request: NextRequest) {
       }),
     ]);
 
+    const familyOptions = await db.logbookEntry.findMany({
+      where: { class: { school: { regionId } }, familyOfSituation: { not: null } },
+      select: { familyOfSituation: true },
+      distinct: ["familyOfSituation"],
+    });
+
     const responseFilters = {
       division: divisionOptions.map((d) => d.name),
       school: schoolOptions.map((s) => s.name),
       subject: subjectOptions.map((a) => a.subject.name).sort(),
       level: levelOptions.map((c) => c.level).sort(),
+      familyOfSituation: familyOptions.map((f) => f.familyOfSituation!).filter(Boolean).sort(),
       status: ["SUBMITTED", "VERIFIED", "FLAGGED"],
       lessonMode: ["physical", "digital", "hybrid"],
       bilingual: ["true", "false"],

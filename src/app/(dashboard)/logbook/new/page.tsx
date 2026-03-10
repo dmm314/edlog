@@ -21,6 +21,7 @@ import {
   Globe,
   Monitor,
   Smartphone,
+  Plus,
 } from "lucide-react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
@@ -157,6 +158,14 @@ export default function NewEntryPage() {
   const [integrationActivity, setIntegrationActivity] = useState("");
   const [integrationLevel, setIntegrationLevel] = useState("");
   const [integrationStatus, setIntegrationStatus] = useState("");
+
+  // Structured objectives from curriculum metadata
+  const [metadataObjectives, setMetadataObjectives] = useState<string[]>([]);
+  const [selectedObjectives, setSelectedObjectives] = useState<Record<string, string>>({}); // text → proportion
+  const [customObjective, setCustomObjective] = useState("");
+  const [showCustomObjectiveInput, setShowCustomObjectiveInput] = useState(false);
+  const [loadingMetadata, setLoadingMetadata] = useState(false);
+  const [familyOfSitCustom, setFamilyOfSitCustom] = useState(false);
   const [lessonMode, setLessonMode] = useState("physical");
   const [digitalTools, setDigitalTools] = useState<string[]>([]);
 
@@ -475,6 +484,39 @@ export default function NewEntryPage() {
     }
   }, [autoFamilyOfSit, familyOfSitEditing]);
 
+  // Fetch curriculum metadata (objectives) when module selection changes
+  useEffect(() => {
+    if (!subjectCode || !selectedClassLevel || !moduleNum) {
+      setMetadataObjectives([]);
+      return;
+    }
+    let cancelled = false;
+    setLoadingMetadata(true);
+    fetch(`/api/curriculum/metadata?subjectCode=${encodeURIComponent(subjectCode)}&classLevel=${encodeURIComponent(selectedClassLevel)}&moduleNum=${moduleNum}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (cancelled) return;
+        setMetadataObjectives(data.objectives || []);
+        // Auto-select all objectives and reset proportions
+        if (data.objectives?.length > 0) {
+          const defaultSelected: Record<string, string> = {};
+          for (const obj of data.objectives) {
+            defaultSelected[obj] = "all";
+          }
+          setSelectedObjectives(defaultSelected);
+        } else {
+          setSelectedObjectives({});
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setMetadataObjectives([]);
+      })
+      .finally(() => {
+        if (!cancelled) setLoadingMetadata(false);
+      });
+    return () => { cancelled = true; };
+  }, [subjectCode, selectedClassLevel, moduleNum]);
+
   const selectedDayName = date ? DAY_NAMES[getDayOfWeek(date)] || "" : "";
   const isWeekend = date ? getDayOfWeek(date) > 5 : false;
   const hasPeriodSelected = selectedSlotIds.length > 0 || period !== "";
@@ -555,7 +597,9 @@ export default function NewEntryPage() {
           topicIds: selectedTopicIds.length > 0 ? selectedTopicIds : undefined,
           topicText: resolvedTopicText,
           notes: notes || null,
-          objectives: objectives || null,
+          objectives: Object.keys(selectedObjectives).length > 0
+            ? Object.entries(selectedObjectives).map(([text, proportion]) => ({ text, proportion }))
+            : (integrationActivity ? [{ text: integrationActivity, proportion: "all" as const }] : null),
           studentAttendance: studentAttendance ? parseInt(studentAttendance) : null,
           engagementLevel: engagementLevel || null,
           signatureData,
@@ -564,7 +608,9 @@ export default function NewEntryPage() {
           bilingualActivity: bilingualActivity || false,
           bilingualType: bilingualActivity ? (bilingualType || null) : null,
           bilingualNote: bilingualActivity ? (bilingualNote || null) : null,
-          integrationActivity: integrationActivity || null,
+          integrationActivity: Object.keys(selectedObjectives).length > 0
+            ? Object.keys(selectedObjectives).join("; ")
+            : (integrationActivity || null),
           integrationLevel: integrationLevel || null,
           integrationStatus: integrationStatus || null,
           lessonMode: lessonMode || "physical",
@@ -630,7 +676,9 @@ export default function NewEntryPage() {
         bilingualActivity,
         bilingualType: bilingualType || "",
         lessonMode: lessonMode || "physical",
-        integrationActivity: integrationActivity || "",
+        integrationActivity: Object.keys(selectedObjectives).length > 0
+          ? Object.keys(selectedObjectives).join("; ")
+          : (integrationActivity || ""),
       });
 
       if (asDraft) {
@@ -660,6 +708,11 @@ export default function NewEntryPage() {
     setDuration("60");
     setNotes("");
     setObjectives("");
+    setMetadataObjectives([]);
+    setSelectedObjectives({});
+    setCustomObjective("");
+    setShowCustomObjectiveInput(false);
+    setFamilyOfSitCustom(false);
     setStudentAttendance("");
     setEngagementLevel("");
     setSignatureData(null);
@@ -1358,32 +1411,69 @@ export default function NewEntryPage() {
                 {moduleName && (
                   <div>
                     <p className="text-[13px] font-semibold text-[var(--text-primary)] mb-2">Family of Situation</p>
-                    {familyOfSituation && !familyOfSitEditing ? (
-                      <div className="flex items-center gap-2 rounded-2xl px-4 py-3" style={{ background: "var(--bg-secondary)" }}>
-                        <p className="text-sm font-medium text-[var(--text-primary)] flex-1">{familyOfSituation}</p>
-                        <button type="button" onClick={() => setFamilyOfSitEditing(true)}
-                          className="flex items-center gap-1 text-xs font-medium"
-                          style={{ color: "var(--accent-text)" }}>
-                          <Pencil className="w-3 h-3" />
-                          Edit
+                    {familyOfSitCustom ? (
+                      <div className="flex gap-2">
+                        <input
+                          value={familyOfSituation}
+                          onChange={(e) => { setFamilyOfSituation(e.target.value); setFamilyOfSitEditing(true); }}
+                          placeholder="Type custom family of situation..."
+                          className="input-field text-sm flex-1"
+                          maxLength={200}
+                        />
+                        <button type="button" onClick={() => {
+                          setFamilyOfSitCustom(false);
+                          if (autoFamilyOfSit) { setFamilyOfSituation(autoFamilyOfSit); setFamilyOfSitEditing(false); }
+                        }}
+                          className="text-xs font-medium px-3 rounded-xl"
+                          style={{ color: "var(--accent-text)", background: "var(--accent-light)" }}>
+                          Back
                         </button>
                       </div>
                     ) : (
-                      <input
+                      <select
                         value={familyOfSituation}
-                        onChange={(e) => { setFamilyOfSituation(e.target.value); setFamilyOfSitEditing(true); }}
-                        placeholder="e.g. Social and family environment"
-                        className="input-field text-sm"
-                        maxLength={200}
-                      />
+                        onChange={(e) => {
+                          if (e.target.value === "__custom__") {
+                            setFamilyOfSitCustom(true);
+                            setFamilyOfSituation("");
+                            setFamilyOfSitEditing(true);
+                          } else {
+                            setFamilyOfSituation(e.target.value);
+                            setFamilyOfSitEditing(e.target.value !== autoFamilyOfSit);
+                          }
+                        }}
+                        className="input-field text-sm w-full"
+                        style={{ color: familyOfSituation ? "var(--text-primary)" : "var(--text-tertiary)" }}
+                      >
+                        <option value="">Select family of situation...</option>
+                        {autoFamilyOfSit && (
+                          <option value={autoFamilyOfSit}>{autoFamilyOfSit} (auto)</option>
+                        )}
+                        {[
+                          "Social and family environment",
+                          "Economic activity",
+                          "Health and well-being",
+                          "Technology in daily life",
+                          "Environment and sustainable development",
+                          "Industry and technology",
+                          "Matter and measurement in daily life",
+                          "Energy in the environment",
+                          "Matter in daily life",
+                          "Social and economic environment",
+                          "Health and environment",
+                        ].filter((f) => f !== autoFamilyOfSit).map((f) => (
+                          <option key={f} value={f}>{f}</option>
+                        ))}
+                        <option value="__custom__">Custom...</option>
+                      </select>
                     )}
                   </div>
                 )}
 
-                {/* ── CBA: Integration Activity ── */}
+                {/* ── CBA: Learning Objectives Achieved ── */}
                 <div>
-                  <div className="flex items-center gap-1.5 mb-2">
-                    <p className="text-[13px] font-semibold text-[var(--text-primary)]">Integration Activity</p>
+                  <div className="flex items-center gap-1.5 mb-1">
+                    <p className="text-[13px] font-semibold text-[var(--text-primary)]">Learning Objectives Achieved</p>
                     <div className="relative group">
                       <Info className="w-3.5 h-3.5 text-[var(--text-tertiary)] cursor-help" />
                       <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 hidden group-hover:block w-48 text-[11px] rounded-lg px-3 py-2 z-10"
@@ -1392,18 +1482,132 @@ export default function NewEntryPage() {
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-0 rounded-2xl border overflow-hidden" style={{ borderColor: "var(--border-primary)", background: "var(--bg-elevated)" }}>
-                    <span className="text-sm font-medium text-[var(--text-tertiary)] pl-4 flex-shrink-0 whitespace-nowrap">Learners are able to</span>
-                    <input
-                      value={integrationActivity}
-                      onChange={(e) => setIntegrationActivity(e.target.value.slice(0, 500))}
-                      placeholder="...identify and name measuring instruments"
-                      className="flex-1 px-2 py-3.5 border-none outline-none text-sm bg-transparent"
-                      style={{ color: "var(--text-primary)" }}
-                      maxLength={500}
-                    />
-                  </div>
-                  {integrationActivity && (
+                  <p className="text-[11px] mb-2" style={{ color: "var(--text-tertiary)" }}>
+                    Select what learners demonstrated in this lesson
+                  </p>
+
+                  {metadataObjectives.length > 0 ? (
+                    <div className="rounded-2xl border overflow-hidden" style={{ borderColor: "var(--border-primary)", background: "var(--bg-elevated)" }}>
+                      <div className="max-h-[200px] overflow-y-auto">
+                        {metadataObjectives.map((obj) => {
+                          const isSelected = obj in selectedObjectives;
+                          const proportion = selectedObjectives[obj] || "all";
+                          return (
+                            <div
+                              key={obj}
+                              className="flex items-center gap-2.5 px-3 py-2 border-b last:border-b-0"
+                              style={{ borderColor: "var(--border-secondary)" }}
+                            >
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setSelectedObjectives((prev) => {
+                                    const next = { ...prev };
+                                    if (isSelected) { delete next[obj]; } else { next[obj] = "all"; }
+                                    return next;
+                                  });
+                                }}
+                                className="w-5 h-5 rounded-md border-2 flex items-center justify-center flex-shrink-0 transition-colors"
+                                style={{
+                                  borderColor: isSelected ? "var(--accent)" : "var(--border-primary)",
+                                  background: isSelected ? "var(--accent)" : "var(--bg-elevated)",
+                                }}
+                              >
+                                {isSelected && <Check className="w-3 h-3 text-white" />}
+                              </button>
+                              <span className="text-[13px] flex-1 min-w-0" style={{ color: isSelected ? "var(--text-primary)" : "var(--text-tertiary)" }}>
+                                {obj}
+                              </span>
+                              {isSelected && (
+                                <select
+                                  value={proportion}
+                                  onChange={(e) => setSelectedObjectives((prev) => ({ ...prev, [obj]: e.target.value }))}
+                                  className="text-[10px] font-semibold border rounded-lg px-1.5 py-1 bg-transparent"
+                                  style={{ borderColor: "var(--border-primary)", color: "var(--accent-text)", minWidth: 52 }}
+                                >
+                                  <option value="all">All</option>
+                                  <option value="most">Most</option>
+                                  <option value="some">Some</option>
+                                  <option value="few">Few</option>
+                                </select>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                      {/* Add custom objective */}
+                      <div className="px-3 py-2 border-t" style={{ borderColor: "var(--border-secondary)" }}>
+                        {showCustomObjectiveInput ? (
+                          <div className="flex gap-2">
+                            <input
+                              value={customObjective}
+                              onChange={(e) => setCustomObjective(e.target.value)}
+                              placeholder="describe what learners can do..."
+                              className="flex-1 text-[13px] bg-transparent outline-none"
+                              style={{ color: "var(--text-primary)" }}
+                              maxLength={200}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter" && customObjective.trim()) {
+                                  e.preventDefault();
+                                  const text = customObjective.trim();
+                                  setMetadataObjectives((prev) => [...prev, text]);
+                                  setSelectedObjectives((prev) => ({ ...prev, [text]: "all" }));
+                                  setCustomObjective("");
+                                  setShowCustomObjectiveInput(false);
+                                }
+                              }}
+                            />
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (customObjective.trim()) {
+                                  const text = customObjective.trim();
+                                  setMetadataObjectives((prev) => [...prev, text]);
+                                  setSelectedObjectives((prev) => ({ ...prev, [text]: "all" }));
+                                  setCustomObjective("");
+                                }
+                                setShowCustomObjectiveInput(false);
+                              }}
+                              className="text-xs font-semibold px-2 py-1 rounded-lg"
+                              style={{ color: "var(--accent-text)" }}
+                            >
+                              {customObjective.trim() ? "Add" : "Cancel"}
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => setShowCustomObjectiveInput(true)}
+                            className="flex items-center gap-1 text-xs font-medium"
+                            style={{ color: "var(--accent-text)" }}
+                          >
+                            <Plus className="w-3.5 h-3.5" />
+                            Add custom objective
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  ) : loadingMetadata ? (
+                    <div className="rounded-2xl border px-4 py-3 animate-pulse" style={{ borderColor: "var(--border-primary)", background: "var(--bg-elevated)" }}>
+                      <div className="h-3 rounded w-3/4 mb-2" style={{ backgroundColor: "var(--bg-tertiary)" }} />
+                      <div className="h-3 rounded w-1/2" style={{ backgroundColor: "var(--bg-tertiary)" }} />
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-0 rounded-2xl border overflow-hidden" style={{ borderColor: "var(--border-primary)", background: "var(--bg-elevated)" }}>
+                      <span className="text-sm font-medium text-[var(--text-tertiary)] pl-4 flex-shrink-0 whitespace-nowrap">Learners are able to</span>
+                      <input
+                        value={integrationActivity}
+                        onChange={(e) => setIntegrationActivity(e.target.value.slice(0, 500))}
+                        placeholder="...identify and name measuring instruments"
+                        className="flex-1 px-2 py-3.5 border-none outline-none text-sm bg-transparent"
+                        style={{ color: "var(--text-primary)" }}
+                        maxLength={500}
+                      />
+                    </div>
+                  )}
+
+                  {/* Integration difficulty & status — shown when objectives are selected or free text entered */}
+                  {(Object.keys(selectedObjectives).length > 0 || integrationActivity) && (
                     <div className="flex gap-3 mt-2">
                       <div className="flex-1">
                         <p className="text-[11px] font-semibold text-[var(--text-tertiary)] mb-1.5">Difficulty</p>
@@ -1533,14 +1737,7 @@ export default function NewEntryPage() {
 
                 <div className="border overflow-hidden" style={{ borderColor: "var(--border-primary)", background: "var(--bg-elevated)", borderRadius: "16px" }}>
                   <textarea value={notes} onChange={(e) => setNotes(e.target.value.slice(0, 500))}
-                    placeholder="Optional notes — objectives, observations..." rows={3}
-                    className="w-full px-4 py-3.5 border-none outline-none text-sm bg-transparent resize-none"
-                    style={{ color: "var(--text-primary)", fontFamily: "var(--font-body)" }} maxLength={500} />
-                </div>
-
-                <div className="border overflow-hidden" style={{ borderColor: "var(--border-primary)", background: "var(--bg-elevated)", borderRadius: "16px" }}>
-                  <textarea value={objectives} onChange={(e) => setObjectives(e.target.value.slice(0, 500))}
-                    placeholder="Learning objectives covered..." rows={2}
+                    placeholder="Optional notes — observations, challenges..." rows={3}
                     className="w-full px-4 py-3.5 border-none outline-none text-sm bg-transparent resize-none"
                     style={{ color: "var(--text-primary)", fontFamily: "var(--font-body)" }} maxLength={500} />
                 </div>
