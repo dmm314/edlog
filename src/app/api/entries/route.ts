@@ -371,6 +371,18 @@ export async function POST(request: Request) {
         }
       }
 
+      // Validate assignment belongs to this class (if provided)
+      let validAssignmentId = thisAssignmentId;
+      if (thisAssignmentId) {
+        const assignment = await db.teacherAssignment.findUnique({
+          where: { id: thisAssignmentId },
+        });
+        if (assignment && assignment.classId !== thisClassId) {
+          // Assignment doesn't match this class — clear it rather than fail
+          validAssignmentId = null;
+        }
+      }
+
       const entry = await db.logbookEntry.create({
         data: {
           date: new Date(data.date),
@@ -380,7 +392,7 @@ export async function POST(request: Request) {
             : {}),
           moduleName: data.classDidNotHold ? "Class Did Not Hold" : moduleName,
           topicText: data.classDidNotHold ? "Class did not hold" : topicText,
-          assignmentId: thisAssignmentId,
+          assignmentId: validAssignmentId,
           timetableSlotId: i === 0 ? (data.timetableSlotId ?? null) : null,
           period: data.period ?? null,
           duration: data.classDidNotHold ? 0 : data.duration,
