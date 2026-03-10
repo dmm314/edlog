@@ -4,6 +4,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { BottomNav } from "@/components/BottomNav";
+import { SideNav } from "@/components/SideNav";
 
 export default function DashboardLayout({
   children,
@@ -52,10 +53,14 @@ export default function DashboardLayout({
   if (!session) return null;
 
   const role = (session.user as Record<string, unknown>)?.role as string;
+  const userName = (session.user as Record<string, unknown>)?.name as string | undefined;
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: "var(--bg-primary)" }}>
-      {children}
+    <div className="min-h-screen dashboard-shell" style={{ backgroundColor: "var(--bg-primary)" }}>
+      <SideNav role={role} userName={userName} />
+      <div className="dashboard-content">
+        {children}
+      </div>
       <BottomNav role={role} />
     </div>
   );

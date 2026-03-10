@@ -143,7 +143,7 @@ export default function AdminDashboardPage() {
             </div>
           </div>
         </div>
-        <div className="px-5 mt-4 max-w-lg mx-auto space-y-4">
+        <div className="px-5 mt-4 max-w-lg mx-auto space-y-4 desktop-content">
           <div className="grid grid-cols-2 gap-3">
             {[1, 2, 3, 4].map((i) => (
               <div key={i} className="card p-4">
@@ -253,7 +253,7 @@ export default function AdminDashboardPage() {
         </div>
       </div>
 
-      <div className="px-5 mt-4 max-w-lg mx-auto space-y-4">
+      <div className="px-5 mt-4 max-w-lg mx-auto space-y-4 desktop-content">
         {/* Error */}
         {error && (
           <div className="animate-slide-down bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-4 py-3 flex items-center gap-2 font-medium"
@@ -288,7 +288,7 @@ export default function AdminDashboardPage() {
           <h3 className="text-xs font-bold uppercase tracking-widest text-[var(--text-tertiary)] mb-3 px-1">
             Quick Actions
           </h3>
-          <div className="grid grid-cols-2" style={{ gap: "8px" }}>
+          <div className="grid grid-cols-2 desktop-actions-row" style={{ gap: "8px" }}>
             {[
               {
                 href: "/admin/entries",

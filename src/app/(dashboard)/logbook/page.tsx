@@ -599,7 +599,7 @@ export default function LogbookPage() {
       </div>
 
       {/* ── Main Content ──────────────────────────────────────────── */}
-      <div className="px-4 mt-4 max-w-lg mx-auto" style={{ paddingBottom: "90px" }}>
+      <div className="px-4 mt-4 max-w-lg mx-auto desktop-content" style={{ paddingBottom: "90px" }}>
         {/* ── Unread Announcements Banner ─────────────────────────── */}
         {unreadAnnouncements > 0 && (
           <Link

@@ -880,7 +880,7 @@ export default function NewEntryPage() {
     <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-primary)" }}>
       {/* ── Persistent Header ─── */}
       <div className="bg-[var(--bg-elevated)] border-b" style={{ borderColor: "var(--border-primary)" }}>
-        <div className="max-w-lg mx-auto px-5 pt-12 pb-5">
+        <div className="max-w-lg mx-auto px-5 pt-12 pb-5 desktop-content-form">
           <div className="flex items-center gap-3 mb-4">
             <button
               onClick={() => step > 0 ? setStep(step - 1) : router.back()}
@@ -981,7 +981,7 @@ export default function NewEntryPage() {
       </div>
 
       {/* ── Content ─── */}
-      <div className="px-5 mt-4 max-w-lg mx-auto">
+      <div className="px-5 mt-4 max-w-lg mx-auto desktop-content-form">
         {error && (
           <div className="rounded-xl px-4 py-3 mb-4 text-sm flex items-center gap-2" style={{ background: "var(--warning-light)", color: "var(--warning)" }}>
             <AlertCircle className="w-4 h-4 flex-shrink-0" />
