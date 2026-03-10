@@ -417,9 +417,20 @@ export default function ManageTeachersPage() {
                         <p className="text-[11px] text-[var(--text-tertiary)] truncate">
                           {teacher.email}
                         </p>
-                        <p className="text-[10px] text-amber-600 font-medium mt-1">
-                          Registered {formatDate(teacher.createdAt)}
-                        </p>
+                        {teacher.phone && (
+                          <p className="text-[11px] text-[var(--text-tertiary)] truncate">
+                            {teacher.phone}
+                          </p>
+                        )}
+                        <div className="flex items-center gap-2 mt-1">
+                          <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">
+                            <Clock className="w-2.5 h-2.5" />
+                            Pending
+                          </span>
+                          <span className="text-[10px] text-amber-600 font-medium">
+                            Awaiting acceptance &middot; {formatDate(teacher.createdAt)}
+                          </span>
+                        </div>
                       </div>
                     </div>
                     <div className="flex items-center gap-2 mt-3">

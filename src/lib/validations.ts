@@ -55,11 +55,13 @@ export const createEntrySchema = z.object({
   period: z.number().int().min(1).max(9).optional().nullable(),
   duration: z.number().int().min(15).max(180).default(60),
   notes: z.string().max(500, "Notes must be under 500 characters").optional().nullable(),
-  objectives: z
-    .string()
-    .max(500, "Objectives must be under 500 characters")
-    .optional()
-    .nullable(),
+  objectives: z.union([
+    z.string().max(500, "Objectives must be under 500 characters"),
+    z.array(z.object({
+      text: z.string(),
+      proportion: z.enum(["all", "most", "some", "few"]).default("all"),
+    })),
+  ]).optional().nullable(),
   signatureData: z.string().optional().nullable(),
   studentAttendance: z.number().int().min(0).optional().nullable(),
   engagementLevel: z.enum(["LOW", "MEDIUM", "HIGH"]).optional().nullable(),
@@ -76,6 +78,10 @@ export const createEntrySchema = z.object({
   integrationStatus: z.enum(["completed", "partial", "carried_over"]).optional().nullable(),
   lessonMode: z.enum(["physical", "digital", "hybrid"]).optional().nullable(),
   digitalTools: z.array(z.string()).optional(),
+  // Assignment tracking
+  assignmentGiven: z.boolean().optional(),
+  assignmentDetails: z.string().max(300).optional().nullable(),
+  assignmentReviewed: z.boolean().optional().nullable(),
 }).refine(
   (data) => {
     // Period is required when submitting (not for drafts)

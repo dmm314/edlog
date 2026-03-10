@@ -16,11 +16,14 @@ import {
   Copy,
   Zap,
   ChevronRight,
+  ChevronDown,
   Info,
   Pencil,
   Globe,
   Monitor,
   Smartphone,
+  Plus,
+  ClipboardList,
 } from "lucide-react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
@@ -157,8 +160,25 @@ export default function NewEntryPage() {
   const [integrationActivity, setIntegrationActivity] = useState("");
   const [integrationLevel, setIntegrationLevel] = useState("");
   const [integrationStatus, setIntegrationStatus] = useState("");
+
+  // Structured objectives from curriculum metadata
+  const [metadataObjectives, setMetadataObjectives] = useState<string[]>([]);
+  const [selectedObjectives, setSelectedObjectives] = useState<Record<string, string>>({}); // text → proportion
+  const [customObjective, setCustomObjective] = useState("");
+  const [showCustomObjectiveInput, setShowCustomObjectiveInput] = useState(false);
+  const [loadingMetadata, setLoadingMetadata] = useState(false);
+  const [familyOfSitCustom, setFamilyOfSitCustom] = useState(false);
   const [lessonMode, setLessonMode] = useState("physical");
   const [digitalTools, setDigitalTools] = useState<string[]>([]);
+
+  // Assignment tracking
+  const [assignmentGiven, setAssignmentGiven] = useState(false);
+  const [assignmentDetails, setAssignmentDetails] = useState("");
+  const [assignmentReviewed, setAssignmentReviewed] = useState<boolean | null>(null);
+  const [pendingAssignmentInfo, setPendingAssignmentInfo] = useState<string | null>(null);
+
+  // Collapsible optional details
+  const [showOptionalDetails, setShowOptionalDetails] = useState(false);
 
   const [submitting, setSubmitting] = useState(false);
   const [savingDraft, setSavingDraft] = useState(false);
@@ -187,6 +207,9 @@ export default function NewEntryPage() {
     bilingualType: string;
     lessonMode: string;
     integrationActivity: string;
+    assignmentGiven: boolean;
+    assignmentDetails: string;
+    assignmentReviewed: boolean | null;
   } | null>(null);
 
   useEffect(() => {
@@ -475,6 +498,64 @@ export default function NewEntryPage() {
     }
   }, [autoFamilyOfSit, familyOfSitEditing]);
 
+  // Fetch curriculum metadata (objectives) when module selection changes
+  useEffect(() => {
+    if (!subjectCode || !selectedClassLevel || !moduleNum) {
+      setMetadataObjectives([]);
+      return;
+    }
+    let cancelled = false;
+    setLoadingMetadata(true);
+    fetch(`/api/curriculum/metadata?subjectCode=${encodeURIComponent(subjectCode)}&classLevel=${encodeURIComponent(selectedClassLevel)}&moduleNum=${moduleNum}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (cancelled) return;
+        setMetadataObjectives(data.objectives || []);
+        // Auto-select all objectives and reset proportions
+        if (data.objectives?.length > 0) {
+          const defaultSelected: Record<string, string> = {};
+          for (const obj of data.objectives) {
+            defaultSelected[obj] = "all";
+          }
+          setSelectedObjectives(defaultSelected);
+        } else {
+          setSelectedObjectives({});
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setMetadataObjectives([]);
+      })
+      .finally(() => {
+        if (!cancelled) setLoadingMetadata(false);
+      });
+    return () => { cancelled = true; };
+  }, [subjectCode, selectedClassLevel, moduleNum]);
+
+  // Check for pending assignments when class is selected
+  useEffect(() => {
+    if (!classId || !subjectId) {
+      setPendingAssignmentInfo(null);
+      return;
+    }
+    let cancelled = false;
+    fetch(`/api/entries?classId=${classId}&limit=5&from=${new Date(Date.now() - 30 * 86400000).toISOString().split("T")[0]}&to=${date}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (cancelled) return;
+        const entries = data.entries || [];
+        const recent = entries.find((e: { assignmentGiven?: boolean; assignmentDetails?: string; assignment?: { subjectId: string } }) =>
+          e.assignmentGiven && e.assignment?.subjectId === subjectId
+        );
+        if (recent) {
+          setPendingAssignmentInfo(recent.assignmentDetails || "Assignment was given");
+        } else {
+          setPendingAssignmentInfo(null);
+        }
+      })
+      .catch(() => { if (!cancelled) setPendingAssignmentInfo(null); });
+    return () => { cancelled = true; };
+  }, [classId, subjectId, date]);
+
   const selectedDayName = date ? DAY_NAMES[getDayOfWeek(date)] || "" : "";
   const isWeekend = date ? getDayOfWeek(date) > 5 : false;
   const hasPeriodSelected = selectedSlotIds.length > 0 || period !== "";
@@ -555,7 +636,9 @@ export default function NewEntryPage() {
           topicIds: selectedTopicIds.length > 0 ? selectedTopicIds : undefined,
           topicText: resolvedTopicText,
           notes: notes || null,
-          objectives: objectives || null,
+          objectives: Object.keys(selectedObjectives).length > 0
+            ? Object.entries(selectedObjectives).map(([text, proportion]) => ({ text, proportion }))
+            : (integrationActivity ? [{ text: integrationActivity, proportion: "all" as const }] : null),
           studentAttendance: studentAttendance ? parseInt(studentAttendance) : null,
           engagementLevel: engagementLevel || null,
           signatureData,
@@ -564,11 +647,17 @@ export default function NewEntryPage() {
           bilingualActivity: bilingualActivity || false,
           bilingualType: bilingualActivity ? (bilingualType || null) : null,
           bilingualNote: bilingualActivity ? (bilingualNote || null) : null,
-          integrationActivity: integrationActivity || null,
+          integrationActivity: Object.keys(selectedObjectives).length > 0
+            ? Object.keys(selectedObjectives).join("; ")
+            : (integrationActivity || null),
           integrationLevel: integrationLevel || null,
           integrationStatus: integrationStatus || null,
           lessonMode: lessonMode || "physical",
           digitalTools: (lessonMode === "digital" || lessonMode === "hybrid") ? digitalTools : [],
+          // Assignment tracking
+          assignmentGiven: assignmentGiven || false,
+          assignmentDetails: assignmentGiven ? (assignmentDetails || null) : null,
+          assignmentReviewed: assignmentReviewed,
           status: asDraft ? "DRAFT" : "SUBMITTED",
           classDidNotHold: classDidNotHold || undefined,
         };
@@ -630,7 +719,12 @@ export default function NewEntryPage() {
         bilingualActivity,
         bilingualType: bilingualType || "",
         lessonMode: lessonMode || "physical",
-        integrationActivity: integrationActivity || "",
+        integrationActivity: Object.keys(selectedObjectives).length > 0
+          ? Object.keys(selectedObjectives).join("; ")
+          : (integrationActivity || ""),
+        assignmentGiven,
+        assignmentDetails: assignmentDetails || "",
+        assignmentReviewed,
       });
 
       if (asDraft) {
@@ -660,6 +754,11 @@ export default function NewEntryPage() {
     setDuration("60");
     setNotes("");
     setObjectives("");
+    setMetadataObjectives([]);
+    setSelectedObjectives({});
+    setCustomObjective("");
+    setShowCustomObjectiveInput(false);
+    setFamilyOfSitCustom(false);
     setStudentAttendance("");
     setEngagementLevel("");
     setSignatureData(null);
@@ -679,6 +778,11 @@ export default function NewEntryPage() {
     setIntegrationStatus("");
     setLessonMode("physical");
     setDigitalTools([]);
+    setAssignmentGiven(false);
+    setAssignmentDetails("");
+    setAssignmentReviewed(null);
+    setPendingAssignmentInfo(null);
+    setShowOptionalDetails(false);
     setSuccess(false);
     setSeconds(0);
     setError("");
@@ -857,6 +961,34 @@ export default function NewEntryPage() {
                       <div className="rounded-xl py-2 px-3" style={{ background: "var(--bg-tertiary)" }}>
                         <p className="text-[10px] text-[var(--text-tertiary)]">Integration</p>
                         <p className="text-xs font-semibold text-[var(--text-primary)]">Learners are able to {submittedEntries.integrationActivity}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+              {/* Assignment tracking summary */}
+              {(submittedEntries.assignmentGiven || submittedEntries.assignmentReviewed !== null) && (
+                <div className="py-3 space-y-2">
+                  <p className="text-[10px] font-semibold uppercase tracking-widest text-[var(--text-tertiary)]">Assignment</p>
+                  <div className="flex flex-wrap gap-2">
+                    {submittedEntries.assignmentGiven && (
+                      <div className="rounded-xl py-2 px-3" style={{ background: "var(--accent-light)" }}>
+                        <p className="text-[10px]" style={{ color: "var(--accent-text)" }}>Given</p>
+                        <p className="text-xs font-semibold" style={{ color: "var(--accent-text)" }}>
+                          {submittedEntries.assignmentDetails || "Yes"}
+                        </p>
+                      </div>
+                    )}
+                    {submittedEntries.assignmentReviewed === true && (
+                      <div className="rounded-xl py-2 px-3" style={{ background: "#DCFCE7" }}>
+                        <p className="text-[10px] text-emerald-600">Previous Assignment</p>
+                        <p className="text-xs font-semibold text-emerald-700">Reviewed</p>
+                      </div>
+                    )}
+                    {submittedEntries.assignmentReviewed === false && (
+                      <div className="rounded-xl py-2 px-3" style={{ background: "#FEE2E2" }}>
+                        <p className="text-[10px] text-red-600">Previous Assignment</p>
+                        <p className="text-xs font-semibold text-red-700">Not reviewed</p>
                       </div>
                     )}
                   </div>
@@ -1158,32 +1290,6 @@ export default function NewEntryPage() {
                   </div>
                 )}
 
-                {subjectId && otherClassesForSubject.length > 0 && (
-                  <div>
-                    <label className="label-field flex items-center gap-1.5">
-                      <Copy className="w-3.5 h-3.5 text-violet-500" />
-                      Also submit for other classes?
-                    </label>
-                    <div className="flex flex-wrap gap-2 mt-2">
-                      {otherClassesForSubject.map((oc) => {
-                        const isSel = additionalClassIds.includes(oc.classId);
-                        return (
-                          <button key={oc.classId} type="button" onClick={() => toggleAdditionalClass(oc.classId)}
-                            className="text-xs font-semibold px-3 py-2 rounded-xl border-2 transition-all"
-                            style={{
-                              borderColor: isSel ? "var(--accent)" : "var(--border-primary)",
-                              background: isSel ? "var(--accent-light)" : "var(--bg-elevated)",
-                              color: isSel ? "var(--accent-text)" : "var(--text-secondary)",
-                            }}>
-                            {isSel && <Check className="w-3 h-3 inline mr-1 -mt-0.5" />}
-                            {oc.className}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
-
                 {subjectId && hasPeriodSelected && (
                   <button type="button" onClick={() => setClassDidNotHold(!classDidNotHold)}
                     className="w-full text-left flex items-center gap-3 px-4 py-3 rounded-2xl border-2 transition-all"
@@ -1322,6 +1428,33 @@ export default function NewEntryPage() {
                   </>
                 )}
 
+                {/* Multi-class option — power feature below topic selection */}
+                {subjectId && otherClassesForSubject.length > 0 && (
+                  <div>
+                    <label className="label-field flex items-center gap-1.5">
+                      <Copy className="w-3.5 h-3.5 text-violet-500" />
+                      Also submit for other classes?
+                    </label>
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {otherClassesForSubject.map((oc) => {
+                        const isSel = additionalClassIds.includes(oc.classId);
+                        return (
+                          <button key={oc.classId} type="button" onClick={() => toggleAdditionalClass(oc.classId)}
+                            className="text-xs font-semibold px-3 py-2 rounded-xl border-2 transition-all"
+                            style={{
+                              borderColor: isSel ? "var(--accent)" : "var(--border-primary)",
+                              background: isSel ? "var(--accent-light)" : "var(--bg-elevated)",
+                              color: isSel ? "var(--accent-text)" : "var(--text-secondary)",
+                            }}>
+                            {isSel && <Check className="w-3 h-3 inline mr-1 -mt-0.5" />}
+                            {oc.className}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
                 <button type="button" onClick={() => setStep(2)}
                   disabled={!topicText.trim() && selectedTopicIds.length === 0}
                   className="w-full font-bold text-[15px] transition-all active:scale-[0.98] disabled:opacity-40"
@@ -1358,32 +1491,69 @@ export default function NewEntryPage() {
                 {moduleName && (
                   <div>
                     <p className="text-[13px] font-semibold text-[var(--text-primary)] mb-2">Family of Situation</p>
-                    {familyOfSituation && !familyOfSitEditing ? (
-                      <div className="flex items-center gap-2 rounded-2xl px-4 py-3" style={{ background: "var(--bg-secondary)" }}>
-                        <p className="text-sm font-medium text-[var(--text-primary)] flex-1">{familyOfSituation}</p>
-                        <button type="button" onClick={() => setFamilyOfSitEditing(true)}
-                          className="flex items-center gap-1 text-xs font-medium"
-                          style={{ color: "var(--accent-text)" }}>
-                          <Pencil className="w-3 h-3" />
-                          Edit
+                    {familyOfSitCustom ? (
+                      <div className="flex gap-2">
+                        <input
+                          value={familyOfSituation}
+                          onChange={(e) => { setFamilyOfSituation(e.target.value); setFamilyOfSitEditing(true); }}
+                          placeholder="Type custom family of situation..."
+                          className="input-field text-sm flex-1"
+                          maxLength={200}
+                        />
+                        <button type="button" onClick={() => {
+                          setFamilyOfSitCustom(false);
+                          if (autoFamilyOfSit) { setFamilyOfSituation(autoFamilyOfSit); setFamilyOfSitEditing(false); }
+                        }}
+                          className="text-xs font-medium px-3 rounded-xl"
+                          style={{ color: "var(--accent-text)", background: "var(--accent-light)" }}>
+                          Back
                         </button>
                       </div>
                     ) : (
-                      <input
+                      <select
                         value={familyOfSituation}
-                        onChange={(e) => { setFamilyOfSituation(e.target.value); setFamilyOfSitEditing(true); }}
-                        placeholder="e.g. Social and family environment"
-                        className="input-field text-sm"
-                        maxLength={200}
-                      />
+                        onChange={(e) => {
+                          if (e.target.value === "__custom__") {
+                            setFamilyOfSitCustom(true);
+                            setFamilyOfSituation("");
+                            setFamilyOfSitEditing(true);
+                          } else {
+                            setFamilyOfSituation(e.target.value);
+                            setFamilyOfSitEditing(e.target.value !== autoFamilyOfSit);
+                          }
+                        }}
+                        className="input-field text-sm w-full"
+                        style={{ color: familyOfSituation ? "var(--text-primary)" : "var(--text-tertiary)" }}
+                      >
+                        <option value="">Select family of situation...</option>
+                        {autoFamilyOfSit && (
+                          <option value={autoFamilyOfSit}>{autoFamilyOfSit} (auto)</option>
+                        )}
+                        {[
+                          "Social and family environment",
+                          "Economic activity",
+                          "Health and well-being",
+                          "Technology in daily life",
+                          "Environment and sustainable development",
+                          "Industry and technology",
+                          "Matter and measurement in daily life",
+                          "Energy in the environment",
+                          "Matter in daily life",
+                          "Social and economic environment",
+                          "Health and environment",
+                        ].filter((f) => f !== autoFamilyOfSit).map((f) => (
+                          <option key={f} value={f}>{f}</option>
+                        ))}
+                        <option value="__custom__">Custom...</option>
+                      </select>
                     )}
                   </div>
                 )}
 
-                {/* ── CBA: Integration Activity ── */}
+                {/* ── CBA: Learning Objectives Achieved ── */}
                 <div>
-                  <div className="flex items-center gap-1.5 mb-2">
-                    <p className="text-[13px] font-semibold text-[var(--text-primary)]">Integration Activity</p>
+                  <div className="flex items-center gap-1.5 mb-1">
+                    <p className="text-[13px] font-semibold text-[var(--text-primary)]">Learning Objectives Achieved</p>
                     <div className="relative group">
                       <Info className="w-3.5 h-3.5 text-[var(--text-tertiary)] cursor-help" />
                       <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 hidden group-hover:block w-48 text-[11px] rounded-lg px-3 py-2 z-10"
@@ -1392,18 +1562,132 @@ export default function NewEntryPage() {
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-0 rounded-2xl border overflow-hidden" style={{ borderColor: "var(--border-primary)", background: "var(--bg-elevated)" }}>
-                    <span className="text-sm font-medium text-[var(--text-tertiary)] pl-4 flex-shrink-0 whitespace-nowrap">Learners are able to</span>
-                    <input
-                      value={integrationActivity}
-                      onChange={(e) => setIntegrationActivity(e.target.value.slice(0, 500))}
-                      placeholder="...identify and name measuring instruments"
-                      className="flex-1 px-2 py-3.5 border-none outline-none text-sm bg-transparent"
-                      style={{ color: "var(--text-primary)" }}
-                      maxLength={500}
-                    />
-                  </div>
-                  {integrationActivity && (
+                  <p className="text-[11px] mb-2" style={{ color: "var(--text-tertiary)" }}>
+                    Select what learners demonstrated in this lesson
+                  </p>
+
+                  {metadataObjectives.length > 0 ? (
+                    <div className="rounded-2xl border overflow-hidden" style={{ borderColor: "var(--border-primary)", background: "var(--bg-elevated)" }}>
+                      <div className="max-h-[200px] overflow-y-auto">
+                        {metadataObjectives.map((obj) => {
+                          const isSelected = obj in selectedObjectives;
+                          const proportion = selectedObjectives[obj] || "all";
+                          return (
+                            <div
+                              key={obj}
+                              className="flex items-center gap-2.5 px-3 py-2 border-b last:border-b-0"
+                              style={{ borderColor: "var(--border-secondary)" }}
+                            >
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setSelectedObjectives((prev) => {
+                                    const next = { ...prev };
+                                    if (isSelected) { delete next[obj]; } else { next[obj] = "all"; }
+                                    return next;
+                                  });
+                                }}
+                                className="w-5 h-5 rounded-md border-2 flex items-center justify-center flex-shrink-0 transition-colors"
+                                style={{
+                                  borderColor: isSelected ? "var(--accent)" : "var(--border-primary)",
+                                  background: isSelected ? "var(--accent)" : "var(--bg-elevated)",
+                                }}
+                              >
+                                {isSelected && <Check className="w-3 h-3 text-white" />}
+                              </button>
+                              <span className="text-[13px] flex-1 min-w-0" style={{ color: isSelected ? "var(--text-primary)" : "var(--text-tertiary)" }}>
+                                {obj}
+                              </span>
+                              {isSelected && (
+                                <select
+                                  value={proportion}
+                                  onChange={(e) => setSelectedObjectives((prev) => ({ ...prev, [obj]: e.target.value }))}
+                                  className="text-[10px] font-semibold border rounded-lg px-1.5 py-1 bg-transparent"
+                                  style={{ borderColor: "var(--border-primary)", color: "var(--accent-text)", minWidth: 52 }}
+                                >
+                                  <option value="all">All</option>
+                                  <option value="most">Most</option>
+                                  <option value="some">Some</option>
+                                  <option value="few">Few</option>
+                                </select>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                      {/* Add custom objective */}
+                      <div className="px-3 py-2 border-t" style={{ borderColor: "var(--border-secondary)" }}>
+                        {showCustomObjectiveInput ? (
+                          <div className="flex gap-2">
+                            <input
+                              value={customObjective}
+                              onChange={(e) => setCustomObjective(e.target.value)}
+                              placeholder="describe what learners can do..."
+                              className="flex-1 text-[13px] bg-transparent outline-none"
+                              style={{ color: "var(--text-primary)" }}
+                              maxLength={200}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter" && customObjective.trim()) {
+                                  e.preventDefault();
+                                  const text = customObjective.trim();
+                                  setMetadataObjectives((prev) => [...prev, text]);
+                                  setSelectedObjectives((prev) => ({ ...prev, [text]: "all" }));
+                                  setCustomObjective("");
+                                  setShowCustomObjectiveInput(false);
+                                }
+                              }}
+                            />
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (customObjective.trim()) {
+                                  const text = customObjective.trim();
+                                  setMetadataObjectives((prev) => [...prev, text]);
+                                  setSelectedObjectives((prev) => ({ ...prev, [text]: "all" }));
+                                  setCustomObjective("");
+                                }
+                                setShowCustomObjectiveInput(false);
+                              }}
+                              className="text-xs font-semibold px-2 py-1 rounded-lg"
+                              style={{ color: "var(--accent-text)" }}
+                            >
+                              {customObjective.trim() ? "Add" : "Cancel"}
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => setShowCustomObjectiveInput(true)}
+                            className="flex items-center gap-1 text-xs font-medium"
+                            style={{ color: "var(--accent-text)" }}
+                          >
+                            <Plus className="w-3.5 h-3.5" />
+                            Add custom objective
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  ) : loadingMetadata ? (
+                    <div className="rounded-2xl border px-4 py-3 animate-pulse" style={{ borderColor: "var(--border-primary)", background: "var(--bg-elevated)" }}>
+                      <div className="h-3 rounded w-3/4 mb-2" style={{ backgroundColor: "var(--bg-tertiary)" }} />
+                      <div className="h-3 rounded w-1/2" style={{ backgroundColor: "var(--bg-tertiary)" }} />
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-0 rounded-2xl border overflow-hidden" style={{ borderColor: "var(--border-primary)", background: "var(--bg-elevated)" }}>
+                      <span className="text-sm font-medium text-[var(--text-tertiary)] pl-4 flex-shrink-0 whitespace-nowrap">Learners are able to</span>
+                      <input
+                        value={integrationActivity}
+                        onChange={(e) => setIntegrationActivity(e.target.value.slice(0, 500))}
+                        placeholder="...identify and name measuring instruments"
+                        className="flex-1 px-2 py-3.5 border-none outline-none text-sm bg-transparent"
+                        style={{ color: "var(--text-primary)" }}
+                        maxLength={500}
+                      />
+                    </div>
+                  )}
+
+                  {/* Integration difficulty & status — shown when objectives are selected or free text entered */}
+                  {(Object.keys(selectedObjectives).length > 0 || integrationActivity) && (
                     <div className="flex gap-3 mt-2">
                       <div className="flex-1">
                         <p className="text-[11px] font-semibold text-[var(--text-tertiary)] mb-1.5">Difficulty</p>
@@ -1531,59 +1815,136 @@ export default function NewEntryPage() {
                   )}
                 </div>
 
-                <div className="border overflow-hidden" style={{ borderColor: "var(--border-primary)", background: "var(--bg-elevated)", borderRadius: "16px" }}>
-                  <textarea value={notes} onChange={(e) => setNotes(e.target.value.slice(0, 500))}
-                    placeholder="Optional notes — objectives, observations..." rows={3}
-                    className="w-full px-4 py-3.5 border-none outline-none text-sm bg-transparent resize-none"
-                    style={{ color: "var(--text-primary)", fontFamily: "var(--font-body)" }} maxLength={500} />
-                </div>
-
-                <div className="border overflow-hidden" style={{ borderColor: "var(--border-primary)", background: "var(--bg-elevated)", borderRadius: "16px" }}>
-                  <textarea value={objectives} onChange={(e) => setObjectives(e.target.value.slice(0, 500))}
-                    placeholder="Learning objectives covered..." rows={2}
-                    className="w-full px-4 py-3.5 border-none outline-none text-sm bg-transparent resize-none"
-                    style={{ color: "var(--text-primary)", fontFamily: "var(--font-body)" }} maxLength={500} />
-                </div>
-
-                <div className="flex gap-2">
-                  <div className="flex-1 card p-3.5">
-                    <p className="text-[11px] font-semibold mb-1.5" style={{ color: "#A8A29E" }}>Attendance</p>
-                    <input type="number" value={studentAttendance} onChange={(e) => setStudentAttendance(e.target.value)}
-                      className="w-full text-center py-2.5 text-lg font-bold font-mono bg-transparent"
-                      style={{ background: "#F5F5F4", color: "var(--text-primary)", borderRadius: "10px" }}
-                      placeholder="—" min="0" max="999" />
-                  </div>
-                  <div className="flex-1 card p-3.5">
-                    <p className="text-[11px] font-semibold mb-1.5" style={{ color: "#A8A29E" }}>Engagement</p>
-                    <div className="flex gap-1">
-                      {(["HIGH", "MEDIUM", "LOW"] as const).map((level) => {
-                        const isActive = engagementLevel === level;
-                        const colors: Record<string, { bg: string; text: string }> = {
-                          HIGH: { bg: "#DCFCE7", text: "#16A34A" },
-                          MEDIUM: { bg: "#FEF3C7", text: "#D97706" },
-                          LOW: { bg: "#FEE2E2", text: "#DC2626" },
-                        };
-                        const c = colors[level];
-                        return (
-                          <button key={level} type="button" onClick={() => setEngagementLevel(isActive ? "" : level)}
-                            className="flex-1 py-2.5 text-xs font-semibold transition-all"
-                            style={{
-                              background: isActive ? c.bg : "#F5F5F4",
-                              color: isActive ? c.text : "#A8A29E",
-                              borderRadius: "10px",
-                            }}>
-                            {level === "HIGH" ? "High" : level === "MEDIUM" ? "Med" : "Low"}
-                          </button>
-                        );
-                      })}
+                {/* ── Assignment Reminder Banner ── */}
+                {pendingAssignmentInfo && (
+                  <div className="flex items-start gap-3 px-4 py-3 rounded-2xl border-2 animate-fade-in"
+                    style={{ borderColor: "#F59E0B", background: "#FFFBEB" }}>
+                    <ClipboardList className="w-5 h-5 flex-shrink-0 mt-0.5 text-amber-600" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-amber-700">Previous assignment pending</p>
+                      <p className="text-xs text-amber-600 mt-0.5">{pendingAssignmentInfo}</p>
+                      <div className="flex gap-2 mt-2">
+                        <button type="button" onClick={() => setAssignmentReviewed(true)}
+                          className="text-xs font-semibold px-3 py-1.5 rounded-lg transition-all"
+                          style={{
+                            background: assignmentReviewed === true ? "#DCFCE7" : "#FEF3C7",
+                            color: assignmentReviewed === true ? "#16A34A" : "#92400E",
+                            border: assignmentReviewed === true ? "1px solid #86EFAC" : "1px solid #FDE68A",
+                          }}>
+                          {assignmentReviewed === true && <Check className="w-3 h-3 inline mr-1 -mt-0.5" />}
+                          Reviewed
+                        </button>
+                        <button type="button" onClick={() => setAssignmentReviewed(false)}
+                          className="text-xs font-semibold px-3 py-1.5 rounded-lg transition-all"
+                          style={{
+                            background: assignmentReviewed === false ? "#FEE2E2" : "#FEF3C7",
+                            color: assignmentReviewed === false ? "#DC2626" : "#92400E",
+                            border: assignmentReviewed === false ? "1px solid #FCA5A5" : "1px solid #FDE68A",
+                          }}>
+                          {assignmentReviewed === false && <Check className="w-3 h-3 inline mr-1 -mt-0.5" />}
+                          Not reviewed
+                        </button>
+                      </div>
                     </div>
                   </div>
+                )}
+
+                {/* ── Assignment Given Toggle ── */}
+                <div>
+                  <button type="button" onClick={() => setAssignmentGiven(!assignmentGiven)}
+                    className="w-full text-left flex items-center gap-3 px-4 py-3 rounded-2xl border-2 transition-all"
+                    style={{
+                      borderColor: assignmentGiven ? "var(--accent)" : "var(--border-primary)",
+                      background: assignmentGiven ? "var(--accent-light)" : "var(--bg-elevated)",
+                    }}>
+                    <div className="w-5 h-5 rounded-md border-2 flex items-center justify-center flex-shrink-0"
+                      style={{ borderColor: assignmentGiven ? "var(--accent)" : "var(--border-primary)", background: assignmentGiven ? "var(--accent)" : "var(--bg-elevated)" }}>
+                      {assignmentGiven && <Check className="w-3 h-3 text-white" />}
+                    </div>
+                    <div className="flex-1">
+                      <p className={`text-sm font-semibold ${assignmentGiven ? "text-[var(--accent-text)]" : "text-[var(--text-secondary)]"}`}>
+                        <ClipboardList className="w-3.5 h-3.5 inline -mt-0.5 mr-1" />
+                        Assignment given
+                      </p>
+                      <p className="text-[11px] text-[var(--text-tertiary)]">Did you give homework or an assignment?</p>
+                    </div>
+                  </button>
+                  {assignmentGiven && (
+                    <div className="mt-2 animate-fade-in">
+                      <input
+                        value={assignmentDetails}
+                        onChange={(e) => setAssignmentDetails(e.target.value.slice(0, 300))}
+                        placeholder="Brief details (optional) — e.g. Exercise 3, page 45..."
+                        className="input-field text-sm"
+                        maxLength={300}
+                      />
+                    </div>
+                  )}
                 </div>
 
-                <div>
-                  <label className="label-field">Digital Signature (Optional)</label>
-                  <SignaturePad onSign={(data: string) => setSignatureData(data)} onClear={() => setSignatureData(null)} />
+                <div className="border overflow-hidden" style={{ borderColor: "var(--border-primary)", background: "var(--bg-elevated)", borderRadius: "16px" }}>
+                  <textarea value={notes} onChange={(e) => setNotes(e.target.value.slice(0, 500))}
+                    placeholder="Optional notes — observations, challenges..." rows={3}
+                    className="w-full px-4 py-3.5 border-none outline-none text-sm bg-transparent resize-none"
+                    style={{ color: "var(--text-primary)", fontFamily: "var(--font-body)" }} maxLength={500} />
                 </div>
+
+                {/* ── Collapsible Optional Details ── */}
+                <button type="button" onClick={() => setShowOptionalDetails(!showOptionalDetails)}
+                  className="w-full text-left flex items-center gap-2 px-4 py-3 rounded-2xl border transition-all"
+                  style={{ borderColor: "var(--border-primary)", background: "var(--bg-elevated)" }}>
+                  <ChevronDown className={`w-4 h-4 text-[var(--text-tertiary)] transition-transform ${showOptionalDetails ? "rotate-180" : ""}`} />
+                  <span className="text-sm font-medium text-[var(--text-secondary)]">
+                    Optional details
+                  </span>
+                  <span className="text-[11px] text-[var(--text-tertiary)] ml-auto">
+                    attendance, engagement, signature
+                  </span>
+                </button>
+
+                {showOptionalDetails && (
+                  <div className="space-y-4 animate-fade-in">
+                    <div className="flex gap-2">
+                      <div className="flex-1 card p-3.5">
+                        <p className="text-[11px] font-semibold mb-1.5" style={{ color: "#A8A29E" }}>Attendance</p>
+                        <input type="number" value={studentAttendance} onChange={(e) => setStudentAttendance(e.target.value)}
+                          className="w-full text-center py-2.5 text-lg font-bold font-mono bg-transparent"
+                          style={{ background: "#F5F5F4", color: "var(--text-primary)", borderRadius: "10px" }}
+                          placeholder="—" min="0" max="999" />
+                      </div>
+                      <div className="flex-1 card p-3.5">
+                        <p className="text-[11px] font-semibold mb-1.5" style={{ color: "#A8A29E" }}>Engagement</p>
+                        <div className="flex gap-1">
+                          {(["HIGH", "MEDIUM", "LOW"] as const).map((level) => {
+                            const isActive = engagementLevel === level;
+                            const colors: Record<string, { bg: string; text: string }> = {
+                              HIGH: { bg: "#DCFCE7", text: "#16A34A" },
+                              MEDIUM: { bg: "#FEF3C7", text: "#D97706" },
+                              LOW: { bg: "#FEE2E2", text: "#DC2626" },
+                            };
+                            const c = colors[level];
+                            return (
+                              <button key={level} type="button" onClick={() => setEngagementLevel(isActive ? "" : level)}
+                                className="flex-1 py-2.5 text-xs font-semibold transition-all"
+                                style={{
+                                  background: isActive ? c.bg : "#F5F5F4",
+                                  color: isActive ? c.text : "#A8A29E",
+                                  borderRadius: "10px",
+                                }}>
+                                {level === "HIGH" ? "High" : level === "MEDIUM" ? "Med" : "Low"}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="label-field">Digital Signature (Optional)</label>
+                      <SignaturePad onSign={(data: string) => setSignatureData(data)} onClear={() => setSignatureData(null)} />
+                    </div>
+                  </div>
+                )}
 
                 <button type="submit" disabled={!isFormValid || submitting || savingDraft || selectedPeriodNotEnded}
                   className="w-full font-bold text-base text-white flex items-center justify-center gap-2 transition-all active:scale-[0.97] disabled:opacity-50"

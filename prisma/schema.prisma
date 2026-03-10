@@ -393,7 +393,7 @@ model LogbookEntry {
   moduleName        String?          // Selected module name
   topicText         String?          // Free-text topic typed by teacher
   notes             String?          @db.Text
-  objectives        String?          @db.Text
+  objectives        Json?            // Array of { text: string, proportion: string } or legacy plain string
   signatureData     String?          @db.Text
   status            String           @default("SUBMITTED")
   studentAttendance Int?
@@ -424,6 +424,11 @@ model LogbookEntry {
 
   lessonMode          String?          // "physical", "digital", "hybrid"
   digitalTools        String[]         // If digital/hybrid: ["projector", "youtube", "zoom", "whatsapp", "powerpoint", etc.]
+
+  // Assignment tracking
+  assignmentGiven     Boolean          @default(false)  // Was homework/assignment given?
+  assignmentDetails   String?          // Brief details about the assignment
+  assignmentReviewed  Boolean?         // Was a previous assignment reviewed this class?
 
   // Many-to-many topics (kept for backward compat)
   topics Topic[] @relation("EntryTopics")
