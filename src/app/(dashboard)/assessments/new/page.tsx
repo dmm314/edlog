@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { ArrowLeft, Check, AlertCircle } from "lucide-react";
 import Link from "next/link";
 
@@ -40,10 +39,9 @@ const TYPES = [
 ];
 
 export default function NewAssessmentPage() {
-  const router = useRouter();
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [topics, setTopics] = useState<TopicOption[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
@@ -101,6 +99,7 @@ export default function NewAssessmentPage() {
       .then((r) => r.json())
       .then((data) => setTopics(data.topics || []))
       .catch(() => setTopics([]));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [classId, subjectId]);
 
   // Reset subject when class changes

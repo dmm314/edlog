@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { title, message } = body;
+    const { title, message, teacherIds } = body;
 
     if (!title || typeof title !== "string" || title.trim().length === 0) {
       return NextResponse.json({ error: "Title is required" }, { status: 400 });
@@ -78,9 +78,20 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Message must be 500 characters or less" }, { status: 400 });
     }
 
+    // If teacherIds provided, validate it's an array of strings
+    if (teacherIds !== undefined) {
+      if (!Array.isArray(teacherIds) || teacherIds.length === 0) {
+        return NextResponse.json({ error: "teacherIds must be a non-empty array" }, { status: 400 });
+      }
+      if (!teacherIds.every((id: unknown) => typeof id === "string")) {
+        return NextResponse.json({ error: "Invalid teacher IDs" }, { status: 400 });
+      }
+    }
+
     const teachers = await db.user.findMany({
       where: {
         role: "TEACHER",
+        ...(teacherIds ? { id: { in: teacherIds } } : {}),
         teacherSchools: {
           some: {
             schoolId: user.schoolId,
