@@ -122,8 +122,8 @@ export default function SchoolProfilePage() {
           <div className="space-y-4">
             {[1, 2, 3].map((i) => (
               <div key={i} className="card p-4 animate-pulse">
-                <div className="h-4 bg-slate-200 rounded w-1/3 mb-3" />
-                <div className="h-10 bg-slate-200 rounded" />
+                <div className="h-4 bg-[var(--skeleton-base)] rounded w-1/3 mb-3" />
+                <div className="h-10 bg-[var(--skeleton-base)] rounded" />
               </div>
             ))}
           </div>

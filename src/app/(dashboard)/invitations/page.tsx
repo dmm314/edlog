@@ -89,7 +89,7 @@ export default function InvitationsPage() {
   const active = memberships.filter((m) => m.status === "ACTIVE");
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100/50 pb-24">
+    <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
       {/* Header */}
       <div className="bg-gradient-to-br from-brand-950 via-brand-900 to-brand-800 px-5 pt-10 pb-8 rounded-b-[2rem] shadow-elevated relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-brand-600/20 via-transparent to-transparent" />
@@ -122,8 +122,8 @@ export default function InvitationsPage() {
           <div className="space-y-3">
             {[1, 2].map((i) => (
               <div key={i} className="card p-4 animate-pulse">
-                <div className="h-5 bg-slate-200 rounded w-2/3 mb-2" />
-                <div className="h-3 bg-slate-200 rounded w-1/3" />
+                <div className="h-5 bg-[var(--skeleton-base)] rounded w-2/3 mb-2" />
+                <div className="h-3 bg-[var(--skeleton-base)] rounded w-1/3" />
               </div>
             ))}
           </div>
@@ -174,7 +174,7 @@ export default function InvitationsPage() {
                         <button
                           onClick={() => handleRespond(m.id, "decline")}
                           disabled={responding === m.id}
-                          className="flex-1 flex items-center justify-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-[var(--text-secondary)] text-sm font-semibold py-2.5 rounded-xl transition-colors active:scale-[0.98]"
+                          className="flex-1 flex items-center justify-center gap-1.5 bg-[var(--bg-tertiary)] hover:bg-[var(--bg-secondary)] text-[var(--text-secondary)] text-sm font-semibold py-2.5 rounded-xl transition-colors active:scale-[0.98]"
                         >
                           <X className="w-4 h-4" />
                           Decline

@@ -329,7 +329,7 @@ export default function EditEntryPage() {
               onChange={(e) => setNotes(e.target.value)}
               disabled={!entry.isEditable || minutesLeft <= 0}
               rows={4}
-              className="input-field resize-none disabled:bg-slate-100 disabled:cursor-not-allowed"
+              className="input-field resize-none disabled:bg-[var(--bg-tertiary)] disabled:cursor-not-allowed"
               placeholder="What was covered in this lesson?"
             />
           </div>
@@ -341,7 +341,7 @@ export default function EditEntryPage() {
               onChange={(e) => setObjectives(e.target.value)}
               disabled={!entry.isEditable || minutesLeft <= 0}
               rows={3}
-              className="input-field resize-none disabled:bg-slate-100 disabled:cursor-not-allowed"
+              className="input-field resize-none disabled:bg-[var(--bg-tertiary)] disabled:cursor-not-allowed"
               placeholder="What were the learning objectives?"
             />
           </div>
@@ -355,7 +355,7 @@ export default function EditEntryPage() {
                 onChange={(e) => setAttendance(e.target.value)}
                 disabled={!entry.isEditable || minutesLeft <= 0}
                 min="0"
-                className="input-field disabled:bg-slate-100 disabled:cursor-not-allowed"
+                className="input-field disabled:bg-[var(--bg-tertiary)] disabled:cursor-not-allowed"
                 placeholder="# students"
               />
             </div>
@@ -365,7 +365,7 @@ export default function EditEntryPage() {
                 value={engagement}
                 onChange={(e) => setEngagement(e.target.value)}
                 disabled={!entry.isEditable || minutesLeft <= 0}
-                className="input-field disabled:bg-slate-100 disabled:cursor-not-allowed"
+                className="input-field disabled:bg-[var(--bg-tertiary)] disabled:cursor-not-allowed"
               >
                 <option value="">Select...</option>
                 <option value="LOW">Low</option>

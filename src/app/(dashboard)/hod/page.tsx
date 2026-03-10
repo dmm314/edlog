@@ -166,7 +166,7 @@ export default function HODDashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100/50 pb-24">
+      <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
         <div className="bg-gradient-to-br from-amber-950 via-amber-900 to-amber-800 px-5 pt-10 pb-8 rounded-b-[2rem]">
           <div className="max-w-lg mx-auto">
             <div className="h-6 w-40 bg-[var(--bg-elevated)]/15 rounded mb-2 animate-pulse" />
@@ -176,8 +176,8 @@ export default function HODDashboard() {
         <div className="px-5 mt-4 max-w-lg mx-auto space-y-3">
           {[1, 2, 3].map((i) => (
             <div key={i} className="card p-5 animate-pulse">
-              <div className="h-10 bg-slate-200 rounded mb-3" />
-              <div className="h-3 bg-slate-200 rounded w-2/3" />
+              <div className="h-10 bg-[var(--skeleton-base)] rounded mb-3" />
+              <div className="h-3 bg-[var(--skeleton-base)] rounded w-2/3" />
             </div>
           ))}
         </div>
@@ -208,7 +208,7 @@ export default function HODDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100/50 pb-24">
+    <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
       {/* Header */}
       <div className="bg-gradient-to-br from-amber-950 via-amber-900 to-amber-800 px-5 pt-10 pb-8 rounded-b-[2rem] shadow-elevated relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-amber-600/20 via-transparent to-transparent" />
@@ -380,7 +380,7 @@ export default function HODDashboard() {
                 </div>
               )}
             </div>
-            <div className="divide-y divide-slate-50">
+            <div className="divide-y" style={{ borderColor: "var(--border-secondary)" }}>
               {filteredRankings.map((t, i) => {
                 const maxEntries = filteredRankings[0]?.monthlyEntries || 1;
                 const pct = Math.round((t.monthlyEntries / Math.max(maxEntries, 1)) * 100);
@@ -397,10 +397,10 @@ export default function HODDashboard() {
                             i === 0
                               ? "bg-amber-100 text-amber-700"
                               : i === 1
-                              ? "bg-slate-200 text-[var(--text-secondary)]"
+                              ? "bg-[var(--bg-tertiary)] text-[var(--text-secondary)]"
                               : i === 2
                               ? "bg-orange-100 text-orange-700"
-                              : "bg-slate-100 text-[var(--text-tertiary)]"
+                              : "bg-[var(--bg-tertiary)] text-[var(--text-tertiary)]"
                           }`}
                         >
                           {i + 1}
@@ -418,7 +418,7 @@ export default function HODDashboard() {
                         </span>
                       </div>
                     </div>
-                    <div className="h-1.5 bg-slate-100 rounded-full mt-2 ml-8 overflow-hidden">
+                    <div className="h-1.5 bg-[var(--bg-tertiary)] rounded-full mt-2 ml-8 overflow-hidden">
                       <div
                         className="h-full bg-gradient-to-r from-amber-500 to-amber-400 rounded-full transition-all"
                         style={{ width: `${Math.max(pct, 3)}%` }}
@@ -429,7 +429,7 @@ export default function HODDashboard() {
                         {displayClasses.map((c, ci) => (
                           <span
                             key={ci}
-                            className="text-[9px] bg-slate-100 text-[var(--text-tertiary)] px-1.5 py-0.5 rounded font-medium"
+                            className="text-[9px] bg-[var(--bg-tertiary)] text-[var(--text-tertiary)] px-1.5 py-0.5 rounded font-medium"
                           >
                             {c.className}{c.division ? ` · ${c.division}` : ""}
                           </span>
@@ -576,8 +576,8 @@ export default function HODDashboard() {
               <div className="space-y-2">
                 {[1, 2, 3, 4].map((i) => (
                   <div key={i} className="card p-4 animate-pulse">
-                    <div className="h-3 bg-slate-200 rounded w-2/3 mb-2" />
-                    <div className="h-3 bg-slate-200 rounded w-1/3" />
+                    <div className="h-3 bg-[var(--skeleton-base)] rounded w-2/3 mb-2" />
+                    <div className="h-3 bg-[var(--skeleton-base)] rounded w-1/3" />
                   </div>
                 ))}
               </div>
@@ -632,7 +632,7 @@ export default function HODDashboard() {
                                       ? "bg-green-50 text-green-700"
                                       : entry.status === "FLAGGED"
                                       ? "bg-red-50 text-red-700"
-                                      : "bg-slate-100 text-[var(--text-tertiary)]"
+                                      : "bg-[var(--bg-tertiary)] text-[var(--text-tertiary)]"
                                   }`}
                                 >
                                   {entry.status.charAt(0) +
@@ -641,7 +641,7 @@ export default function HODDashboard() {
                               </div>
                               <div className="flex items-center gap-1.5 mt-2">
                                 <User className="w-3.5 h-3.5 text-[var(--text-tertiary)] flex-shrink-0" />
-                                <span className="text-sm font-semibold text-brand-950 truncate">
+                                <span className="text-sm font-semibold text-[var(--text-primary)] truncate">
                                   {teacherName}
                                 </span>
                               </div>

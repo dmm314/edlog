@@ -336,7 +336,7 @@ export default function ManageTeachersPage() {
               </p>
             </div>
             <div className="flex items-center gap-2">
-              <code className="flex-1 bg-gradient-to-r from-brand-50 to-slate-50 border border-brand-100 rounded-xl px-4 py-2.5 font-mono text-lg text-brand-950 font-black tracking-widest">
+              <code className="flex-1 bg-gradient-to-r from-brand-50 to-slate-50 border border-brand-100 rounded-xl px-4 py-2.5 font-mono text-lg text-[var(--text-primary)] font-black tracking-widest">
                 {schoolCode || "Loading..."}
               </code>
               <button

@@ -119,7 +119,7 @@ export default function RegistrationCodesPage() {
               Used
             </p>
           </div>
-          <div className="flex-1 rounded-xl px-3 py-2 text-center bg-slate-100 text-[var(--text-secondary)]">
+          <div className="flex-1 rounded-xl px-3 py-2 text-center bg-[var(--bg-tertiary)] text-[var(--text-secondary)]">
             <p className="text-lg font-bold">{expired.length}</p>
             <p className="text-[10px] font-medium uppercase tracking-wide">
               Expired
@@ -144,8 +144,8 @@ export default function RegistrationCodesPage() {
           <div className="space-y-3">
             {[1, 2, 3].map((i) => (
               <div key={i} className="card p-4 animate-pulse">
-                <div className="h-5 bg-slate-200 rounded w-1/2 mb-2" />
-                <div className="h-3 bg-slate-200 rounded w-1/3" />
+                <div className="h-5 bg-[var(--skeleton-base)] rounded w-1/2 mb-2" />
+                <div className="h-3 bg-[var(--skeleton-base)] rounded w-1/3" />
               </div>
             ))}
           </div>

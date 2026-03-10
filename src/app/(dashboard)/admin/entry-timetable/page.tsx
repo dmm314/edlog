@@ -351,8 +351,8 @@ export default function EntryTimetablePage() {
             <div className="space-y-3">
               {[1, 2, 3].map((i) => (
                 <div key={i} className="card p-4 animate-pulse">
-                  <div className="h-4 bg-slate-200 rounded w-1/2 mb-2" />
-                  <div className="h-3 bg-slate-200 rounded w-1/3" />
+                  <div className="h-4 bg-[var(--skeleton-base)] rounded w-1/2 mb-2" />
+                  <div className="h-3 bg-[var(--skeleton-base)] rounded w-1/3" />
                 </div>
               ))}
             </div>
@@ -479,7 +479,7 @@ export default function EntryTimetablePage() {
             </button>
 
             {unfilledOpen && (
-              <div className="border-t border-[var(--border-secondary)] divide-y divide-slate-50">
+              <div className="border-t border-[var(--border-secondary)] divide-y divide-[var(--border-secondary)]">
                 {DAYS.map((day) => {
                   const dayUnfilled = unfilledPeriods.filter((p) => p.dayOfWeek === day.value);
                   if (dayUnfilled.length === 0) return null;
@@ -552,7 +552,7 @@ export default function EntryTimetablePage() {
                 </thead>
                 <tbody>
                   {periods.map((period) => (
-                    <tr key={period.periodNum} className="border-b border-slate-50 last:border-0">
+                    <tr key={period.periodNum} className="border-b border-[var(--border-secondary)] last:border-0">
                       <td className="px-1.5 py-1 align-top sticky left-0 bg-[var(--bg-elevated)] z-10">
                         <div className="font-semibold text-[var(--text-secondary)] text-[11px]">P{period.periodNum}</div>
                         <div className="text-[9px] text-[var(--text-tertiary)] whitespace-nowrap">{period.startTime}</div>
@@ -597,7 +597,7 @@ export default function EntryTimetablePage() {
                                   <div className={`absolute top-0.5 right-0.5 w-2 h-2 rounded-full ${getStatusColor(entry.status)}`} />
                                 )}
                                 {!entry && (
-                                  <div className="absolute top-0.5 right-0.5 w-2 h-2 rounded-full bg-slate-200" />
+                                  <div className="absolute top-0.5 right-0.5 w-2 h-2 rounded-full bg-[var(--bg-tertiary)]" />
                                 )}
                               </button>
                             </td>
@@ -643,7 +643,7 @@ export default function EntryTimetablePage() {
                 <span>Flagged</span>
               </div>
               <div className="flex items-center gap-1.5 text-[10px] text-[var(--text-tertiary)]">
-                <div className="w-2.5 h-2.5 rounded-full bg-slate-200" />
+                <div className="w-2.5 h-2.5 rounded-full bg-[var(--bg-tertiary)]" />
                 <span>Empty</span>
               </div>
             </div>
@@ -659,7 +659,7 @@ export default function EntryTimetablePage() {
                   {selectedEntry ? "Entry Details" : "Slot Details"}
                 </h3>
                 <button onClick={() => { setSelectedEntry(null); setSelectedSlot(null); }}
-                  className="w-8 h-8 bg-slate-100 rounded-xl flex items-center justify-center hover:bg-slate-200 transition-colors">
+                  className="w-8 h-8 bg-[var(--bg-tertiary)] rounded-xl flex items-center justify-center hover:bg-[var(--bg-secondary)] transition-colors">
                   <X className="w-4 h-4 text-[var(--text-tertiary)]" />
                 </button>
               </div>

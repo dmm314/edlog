@@ -163,8 +163,8 @@ export default function MyAssignmentsPage() {
           <div className="space-y-3">
             {[1, 2, 3].map((i) => (
               <div key={i} className="card p-4 animate-pulse">
-                <div className="h-4 bg-slate-200 rounded w-1/2 mb-2" />
-                <div className="h-3 bg-slate-200 rounded w-1/3" />
+                <div className="h-4 bg-[var(--skeleton-base)] rounded w-1/2 mb-2" />
+                <div className="h-3 bg-[var(--skeleton-base)] rounded w-1/3" />
               </div>
             ))}
           </div>
@@ -224,7 +224,7 @@ export default function MyAssignmentsPage() {
                           key={a.id}
                           href={`/logbook/new?classId=${a.class.id}&subjectId=${a.subject.id}`}
                           className={`block p-4 hover:bg-[var(--bg-tertiary)] transition-colors ${
-                            idx > 0 ? "border-t border-slate-50" : ""
+                            idx > 0 ? "border-t border-[var(--border-secondary)]" : ""
                           }`}
                         >
                           <div className="flex items-start justify-between">

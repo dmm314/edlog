@@ -1,7 +1,7 @@
 "use client";
 
 import { useTheme, Theme } from "@/components/ThemeProvider";
-import { ArrowLeft, Check, Sun, Moon, Star } from "lucide-react";
+import { ArrowLeft, Check, Sun, Moon } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 interface ThemeOption {
@@ -55,23 +55,6 @@ const themeOptions: ThemeOption[] = [
       border: "#3f3f46",
       navBg: "#18181b",
       navDot: "#818cf8",
-    },
-  },
-  {
-    id: "night",
-    name: "Night",
-    description: "Warm tones that reduce blue light",
-    icon: Star,
-    preview: {
-      bg: "#292524",
-      card: "#3d3330",
-      header: "linear-gradient(135deg, #1c1917, #292524, #3d3330)",
-      text: "#fafaf9",
-      textMuted: "#78716c",
-      accent: "#f59e0b",
-      border: "#57534e",
-      navBg: "#292524",
-      navDot: "#f59e0b",
     },
   },
 ];
@@ -343,7 +326,7 @@ export default function AppearancePage() {
           </p>
 
           {/* Theme grid */}
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 gap-3">
             {themeOptions.map((option) => (
               <ThemePreviewCard
                 key={option.id}
@@ -366,8 +349,8 @@ export default function AppearancePage() {
             <span className="font-semibold" style={{ color: "var(--text-secondary)" }}>
               Tip:
             </span>{" "}
-            Night mode uses warm amber tones to reduce blue light exposure,
-            making it easier on your eyes during evening hours.
+            Your theme preference is saved automatically and will persist
+            across sessions.
           </p>
         </div>
       </div>

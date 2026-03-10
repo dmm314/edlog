@@ -175,8 +175,8 @@ export default function NotificationsPage() {
           <div className="space-y-3">
             {[1, 2, 3].map((i) => (
               <div key={i} className="card p-4 animate-pulse">
-                <div className="h-4 bg-slate-200 rounded w-2/3 mb-2" />
-                <div className="h-3 bg-slate-200 rounded w-full" />
+                <div className="h-4 bg-[var(--skeleton-base)] rounded w-2/3 mb-2" />
+                <div className="h-3 bg-[var(--skeleton-base)] rounded w-full" />
               </div>
             ))}
           </div>
@@ -202,7 +202,7 @@ export default function NotificationsPage() {
                       : ""
                   }`}
                 >
-                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center mt-0.5">
+                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-[var(--bg-tertiary)] flex items-center justify-center mt-0.5">
                     {getNotificationIcon(notification.type)}
                   </div>
                   <div className="flex-1 min-w-0">

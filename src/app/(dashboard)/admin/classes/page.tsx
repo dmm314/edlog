@@ -299,8 +299,8 @@ export default function ManageClassesPage() {
           <div className="space-y-3">
             {[1, 2, 3].map((i) => (
               <div key={i} className="card p-4 animate-pulse">
-                <div className="h-4 bg-slate-200 rounded w-1/2 mb-2" />
-                <div className="h-3 bg-slate-200 rounded w-1/3" />
+                <div className="h-4 bg-[var(--skeleton-base)] rounded w-1/2 mb-2" />
+                <div className="h-3 bg-[var(--skeleton-base)] rounded w-1/3" />
               </div>
             ))}
           </div>

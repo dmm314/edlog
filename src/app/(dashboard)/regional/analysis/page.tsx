@@ -132,8 +132,8 @@ export default function RegionalAnalysisPage() {
           <div className="space-y-3">
             {[1, 2, 3, 4].map((i) => (
               <div key={i} className="card p-4 animate-pulse">
-                <div className="h-4 bg-slate-200 rounded w-1/3 mb-2" />
-                <div className="h-3 bg-slate-200 rounded w-2/3" />
+                <div className="h-4 bg-[var(--skeleton-base)] rounded w-1/3 mb-2" />
+                <div className="h-3 bg-[var(--skeleton-base)] rounded w-2/3" />
               </div>
             ))}
           </div>
@@ -270,7 +270,7 @@ export default function RegionalAnalysisPage() {
                                   {s.teachers.map((t) => (
                                     <span
                                       key={t}
-                                      className="text-[10px] bg-slate-100 text-[var(--text-secondary)] px-2 py-0.5 rounded-md"
+                                      className="text-[10px] bg-[var(--bg-tertiary)] text-[var(--text-secondary)] px-2 py-0.5 rounded-md"
                                     >
                                       {t}
                                     </span>

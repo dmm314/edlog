@@ -335,8 +335,8 @@ export default function TimetableManagementPage() {
             <div className="space-y-3">
               {[1, 2, 3].map((i) => (
                 <div key={i} className="card p-4 animate-pulse">
-                  <div className="h-4 bg-slate-200 rounded w-1/2 mb-2" />
-                  <div className="h-3 bg-slate-200 rounded w-1/3" />
+                  <div className="h-4 bg-[var(--skeleton-base)] rounded w-1/2 mb-2" />
+                  <div className="h-3 bg-[var(--skeleton-base)] rounded w-1/3" />
                 </div>
               ))}
             </div>
@@ -626,7 +626,7 @@ export default function TimetableManagementPage() {
                   {periods.map((period) => (
                     <tr
                       key={period.periodNum}
-                      className="border-b border-slate-50 last:border-0"
+                      className="border-b border-[var(--border-secondary)] last:border-0"
                     >
                       <td className="px-2 py-2 align-top">
                         <div className="font-medium text-[var(--text-secondary)]">

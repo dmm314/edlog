@@ -5,10 +5,9 @@
 /* ===================================================================
    EDLOG DESIGN SYSTEM — v2.0
 
-   Three distinct themes, each with real personality:
+   Two distinct themes, each with real personality:
    • Light  — "Warm Paper"    Cream, stone, amber. Quality stationery.
    • Dark   — "Deep OLED"     True black, floating surfaces, bright amber.
-   • Night  — "Candlelight"   Zero blue. Brown-warm. Cream text.
 
    Built for teachers in Limbe on Tecno Spark at 7:25am.
    Every token earns its place.
@@ -104,50 +103,6 @@
     --input-focus-ring: rgba(251, 191, 36, 0.25);
     --skeleton-base: #3D3330;
     --skeleton-highlight: rgba(255, 255, 255, 0.04);
-    color-scheme: dark;
-  }
-
-  /* ── NIGHT THEME — "Candlelight" ────────────────────────────────
-     Zero blue light. Everything warm-shifted with brown undertones.
-     Text is cream, not white. Designed for late-night use.
-     A teacher grading at 11pm should feel like reading by candlelight. */
-  .night {
-    --bg-primary: #131110;
-    --bg-secondary: #1E1A17;
-    --bg-tertiary: #2A2420;
-    --bg-elevated: #1E1A17;
-    --bg-inset: #131110;
-    --text-primary: #E8DDD4;
-    --text-secondary: #B5A99E;
-    --text-tertiary: #8A7E74;
-    --text-quaternary: #5C524A;
-    --border-primary: #2A2420;
-    --border-secondary: #1E1A17;
-    --border-subtle: #2A2420;
-    --accent: #E8A830;
-    --accent-hover: #D4952A;
-    --accent-light: rgba(232, 168, 48, 0.1);
-    --accent-text: #F0C060;
-    --accent-muted: rgba(232, 168, 48, 0.12);
-    --header-from: #131110;
-    --header-via: #1E1A17;
-    --header-to: #2A2420;
-    --header-text: #E8DDD4;
-    --header-text-muted: rgba(181, 169, 158, 0.9);
-    --header-overlay: rgba(232, 168, 48, 0.03);
-    --header-accent: rgba(232, 168, 48, 0.06);
-    --shadow-card: 0 1px 3px 0 rgba(0, 0, 0, 0.5);
-    --shadow-card-hover: 0 4px 12px -4px rgba(0, 0, 0, 0.6);
-    --shadow-elevated: 0 8px 24px -4px rgba(0, 0, 0, 0.7);
-    --nav-bg: rgba(19, 17, 16, 0.96);
-    --nav-border: #1E1A17;
-    --nav-text: #5C524A;
-    --nav-text-active: #E8A830;
-    --input-bg: #1E1A17;
-    --input-border: #2A2420;
-    --input-focus-ring: rgba(232, 168, 48, 0.25);
-    --skeleton-base: #1E1A17;
-    --skeleton-highlight: rgba(232, 221, 212, 0.03);
     color-scheme: dark;
   }
 
@@ -488,8 +443,7 @@
     transition: all var(--transition-base) var(--ease-out-expo);
   }
 
-  .dark .card-glass,
-  .night .card-glass {
+  .dark .card-glass {
     background: rgba(255, 255, 255, 0.04);
     border-color: rgba(255, 255, 255, 0.06);
   }
@@ -590,30 +544,6 @@
     color: #A8A29E;
   }
   .dark .badge-draft::before { background: #78716C; }
-
-  .night .badge-verified {
-    background: rgba(107, 199, 122, 0.12);
-    color: #90D89C;
-  }
-  .night .badge-verified::before { background: #6BC77A; }
-
-  .night .badge-flagged {
-    background: rgba(224, 112, 112, 0.12);
-    color: #E8A0A0;
-  }
-  .night .badge-flagged::before { background: #E07070; }
-
-  .night .badge-submitted {
-    background: rgba(232, 168, 48, 0.12);
-    color: #F0C060;
-  }
-  .night .badge-submitted::before { background: #E8A830; }
-
-  .night .badge-draft {
-    background: rgba(138, 126, 116, 0.12);
-    color: #B5A99E;
-  }
-  .night .badge-draft::before { background: #8A7E74; }
 
   /* ── SKELETON LOADING ──────────────────────────────────────────── */
 
