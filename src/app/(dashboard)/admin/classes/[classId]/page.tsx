@@ -495,7 +495,7 @@ export default function ClassDetailPage() {
   return (
     <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
       {/* Header */}
-      <div className="bg-gradient-to-br from-brand-950 to-brand-800 px-5 pt-10 pb-6 rounded-b-2xl">
+      <div className="bg-gradient-to-br from-[var(--header-from)] to-[var(--header-to)] px-5 pt-10 pb-6 rounded-b-2xl">
         <div className="max-w-lg mx-auto">
           <Link
             href="/admin/classes"
@@ -509,7 +509,7 @@ export default function ClassDetailPage() {
               <h1 className="text-xl font-bold text-white">
                 {loading ? "Loading..." : className}
               </h1>
-              <p className="text-brand-400 text-sm mt-0.5">
+              <p className="text-[var(--header-text-muted)] text-sm mt-0.5">
                 {linkedCount} subject{linkedCount !== 1 ? "s" : ""} &middot; {totalDivisions} division{totalDivisions !== 1 ? "s" : ""}
               </p>
             </div>
@@ -645,7 +645,7 @@ export default function ClassDetailPage() {
             placeholder={activeTab === "subjects" ? "Search all subjects..." : "Search subjects with divisions..."}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-4 py-2.5 bg-[var(--bg-elevated)] border border-[var(--border-primary)] rounded-xl text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+            className="w-full pl-9 pr-4 py-2.5 bg-[var(--bg-elevated)] border border-[var(--border-primary)] rounded-xl text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-transparent"
           />
         </div>
 
@@ -675,7 +675,7 @@ export default function ClassDetailPage() {
                 <p className="text-[var(--text-tertiary)]">No subjects found in the system</p>
                 <p className="text-sm text-[var(--text-tertiary)] mt-1">
                   Add subjects to your school first in{" "}
-                  <Link href="/admin/subjects" className="text-brand-600 font-medium">
+                  <Link href="/admin/subjects" className="text-[var(--accent-text)] font-medium">
                     School Subjects
                   </Link>
                 </p>
@@ -696,15 +696,16 @@ export default function ClassDetailPage() {
                           disabled={toggling === subject.id}
                           className={`w-full card p-3 flex items-center justify-between transition-colors ${
                             subject.linked
-                              ? "bg-brand-50 border-brand-200"
+                              ? "border-[var(--border-secondary)]"
                               : "hover:bg-[var(--bg-tertiary)]"
                           } ${subject.divisions.length > 0 && subject.linked ? "rounded-b-none border-b-0" : ""}`}
+                          style={subject.linked ? { background: "var(--accent-light)" } : undefined}
                         >
                           <div className="text-left">
                             <h4
                               className={`font-medium text-sm ${
                                 subject.linked
-                                  ? "text-brand-900"
+                                  ? "text-[var(--text-primary)]"
                                   : "text-[var(--text-primary)]"
                               }`}
                             >
@@ -720,9 +721,9 @@ export default function ClassDetailPage() {
                               </span>
                             )}
                             {toggling === subject.id ? (
-                              <div className="w-6 h-6 border-2 border-brand-300 border-t-transparent rounded-full animate-spin" />
+                              <div className="w-6 h-6 border-2 border-[var(--accent)] border-t-transparent rounded-full animate-spin" />
                             ) : subject.linked ? (
-                              <div className="w-6 h-6 bg-brand-600 rounded-full flex items-center justify-center">
+                              <div className="w-6 h-6 bg-[var(--accent)] rounded-full flex items-center justify-center">
                                 <Check className="w-3.5 h-3.5 text-white" />
                               </div>
                             ) : (
@@ -790,7 +791,7 @@ export default function ClassDetailPage() {
                 </p>
                 <button
                   onClick={() => setActiveTab("subjects")}
-                  className="text-sm text-brand-600 font-semibold mt-3"
+                  className="text-sm text-[var(--accent-text)] font-semibold mt-3"
                 >
                   Go to Subjects
                 </button>
@@ -819,16 +820,17 @@ export default function ClassDetailPage() {
                         <div key={subject.id}>
                           {/* Subject row */}
                           <div
-                            className={`card p-3 flex items-center justify-between transition-colors bg-brand-50 border-brand-200 ${
+                            className={`card p-3 flex items-center justify-between transition-colors border-[var(--border-secondary)] ${
                               isExpanded ? "rounded-b-none border-b-0" : ""
                             }`}
+                            style={{ background: "var(--accent-light)" }}
                           >
                             <button
                               onClick={() => handleExpandSubject(subject.id)}
                               className="flex-1 text-left flex items-center gap-2 min-w-0"
                             >
                               <div className="min-w-0">
-                                <h4 className="font-medium text-sm text-brand-900">
+                                <h4 className="font-medium text-sm text-[var(--text-primary)]">
                                   {subject.name}
                                 </h4>
                                 <div className="flex items-center gap-2 mt-0.5">
@@ -850,7 +852,7 @@ export default function ClassDetailPage() {
                             </button>
                             <button
                               onClick={() => handleExpandSubject(subject.id)}
-                              className="p-1 text-[var(--text-tertiary)] hover:text-brand-600 rounded"
+                              className="p-1 text-[var(--text-tertiary)] hover:text-[var(--accent-text)] rounded"
                             >
                               {isExpanded ? (
                                 <ChevronUp className="w-4 h-4" />
@@ -862,9 +864,9 @@ export default function ClassDetailPage() {
 
                           {/* Expanded division setup panel */}
                           {isExpanded && (
-                            <div className="bg-[var(--bg-elevated)] border border-t-0 border-brand-200 rounded-b-xl p-4 space-y-3">
+                            <div className="bg-[var(--bg-elevated)] border border-t-0 border-[var(--border-primary)] rounded-b-xl p-4 space-y-3">
                               <div className="flex items-center gap-2">
-                                <Users className="w-4 h-4 text-brand-600" />
+                                <Users className="w-4 h-4 text-[var(--accent-text)]" />
                                 <p className="text-sm font-semibold text-[var(--text-primary)]">
                                   Division Setup
                                 </p>
@@ -983,8 +985,8 @@ export default function ClassDetailPage() {
                                         onClick={() => toggleLevel(level)}
                                         className={`text-[10px] font-medium px-2 py-1 rounded-lg border transition-colors ${
                                           newDivLevels.includes(level)
-                                            ? "bg-brand-600 text-white border-brand-600"
-                                            : "bg-[var(--bg-elevated)] text-[var(--text-tertiary)] border-[var(--border-primary)] hover:border-brand-300"
+                                            ? "bg-[var(--accent)] text-white border-[var(--accent)]"
+                                            : "bg-[var(--bg-elevated)] text-[var(--text-tertiary)] border-[var(--border-primary)] hover:border-[var(--accent)]"
                                         }`}
                                       >
                                         {level}
@@ -995,14 +997,14 @@ export default function ClassDetailPage() {
                                     <button
                                       type="button"
                                       onClick={() => setNewDivLevels([...FIRST_CYCLE])}
-                                      className="text-[10px] text-brand-600 font-medium underline"
+                                      className="text-[10px] text-[var(--accent-text)] font-medium underline"
                                     >
                                       First Cycle
                                     </button>
                                     <button
                                       type="button"
                                       onClick={() => setNewDivLevels([...SECOND_CYCLE])}
-                                      className="text-[10px] text-brand-600 font-medium underline"
+                                      className="text-[10px] text-[var(--accent-text)] font-medium underline"
                                     >
                                       Second Cycle
                                     </button>

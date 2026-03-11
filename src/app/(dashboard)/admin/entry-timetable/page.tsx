@@ -105,7 +105,7 @@ function getStatusColor(status: string) {
   switch (status) {
     case "VERIFIED": return "bg-emerald-500";
     case "FLAGGED": return "bg-red-500";
-    case "DRAFT": return "bg-slate-400";
+    case "DRAFT": return "bg-[var(--text-tertiary)]";
     default: return "bg-blue-500";
   }
 }
@@ -332,17 +332,17 @@ export default function EntryTimetablePage() {
   if (!selectedClassId) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100/50 pb-24">
-        <div className="bg-gradient-to-br from-brand-950 via-brand-900 to-brand-800 px-5 pt-10 pb-8 rounded-b-[2rem] shadow-elevated relative overflow-hidden">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-brand-600/20 via-transparent to-transparent" />
-          <div className="absolute top-0 right-0 w-64 h-64 bg-brand-500/[0.07] rounded-full -translate-y-1/3 translate-x-1/4 blur-3xl" />
+        <div className="bg-gradient-to-br from-[var(--header-from)] via-[var(--header-via)] to-[var(--header-to)] px-5 pt-10 pb-8 rounded-b-[2rem] shadow-elevated relative overflow-hidden">
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[rgba(245,158,11,0.08)] via-transparent to-transparent" />
+          <div className="absolute top-0 right-0 w-64 h-64 bg-[var(--accent)]/[0.07] rounded-full -translate-y-1/3 translate-x-1/4 blur-3xl" />
           <div className="max-w-lg mx-auto relative">
             <Link href="/admin" className="inline-flex items-center gap-1.5 text-white/60 hover:text-white text-sm mb-4 transition-colors">
               <ArrowLeft className="w-4 h-4" />Back to Dashboard
             </Link>
             <h1 className="text-xl font-bold text-white flex items-center gap-2">
-              <Calendar className="w-5 h-5 text-brand-400" />Entry Timetable
+              <Calendar className="w-5 h-5 text-[var(--header-text-muted)]" />Entry Timetable
             </h1>
-            <p className="text-brand-400/70 text-sm mt-0.5">View teacher entries by class and week</p>
+            <p className="text-[var(--header-text-muted)] text-sm mt-0.5">View teacher entries by class and week</p>
           </div>
         </div>
 
@@ -360,7 +360,7 @@ export default function EntryTimetablePage() {
             <div className="text-center py-16">
               <GraduationCap className="w-12 h-12 text-[var(--text-quaternary)] mx-auto mb-3" />
               <p className="text-[var(--text-secondary)] font-semibold">No classes set up yet</p>
-              <Link href="/admin/classes" className="text-sm text-brand-600 font-semibold mt-2 inline-block">Add classes first</Link>
+              <Link href="/admin/classes" className="text-sm text-[var(--accent-text)] font-semibold mt-2 inline-block">Add classes first</Link>
             </div>
           ) : (
             <>
@@ -400,15 +400,15 @@ export default function EntryTimetablePage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100/50 pb-24">
       {/* Header */}
-      <div className="bg-gradient-to-br from-brand-950 via-brand-900 to-brand-800 px-5 pt-10 pb-8 rounded-b-[2rem] shadow-elevated relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-brand-600/20 via-transparent to-transparent" />
+      <div className="bg-gradient-to-br from-[var(--header-from)] via-[var(--header-via)] to-[var(--header-to)] px-5 pt-10 pb-8 rounded-b-[2rem] shadow-elevated relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[rgba(245,158,11,0.08)] via-transparent to-transparent" />
         <div className="max-w-lg mx-auto relative">
           <button onClick={() => { setSelectedClassId(null); setSelectedEntry(null); setSelectedSlot(null); saveAdminETState(null); }}
             className="inline-flex items-center gap-1.5 text-white/60 hover:text-white text-sm mb-4 transition-colors">
             <ArrowLeft className="w-4 h-4" />All Classes
           </button>
           <h1 className="text-xl font-bold text-white">{className}</h1>
-          <p className="text-brand-400/70 text-sm mt-0.5">Entry timetable</p>
+          <p className="text-[var(--header-text-muted)] text-sm mt-0.5">Entry timetable</p>
         </div>
       </div>
 
@@ -421,12 +421,12 @@ export default function EntryTimetablePage() {
           <div className="text-center flex-1">
             <p className="text-sm font-bold text-[var(--text-primary)]">{formatWeekRange(weekStart)}</p>
             {!isCurrentWeek && (
-              <button onClick={goToCurrentWeek} className="text-[11px] text-brand-600 font-semibold mt-0.5 hover:underline">
+              <button onClick={goToCurrentWeek} className="text-[11px] text-[var(--accent-text)] font-semibold mt-0.5 hover:underline">
                 Go to current week
               </button>
             )}
             {isCurrentWeek && (
-              <p className="text-[11px] text-brand-600 font-semibold mt-0.5">Current Week</p>
+              <p className="text-[11px] text-[var(--accent-text)] font-semibold mt-0.5">Current Week</p>
             )}
           </div>
           <button onClick={() => navigateWeek(1)} className="w-9 h-9 bg-[var(--bg-tertiary)] rounded-xl flex items-center justify-center hover:bg-[var(--bg-tertiary)] transition-colors active:scale-95">
@@ -441,7 +441,7 @@ export default function EntryTimetablePage() {
             <p className="text-[10px] text-[var(--text-tertiary)] font-semibold uppercase tracking-wider">Scheduled</p>
           </div>
           <div className="card p-3 text-center">
-            <p className="text-lg font-bold text-brand-600">{weekStats.filledCount}</p>
+            <p className="text-lg font-bold text-[var(--accent-text)]">{weekStats.filledCount}</p>
             <p className="text-[10px] text-[var(--text-tertiary)] font-semibold uppercase tracking-wider">Filled</p>
           </div>
           <div className="card p-3 text-center">
@@ -518,7 +518,7 @@ export default function EntryTimetablePage() {
         {/* Timetable Grid */}
         {loadingGrid ? (
           <div className="card p-6 text-center">
-            <div className="animate-spin w-8 h-8 border-2 border-brand-200 border-t-brand-600 rounded-full mx-auto mb-3" />
+            <div className="animate-spin w-8 h-8 border-2 border-[var(--border-primary)] border-t-[var(--accent)] rounded-full mx-auto mb-3" />
             <p className="text-sm text-[var(--text-tertiary)]">Loading timetable...</p>
           </div>
         ) : periods.length === 0 ? (
@@ -540,9 +540,9 @@ export default function EntryTimetablePage() {
                       dateForDay.setDate(dateForDay.getDate() + day.value - 1);
                       const isToday = formatDateISO(dateForDay) === formatDateISO(new Date());
                       return (
-                        <th key={day.value} className={`px-1 py-2.5 text-center font-semibold min-w-[54px] ${isToday ? "text-brand-700" : "text-[var(--text-tertiary)]"}`}>
+                        <th key={day.value} className={`px-1 py-2.5 text-center font-semibold min-w-[54px] ${isToday ? "text-[var(--accent-text)]" : "text-[var(--text-tertiary)]"}`}>
                           <span className="block">{day.short}</span>
-                          <span className={`block text-[9px] mt-0.5 ${isToday ? "text-brand-500 font-bold" : "text-[var(--text-quaternary)]"}`}>
+                          <span className={`block text-[9px] mt-0.5 ${isToday ? "text-[var(--accent-text)] font-bold" : "text-[var(--text-quaternary)]"}`}>
                             {dateForDay.getDate()}/{dateForDay.getMonth() + 1}
                           </span>
                         </th>
@@ -569,7 +569,7 @@ export default function EntryTimetablePage() {
                         if (!slot && !entry) {
                           return (
                             <td key={day.value} className="px-0.5 py-1 align-top">
-                              <div className={`h-[42px] rounded-lg border border-dashed ${isToday ? "border-brand-200 bg-brand-50/30" : "border-[var(--border-secondary)]"}`} />
+                              <div className={`h-[42px] rounded-lg border border-dashed ${isToday ? "border-[var(--accent)]/30" : "border-[var(--border-secondary)]"}`} style={isToday ? { background: "color-mix(in srgb, var(--accent-light) 30%, transparent)" } : undefined} />
                             </td>
                           );
                         }
@@ -583,7 +583,7 @@ export default function EntryTimetablePage() {
                                 className={`w-full min-h-[42px] rounded-lg border p-1 text-left transition-all hover:shadow-sm active:scale-95 relative ${
                                   entry
                                     ? `${getSubjectBgLight(colorIdx)}`
-                                    : `border-[var(--border-primary)] bg-[var(--bg-tertiary)] ${isToday ? "border-brand-200" : ""}`
+                                    : `border-[var(--border-primary)] bg-[var(--bg-tertiary)] ${isToday ? "border-[var(--accent)]/30" : ""}`
                                 }`}
                               >
                                 <p className={`font-bold truncate leading-tight ${entry ? getSubjectText(colorIdx) : "text-[var(--text-tertiary)]"}`}>
@@ -674,7 +674,7 @@ export default function EntryTimetablePage() {
                         <Image src={teacher.photoUrl} alt={`${teacher.firstName} ${teacher.lastName}`} width={44} height={44}
                           className="w-11 h-11 rounded-xl object-cover ring-2 ring-white shadow-sm" />
                       ) : (
-                        <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center ring-2 ring-white shadow-sm">
+                        <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-[var(--accent)] to-[var(--accent-hover)] flex items-center justify-center ring-2 ring-white shadow-sm">
                           <span className="text-sm font-bold text-white">{teacher.firstName[0]}{teacher.lastName[0]}</span>
                         </div>
                       )}
@@ -705,8 +705,8 @@ export default function EntryTimetablePage() {
                     {/* Topic */}
                     {selectedEntry.topicText && (
                       <div className="flex items-start gap-3">
-                        <div className="w-7 h-7 bg-brand-50 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
-                          <BookOpen className="w-3.5 h-3.5 text-brand-500" />
+                        <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5" style={{ background: "var(--accent-light)" }}>
+                          <BookOpen className="w-3.5 h-3.5 text-[var(--accent-text)]" />
                         </div>
                         <div>
                           <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-tertiary)]">Topic</p>

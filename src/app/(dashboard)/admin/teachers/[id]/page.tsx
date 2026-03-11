@@ -99,8 +99,8 @@ export default function TeacherDetailPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100/50 pb-24">
-        <div className="bg-gradient-to-br from-brand-950 via-brand-900 to-brand-800 px-5 pt-10 pb-16 rounded-b-[2rem] shadow-elevated relative overflow-hidden">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-brand-600/20 via-transparent to-transparent" />
+        <div className="bg-gradient-to-br from-[var(--header-from)] via-[var(--header-via)] to-[var(--header-to)] px-5 pt-10 pb-16 rounded-b-[2rem] shadow-elevated relative overflow-hidden">
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[rgba(245,158,11,0.08)] via-transparent to-transparent" />
           <div className="max-w-lg mx-auto relative">
             <div className="skeleton h-4 w-28 !bg-[var(--bg-elevated)]/10 mb-4" />
             <div className="flex items-center gap-4">
@@ -127,8 +127,8 @@ export default function TeacherDetailPage() {
   if (!teacher) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100/50 pb-24">
-        <div className="bg-gradient-to-br from-brand-950 via-brand-900 to-brand-800 px-5 pt-10 pb-8 rounded-b-[2rem] shadow-elevated relative overflow-hidden">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-brand-600/20 via-transparent to-transparent" />
+        <div className="bg-gradient-to-br from-[var(--header-from)] via-[var(--header-via)] to-[var(--header-to)] px-5 pt-10 pb-8 rounded-b-[2rem] shadow-elevated relative overflow-hidden">
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[rgba(245,158,11,0.08)] via-transparent to-transparent" />
           <div className="max-w-lg mx-auto relative">
             <Link
               href="/admin/teachers"
@@ -151,9 +151,9 @@ export default function TeacherDetailPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100/50 pb-24">
       {/* Header with teacher photo */}
-      <div className="bg-gradient-to-br from-brand-950 via-brand-900 to-brand-800 px-5 pt-10 pb-16 rounded-b-[2rem] shadow-elevated relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-brand-600/20 via-transparent to-transparent" />
-        <div className="absolute top-0 right-0 w-64 h-64 bg-brand-500/[0.07] rounded-full -translate-y-1/3 translate-x-1/4 blur-3xl" />
+      <div className="bg-gradient-to-br from-[var(--header-from)] via-[var(--header-via)] to-[var(--header-to)] px-5 pt-10 pb-16 rounded-b-[2rem] shadow-elevated relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[rgba(245,158,11,0.08)] via-transparent to-transparent" />
+        <div className="absolute top-0 right-0 w-64 h-64 bg-[var(--accent)]/[0.07] rounded-full -translate-y-1/3 translate-x-1/4 blur-3xl" />
 
         <div className="max-w-lg mx-auto relative">
           <Link
@@ -176,12 +176,12 @@ export default function TeacherDetailPage() {
                   className="w-[72px] h-[72px] rounded-2xl object-cover ring-2 ring-white/20 shadow-lg"
                 />
               ) : (
-                <div className="w-[72px] h-[72px] rounded-2xl bg-gradient-to-br from-brand-600 to-brand-500 flex items-center justify-center ring-2 ring-white/20 shadow-lg">
+                <div className="w-[72px] h-[72px] rounded-2xl bg-gradient-to-br from-[var(--accent)] to-[var(--accent-hover)] flex items-center justify-center ring-2 ring-white/20 shadow-lg">
                   <span className="text-2xl font-bold text-white">{initials}</span>
                 </div>
               )}
               {teacher.isVerified && (
-                <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-emerald-500 rounded-lg flex items-center justify-center border-2 border-brand-900 shadow-sm">
+                <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-emerald-500 rounded-lg flex items-center justify-center border-2 border-[var(--header-from)] shadow-sm">
                   <CheckCircle className="w-3.5 h-3.5 text-white" />
                 </div>
               )}
@@ -191,7 +191,7 @@ export default function TeacherDetailPage() {
               <h1 className="text-xl font-bold text-white truncate">
                 {teacher.firstName} {teacher.lastName}
               </h1>
-              <p className="text-brand-400/80 text-sm mt-0.5 truncate">
+              <p className="text-[var(--header-text-muted)] text-sm mt-0.5 truncate">
                 {teacher.email}
               </p>
               <div className="flex items-center gap-2 mt-2">
@@ -375,7 +375,7 @@ export default function TeacherDetailPage() {
                 <p className="text-[var(--text-secondary)] font-semibold">No assignments yet</p>
                 <Link
                   href="/admin/assignments"
-                  className="inline-flex items-center gap-1.5 text-sm text-brand-600 font-semibold mt-2.5 hover:text-brand-700 transition-colors"
+                  className="inline-flex items-center gap-1.5 text-sm text-[var(--accent-text)] font-semibold mt-2.5 hover:text-[var(--accent-hover)] transition-colors"
                 >
                   Assign teacher to classes
                 </Link>
@@ -399,11 +399,11 @@ export default function TeacherDetailPage() {
                     </div>
                     <div className="flex items-center gap-4 text-[11px] text-[var(--text-tertiary)]">
                       <span className="flex items-center gap-1.5 bg-[var(--bg-tertiary)] rounded-lg px-2.5 py-1 border border-[var(--border-secondary)]">
-                        <BookOpen className="w-3 h-3 text-brand-500" />
+                        <BookOpen className="w-3 h-3 text-[var(--accent-text)]" />
                         <span className="font-semibold text-[var(--text-secondary)]">{a.entryCount}</span> entries
                       </span>
                       <span className="flex items-center gap-1.5 bg-[var(--bg-tertiary)] rounded-lg px-2.5 py-1 border border-[var(--border-secondary)]">
-                        <Clock className="w-3 h-3 text-brand-500" />
+                        <Clock className="w-3 h-3 text-[var(--accent-text)]" />
                         <span className="font-semibold text-[var(--text-secondary)]">{a.slotCount}</span> slots
                       </span>
                     </div>

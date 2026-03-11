@@ -69,7 +69,7 @@ function TeacherAvatar({
 
   return (
     <div
-      className={`${dims} ${radius} bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center ring-2 ring-white shadow-sm flex-shrink-0`}
+      className={`${dims} ${radius} bg-gradient-to-br from-[var(--accent)] to-[var(--accent-hover)] flex items-center justify-center ring-2 ring-white shadow-sm flex-shrink-0`}
     >
       <span className={`${textSize} font-bold text-white`}>{initials}</span>
     </div>
@@ -297,9 +297,9 @@ export default function ManageTeachersPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100/50 pb-24">
       {/* Header */}
-      <div className="bg-gradient-to-br from-brand-950 via-brand-900 to-brand-800 px-5 pt-10 pb-8 rounded-b-[2rem] shadow-elevated relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-brand-600/20 via-transparent to-transparent" />
-        <div className="absolute top-0 right-0 w-64 h-64 bg-brand-500/[0.07] rounded-full -translate-y-1/3 translate-x-1/4 blur-3xl" />
+      <div className="bg-gradient-to-br from-[var(--header-from)] via-[var(--header-via)] to-[var(--header-to)] px-5 pt-10 pb-8 rounded-b-[2rem] shadow-elevated relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[rgba(245,158,11,0.08)] via-transparent to-transparent" />
+        <div className="absolute top-0 right-0 w-64 h-64 rounded-full -translate-y-1/3 translate-x-1/4 blur-3xl" style={{ background: "var(--accent-light)" }} />
 
         <div className="max-w-lg mx-auto relative">
           <Link
@@ -312,10 +312,10 @@ export default function ManageTeachersPage() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-xl font-bold text-white flex items-center gap-2">
-                <Users className="w-5 h-5 text-brand-400" />
+                <Users className="w-5 h-5 text-[var(--header-text-muted)]" />
                 Manage Teachers
               </h1>
-              <p className="text-brand-400/70 text-sm mt-0.5">
+              <p className="text-[var(--header-text-muted)] text-sm mt-0.5">
                 {activeTeachers.length} active
                 {pendingTeachers.length > 0 && ` / ${pendingTeachers.length} pending`}
               </p>
@@ -327,16 +327,16 @@ export default function ManageTeachersPage() {
       <div className="px-5 mt-4 max-w-lg mx-auto space-y-4">
         {/* School Code */}
         <div className="animate-slide-up card p-5 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-brand-50 to-transparent rounded-bl-3xl -translate-y-4 translate-x-4" />
+          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl to-transparent rounded-bl-3xl -translate-y-4 translate-x-4" style={{ background: "linear-gradient(to bottom left, var(--accent-light), transparent)" }} />
           <div className="relative">
             <div className="flex items-center gap-2 mb-3">
-              <Share2 className="w-4 h-4 text-brand-500" />
+              <Share2 className="w-4 h-4 text-[var(--accent-text)]" />
               <p className="text-xs font-bold uppercase tracking-widest text-[var(--text-tertiary)]">
                 Invite Teachers
               </p>
             </div>
             <div className="flex items-center gap-2">
-              <code className="flex-1 bg-gradient-to-r from-brand-50 to-slate-50 border border-brand-100 rounded-xl px-4 py-2.5 font-mono text-lg text-[var(--text-primary)] font-black tracking-widest">
+              <code className="flex-1 rounded-xl px-4 py-2.5 font-mono text-lg text-[var(--text-primary)] font-black tracking-widest" style={{ background: "linear-gradient(to right, var(--accent-light), var(--bg-secondary))", borderWidth: "1px", borderStyle: "solid", borderColor: "var(--border-secondary)" }}>
                 {schoolCode || "Loading..."}
               </code>
               <button
@@ -344,7 +344,7 @@ export default function ManageTeachersPage() {
                 className={`p-3 rounded-xl transition-all active:scale-95 shadow-sm ${
                   copiedCode
                     ? "bg-emerald-500 text-white"
-                    : "bg-brand-600 text-white hover:bg-brand-700"
+                    : "bg-[var(--accent)] text-white hover:bg-[var(--accent-hover)]"
                 }`}
               >
                 {copiedCode ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
@@ -359,7 +359,7 @@ export default function ManageTeachersPage() {
         {/* Invite by Teacher Code */}
         <form onSubmit={handleInviteByCode} className="animate-slide-up card p-5">
           <div className="flex items-center gap-2 mb-3">
-            <Users className="w-4 h-4 text-brand-500" />
+            <Users className="w-4 h-4 text-[var(--accent-text)]" />
             <p className="text-xs font-bold uppercase tracking-widest text-[var(--text-tertiary)]">
               Add Existing Teacher
             </p>
@@ -373,12 +373,12 @@ export default function ManageTeachersPage() {
               value={inviteCode}
               onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
               placeholder="e.g. TCH-A1B2C3"
-              className="flex-1 bg-[var(--bg-tertiary)] border border-[var(--border-primary)] rounded-xl px-4 py-2.5 font-mono text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent tracking-wider"
+              className="flex-1 bg-[var(--bg-tertiary)] border border-[var(--border-primary)] rounded-xl px-4 py-2.5 font-mono text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-transparent tracking-wider"
             />
             <button
               type="submit"
               disabled={inviting || !inviteCode.trim()}
-              className="px-4 py-2.5 bg-brand-600 text-white text-sm font-semibold rounded-xl hover:bg-brand-700 transition-colors active:scale-95 disabled:opacity-50"
+              className="px-4 py-2.5 bg-[var(--accent)] text-white text-sm font-semibold rounded-xl hover:bg-[var(--accent-hover)] transition-colors active:scale-95 disabled:opacity-50"
             >
               {inviting ? "..." : "Invite"}
             </button>
@@ -478,32 +478,33 @@ export default function ManageTeachersPage() {
                 placeholder="Search by name or email..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 bg-[var(--bg-elevated)] border border-[var(--border-primary)] rounded-xl text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent shadow-sm transition-all"
+                className="w-full pl-10 pr-4 py-2.5 bg-[var(--bg-elevated)] border border-[var(--border-primary)] rounded-xl text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-transparent shadow-sm transition-all"
               />
             </div>
             <button
               onClick={() => setShowFilters(!showFilters)}
               className={`flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl text-sm font-semibold border transition-all active:scale-95 shadow-sm ${
                 hasActiveFilters
-                  ? "bg-brand-50 border-brand-200 text-brand-700"
+                  ? "border-[var(--border-secondary)] text-[var(--accent-text)]"
                   : "bg-[var(--bg-elevated)] border-[var(--border-primary)] text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)]"
               }`}
+              style={hasActiveFilters ? { background: "var(--accent-light)" } : undefined}
             >
               <Filter className="w-4 h-4" />
-              {hasActiveFilters && <span className="w-2 h-2 bg-brand-600 rounded-full" />}
+              {hasActiveFilters && <span className="w-2 h-2 bg-[var(--accent)] rounded-full" />}
             </button>
           </div>
         )}
 
         {/* Filter Dropdowns */}
         {showFilters && (
-          <div className="animate-slide-down card p-5 space-y-3 border-brand-100/50">
+          <div className="animate-slide-down card p-5 space-y-3 border-[var(--border-secondary)]">
             <div className="flex items-center justify-between">
               <h4 className="text-sm font-bold text-[var(--text-secondary)]">Filters</h4>
               {hasActiveFilters && (
                 <button
                   onClick={clearFilters}
-                  className="text-xs text-brand-600 font-semibold flex items-center gap-1 hover:underline"
+                  className="text-xs text-[var(--accent-text)] font-semibold flex items-center gap-1 hover:underline"
                 >
                   <X className="w-3 h-3" />
                   Clear all
@@ -550,7 +551,7 @@ export default function ManageTeachersPage() {
               </select>
             </div>
             {filterSubject && filterClass && (
-              <p className="text-xs text-brand-700 bg-brand-50 rounded-xl px-3.5 py-2.5 border border-brand-100 font-medium">
+              <p className="text-xs text-[var(--accent-text)] rounded-xl px-3.5 py-2.5 border border-[var(--border-secondary)] font-medium" style={{ background: "var(--accent-light)" }}>
                 Showing teachers who teach <strong>{filterSubject}</strong> in{" "}
                 <strong>{filterClass}</strong>
               </p>
@@ -604,7 +605,7 @@ export default function ManageTeachersPage() {
             ) : (
               <button
                 onClick={clearFilters}
-                className="text-sm text-brand-600 font-semibold mt-2.5"
+                className="text-sm text-[var(--accent-text)] font-semibold mt-2.5"
               >
                 Clear filters
               </button>
@@ -630,7 +631,7 @@ export default function ManageTeachersPage() {
                           href={`/admin/teachers/${teacher.id}`}
                           className="group flex-1 min-w-0"
                         >
-                          <h4 className="font-bold text-[var(--text-primary)] group-hover:text-brand-700 transition-colors truncate">
+                          <h4 className="font-bold text-[var(--text-primary)] group-hover:text-[var(--accent-text)] transition-colors truncate">
                             {teacher.firstName} {teacher.lastName}
                           </h4>
                           <p className="text-[11px] text-[var(--text-tertiary)] truncate">
@@ -687,7 +688,7 @@ export default function ManageTeachersPage() {
 
                       {/* Stats row */}
                       <div className="flex items-center gap-3 mt-2.5 text-[11px] text-[var(--text-tertiary)]">
-                        <span className="flex items-center gap-1 text-brand-600 font-semibold bg-brand-50 rounded-md px-2 py-0.5">
+                        <span className="flex items-center gap-1 text-[var(--accent-text)] font-semibold rounded-md px-2 py-0.5" style={{ background: "var(--accent-light)" }}>
                           <BookOpen className="w-3 h-3" />
                           {teacher.entryCount} entries
                         </span>

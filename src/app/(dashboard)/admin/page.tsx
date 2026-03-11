@@ -214,7 +214,7 @@ export default function AdminDashboardPage() {
                   </span>
                 )}
               </div>
-              <h1 className="font-display text-[22px] font-bold text-slate-50 tracking-tight">
+              <h1 className="font-display text-[22px] font-bold text-[var(--header-text)] tracking-tight">
                 {school?.name || "Admin Dashboard"}
               </h1>
             </div>

@@ -91,8 +91,8 @@ export default function InvitationsPage() {
   return (
     <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
       {/* Header */}
-      <div className="bg-gradient-to-br from-brand-950 via-brand-900 to-brand-800 px-5 pt-10 pb-8 rounded-b-[2rem] shadow-elevated relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-brand-600/20 via-transparent to-transparent" />
+      <div className="bg-gradient-to-br from-[var(--header-from)] via-[var(--header-via)] to-[var(--header-to)] px-5 pt-10 pb-8 rounded-b-[2rem] shadow-elevated relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[rgba(245,158,11,0.08)] via-transparent to-transparent" />
         <div className="max-w-lg mx-auto relative">
           <Link
             href="/logbook"
@@ -102,10 +102,10 @@ export default function InvitationsPage() {
             Back
           </Link>
           <h1 className="text-xl font-bold text-white flex items-center gap-2">
-            <Building2 className="w-5 h-5 text-brand-400" />
+            <Building2 className="w-5 h-5 text-[var(--header-text-muted)]" />
             My Schools
           </h1>
-          <p className="text-brand-400/70 text-sm mt-0.5">
+          <p className="text-[var(--header-text-muted)] text-sm mt-0.5">
             Invitations & school memberships
           </p>
         </div>
@@ -113,7 +113,7 @@ export default function InvitationsPage() {
 
       <div className="px-5 mt-4 max-w-lg mx-auto space-y-4">
         {message && (
-          <div className="bg-brand-50 border border-brand-200 text-brand-700 text-sm rounded-xl px-4 py-3">
+          <div className="bg-[var(--accent-light)] border border-[var(--border-primary)] text-[var(--accent-text)] text-sm rounded-xl px-4 py-3">
             {message}
           </div>
         )}
@@ -209,7 +209,7 @@ export default function InvitationsPage() {
                         <div
                           className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 ${
                             m.isPrimary
-                              ? "bg-gradient-to-br from-brand-500 to-brand-700"
+                              ? "bg-gradient-to-br from-[var(--accent)] to-[var(--accent-hover)]"
                               : "bg-gradient-to-br from-slate-400 to-slate-600"
                           }`}
                         >
@@ -221,7 +221,7 @@ export default function InvitationsPage() {
                               {m.school.name}
                             </h4>
                             {m.isPrimary && (
-                              <span className="text-[9px] font-bold bg-brand-50 text-brand-700 px-1.5 py-0.5 rounded border border-brand-100 flex-shrink-0">
+                              <span className="text-[9px] font-bold bg-[var(--accent-light)] text-[var(--accent-text)] px-1.5 py-0.5 rounded border border-[var(--border-secondary)] flex-shrink-0">
                                 PRIMARY
                               </span>
                             )}

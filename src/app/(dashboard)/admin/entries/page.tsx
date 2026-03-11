@@ -52,7 +52,7 @@ function EntryTeacherAvatar({
   }
 
   return (
-    <div className={`${dims} rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center ring-1 ring-white shadow-sm flex-shrink-0`}>
+    <div className={`${dims} rounded-xl bg-gradient-to-br from-[var(--accent)] to-[var(--accent-hover)] flex items-center justify-center ring-1 ring-white shadow-sm flex-shrink-0`}>
       <span className={`${textSize} font-bold text-white`}>{initials}</span>
     </div>
   );
@@ -299,9 +299,9 @@ export default function AdminEntriesPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100/50 pb-24">
       {/* Header */}
-      <div className="bg-gradient-to-br from-brand-950 via-brand-900 to-brand-800 px-5 pt-10 pb-8 rounded-b-[2rem] shadow-elevated relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-brand-600/20 via-transparent to-transparent" />
-        <div className="absolute top-0 right-0 w-64 h-64 bg-brand-500/[0.07] rounded-full -translate-y-1/3 translate-x-1/4 blur-3xl" />
+      <div className="bg-gradient-to-br from-[var(--header-from)] via-[var(--header-via)] to-[var(--header-to)] px-5 pt-10 pb-8 rounded-b-[2rem] shadow-elevated relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[rgba(245,158,11,0.08)] via-transparent to-transparent" />
+        <div className="absolute top-0 right-0 w-64 h-64 bg-[var(--accent)]/[0.07] rounded-full -translate-y-1/3 translate-x-1/4 blur-3xl" />
 
         <div className="max-w-lg mx-auto relative">
           <Link
@@ -314,10 +314,10 @@ export default function AdminEntriesPage() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-xl font-bold text-white flex items-center gap-2">
-                <BookOpen className="w-5 h-5 text-brand-400" />
+                <BookOpen className="w-5 h-5 text-[var(--header-text-muted)]" />
                 All Entries
               </h1>
-              <p className="text-brand-400/70 text-sm mt-0.5">
+              <p className="text-[var(--header-text-muted)] text-sm mt-0.5">
                 {total} entr{total !== 1 ? "ies" : "y"} across your school
               </p>
             </div>
@@ -342,20 +342,21 @@ export default function AdminEntriesPage() {
               placeholder="Search entries..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 bg-[var(--bg-elevated)] border border-[var(--border-primary)] rounded-xl text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent shadow-sm transition-all"
+              className="w-full pl-10 pr-4 py-2.5 bg-[var(--bg-elevated)] border border-[var(--border-primary)] rounded-xl text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-transparent shadow-sm transition-all"
             />
           </div>
           <button
             onClick={() => setShowFilters(!showFilters)}
             className={`flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl text-sm font-semibold border transition-all active:scale-95 shadow-sm ${
               hasActiveFilters
-                ? "bg-brand-50 border-brand-200 text-brand-700"
+                ? "border-[var(--accent)] text-[var(--accent-text)]"
                 : "bg-[var(--bg-elevated)] border-[var(--border-primary)] text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)]"
             }`}
+            style={hasActiveFilters ? { background: "var(--accent-light)" } : undefined}
           >
             <Filter className="w-4 h-4" />
             {activeFilterCount > 0 && (
-              <span className="w-5 h-5 bg-brand-600 text-white rounded-full text-[10px] font-bold flex items-center justify-center">
+              <span className="w-5 h-5 bg-[var(--accent)] text-white rounded-full text-[10px] font-bold flex items-center justify-center">
                 {activeFilterCount}
               </span>
             )}
@@ -364,13 +365,13 @@ export default function AdminEntriesPage() {
 
         {/* Filter Panel */}
         {showFilters && (
-          <div className="animate-slide-down card p-5 space-y-3 border-brand-100/50">
+          <div className="animate-slide-down card p-5 space-y-3 border-[var(--border-secondary)]">
             <div className="flex items-center justify-between">
               <h4 className="text-sm font-bold text-[var(--text-secondary)]">Filters</h4>
               {hasActiveFilters && (
                 <button
                   onClick={clearFilters}
-                  className="text-xs text-brand-600 font-semibold flex items-center gap-1"
+                  className="text-xs text-[var(--accent-text)] font-semibold flex items-center gap-1"
                 >
                   <X className="w-3 h-3" />
                   Clear all
@@ -484,7 +485,7 @@ export default function AdminEntriesPage() {
             {(hasActiveFilters || searchQuery) && (
               <button
                 onClick={clearFilters}
-                className="text-sm text-brand-600 font-semibold mt-3"
+                className="text-sm text-[var(--accent-text)] font-semibold mt-3"
               >
                 Clear filters
               </button>
@@ -695,7 +696,7 @@ export default function AdminEntriesPage() {
                               className={`flex-1 flex items-center justify-center gap-1.5 text-sm font-semibold rounded-xl px-3 py-2.5 transition-all ${
                                 entry.status === "VERIFIED"
                                   ? "bg-emerald-50 text-emerald-700 border border-emerald-100 cursor-default"
-                                  : "bg-gradient-to-r from-brand-700 to-brand-600 text-white shadow-sm hover:shadow-md active:scale-[0.98]"
+                                  : "bg-[var(--accent)] text-white shadow-sm hover:shadow-md active:scale-[0.98]"
                               }`}
                             >
                               {updatingId === entry.id ? (

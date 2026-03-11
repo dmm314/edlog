@@ -146,8 +146,8 @@ export default function HODsPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100/50 pb-24">
       {/* Header */}
-      <div className="bg-gradient-to-br from-brand-950 via-brand-900 to-brand-800 px-5 pt-10 pb-8 rounded-b-[2rem] shadow-elevated relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-brand-600/20 via-transparent to-transparent" />
+      <div className="bg-gradient-to-br from-[var(--header-from)] via-[var(--header-via)] to-[var(--header-to)] px-5 pt-10 pb-8 rounded-b-[2rem] shadow-elevated relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[rgba(245,158,11,0.08)] via-transparent to-transparent" />
         <div className="max-w-lg mx-auto relative">
           <Link
             href="/admin"
@@ -162,7 +162,7 @@ export default function HODsPage() {
                 <Crown className="w-5 h-5 text-amber-400" />
                 Heads of Department
               </h1>
-              <p className="text-brand-400/70 text-sm mt-0.5">
+              <p className="text-[var(--header-text-muted)] text-sm mt-0.5">
                 Assign HODs to oversee subject departments
               </p>
             </div>
@@ -198,7 +198,7 @@ export default function HODsPage() {
                 </p>
                 <button
                   onClick={() => setShowForm(true)}
-                  className="text-brand-600 font-medium mt-2 inline-block"
+                  className="text-[var(--accent-text)] font-medium mt-2 inline-block"
                 >
                   Assign your first HOD
                 </button>
@@ -374,7 +374,7 @@ export default function HODsPage() {
         {!loading && hods.length > 0 && (
           <div className="card p-4">
             <div className="flex items-center gap-2 mb-3">
-              <BookOpen className="w-4 h-4 text-brand-500" />
+              <BookOpen className="w-4 h-4 text-[var(--accent-text)]" />
               <h3 className="text-sm font-bold text-[var(--text-primary)]">
                 Department Coverage
               </h3>

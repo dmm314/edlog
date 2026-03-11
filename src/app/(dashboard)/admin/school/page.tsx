@@ -101,7 +101,7 @@ export default function SchoolProfilePage() {
   return (
     <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
       {/* Header */}
-      <div className="bg-gradient-to-br from-brand-950 to-brand-800 px-5 pt-10 pb-6 rounded-b-2xl">
+      <div className="bg-gradient-to-br from-[var(--header-from)] to-[var(--header-to)] px-5 pt-10 pb-6 rounded-b-2xl">
         <div className="max-w-lg mx-auto">
           <Link
             href="/admin"
@@ -111,7 +111,7 @@ export default function SchoolProfilePage() {
             Back to Dashboard
           </Link>
           <h1 className="text-xl font-bold text-white">School Profile</h1>
-          <p className="text-brand-400 text-sm mt-0.5">
+          <p className="text-[var(--header-text-muted)] text-sm mt-0.5">
             Manage your school information
           </p>
         </div>
@@ -182,7 +182,7 @@ export default function SchoolProfilePage() {
                 href="/admin/classes"
                 className="card p-4 flex items-center gap-3 hover:shadow-md transition-shadow"
               >
-                <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-brand-50 text-brand-600">
+                <div className="flex items-center justify-center w-10 h-10 rounded-xl text-[var(--accent-text)]" style={{ background: "var(--accent-light)" }}>
                   <GraduationCap className="w-5 h-5" />
                 </div>
                 <div className="flex-1">
