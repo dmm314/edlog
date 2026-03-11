@@ -166,6 +166,7 @@ export default function NewEntryPage() {
   const [customObjective, setCustomObjective] = useState("");
   const [showCustomObjectiveInput, setShowCustomObjectiveInput] = useState(false);
   const [loadingMetadata, setLoadingMetadata] = useState(false);
+  const [availableFamilies, setAvailableFamilies] = useState<string[]>([]);
   const [familyOfSitCustom, setFamilyOfSitCustom] = useState(false);
   const [lessonMode, setLessonMode] = useState("physical");
   const [digitalTools, setDigitalTools] = useState<string[]>([]);
@@ -497,23 +498,32 @@ export default function NewEntryPage() {
     }
   }, [autoFamilyOfSit, familyOfSitEditing]);
 
-  // Fetch curriculum metadata (objectives) when module selection changes
+  // Fetch curriculum metadata (objectives + families) when module selection changes
   useEffect(() => {
-    if (!subjectCode || !selectedClassLevel || !moduleNum) {
+    if (!subjectCode || !selectedClassLevel) {
       setMetadataObjectives([]);
+      setAvailableFamilies([]);
       return;
     }
     let cancelled = false;
     setLoadingMetadata(true);
-    fetch(`/api/curriculum/metadata?subjectCode=${encodeURIComponent(subjectCode)}&classLevel=${encodeURIComponent(selectedClassLevel)}&moduleNum=${moduleNum}`)
+    const params = new URLSearchParams({ subjectCode, classLevel: selectedClassLevel });
+    if (moduleNum) params.set("moduleNum", String(moduleNum));
+    if (moduleName) params.set("moduleName", moduleName);
+    fetch(`/api/curriculum/metadata?${params}`)
       .then((res) => res.json())
       .then((data) => {
         if (cancelled) return;
-        setMetadataObjectives(data.objectives || []);
+        // objectives may be [{text: "..."}, ...] or ["..."] — normalize to strings
+        const objs: string[] = (data.objectives || []).map((o: string | { text: string }) =>
+          typeof o === "string" ? o : o.text
+        );
+        setMetadataObjectives(objs);
+        setAvailableFamilies(data.availableFamilies || []);
         // Auto-select all objectives and reset proportions
-        if (data.objectives?.length > 0) {
+        if (objs.length > 0) {
           const defaultSelected: Record<string, string> = {};
-          for (const obj of data.objectives) {
+          for (const obj of objs) {
             defaultSelected[obj] = "all";
           }
           setSelectedObjectives(defaultSelected);
@@ -522,13 +532,16 @@ export default function NewEntryPage() {
         }
       })
       .catch(() => {
-        if (!cancelled) setMetadataObjectives([]);
+        if (!cancelled) {
+          setMetadataObjectives([]);
+          setAvailableFamilies([]);
+        }
       })
       .finally(() => {
         if (!cancelled) setLoadingMetadata(false);
       });
     return () => { cancelled = true; };
-  }, [subjectCode, selectedClassLevel, moduleNum]);
+  }, [subjectCode, selectedClassLevel, moduleNum, moduleName]);
 
   // Check for pending assignments when class is selected
   useEffect(() => {
@@ -1528,19 +1541,14 @@ export default function NewEntryPage() {
                         {autoFamilyOfSit && (
                           <option value={autoFamilyOfSit}>{autoFamilyOfSit} (auto)</option>
                         )}
-                        {[
+                        {(availableFamilies.length > 0 ? availableFamilies : [
                           "Social and family environment",
-                          "Economic activity",
+                          "Economic activity and the environment",
                           "Health and well-being",
-                          "Technology in daily life",
+                          "Media and communication",
                           "Environment and sustainable development",
                           "Industry and technology",
-                          "Matter and measurement in daily life",
-                          "Energy in the environment",
-                          "Matter in daily life",
-                          "Social and economic environment",
-                          "Health and environment",
-                        ].filter((f) => f !== autoFamilyOfSit).map((f) => (
+                        ]).filter((f) => f !== autoFamilyOfSit).map((f) => (
                           <option key={f} value={f}>{f}</option>
                         ))}
                         <option value="__custom__">Custom...</option>
@@ -1672,16 +1680,46 @@ export default function NewEntryPage() {
                       <div className="h-3 rounded w-1/2" style={{ backgroundColor: "var(--bg-tertiary)" }} />
                     </div>
                   ) : (
-                    <div className="flex items-center gap-0 rounded-2xl border overflow-hidden" style={{ borderColor: "var(--border-primary)", background: "var(--bg-elevated)" }}>
-                      <span className="text-sm font-medium text-[var(--text-tertiary)] pl-4 flex-shrink-0 whitespace-nowrap">Learners are able to</span>
-                      <input
-                        value={integrationActivity}
-                        onChange={(e) => setIntegrationActivity(e.target.value.slice(0, 500))}
-                        placeholder="...identify and name measuring instruments"
-                        className="flex-1 px-2 py-3.5 border-none outline-none text-sm bg-transparent"
-                        style={{ color: "var(--text-primary)" }}
-                        maxLength={500}
-                      />
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-0 rounded-2xl border overflow-hidden" style={{ borderColor: "var(--border-primary)", background: "var(--bg-elevated)" }}>
+                        <span className="text-sm font-medium text-[var(--text-tertiary)] pl-4 flex-shrink-0 whitespace-nowrap">Learners are able to</span>
+                        <select
+                          value={integrationActivity}
+                          onChange={(e) => {
+                            if (e.target.value === "__custom__") {
+                              setIntegrationActivity("");
+                              setShowCustomObjectiveInput(true);
+                            } else {
+                              setIntegrationActivity(e.target.value);
+                              setShowCustomObjectiveInput(false);
+                            }
+                          }}
+                          className="flex-1 px-2 py-3.5 border-none outline-none text-sm bg-transparent appearance-none"
+                          style={{ color: integrationActivity ? "var(--text-primary)" : "var(--text-tertiary)" }}
+                        >
+                          <option value="">...select an objective</option>
+                          <option value="identify and name measuring instruments">identify and name measuring instruments</option>
+                          <option value="describe and explain concepts from the lesson">describe and explain concepts from the lesson</option>
+                          <option value="apply learned concepts to solve problems">apply learned concepts to solve problems</option>
+                          <option value="perform experiments and record observations">perform experiments and record observations</option>
+                          <option value="analyse data and draw conclusions">analyse data and draw conclusions</option>
+                          <option value="__custom__">Other (type below)...</option>
+                        </select>
+                      </div>
+                      {showCustomObjectiveInput && (
+                        <div className="flex items-center gap-0 rounded-2xl border overflow-hidden" style={{ borderColor: "var(--border-primary)", background: "var(--bg-elevated)" }}>
+                          <span className="text-sm font-medium text-[var(--text-tertiary)] pl-4 flex-shrink-0 whitespace-nowrap">Learners are able to</span>
+                          <input
+                            value={integrationActivity}
+                            onChange={(e) => setIntegrationActivity(e.target.value.slice(0, 500))}
+                            placeholder="...type a custom objective"
+                            className="flex-1 px-2 py-3.5 border-none outline-none text-sm bg-transparent"
+                            style={{ color: "var(--text-primary)" }}
+                            maxLength={500}
+                            autoFocus
+                          />
+                        </div>
+                      )}
                     </div>
                   )}
 
