@@ -12,7 +12,7 @@ export async function GET() {
 
     const hodAssignments = await db.headOfDepartment.findMany({
       where: { teacherId: user.id },
-      select: { subjectId: true },
+      select: { subjectId: true, schoolId: true },
     });
 
     if (hodAssignments.length === 0) {
@@ -20,12 +20,18 @@ export async function GET() {
     }
 
     const hodSubjectIds = hodAssignments.map((h) => h.subjectId);
+    const hodSchoolIds = [...new Set(hodAssignments.map((h) => h.schoolId))];
 
     const teacherCount = await db.user.count({
       where: {
         role: "TEACHER",
         id: { not: user.id },
-        schoolId: user.schoolId,
+        teacherSchools: {
+          some: {
+            schoolId: { in: hodSchoolIds },
+            status: "ACTIVE",
+          },
+        },
         assignments: { some: { subjectId: { in: hodSubjectIds } } },
       },
     });
@@ -46,7 +52,7 @@ export async function POST(request: NextRequest) {
 
     const hodAssignments = await db.headOfDepartment.findMany({
       where: { teacherId: user.id },
-      include: { subject: { select: { name: true } } },
+      select: { subjectId: true, schoolId: true },
     });
 
     if (hodAssignments.length === 0) {
@@ -70,12 +76,18 @@ export async function POST(request: NextRequest) {
     }
 
     const hodSubjectIds = hodAssignments.map((h) => h.subjectId);
+    const hodSchoolIds = [...new Set(hodAssignments.map((h) => h.schoolId))];
 
     const teachers = await db.user.findMany({
       where: {
         role: "TEACHER",
         id: { not: user.id },
-        schoolId: user.schoolId,
+        teacherSchools: {
+          some: {
+            schoolId: { in: hodSchoolIds },
+            status: "ACTIVE",
+          },
+        },
         assignments: { some: { subjectId: { in: hodSubjectIds } } },
       },
       select: { id: true },
