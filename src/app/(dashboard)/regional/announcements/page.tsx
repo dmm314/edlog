@@ -191,7 +191,7 @@ export default function RegionalAnnouncementsPage() {
             </div>
             <div>
               <h1 className="text-xl font-bold text-white">Regional Announcement</h1>
-              <p className="text-slate-400 text-sm mt-0.5">
+              <p className="text-[var(--header-text-muted)] text-sm mt-0.5">
                 Broadcast to teachers in your region
               </p>
             </div>

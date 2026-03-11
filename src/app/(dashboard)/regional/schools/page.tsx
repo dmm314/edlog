@@ -143,7 +143,7 @@ export default function RegionalSchoolsPage() {
   return (
     <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
       {/* Header */}
-      <div className="bg-gradient-to-br from-brand-950 to-brand-800 px-5 pt-10 pb-6 rounded-b-2xl">
+      <div className="bg-gradient-to-br from-[var(--header-from)] to-[var(--header-to)] px-5 pt-10 pb-6 rounded-b-2xl">
         <div className="max-w-lg mx-auto">
           <Link
             href="/regional"
@@ -153,7 +153,7 @@ export default function RegionalSchoolsPage() {
             Back to Dashboard
           </Link>
           <h1 className="text-xl font-bold text-white">Manage Schools</h1>
-          <p className="text-brand-400 text-sm mt-0.5">
+          <p className="text-[var(--header-text-muted)] text-sm mt-0.5">
             {schools.length} school{schools.length !== 1 ? "s" : ""} in your
             region
           </p>
@@ -170,20 +170,21 @@ export default function RegionalSchoolsPage() {
               placeholder="Search by school name or code..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-4 py-2.5 bg-[var(--bg-elevated)] border border-[var(--border-primary)] rounded-xl text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+              className="w-full pl-9 pr-4 py-2.5 bg-[var(--bg-elevated)] border border-[var(--border-primary)] rounded-xl text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-transparent"
             />
           </div>
           <button
             onClick={() => setShowFilters(!showFilters)}
             className={`flex items-center gap-1.5 px-3 py-2.5 rounded-xl text-sm font-medium border transition-colors ${
               hasActiveFilters
-                ? "bg-brand-50 border-brand-200 text-brand-700"
+                ? "border-[var(--accent-muted)] text-[var(--accent-text)]"
                 : "bg-[var(--bg-elevated)] border-[var(--border-primary)] text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)]"
             }`}
+            style={hasActiveFilters ? { background: "var(--accent-light)" } : undefined}
           >
             <Filter className="w-4 h-4" />
             {hasActiveFilters && (
-              <span className="w-1.5 h-1.5 bg-brand-600 rounded-full" />
+              <span className="w-1.5 h-1.5 bg-[var(--accent)] rounded-full" />
             )}
           </button>
         </div>
@@ -196,7 +197,7 @@ export default function RegionalSchoolsPage() {
               {hasActiveFilters && (
                 <button
                   onClick={clearFilters}
-                  className="text-xs text-brand-600 font-medium flex items-center gap-1"
+                  className="text-xs text-[var(--accent-text)] font-medium flex items-center gap-1"
                 >
                   <X className="w-3 h-3" />
                   Clear all
@@ -290,7 +291,7 @@ export default function RegionalSchoolsPage() {
             {(searchQuery || hasActiveFilters) && (
               <button
                 onClick={clearFilters}
-                className="text-sm text-brand-600 font-medium mt-2"
+                className="text-sm text-[var(--accent-text)] font-medium mt-2"
               >
                 Clear filters
               </button>

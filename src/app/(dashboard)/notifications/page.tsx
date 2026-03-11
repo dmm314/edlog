@@ -117,7 +117,7 @@ export default function NotificationsPage() {
   return (
     <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
       {/* Header */}
-      <div className="bg-gradient-to-br from-brand-950 to-brand-800 px-5 pt-10 pb-6 rounded-b-2xl">
+      <div className="bg-gradient-to-br from-[var(--header-from)] via-[var(--header-via)] to-[var(--header-to)] px-5 pt-10 pb-6 rounded-b-2xl">
         <div className="max-w-lg mx-auto">
           <div className="flex items-center justify-between mb-3">
             <button
@@ -137,7 +137,7 @@ export default function NotificationsPage() {
             )}
           </div>
           <h1 className="text-xl font-bold text-white">Notifications</h1>
-          <p className="text-brand-400 text-sm mt-0.5">
+          <p className="text-[var(--header-text-muted)] text-sm mt-0.5">
             {unreadCount > 0
               ? `${unreadCount} unread notification${unreadCount > 1 ? "s" : ""}`
               : "All caught up"}
@@ -198,7 +198,7 @@ export default function NotificationsPage() {
                 <div
                   className={`card p-4 flex gap-3 transition-colors ${
                     !notification.isRead
-                      ? "bg-brand-50/50 border-brand-100"
+                      ? "bg-[var(--bg-secondary)]/50 border-[var(--border-secondary)]"
                       : ""
                   }`}
                 >
@@ -217,7 +217,7 @@ export default function NotificationsPage() {
                         {notification.title}
                       </h4>
                       {!notification.isRead && (
-                        <div className="w-2 h-2 rounded-full bg-brand-500 flex-shrink-0 mt-1.5" />
+                        <div className="w-2 h-2 rounded-full bg-[var(--accent)] flex-shrink-0 mt-1.5" />
                       )}
                     </div>
                     <p

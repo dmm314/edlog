@@ -219,7 +219,7 @@ export default function AssignmentsPage() {
   return (
     <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
       {/* Header */}
-      <div className="bg-gradient-to-br from-brand-950 to-brand-800 px-5 pt-10 pb-6 rounded-b-2xl">
+      <div className="bg-gradient-to-br from-[var(--header-from)] to-[var(--header-to)] px-5 pt-10 pb-6 rounded-b-2xl">
         <div className="max-w-lg mx-auto">
           <Link
             href="/admin"
@@ -233,7 +233,7 @@ export default function AssignmentsPage() {
               <h1 className="text-xl font-bold text-white">
                 Assign Teachers
               </h1>
-              <p className="text-brand-400 text-sm mt-0.5">
+              <p className="text-[var(--header-text-muted)] text-sm mt-0.5">
                 {assignments.length} assignment
                 {assignments.length !== 1 ? "s" : ""}
               </p>
@@ -271,7 +271,7 @@ export default function AssignmentsPage() {
                     No verified teachers found.{" "}
                     <Link
                       href="/admin/teachers"
-                      className="text-brand-600 font-medium"
+                      className="text-[var(--accent-text)] font-medium"
                     >
                       Verify teachers
                     </Link>
@@ -282,7 +282,7 @@ export default function AssignmentsPage() {
                     No classes created.{" "}
                     <Link
                       href="/admin/classes"
-                      className="text-brand-600 font-medium"
+                      className="text-[var(--accent-text)] font-medium"
                     >
                       Add classes
                     </Link>
@@ -293,7 +293,7 @@ export default function AssignmentsPage() {
                     No subjects assigned to any class.{" "}
                     <Link
                       href="/admin/classes"
-                      className="text-brand-600 font-medium"
+                      className="text-[var(--accent-text)] font-medium"
                     >
                       Manage class subjects
                     </Link>
@@ -394,7 +394,7 @@ export default function AssignmentsPage() {
                   This class has no subjects.{" "}
                   <Link
                     href={`/admin/classes/${form.classId}`}
-                    className="text-brand-600 font-medium"
+                    className="text-[var(--accent-text)] font-medium"
                   >
                     Add subjects
                   </Link>
@@ -455,13 +455,13 @@ export default function AssignmentsPage() {
                 placeholder="Search assignments..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-4 py-2.5 bg-[var(--bg-elevated)] border border-[var(--border-primary)] rounded-xl text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                className="w-full pl-9 pr-4 py-2.5 bg-[var(--bg-elevated)] border border-[var(--border-primary)] rounded-xl text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-transparent"
               />
             </div>
             <select
               value={filterTeacher}
               onChange={(e) => setFilterTeacher(e.target.value)}
-              className="bg-[var(--bg-elevated)] border border-[var(--border-primary)] rounded-xl text-sm text-[var(--text-secondary)] px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-500"
+              className="bg-[var(--bg-elevated)] border border-[var(--border-primary)] rounded-xl text-sm text-[var(--text-secondary)] px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
             >
               <option value="">All teachers</option>
               {teachers.map((t) => (

@@ -74,7 +74,7 @@ export default function RegistrationCodesPage() {
   return (
     <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
       {/* Header */}
-      <div className="bg-gradient-to-br from-brand-950 to-brand-800 px-5 pt-10 pb-6 rounded-b-2xl">
+      <div className="bg-gradient-to-br from-[var(--header-from)] to-[var(--header-to)] px-5 pt-10 pb-6 rounded-b-2xl">
         <div className="max-w-lg mx-auto">
           <Link
             href="/regional"
@@ -88,7 +88,7 @@ export default function RegistrationCodesPage() {
               <h1 className="text-xl font-bold text-white">
                 Registration Codes
               </h1>
-              <p className="text-brand-400 text-sm mt-0.5">
+              <p className="text-[var(--header-text-muted)] text-sm mt-0.5">
                 Generate one-time codes for school registration
               </p>
             </div>
@@ -178,7 +178,7 @@ export default function RegistrationCodesPage() {
                     {!code.isUsed && !code.isExpired && (
                       <button
                         onClick={() => copyCode(code.code, code.id)}
-                        className="p-1 text-[var(--text-tertiary)] hover:text-brand-600 transition-colors"
+                        className="p-1 text-[var(--text-tertiary)] hover:text-[var(--accent-text)] transition-colors"
                       >
                         {copiedId === code.id ? (
                           <Check className="w-4 h-4 text-green-500" />

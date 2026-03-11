@@ -130,7 +130,7 @@ export default function SchoolDetailPage() {
   if (loading) {
     return (
       <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
-        <div className="bg-gradient-to-br from-brand-950 to-brand-800 px-5 pt-10 pb-6 rounded-b-2xl">
+        <div className="bg-gradient-to-br from-[var(--header-from)] to-[var(--header-to)] px-5 pt-10 pb-6 rounded-b-2xl">
           <div className="max-w-lg mx-auto">
             <div className="h-4 bg-[var(--bg-elevated)]/20 rounded w-1/3 mb-4" />
             <div className="h-6 bg-[var(--bg-elevated)]/20 rounded w-2/3" />
@@ -151,7 +151,7 @@ export default function SchoolDetailPage() {
   if (!school) {
     return (
       <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
-        <div className="bg-gradient-to-br from-brand-950 to-brand-800 px-5 pt-10 pb-6 rounded-b-2xl">
+        <div className="bg-gradient-to-br from-[var(--header-from)] to-[var(--header-to)] px-5 pt-10 pb-6 rounded-b-2xl">
           <div className="max-w-lg mx-auto">
             <Link
               href="/regional/schools"
@@ -176,7 +176,7 @@ export default function SchoolDetailPage() {
   return (
     <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
       {/* Header */}
-      <div className="bg-gradient-to-br from-brand-950 to-brand-800 px-5 pt-10 pb-6 rounded-b-2xl">
+      <div className="bg-gradient-to-br from-[var(--header-from)] to-[var(--header-to)] px-5 pt-10 pb-6 rounded-b-2xl">
         <div className="max-w-lg mx-auto">
           <Link
             href="/regional/schools"
@@ -194,7 +194,7 @@ export default function SchoolDetailPage() {
                 {school.name}
               </h1>
               <div className="flex items-center gap-2 mt-1">
-                <span className="text-brand-400 text-sm font-mono">
+                <span className="text-[var(--header-text-muted)] text-sm font-mono">
                   {school.code}
                 </span>
                 <span
@@ -309,8 +309,8 @@ export default function SchoolDetailPage() {
               {school.principalName ? (
                 <div className="space-y-2 text-sm">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-brand-50 rounded-full flex items-center justify-center">
-                      <span className="text-brand-700 font-bold text-sm">
+                    <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: "var(--accent-light)" }}>
+                      <span className="text-[var(--accent-text)] font-bold text-sm">
                         {school.principalName
                           .split(" ")
                           .map((n) => n[0])

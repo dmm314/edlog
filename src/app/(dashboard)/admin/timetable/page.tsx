@@ -308,7 +308,7 @@ export default function TimetableManagementPage() {
   if (!selectedClassId) {
     return (
       <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
-        <div className="bg-gradient-to-br from-brand-950 to-brand-800 px-5 pt-10 pb-6 rounded-b-2xl">
+        <div className="bg-gradient-to-br from-[var(--header-from)] to-[var(--header-to)] px-5 pt-10 pb-6 rounded-b-2xl">
           <div className="max-w-lg mx-auto">
             <Link
               href="/admin"
@@ -318,7 +318,7 @@ export default function TimetableManagementPage() {
               Back to Dashboard
             </Link>
             <h1 className="text-xl font-bold text-white">Manage Timetable</h1>
-            <p className="text-brand-400 text-sm mt-0.5">
+            <p className="text-[var(--header-text-muted)] text-sm mt-0.5">
               Select a class to view or edit its timetable
             </p>
           </div>
@@ -346,7 +346,7 @@ export default function TimetableManagementPage() {
               <p className="text-[var(--text-tertiary)]">No classes set up yet</p>
               <Link
                 href="/admin/classes"
-                className="text-sm text-brand-600 font-medium mt-2 inline-block"
+                className="text-sm text-[var(--accent-text)] font-medium mt-2 inline-block"
               >
                 Add classes first
               </Link>
@@ -396,7 +396,7 @@ export default function TimetableManagementPage() {
   return (
     <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
       {/* Header */}
-      <div className="bg-gradient-to-br from-brand-950 to-brand-800 px-5 pt-10 pb-6 rounded-b-2xl">
+      <div className="bg-gradient-to-br from-[var(--header-from)] to-[var(--header-to)] px-5 pt-10 pb-6 rounded-b-2xl">
         <div className="max-w-lg mx-auto">
           <button
             onClick={() => {
@@ -413,7 +413,7 @@ export default function TimetableManagementPage() {
               <h1 className="text-xl font-bold text-white">
                 {selectedClass?.name}
               </h1>
-              <p className="text-brand-400 text-sm mt-0.5">
+              <p className="text-[var(--header-text-muted)] text-sm mt-0.5">
                 {classSlots.length} slot{classSlots.length !== 1 ? "s" : ""}{" "}
                 scheduled
               </p>
@@ -502,7 +502,7 @@ export default function TimetableManagementPage() {
             </p>
             <Link
               href="/admin/assignments"
-              className="text-sm text-brand-600 font-medium mt-2 inline-block"
+              className="text-sm text-[var(--accent-text)] font-medium mt-2 inline-block"
             >
               Assign teachers
             </Link>
@@ -575,11 +575,12 @@ export default function TimetableManagementPage() {
                         disabled={disabled}
                         className={`text-left px-2.5 py-2 rounded-lg border-2 text-xs transition-all ${
                           selected
-                            ? "border-brand-500 bg-brand-50 text-brand-800"
+                            ? "border-[var(--accent)] text-[var(--text-primary)]"
                             : disabled
                             ? "border-[var(--border-secondary)] bg-[var(--bg-tertiary)] text-[var(--text-quaternary)] cursor-not-allowed"
                             : "border-[var(--border-primary)] bg-[var(--bg-elevated)] text-[var(--text-secondary)] hover:border-[var(--border-primary)]"
                         }`}
+                        style={selected ? { background: "var(--accent-light)" } : undefined}
                       >
                         <span className="font-semibold">{p.label}</span>
                         <span className="block text-[10px] mt-0.5 opacity-70">
@@ -645,11 +646,11 @@ export default function TimetableManagementPage() {
                             className="px-1 py-1.5 align-top"
                           >
                             {slot ? (
-                              <div className={`${slot.jointWith && slot.jointWith.length > 0 ? "bg-amber-50 border-amber-200" : "bg-brand-50 border-brand-100"} border rounded-lg p-1.5 relative group`}>
-                                <p className={`font-medium text-[10px] leading-tight truncate ${slot.jointWith && slot.jointWith.length > 0 ? "text-amber-800" : "text-brand-800"}`}>
+                              <div className={`${slot.jointWith && slot.jointWith.length > 0 ? "bg-amber-50 border-amber-200" : "border-[var(--accent-muted)]"} border rounded-lg p-1.5 relative group`} style={!(slot.jointWith && slot.jointWith.length > 0) ? { background: "var(--accent-light)" } : undefined}>
+                                <p className={`font-medium text-[10px] leading-tight truncate ${slot.jointWith && slot.jointWith.length > 0 ? "text-amber-800" : "text-[var(--text-primary)]"}`}>
                                   {slot.subject}
                                 </p>
-                                <p className={`text-[9px] truncate mt-0.5 ${slot.jointWith && slot.jointWith.length > 0 ? "text-amber-500" : "text-brand-500"}`}>
+                                <p className={`text-[9px] truncate mt-0.5 ${slot.jointWith && slot.jointWith.length > 0 ? "text-amber-500" : "text-[var(--accent-text)]"}`}>
                                   {slot.teacher.split(" ")[0]}
                                 </p>
                                 {slot.jointWith && slot.jointWith.length > 0 && (
@@ -705,7 +706,7 @@ export default function TimetableManagementPage() {
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
-                          <span className="text-xs font-medium text-brand-600 bg-brand-50 px-2 py-0.5 rounded-full">
+                          <span className="text-xs font-medium text-[var(--accent-text)] px-2 py-0.5 rounded-full" style={{ background: "var(--accent-light)" }}>
                             {slot.periodLabel}
                           </span>
                           <span className="text-xs text-[var(--text-tertiary)]">

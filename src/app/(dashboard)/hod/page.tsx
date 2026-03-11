@@ -198,7 +198,7 @@ export default function HODDashboard() {
           </p>
           <Link
             href="/logbook"
-            className="text-sm text-brand-600 font-semibold mt-3 inline-block"
+            className="text-sm text-[var(--accent-text)] font-semibold mt-3 inline-block"
           >
             Go to Logbook
           </Link>

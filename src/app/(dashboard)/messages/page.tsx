@@ -71,7 +71,7 @@ export default function MessagesPage() {
   return (
     <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
       {/* Header */}
-      <div className="bg-gradient-to-br from-brand-950 to-brand-800 px-5 pt-10 pb-4 rounded-b-2xl">
+      <div className="bg-gradient-to-br from-[var(--header-from)] to-[var(--header-to)] px-5 pt-10 pb-4 rounded-b-2xl">
         <div className="max-w-lg mx-auto">
           <div className="flex items-center gap-3 mb-3">
             <button
@@ -169,7 +169,7 @@ export default function MessagesPage() {
               >
                 <div
                   className={`card p-4 transition-colors ${
-                    !msg.isRead ? "bg-brand-50/50 border-brand-100" : ""
+                    !msg.isRead ? "bg-[var(--accent-light)] border-[var(--border-secondary)]" : ""
                   }`}
                 >
                   <div className="flex items-start justify-between gap-2 mb-1.5">
