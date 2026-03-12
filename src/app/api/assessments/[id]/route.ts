@@ -89,10 +89,54 @@ export async function PATCH(
       }
     }
 
+    // Validate totalPassed <= totalStudents
+    if (data.totalPassed != null && data.totalStudents != null && data.totalPassed > data.totalStudents) {
+      return NextResponse.json(
+        { error: "Total passed cannot exceed total students" },
+        { status: 400 }
+      );
+    }
+
+    // Validate malePassed <= totalMale
+    if (data.malePassed != null && data.totalMale != null && data.malePassed > data.totalMale) {
+      return NextResponse.json(
+        { error: "Male passed cannot exceed total male students" },
+        { status: 400 }
+      );
+    }
+
+    // Validate femalePassed <= totalFemale
+    if (data.femalePassed != null && data.totalFemale != null && data.femalePassed > data.totalFemale) {
+      return NextResponse.json(
+        { error: "Female passed cannot exceed total female students" },
+        { status: 400 }
+      );
+    }
+
     // Validate marks against totalMarks
     if (data.highestMark != null && data.highestMark > assessment.totalMarks) {
       return NextResponse.json(
         { error: "Highest mark cannot exceed total marks" },
+        { status: 400 }
+      );
+    }
+    if (data.lowestMark != null && data.lowestMark > assessment.totalMarks) {
+      return NextResponse.json(
+        { error: "Lowest mark cannot exceed total marks" },
+        { status: 400 }
+      );
+    }
+    if (data.averageMark != null && data.averageMark > assessment.totalMarks) {
+      return NextResponse.json(
+        { error: "Average mark cannot exceed total marks" },
+        { status: 400 }
+      );
+    }
+
+    // Validate lowestMark <= highestMark
+    if (data.lowestMark != null && data.highestMark != null && data.lowestMark > data.highestMark) {
+      return NextResponse.json(
+        { error: "Lowest mark cannot exceed highest mark" },
         { status: 400 }
       );
     }
@@ -111,12 +155,32 @@ export async function PATCH(
     if (data.lowestMark !== undefined) updateData.lowestMark = data.lowestMark;
     if (data.averageMark !== undefined) updateData.averageMark = data.averageMark;
 
+    // Auto-calculate pass rates when corrected
+    if (data.corrected) {
+      const ts = data.totalStudents ?? assessment.totalStudents ?? 0;
+      const tp = data.totalPassed ?? assessment.totalPassed ?? 0;
+      const tm = data.totalMale ?? assessment.totalMale ?? 0;
+      const tf = data.totalFemale ?? assessment.totalFemale ?? 0;
+      const mp = data.malePassed ?? assessment.malePassed ?? 0;
+      const fp = data.femalePassed ?? assessment.femalePassed ?? 0;
+
+      updateData.passRate = ts > 0 ? Math.round(((tp / ts) * 100) * 10) / 10 : 0;
+      updateData.malePassRate = tm > 0 ? Math.round(((mp / tm) * 100) * 10) / 10 : 0;
+      updateData.femalePassRate = tf > 0 ? Math.round(((fp / tf) * 100) * 10) / 10 : 0;
+
+      // Auto-calculate average if not provided
+      if (data.averageMark == null && data.highestMark != null && data.lowestMark != null) {
+        updateData.averageMark = Math.round(((data.highestMark + data.lowestMark) / 2) * 10) / 10;
+      }
+    }
+
     const updated = await db.assessment.update({
       where: { id: params.id },
       data: updateData,
       include: {
-        class: { select: { name: true } },
+        class: { select: { name: true, level: true } },
         subject: { select: { name: true, code: true } },
+        teacher: { select: { id: true, firstName: true, lastName: true } },
         topicsTested: { select: { id: true, name: true } },
       },
     });

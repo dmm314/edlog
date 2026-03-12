@@ -99,6 +99,21 @@ export async function POST(request: Request) {
       );
     }
 
+    // Validate teacher has a TeacherAssignment for this class+subject
+    const assignment = await db.teacherAssignment.findFirst({
+      where: {
+        teacherId: user.id,
+        classId: data.classId,
+        subjectId: data.subjectId,
+      },
+    });
+    if (!assignment) {
+      return NextResponse.json(
+        { error: "You are not assigned to teach this subject for this class" },
+        { status: 403 }
+      );
+    }
+
     const topicsNote = data.topicsNote ? sanitizeHtml(data.topicsNote) : null;
 
     const assessment = await db.assessment.create({
