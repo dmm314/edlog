@@ -4,10 +4,8 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   Plus,
-  ClipboardCheck,
   AlertTriangle,
   Calendar,
-  ChevronRight,
   BookOpen,
 } from "lucide-react";
 
@@ -33,14 +31,6 @@ interface Assessment {
   class: { name: string };
   subject: { name: string; code: string };
 }
-
-const TYPE_LABELS: Record<string, string> = {
-  sequence_test: "Sequence Test",
-  class_test: "Class Test",
-  assignment: "Assignment",
-  mock_exam: "Mock Exam",
-  exam: "Exam",
-};
 
 function daysSince(dateStr: string): number {
   return Math.floor(

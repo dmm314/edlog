@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
-import { ArrowLeft, Check, AlertCircle, ClipboardCheck } from "lucide-react";
+import { ArrowLeft, Check, AlertCircle } from "lucide-react";
 import Link from "next/link";
 
 interface AssessmentDetail {
@@ -59,8 +59,8 @@ export default function AssessmentResultsPage() {
   const [lowestMark, setLowestMark] = useState<string>("");
   const [averageMark, setAverageMark] = useState<string>("");
   // Track which gender field was last edited to auto-calc the other
-  const [lastGenderEdited, setLastGenderEdited] = useState<"male" | "female" | null>(null);
-  const [lastGenderPassedEdited, setLastGenderPassedEdited] = useState<"male" | "female" | null>(null);
+  const [, setLastGenderEdited] = useState<"male" | "female" | null>(null);
+  const [, setLastGenderPassedEdited] = useState<"male" | "female" | null>(null);
 
   useEffect(() => {
     fetch(`/api/assessments/${id}`)
