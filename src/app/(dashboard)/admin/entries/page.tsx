@@ -127,7 +127,7 @@ export default function AdminEntriesPage() {
           setEntries(data.entries);
           setTotal(data.total);
         } else {
-          setError(data.error || "Failed to load entries");
+          setError(data.detail ? `${data.error}: ${data.detail}` : (data.error || "Failed to load entries"));
         }
       } catch {
         setError("Failed to connect to server");
