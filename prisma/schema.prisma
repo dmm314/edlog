@@ -99,6 +99,12 @@ model User {
   assessments  Assessment[]
   entryRemarks EntryRemark[]
 
+  // Level coordinator (VP) role
+  levelCoordinator LevelCoordinator[]
+
+  // Entries verified by this user
+  verifiedEntries LogbookEntry[] @relation("VerifiedEntries")
+
   @@index([schoolId, role])
 }
 
@@ -183,16 +189,17 @@ model School {
   admin    User?   @relation("SchoolAdmin", fields: [adminId], references: [id])
 
   // Relations
-  teachers       User[]              @relation("SchoolTeachers")
-  teacherSchools TeacherSchool[]
-  classes        Class[]
-  subjects       SchoolSubject[]
-  divisions      SubjectDivision[]
-  assignments    TeacherAssignment[]
-  timetableSlots TimetableSlot[]
-  periodSchedule PeriodSchedule[]
-  hods           HeadOfDepartment[]
-  assessments    Assessment[]
+  teachers         User[]              @relation("SchoolTeachers")
+  teacherSchools   TeacherSchool[]
+  classes          Class[]
+  subjects         SchoolSubject[]
+  divisions        SubjectDivision[]
+  assignments      TeacherAssignment[]
+  timetableSlots   TimetableSlot[]
+  periodSchedule   PeriodSchedule[]
+  hods             HeadOfDepartment[]
+  assessments      Assessment[]
+  levelCoordinators LevelCoordinator[]
 }
 
 // ── PERIOD SCHEDULE (school-wide bell times) ─────────────
@@ -436,6 +443,14 @@ model LogbookEntry {
 
   remarks  EntryRemark[]
 
+  // Verification metadata — who verified this entry, when, and with what title
+  verifiedById          String?
+  verifiedBy            User?     @relation("VerifiedEntries", fields: [verifiedById], references: [id])
+  verifiedByName        String?   // e.g. "Mr. Tanyi John" — persists even if user changes name
+  verifiedByTitle       String?   // e.g. "VP Form 1" or "School Admin"
+  verifiedAt            DateTime?
+  verificationSignature String?   @db.Text // Base64 signature data
+
   @@index([teacherId, date])
   @@index([classId, date])
 }
@@ -514,6 +529,27 @@ model Notification {
 
   @@index([userId, isRead])
   @@index([userId, createdAt])
+}
+
+// ── LEVEL COORDINATORS (Vice Principals) ─────────────────
+
+model LevelCoordinator {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  schoolId  String
+  school    School   @relation(fields: [schoolId], references: [id])
+  title     String   // "VP Form 1", "VP Form 2", "VP Lower Sixth", etc.
+  levels    String[] // Typically one: ["Form 1"]. Array allows one VP to cover two levels.
+  canVerify Boolean  @default(true)  // Can verify/flag entries
+  canRemark Boolean  @default(true)  // Can leave remarks
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, schoolId])
+  @@index([schoolId])
+  @@index([userId])
 }
 
 // ── ENTRY REMARKS (feedback & review system) ────────────
