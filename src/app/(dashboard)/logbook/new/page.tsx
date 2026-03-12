@@ -1759,46 +1759,109 @@ export default function NewEntryPage() {
                       <div className="h-3 rounded w-1/2" style={{ backgroundColor: "var(--bg-tertiary)" }} />
                     </div>
                   ) : (
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-0 rounded-2xl border overflow-hidden" style={{ borderColor: "var(--border-primary)", background: "var(--bg-elevated)" }}>
-                        <span className="text-sm font-medium text-[var(--text-tertiary)] pl-4 flex-shrink-0 whitespace-nowrap">Learners are able to</span>
-                        <select
-                          value={integrationActivity}
-                          onChange={(e) => {
-                            if (e.target.value === "__custom__") {
-                              setIntegrationActivity("");
-                              setShowCustomObjectiveInput(true);
-                            } else {
-                              setIntegrationActivity(e.target.value);
-                              setShowCustomObjectiveInput(false);
-                            }
-                          }}
-                          className="flex-1 px-2 py-3.5 border-none outline-none text-sm bg-transparent appearance-none"
-                          style={{ color: integrationActivity ? "var(--text-primary)" : "var(--text-tertiary)" }}
-                        >
-                          <option value="">...select an objective</option>
-                          <option value="identify and name measuring instruments">identify and name measuring instruments</option>
-                          <option value="describe and explain concepts from the lesson">describe and explain concepts from the lesson</option>
-                          <option value="apply learned concepts to solve problems">apply learned concepts to solve problems</option>
-                          <option value="perform experiments and record observations">perform experiments and record observations</option>
-                          <option value="analyse data and draw conclusions">analyse data and draw conclusions</option>
-                          <option value="__custom__">Other (type below)...</option>
-                        </select>
+                    <div className="rounded-2xl border overflow-hidden" style={{ borderColor: "var(--border-primary)", background: "var(--bg-elevated)" }}>
+                      <div className="max-h-[200px] overflow-y-auto">
+                        {[
+                          "identify and name measuring instruments",
+                          "describe and explain concepts from the lesson",
+                          "apply learned concepts to solve problems",
+                          "perform experiments and record observations",
+                          "analyse data and draw conclusions",
+                        ].map((obj) => {
+                          const isSelected = obj in selectedObjectives;
+                          const proportion = selectedObjectives[obj] || "all";
+                          return (
+                            <div
+                              key={obj}
+                              className="flex items-center gap-2.5 px-3 py-2 border-b last:border-b-0"
+                              style={{ borderColor: "var(--border-secondary)" }}
+                            >
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setSelectedObjectives((prev) => {
+                                    const next = { ...prev };
+                                    if (isSelected) { delete next[obj]; } else { next[obj] = "all"; }
+                                    return next;
+                                  });
+                                }}
+                                className="w-5 h-5 rounded-md border-2 flex items-center justify-center flex-shrink-0 transition-colors"
+                                style={{
+                                  borderColor: isSelected ? "var(--accent)" : "var(--border-primary)",
+                                  background: isSelected ? "var(--accent)" : "var(--bg-elevated)",
+                                }}
+                              >
+                                {isSelected && <Check className="w-3 h-3 text-white" />}
+                              </button>
+                              <span className="text-[13px] flex-1 min-w-0" style={{ color: isSelected ? "var(--text-primary)" : "var(--text-tertiary)" }}>
+                                {obj}
+                              </span>
+                              {isSelected && (
+                                <select
+                                  value={proportion}
+                                  onChange={(e) => setSelectedObjectives((prev) => ({ ...prev, [obj]: e.target.value }))}
+                                  className="text-[10px] font-semibold border rounded-lg px-1.5 py-1 bg-transparent"
+                                  style={{ borderColor: "var(--border-primary)", color: "var(--accent-text)", minWidth: 52 }}
+                                >
+                                  <option value="all">All</option>
+                                  <option value="most">Most</option>
+                                  <option value="some">Some</option>
+                                  <option value="few">Few</option>
+                                </select>
+                              )}
+                            </div>
+                          );
+                        })}
                       </div>
-                      {showCustomObjectiveInput && (
-                        <div className="flex items-center gap-0 rounded-2xl border overflow-hidden" style={{ borderColor: "var(--border-primary)", background: "var(--bg-elevated)" }}>
-                          <span className="text-sm font-medium text-[var(--text-tertiary)] pl-4 flex-shrink-0 whitespace-nowrap">Learners are able to</span>
-                          <input
-                            value={integrationActivity}
-                            onChange={(e) => setIntegrationActivity(e.target.value.slice(0, 500))}
-                            placeholder="...type a custom objective"
-                            className="flex-1 px-2 py-3.5 border-none outline-none text-sm bg-transparent"
-                            style={{ color: "var(--text-primary)" }}
-                            maxLength={500}
-                            autoFocus
-                          />
-                        </div>
-                      )}
+                      {/* Add custom objective */}
+                      <div className="px-3 py-2 border-t" style={{ borderColor: "var(--border-secondary)" }}>
+                        {showCustomObjectiveInput ? (
+                          <div className="flex gap-2">
+                            <input
+                              value={customObjective}
+                              onChange={(e) => setCustomObjective(e.target.value)}
+                              placeholder="describe what learners can do..."
+                              className="flex-1 text-[13px] bg-transparent outline-none"
+                              style={{ color: "var(--text-primary)" }}
+                              maxLength={200}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter" && customObjective.trim()) {
+                                  e.preventDefault();
+                                  const text = customObjective.trim();
+                                  setSelectedObjectives((prev) => ({ ...prev, [text]: "all" }));
+                                  setCustomObjective("");
+                                  setShowCustomObjectiveInput(false);
+                                }
+                              }}
+                            />
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (customObjective.trim()) {
+                                  const text = customObjective.trim();
+                                  setSelectedObjectives((prev) => ({ ...prev, [text]: "all" }));
+                                  setCustomObjective("");
+                                }
+                                setShowCustomObjectiveInput(false);
+                              }}
+                              className="text-xs font-semibold px-2 py-1 rounded-lg"
+                              style={{ color: "var(--accent-text)" }}
+                            >
+                              {customObjective.trim() ? "Add" : "Cancel"}
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => setShowCustomObjectiveInput(true)}
+                            className="flex items-center gap-1 text-xs font-medium"
+                            style={{ color: "var(--accent-text)" }}
+                          >
+                            <Plus className="w-3.5 h-3.5" />
+                            Add custom objective
+                          </button>
+                        )}
+                      </div>
                     </div>
                   )}
 
