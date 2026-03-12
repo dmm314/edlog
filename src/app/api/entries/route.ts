@@ -90,7 +90,7 @@ export async function GET(request: NextRequest) {
       andConditions.push({
         OR: [
           { notes: { contains: search, mode: "insensitive" } },
-          { objectives: { contains: search, mode: "insensitive" } },
+          // objectives is Json? — skip text search on JSON column
           { topicText: { contains: search, mode: "insensitive" } },
           { moduleName: { contains: search, mode: "insensitive" } },
           { topics: { some: { name: { contains: search, mode: "insensitive" } } } },
@@ -142,8 +142,9 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ entries, total });
   } catch (error) {
     console.error("GET /api/entries error:", error);
+    const message = error instanceof Error ? error.message : "Unknown error";
     return NextResponse.json(
-      { error: "Failed to fetch entries" },
+      { error: "Failed to fetch entries", detail: message },
       { status: 500 }
     );
   }
