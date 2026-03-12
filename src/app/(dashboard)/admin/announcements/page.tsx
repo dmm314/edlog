@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
-import { ArrowLeft, Megaphone, CheckCircle, AlertTriangle, Clock, Users, Search, X, Check, History, ChevronDown, ChevronUp } from "lucide-react";
+import { ArrowLeft, Megaphone, CheckCircle, AlertTriangle, Clock, Users, Search, X, Check, Send, History, ChevronDown, ChevronUp } from "lucide-react";
 import { formatDate } from "@/lib/utils";
 
 interface RecentAnnouncement {
@@ -49,6 +49,27 @@ function groupAnnouncementsByDate(
     .map((g) => ({ group: g, items: grouped[g] }));
 }
 
+function getRelativeTime(dateStr: string): string {
+  const now = new Date();
+  const date = new Date(dateStr);
+  const diffMs = now.getTime() - date.getTime();
+  const diffSec = Math.floor(diffMs / 1000);
+  const diffMin = Math.floor(diffSec / 60);
+  const diffHr = Math.floor(diffMin / 60);
+  const diffDays = Math.floor(diffHr / 24);
+
+  if (diffSec < 60) return "Just now";
+  if (diffMin < 60) return `${diffMin} minute${diffMin !== 1 ? "s" : ""} ago`;
+  if (diffHr < 24) return `${diffHr} hour${diffHr !== 1 ? "s" : ""} ago`;
+  if (diffDays === 1) return "Yesterday";
+  if (diffDays < 7) return `${diffDays} days ago`;
+  if (diffDays < 30) {
+    const weeks = Math.floor(diffDays / 7);
+    return `${weeks} week${weeks !== 1 ? "s" : ""} ago`;
+  }
+  return formatDate(dateStr);
+}
+
 interface TeacherInfo {
   id: string;
   firstName: string;
@@ -59,10 +80,10 @@ interface TeacherInfo {
 
 function SentAnnouncementHistory({ announcements }: { announcements: RecentAnnouncement[] }) {
   const [expanded, setExpanded] = useState(false);
-  const grouped = groupAnnouncementsByDate(announcements);
+  const grouped = groupAnnouncementsByDate(announcements.slice(0, 10));
 
   // Show only the first 3 when collapsed
-  const visibleCount = expanded ? announcements.length : 3;
+  const visibleCount = expanded ? Math.min(announcements.length, 10) : 3;
   let shown = 0;
 
   return (
@@ -121,41 +142,50 @@ function SentAnnouncementHistory({ announcements }: { announcements: RecentAnnou
                 {groupItems.map((ann, i) => (
                   <div
                     key={`${group}-${i}`}
-                    className="rounded-xl p-3 border"
+                    className="rounded-xl p-3.5 border"
                     style={{
                       background: "var(--bg-secondary)",
                       borderColor: "var(--border-secondary)",
                     }}
                   >
-                    <p
-                      className="text-sm font-semibold text-[var(--text-primary)]"
-                      style={{ fontFamily: "var(--font-body)" }}
-                    >
-                      {ann.title}
-                    </p>
-                    <p
-                      className="text-xs text-[var(--text-secondary)] mt-0.5 line-clamp-2 whitespace-pre-wrap"
-                      style={{ fontFamily: "var(--font-body)" }}
-                    >
-                      {ann.message}
-                    </p>
-                    <div className="flex items-center gap-2 mt-2">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex-1 min-w-0">
+                        <p
+                          className="text-sm font-semibold text-[var(--text-primary)] leading-snug"
+                          style={{ fontFamily: "var(--font-body)" }}
+                        >
+                          {ann.title}
+                        </p>
+                        <p
+                          className="text-xs text-[var(--text-secondary)] mt-1 line-clamp-2 whitespace-pre-wrap leading-relaxed"
+                          style={{ fontFamily: "var(--font-body)" }}
+                        >
+                          {ann.message}
+                        </p>
+                      </div>
+                      <div
+                        className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg flex-shrink-0"
+                        style={{ background: "var(--bg-elevated)" }}
+                      >
+                        <Users className="w-3 h-3 text-amber-500" />
+                        <span className="text-xs font-bold text-[var(--text-primary)]" style={{ fontFamily: "var(--font-mono)" }}>
+                          {ann.count}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1.5 mt-2">
                       <Clock className="w-3 h-3 text-[var(--text-quaternary)]" />
+                      <span className="text-[11px] font-medium text-[var(--text-tertiary)]">
+                        {getRelativeTime(ann.createdAt)}
+                      </span>
+                      <span className="text-[11px] text-[var(--text-quaternary)]">
+                        &middot;
+                      </span>
                       <span
-                        className="text-[11px] text-[var(--text-tertiary)]"
+                        className="text-[11px] text-[var(--text-quaternary)]"
                         style={{ fontFamily: "var(--font-mono)" }}
                       >
                         {formatDate(ann.createdAt)}
-                      </span>
-                      <span
-                        className="inline-flex items-center gap-1 text-[11px] font-semibold px-1.5 py-0.5 rounded-full"
-                        style={{
-                          background: "rgba(var(--accent-rgb, 99,102,241), 0.1)",
-                          color: "var(--accent)",
-                        }}
-                      >
-                        <Users className="w-3 h-3" />
-                        {ann.count} recipient{ann.count !== 1 ? "s" : ""}
                       </span>
                     </div>
                   </div>
@@ -181,7 +211,7 @@ function SentAnnouncementHistory({ announcements }: { announcements: RecentAnnou
             </>
           ) : (
             <>
-              View all {announcements.length} announcements <ChevronDown className="w-3.5 h-3.5" />
+              View all {Math.min(announcements.length, 10)} announcements <ChevronDown className="w-3.5 h-3.5" />
             </>
           )}
         </button>
@@ -309,7 +339,7 @@ export default function AdminAnnouncementsPage() {
         setRecentAnnouncements((prev) => [
           { title: title.trim(), message: message.trim(), createdAt: new Date().toISOString(), count: data.teacherCount },
           ...prev,
-        ].slice(0, 5));
+        ].slice(0, 10));
         setTitle("");
         setMessage("");
       } else {
@@ -327,32 +357,48 @@ export default function AdminAnnouncementsPage() {
     <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
       {/* Header */}
       <div
-        className="px-5 pt-10 pb-6 rounded-b-2xl"
+        className="px-5 pt-10 pb-8 rounded-b-2xl"
         style={{ background: "linear-gradient(135deg, #0F172A 0%, #1E293B 50%, #334155 100%)" }}
       >
         <div className="max-w-lg mx-auto">
           <Link
             href="/admin"
-            className="inline-flex items-center gap-1 text-white/70 hover:text-white text-sm mb-3"
+            className="inline-flex items-center gap-1 text-white/70 hover:text-white text-sm mb-4"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to Dashboard
           </Link>
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-amber-500/20 flex items-center justify-center">
-              <Megaphone className="w-5 h-5 text-amber-400" />
+          <div className="flex items-center gap-3">
+            <div className="w-11 h-11 rounded-xl bg-amber-500/20 flex items-center justify-center">
+              <Megaphone className="w-6 h-6 text-amber-400" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-white">Send Announcement</h1>
-              <p className="text-[var(--header-text-muted)] text-sm mt-0.5">
-                Message all teachers in your school
+              <h1 className="text-xl font-bold text-white">Announcements</h1>
+              <p className="text-white/50 text-sm mt-0.5">
+                Broadcast messages to your teachers
               </p>
             </div>
           </div>
+          {teacherCount !== null && (
+            <div className="flex items-center gap-3 mt-5">
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/10">
+                <Users className="w-3.5 h-3.5 text-amber-400" />
+                <span className="text-xs font-semibold text-white/80">
+                  {teacherCount} active teacher{teacherCount !== 1 ? "s" : ""}
+                </span>
+              </div>
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/10">
+                <History className="w-3.5 h-3.5 text-amber-400" />
+                <span className="text-xs font-semibold text-white/80">
+                  {recentAnnouncements.length} sent
+                </span>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
-      <div className="px-5 mt-4 max-w-lg mx-auto space-y-4 desktop-content-form">
+      <div className="px-5 mt-6 max-w-lg mx-auto space-y-6 desktop-content-form">
         {/* Error */}
         {error && (
           <div className="flex items-center gap-2 bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-4 py-3">
@@ -361,7 +407,7 @@ export default function AdminAnnouncementsPage() {
           </div>
         )}
 
-        {/* Success state — replaces the form */}
+        {/* Success state */}
         {success !== null ? (
           <div
             className="border text-center"
@@ -369,28 +415,32 @@ export default function AdminAnnouncementsPage() {
               background: "var(--bg-elevated)",
               borderColor: "var(--border-primary)",
               borderRadius: "16px",
-              padding: "32px 18px",
+              padding: "40px 24px",
             }}
           >
-            <div className="w-14 h-14 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
-              <CheckCircle className="w-7 h-7 text-green-600" />
+            <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-5">
+              <CheckCircle className="w-8 h-8 text-green-600" />
             </div>
             <p className="text-lg font-bold text-[var(--text-primary)]" style={{ fontFamily: "var(--font-body)" }}>
-              Announcement sent to {success} teacher{success !== 1 ? "s" : ""}!
+              Announcement Sent!
+            </p>
+            <p className="text-sm text-[var(--text-secondary)] mt-1.5" style={{ fontFamily: "var(--font-body)" }}>
+              Delivered to {success} teacher{success !== 1 ? "s" : ""} successfully
             </p>
             <button
               onClick={() => { setSuccess(null); setSendToAll(true); setSelectedTeacherIds(new Set()); }}
-              className="mt-5 px-6 py-2.5 rounded-xl text-sm font-semibold transition-all active:scale-[0.97]"
+              className="mt-6 px-8 py-2.5 rounded-xl text-sm font-semibold transition-all active:scale-[0.97]"
               style={{
                 background: "linear-gradient(135deg, #F59E0B, #D97706)",
                 color: "#FFFBEB",
+                boxShadow: "0 2px 8px rgba(245,158,11,0.25)",
               }}
             >
-              Send another
+              Send Another
             </button>
           </div>
         ) : (
-        /* Form */
+        /* Compose Form */
         <form onSubmit={handleSubmit}>
           <div
             className="border"
@@ -398,10 +448,17 @@ export default function AdminAnnouncementsPage() {
               background: "var(--bg-elevated)",
               borderColor: "var(--border-primary)",
               borderRadius: "16px",
-              padding: "18px",
+              padding: "20px",
             }}
           >
-            <div className="space-y-4">
+            <div className="flex items-center gap-2 mb-5">
+              <Send className="w-4 h-4 text-[var(--text-tertiary)]" />
+              <h2 className="text-xs font-semibold uppercase tracking-widest text-[var(--text-tertiary)]">
+                Compose Announcement
+              </h2>
+            </div>
+
+            <div className="space-y-5">
               <div>
                 <label
                   className="block font-semibold text-[var(--text-tertiary)] mb-2"
@@ -601,7 +658,7 @@ export default function AdminAnnouncementsPage() {
 
             {/* Preview */}
             {(title.trim() || message.trim()) && (
-              <div className="mt-4 pt-4" style={{ borderTop: "1px solid var(--border-secondary)" }}>
+              <div className="mt-5 pt-5" style={{ borderTop: "1px solid var(--border-secondary)" }}>
                 <p className="text-xs font-semibold uppercase tracking-widest text-[var(--text-tertiary)] mb-2">
                   Preview
                 </p>
