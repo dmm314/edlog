@@ -760,7 +760,7 @@ export default function EntryTimetablePage() {
                         </div>
                         <div>
                           <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-tertiary)]">Objectives</p>
-                          <p className="text-sm text-[var(--text-secondary)] whitespace-pre-wrap">{selectedEntry.objectives}</p>
+                          <p className="text-sm text-[var(--text-secondary)] whitespace-pre-wrap">{Array.isArray(selectedEntry.objectives) ? selectedEntry.objectives.map((o: { text: string }) => o.text).join(", ") : selectedEntry.objectives}</p>
                         </div>
                       </div>
                     )}

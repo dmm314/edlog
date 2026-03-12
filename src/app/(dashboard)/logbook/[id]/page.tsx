@@ -350,7 +350,7 @@ export default function EntryDetailPage() {
               </div>
               <div>
                 <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-tertiary)]">Objectives</p>
-                <p className="text-sm text-[var(--text-secondary)] whitespace-pre-wrap">{entry.objectives}</p>
+                <p className="text-sm text-[var(--text-secondary)] whitespace-pre-wrap">{Array.isArray(entry.objectives) ? entry.objectives.map((o: { text: string }) => o.text).join(", ") : entry.objectives}</p>
               </div>
             </div>
           )}

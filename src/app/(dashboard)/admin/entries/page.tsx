@@ -675,7 +675,7 @@ export default function AdminEntriesPage() {
                                   Objectives
                                 </p>
                                 <p className="text-sm text-[var(--text-secondary)] whitespace-pre-wrap">
-                                  {entry.objectives}
+                                  {Array.isArray(entry.objectives) ? entry.objectives.map((o: { text: string }) => o.text).join(", ") : entry.objectives}
                                 </p>
                               </div>
                             </div>
