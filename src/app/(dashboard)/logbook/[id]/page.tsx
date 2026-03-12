@@ -3,14 +3,12 @@
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
 import {
   ArrowLeft,
   BookOpen,
   Calendar,
   Clock,
   FileText,
-  Layers,
   GraduationCap,
   PenTool,
   Users,
@@ -78,6 +76,7 @@ interface Remark {
   };
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function RemarkRoleBadge({ authorRole, remarkType }: { authorRole: string; remarkType: string }) {
   const config: Record<string, { bg: string; text: string; border: string; label: string }> = {
     self_reflection: { bg: "bg-emerald-50", text: "text-emerald-700", border: "border-emerald-200", label: "Teacher" },
@@ -113,7 +112,8 @@ export default function EntryDetailPage() {
   const [sendingRemark, setSendingRemark] = useState(false);
   const [remarkError, setRemarkError] = useState("");
   const [canRemark, setCanRemark] = useState(false);
-  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [_currentUserId, setCurrentUserId] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchData() {

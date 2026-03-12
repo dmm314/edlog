@@ -78,7 +78,8 @@ export default function AdminEntriesPage() {
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
 
   // Action state
-  const [updatingId, setUpdatingId] = useState<string | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [_updatingId, _setUpdatingId] = useState<string | null>(null);
 
   // Remark modal state for verify/flag
   const [remarkModal, setRemarkModal] = useState<{
