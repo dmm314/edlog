@@ -24,8 +24,6 @@ interface TopicOption {
 
 interface Assignment {
   id: string;
-  classId: string;
-  subjectId: string;
   class: { id: string; name: string; level: string };
   subject: { id: string; name: string; code: string };
 }
@@ -45,6 +43,7 @@ export default function NewAssessmentPage() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
+  const [createdId, setCreatedId] = useState("");
 
   // Form state
   const [classId, setClassId] = useState("");
@@ -61,8 +60,8 @@ export default function NewAssessmentPage() {
   const classes: ClassOption[] = [];
   const seenClasses = new Set<string>();
   assignments.forEach((a) => {
-    if (!seenClasses.has(a.classId)) {
-      seenClasses.add(a.classId);
+    if (!seenClasses.has(a.class.id)) {
+      seenClasses.add(a.class.id);
       classes.push({ id: a.class.id, name: a.class.name, level: a.class.level });
     }
   });
@@ -70,18 +69,18 @@ export default function NewAssessmentPage() {
   const subjects: SubjectOption[] = [];
   const seenSubjects = new Set<string>();
   assignments
-    .filter((a) => !classId || a.classId === classId)
+    .filter((a) => !classId || a.class.id === classId)
     .forEach((a) => {
-      if (!seenSubjects.has(a.subjectId)) {
-        seenSubjects.add(a.subjectId);
+      if (!seenSubjects.has(a.subject.id)) {
+        seenSubjects.add(a.subject.id);
         subjects.push({ id: a.subject.id, name: a.subject.name, code: a.subject.code });
       }
     });
 
   useEffect(() => {
-    fetch("/api/assignments")
+    fetch("/api/teacher/assignments")
       .then((r) => r.json())
-      .then((data) => setAssignments(data.assignments || []))
+      .then((data) => setAssignments(Array.isArray(data) ? data : data.assignments || []))
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
@@ -95,9 +94,14 @@ export default function NewAssessmentPage() {
     const cls = classes.find((c) => c.id === classId);
     if (!cls) return;
 
-    fetch(`/api/topics?subjectId=${subjectId}&classLevel=${encodeURIComponent(cls.level)}`)
+    fetch("/api/subjects")
       .then((r) => r.json())
-      .then((data) => setTopics(data.topics || []))
+      .then((data: { id: string; topics: { id: string; name: string; classLevel: string; moduleName: string | null }[] }[]) => {
+        const subject = (Array.isArray(data) ? data : []).find((s) => s.id === subjectId);
+        if (!subject) { setTopics([]); return; }
+        const filtered = subject.topics.filter((t) => t.classLevel === cls.level);
+        setTopics(filtered.length > 0 ? filtered : subject.topics);
+      })
       .catch(() => setTopics([]));
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [classId, subjectId]);
@@ -143,6 +147,8 @@ export default function NewAssessmentPage() {
         return;
       }
 
+      const created = await res.json();
+      setCreatedId(created.id);
       setSuccess(true);
     } catch {
       setError("Network error. Please try again.");
@@ -170,26 +176,38 @@ export default function NewAssessmentPage() {
           <p className="text-sm mb-6" style={{ color: "var(--text-tertiary)" }}>
             Remember to enter results after correction.
           </p>
-          <div className="flex gap-3 justify-center">
-            <button
-              onClick={() => {
-                setSuccess(false);
-                setTitle("");
-                setSelectedTopics([]);
-                setTopicsNote("");
-              }}
-              className="text-sm font-semibold px-4 py-2 rounded-xl"
-              style={{ background: "var(--bg-tertiary)", color: "var(--text-primary)" }}
-            >
-              Log Another
-            </button>
-            <Link
-              href="/assessments"
-              className="text-sm font-semibold px-4 py-2 rounded-xl"
-              style={{ background: "var(--accent)", color: "#fff" }}
-            >
-              View All
-            </Link>
+          <div className="flex flex-col gap-3 items-center">
+            {createdId && (
+              <Link
+                href={`/assessments/${createdId}/results`}
+                className="text-sm font-bold px-5 py-2.5 rounded-xl"
+                style={{ background: "var(--accent)", color: "#fff" }}
+              >
+                Enter results now?
+              </Link>
+            )}
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setSuccess(false);
+                  setCreatedId("");
+                  setTitle("");
+                  setSelectedTopics([]);
+                  setTopicsNote("");
+                }}
+                className="text-sm font-semibold px-4 py-2 rounded-xl"
+                style={{ background: "var(--bg-tertiary)", color: "var(--text-primary)" }}
+              >
+                Log Another
+              </button>
+              <Link
+                href="/assessments"
+                className="text-sm font-semibold px-4 py-2 rounded-xl"
+                style={{ color: "var(--text-secondary)" }}
+              >
+                Enter results later
+              </Link>
+            </div>
           </div>
         </div>
       </div>
@@ -290,8 +308,8 @@ export default function NewAssessmentPage() {
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="e.g. First Sequence Test"
-            maxLength={200}
+            placeholder="e.g., First Sequence Test"
+            maxLength={100}
             className="w-full rounded-xl px-3 py-2.5 text-sm"
             style={{
               background: "var(--bg-elevated)",
@@ -333,6 +351,7 @@ export default function NewAssessmentPage() {
             type="date"
             value={date}
             onChange={(e) => setDate(e.target.value)}
+            max={new Date().toISOString().split("T")[0]}
             className="w-full rounded-xl px-3 py-2.5 text-sm"
             style={{
               background: "var(--bg-elevated)",
@@ -430,7 +449,7 @@ export default function NewAssessmentPage() {
             value={topicsNote}
             onChange={(e) => setTopicsNote(e.target.value)}
             placeholder="Brief description of what was tested..."
-            maxLength={500}
+            maxLength={300}
             rows={2}
             className="w-full rounded-xl px-3 py-2.5 text-sm resize-none"
             style={{
@@ -453,7 +472,7 @@ export default function NewAssessmentPage() {
             opacity: submitting || !classId || !subjectId || !title.trim() ? 0.5 : 1,
           }}
         >
-          {submitting ? "Saving..." : "Log Assessment"}
+          {submitting ? "Saving..." : "Log Test"}
         </button>
       </div>
     </div>

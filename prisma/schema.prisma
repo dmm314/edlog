@@ -97,6 +97,7 @@ model User {
   notifications Notification[]
   hodSubjects  HeadOfDepartment[]
   assessments  Assessment[]
+  entryRemarks EntryRemark[]
 
   @@index([schoolId, role])
 }
@@ -433,6 +434,8 @@ model LogbookEntry {
   // Many-to-many topics (kept for backward compat)
   topics Topic[] @relation("EntryTopics")
 
+  remarks  EntryRemark[]
+
   @@index([teacherId, date])
   @@index([classId, date])
 }
@@ -449,6 +452,8 @@ model Assessment {
   subject       Subject  @relation(fields: [subjectId], references: [id])
   schoolId      String
   school        School   @relation(fields: [schoolId], references: [id])
+
+  assignmentId  String?
 
   title         String            // "First Sequence Test", "Mock Exam", "Class Test 3"
   type          String            // "sequence_test", "class_test", "assignment", "mock_exam", "exam"
@@ -472,6 +477,11 @@ model Assessment {
   highestMark       Float?
   lowestMark        Float?
   averageMark       Float?
+
+  // Auto-calculated rates
+  passRate          Float?              // Auto-calculated: totalPassed/totalStudents * 100
+  malePassRate      Float?              // Auto-calculated: malePassed/totalMale * 100
+  femalePassRate    Float?              // Auto-calculated: femalePassed/totalFemale * 100
 
   // Notification tracking
   notifiedParents   Boolean   @default(false)
@@ -504,4 +514,21 @@ model Notification {
 
   @@index([userId, isRead])
   @@index([userId, createdAt])
+}
+
+// ── ENTRY REMARKS (feedback & review system) ────────────
+
+model EntryRemark {
+  id          String   @id @default(cuid())
+  entryId     String
+  entry       LogbookEntry @relation(fields: [entryId], references: [id], onDelete: Cascade)
+  authorId    String
+  author      User     @relation(fields: [authorId], references: [id])
+  authorRole  String   // "TEACHER", "HOD", "SCHOOL_ADMIN", "REGIONAL_ADMIN"
+  content     String   @db.Text
+  remarkType  String   // "self_reflection", "hod_review", "admin_verification", "inspector_note"
+  createdAt   DateTime @default(now())
+
+  @@index([entryId, createdAt])
+  @@index([authorId])
 }

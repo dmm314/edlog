@@ -17,6 +17,9 @@ import {
   GraduationCap,
   Megaphone,
   ChevronRight,
+  Send,
+  Loader2,
+  MessageSquare,
 } from "lucide-react";
 
 interface HODStats {
@@ -77,6 +80,11 @@ export default function HODDashboard() {
   const [modules, setModules] = useState<string[]>([]);
   const [expandedEntries, setExpandedEntries] = useState<Set<string>>(new Set());
   const [page, setPage] = useState(0);
+
+  // HOD remark state
+  const [hodRemarkText, setHodRemarkText] = useState<Record<string, string>>({});
+  const [hodRemarkSending, setHodRemarkSending] = useState<string | null>(null);
+  const [hodRemarkSent, setHodRemarkSent] = useState<Set<string>>(new Set());
 
   // Overview: filter by class for teacher monitoring
   const [overviewClassFilter, setOverviewClassFilter] = useState("");
@@ -140,6 +148,27 @@ export default function HODDashboard() {
       else next.add(id);
       return next;
     });
+  }
+
+  async function sendHodRemark(entryId: string) {
+    const content = hodRemarkText[entryId]?.trim();
+    if (!content) return;
+    setHodRemarkSending(entryId);
+    try {
+      const res = await fetch(`/api/entries/${entryId}/remarks`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content }),
+      });
+      if (res.ok) {
+        setHodRemarkSent((prev) => new Set(prev).add(entryId));
+        setHodRemarkText((prev) => ({ ...prev, [entryId]: "" }));
+      }
+    } catch {
+      // silently fail
+    } finally {
+      setHodRemarkSending(null);
+    }
   }
 
   // Filter teacher rankings by class for overview tab
@@ -736,6 +765,63 @@ export default function HODDashboard() {
                               <div className="pt-2 border-t border-[var(--border-secondary)] text-xs text-[var(--text-tertiary)]">
                                 {entry.teacher.email} &middot; {entry.duration}
                                 min
+                              </div>
+
+                              {/* HOD Remark */}
+                              <div className="pt-3 border-t border-[var(--border-secondary)]">
+                                {hodRemarkSent.has(entry.id) ? (
+                                  <div className="flex items-center gap-2 text-sm text-emerald-600 font-semibold">
+                                    <MessageSquare className="w-4 h-4" />
+                                    HOD review sent
+                                  </div>
+                                ) : (
+                                  <div className="space-y-2">
+                                    <label className="text-[10px] font-bold uppercase tracking-widest text-amber-600 flex items-center gap-1">
+                                      <MessageSquare className="w-3 h-3" />
+                                      Leave HOD Review
+                                    </label>
+                                    <div className="flex gap-2">
+                                      <textarea
+                                        value={hodRemarkText[entry.id] || ""}
+                                        onChange={(e) =>
+                                          setHodRemarkText((prev) => ({
+                                            ...prev,
+                                            [entry.id]: e.target.value,
+                                          }))
+                                        }
+                                        placeholder="e.g., Consider using the PhET simulation for forces..."
+                                        maxLength={1000}
+                                        rows={2}
+                                        className="flex-1 bg-[var(--bg-elevated)] border border-[var(--border-primary)] rounded-xl px-3 py-2 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-quaternary)] focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent resize-none"
+                                      />
+                                      <button
+                                        onClick={() => sendHodRemark(entry.id)}
+                                        disabled={
+                                          !hodRemarkText[entry.id]?.trim() ||
+                                          hodRemarkSending === entry.id
+                                        }
+                                        className="self-end w-10 h-10 bg-amber-600 text-white rounded-xl flex items-center justify-center shadow-sm hover:shadow-md transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
+                                      >
+                                        {hodRemarkSending === entry.id ? (
+                                          <Loader2 className="w-4 h-4 animate-spin" />
+                                        ) : (
+                                          <Send className="w-4 h-4" />
+                                        )}
+                                      </button>
+                                    </div>
+                                    <div className="flex items-center justify-between">
+                                      <p className="text-[10px] text-[var(--text-quaternary)]">
+                                        {(hodRemarkText[entry.id] || "").length}/1000
+                                      </p>
+                                      <Link
+                                        href={`/logbook/${entry.id}`}
+                                        className="text-[10px] text-amber-600 font-semibold hover:underline"
+                                      >
+                                        View full entry &rarr;
+                                      </Link>
+                                    </div>
+                                  </div>
+                                )}
                               </div>
                             </div>
                           </div>

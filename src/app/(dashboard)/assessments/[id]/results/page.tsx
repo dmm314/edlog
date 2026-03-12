@@ -58,6 +58,9 @@ export default function AssessmentResultsPage() {
   const [highestMark, setHighestMark] = useState<string>("");
   const [lowestMark, setLowestMark] = useState<string>("");
   const [averageMark, setAverageMark] = useState<string>("");
+  // Track which gender field was last edited to auto-calc the other
+  const [lastGenderEdited, setLastGenderEdited] = useState<"male" | "female" | null>(null);
+  const [lastGenderPassedEdited, setLastGenderPassedEdited] = useState<"male" | "female" | null>(null);
 
   useEffect(() => {
     fetch(`/api/assessments/${id}`)
@@ -81,6 +84,54 @@ export default function AssessmentResultsPage() {
       .catch(() => {})
       .finally(() => setLoading(false));
   }, [id]);
+
+  // Auto-calculate gender complement
+  function handleTotalMaleChange(val: string) {
+    setTotalMale(val);
+    setLastGenderEdited("male");
+    const ts = parseFloat(totalStudents);
+    const m = parseFloat(val);
+    if (!isNaN(ts) && !isNaN(m) && ts >= m) {
+      setTotalFemale(String(ts - m));
+    }
+  }
+  function handleTotalFemaleChange(val: string) {
+    setTotalFemale(val);
+    setLastGenderEdited("female");
+    const ts = parseFloat(totalStudents);
+    const f = parseFloat(val);
+    if (!isNaN(ts) && !isNaN(f) && ts >= f) {
+      setTotalMale(String(ts - f));
+    }
+  }
+  function handleMalePassedChange(val: string) {
+    setMalePassed(val);
+    setLastGenderPassedEdited("male");
+    const tp = parseFloat(totalPassed);
+    const mp = parseFloat(val);
+    if (!isNaN(tp) && !isNaN(mp) && tp >= mp) {
+      setFemalePassed(String(tp - mp));
+    }
+  }
+  function handleFemalePassedChange(val: string) {
+    setFemalePassed(val);
+    setLastGenderPassedEdited("female");
+    const tp = parseFloat(totalPassed);
+    const fp = parseFloat(val);
+    if (!isNaN(tp) && !isNaN(fp) && tp >= fp) {
+      setMalePassed(String(tp - fp));
+    }
+  }
+
+  // Gender mismatch warnings
+  const tsNum = parseFloat(totalStudents);
+  const tmNum = parseFloat(totalMale);
+  const tfNum = parseFloat(totalFemale);
+  const genderMismatch = !isNaN(tsNum) && !isNaN(tmNum) && !isNaN(tfNum) && tmNum + tfNum !== tsNum;
+  const tpNum = parseFloat(totalPassed);
+  const mpNum = parseFloat(malePassed);
+  const fpNum = parseFloat(femalePassed);
+  const genderPassedMismatch = !isNaN(tpNum) && !isNaN(mpNum) && !isNaN(fpNum) && mpNum + fpNum !== tpNum;
 
   function numOrNull(v: string): number | null {
     const n = parseFloat(v);
@@ -175,8 +226,19 @@ export default function AssessmentResultsPage() {
     assessment.corrected &&
     assessment.totalStudents &&
     assessment.totalPassed != null
-      ? Math.round((assessment.totalPassed / assessment.totalStudents) * 100)
+      ? Math.round(((assessment.totalPassed / assessment.totalStudents) * 100) * 10) / 10
       : null;
+  const malePassRate =
+    assessment.corrected && assessment.totalMale && assessment.malePassed != null
+      ? Math.round(((assessment.malePassed / assessment.totalMale) * 100) * 10) / 10
+      : null;
+  const femalePassRate =
+    assessment.corrected && assessment.totalFemale && assessment.femalePassed != null
+      ? Math.round(((assessment.femalePassed / assessment.totalFemale) * 100) * 10) / 10
+      : null;
+  const passRateColor = passRate != null
+    ? passRate >= 70 ? "#16A34A" : passRate >= 50 ? "#D97706" : "#DC2626"
+    : undefined;
 
   return (
     <div style={{ paddingBottom: 100 }}>
@@ -240,62 +302,68 @@ export default function AssessmentResultsPage() {
 
         {/* Results summary (when corrected) */}
         {assessment.corrected && (
-          <div className="card p-4">
-            <div className="flex items-center gap-2 mb-3">
-              <ClipboardCheck className="w-5 h-5" style={{ color: "var(--success-text, #065f46)" }} />
-              <h3
-                className="text-sm font-bold"
-                style={{ color: "var(--text-primary)" }}
-              >
-                Results Summary
-              </h3>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              {assessment.totalStudents != null && (
-                <div>
-                  <p className="text-xs" style={{ color: "var(--text-tertiary)" }}>Students</p>
-                  <p className="text-sm font-bold" style={{ color: "var(--text-primary)" }}>
-                    {assessment.totalStudents}
-                    {assessment.totalMale != null && assessment.totalFemale != null && (
-                      <span className="font-normal text-xs ml-1" style={{ color: "var(--text-quaternary)" }}>
-                        ({assessment.totalMale}M / {assessment.totalFemale}F)
-                      </span>
-                    )}
-                  </p>
-                </div>
-              )}
-              {passRate != null && (
-                <div>
-                  <p className="text-xs" style={{ color: "var(--text-tertiary)" }}>Pass Rate</p>
-                  <p
-                    className="text-sm font-bold"
-                    style={{
-                      color: passRate >= 50 ? "var(--success-text, #065f46)" : "var(--error-text, #991b1b)",
-                    }}
-                  >
-                    {passRate}%
-                    <span className="font-normal text-xs ml-1" style={{ color: "var(--text-quaternary)" }}>
-                      ({assessment.totalPassed}/{assessment.totalStudents})
-                    </span>
-                  </p>
+          <div className="card p-5">
+            {/* Big pass rate */}
+            {passRate != null && (
+              <div className="text-center mb-4">
+                <p
+                  style={{
+                    fontFamily: "var(--font-mono)",
+                    fontSize: 32,
+                    fontWeight: 700,
+                    color: passRateColor,
+                    lineHeight: 1,
+                  }}
+                >
+                  {passRate.toFixed(passRate % 1 === 0 ? 0 : 1)}%
+                </p>
+                <p className="text-sm mt-1" style={{ color: "var(--text-secondary)" }}>
+                  {assessment.totalPassed}/{assessment.totalStudents} students passed
+                </p>
+              </div>
+            )}
+
+            {/* Gender breakdown */}
+            {(malePassRate != null || femalePassRate != null) && (
+              <p className="text-center text-sm mb-4" style={{ color: "var(--text-tertiary)" }}>
+                {malePassRate != null && `Male: ${assessment.malePassed}/${assessment.totalMale} (${malePassRate.toFixed(malePassRate % 1 === 0 ? 0 : 1)}%)`}
+                {malePassRate != null && femalePassRate != null && " | "}
+                {femalePassRate != null && `Female: ${assessment.femalePassed}/${assessment.totalFemale} (${femalePassRate.toFixed(femalePassRate % 1 === 0 ? 0 : 1)}%)`}
+              </p>
+            )}
+
+            {/* Range + Average */}
+            <div
+              className="pt-3 space-y-2"
+              style={{ borderTop: "1px solid var(--border-primary)" }}
+            >
+              {assessment.highestMark != null && (
+                <div className="flex justify-between text-sm">
+                  <span style={{ color: "var(--text-tertiary)" }}>Range</span>
+                  <span style={{ color: "var(--text-primary)", fontWeight: 600 }}>
+                    {assessment.lowestMark ?? "—"} &ndash; {assessment.highestMark} / {assessment.totalMarks}
+                  </span>
                 </div>
               )}
               {assessment.averageMark != null && (
-                <div>
-                  <p className="text-xs" style={{ color: "var(--text-tertiary)" }}>Average</p>
-                  <p className="text-sm font-bold" style={{ color: "var(--text-primary)" }}>
+                <div className="flex justify-between text-sm">
+                  <span style={{ color: "var(--text-tertiary)" }}>Average</span>
+                  <span style={{ color: "var(--text-primary)", fontWeight: 600 }}>
                     {assessment.averageMark}/{assessment.totalMarks}
-                  </p>
+                  </span>
                 </div>
               )}
-              {assessment.highestMark != null && (
-                <div>
-                  <p className="text-xs" style={{ color: "var(--text-tertiary)" }}>Range</p>
-                  <p className="text-sm font-bold" style={{ color: "var(--text-primary)" }}>
-                    {assessment.lowestMark ?? "—"} – {assessment.highestMark}
-                  </p>
-                </div>
-              )}
+            </div>
+
+            {/* Back link */}
+            <div className="text-center mt-4">
+              <Link
+                href="/assessments"
+                className="text-sm font-semibold"
+                style={{ color: "var(--accent-text)" }}
+              >
+                Back to assessments
+              </Link>
             </div>
           </div>
         )}
@@ -352,13 +420,13 @@ export default function AssessmentResultsPage() {
                 <input
                   type="number"
                   value={totalMale}
-                  onChange={(e) => setTotalMale(e.target.value)}
+                  onChange={(e) => handleTotalMaleChange(e.target.value)}
                   min={0}
                   className="w-full rounded-xl px-3 py-2.5 text-sm"
                   style={{
                     background: "var(--bg-elevated)",
                     color: "var(--text-primary)",
-                    border: "1px solid var(--border-primary)",
+                    border: `1px solid ${genderMismatch ? "var(--warning-text, #92400e)" : "var(--border-primary)"}`,
                   }}
                 />
               </div>
@@ -369,17 +437,22 @@ export default function AssessmentResultsPage() {
                 <input
                   type="number"
                   value={totalFemale}
-                  onChange={(e) => setTotalFemale(e.target.value)}
+                  onChange={(e) => handleTotalFemaleChange(e.target.value)}
                   min={0}
                   className="w-full rounded-xl px-3 py-2.5 text-sm"
                   style={{
                     background: "var(--bg-elevated)",
                     color: "var(--text-primary)",
-                    border: "1px solid var(--border-primary)",
+                    border: `1px solid ${genderMismatch ? "var(--warning-text, #92400e)" : "var(--border-primary)"}`,
                   }}
                 />
               </div>
             </div>
+            {genderMismatch && (
+              <p className="text-xs" style={{ color: "var(--warning-text, #92400e)", marginTop: -8 }}>
+                Male ({tmNum}) + Female ({tfNum}) = {tmNum + tfNum}, but total is {tsNum}
+              </p>
+            )}
 
             {/* Passed */}
             <div>
@@ -409,13 +482,13 @@ export default function AssessmentResultsPage() {
                 <input
                   type="number"
                   value={malePassed}
-                  onChange={(e) => setMalePassed(e.target.value)}
+                  onChange={(e) => handleMalePassedChange(e.target.value)}
                   min={0}
                   className="w-full rounded-xl px-3 py-2.5 text-sm"
                   style={{
                     background: "var(--bg-elevated)",
                     color: "var(--text-primary)",
-                    border: "1px solid var(--border-primary)",
+                    border: `1px solid ${genderPassedMismatch ? "var(--warning-text, #92400e)" : "var(--border-primary)"}`,
                   }}
                 />
               </div>
@@ -426,17 +499,22 @@ export default function AssessmentResultsPage() {
                 <input
                   type="number"
                   value={femalePassed}
-                  onChange={(e) => setFemalePassed(e.target.value)}
+                  onChange={(e) => handleFemalePassedChange(e.target.value)}
                   min={0}
                   className="w-full rounded-xl px-3 py-2.5 text-sm"
                   style={{
                     background: "var(--bg-elevated)",
                     color: "var(--text-primary)",
-                    border: "1px solid var(--border-primary)",
+                    border: `1px solid ${genderPassedMismatch ? "var(--warning-text, #92400e)" : "var(--border-primary)"}`,
                   }}
                 />
               </div>
             </div>
+            {genderPassedMismatch && (
+              <p className="text-xs" style={{ color: "var(--warning-text, #92400e)", marginTop: -8 }}>
+                Male passed ({mpNum}) + Female passed ({fpNum}) = {mpNum + fpNum}, but total passed is {tpNum}
+              </p>
+            )}
 
             {/* Marks */}
             <div className="grid grid-cols-3 gap-3">
@@ -489,6 +567,7 @@ export default function AssessmentResultsPage() {
                   min={0}
                   max={assessment.totalMarks}
                   step="0.5"
+                  placeholder="Auto if empty"
                   className="w-full rounded-xl px-3 py-2.5 text-sm"
                   style={{
                     background: "var(--bg-elevated)",
@@ -496,6 +575,9 @@ export default function AssessmentResultsPage() {
                     border: "1px solid var(--border-primary)",
                   }}
                 />
+                <p className="text-xs mt-1" style={{ color: "var(--text-quaternary)" }}>
+                  Approximate if not calculated
+                </p>
               </div>
             </div>
 
@@ -505,7 +587,7 @@ export default function AssessmentResultsPage() {
               disabled={submitting}
               className="w-full py-3 rounded-xl text-sm font-bold active:scale-[0.98] transition-all"
               style={{
-                background: "var(--accent)",
+                background: "#16A34A",
                 color: "#fff",
                 opacity: submitting ? 0.5 : 1,
               }}

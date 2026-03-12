@@ -721,6 +721,21 @@ export default function HistoryPage() {
               )}
             </div>
 
+            {/* View full entry / add reflection */}
+            <div className="px-5 pb-4">
+              <a
+                href={`/logbook/${selectedEntry.id}`}
+                className="w-full flex items-center justify-center gap-2 py-3 text-sm font-semibold rounded-xl transition-all active:scale-[0.98]"
+                style={{
+                  background: "var(--accent)",
+                  color: "white",
+                }}
+              >
+                <FileText className="w-4 h-4" />
+                View Full Entry &amp; Remarks
+              </a>
+            </div>
+
             {/* Bottom padding for safe area + bottom nav clearance */}
             <div className="h-24" />
           </div>

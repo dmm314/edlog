@@ -94,6 +94,7 @@ export default function LogbookPage() {
   const [hodSubjects, setHodSubjects] = useState<string[]>([]);
   const [userName, setUserName] = useState("");
   const [unreadAnnouncements, setUnreadAnnouncements] = useState(0);
+  const [pendingAssessments, setPendingAssessments] = useState(0);
 
   const today = useMemo(() => new Date(), []);
   const dayOfWeek = today.getDay();
@@ -170,6 +171,17 @@ export default function LogbookPage() {
                 n.type === "SCHOOL_ANNOUNCEMENT" || n.type === "REGIONAL_ANNOUNCEMENT"
             ).length;
             setUnreadAnnouncements(announcementCount);
+          }
+        } catch {
+          // silently fail
+        }
+
+        // Check for pending (uncorrected) assessments
+        try {
+          const assessRes = await fetch("/api/assessments?corrected=false&limit=1");
+          if (assessRes.ok) {
+            const assessData = await assessRes.json();
+            setPendingAssessments(assessData.total || 0);
           }
         } catch {
           // silently fail
@@ -944,6 +956,32 @@ export default function LogbookPage() {
                 </p>
               </div>
               <ChevronDown className="w-4 h-4 text-[var(--text-tertiary)] -rotate-90" />
+            </Link>
+          </div>
+        )}
+
+        {/* Pending Assessments Card */}
+        {pendingAssessments > 0 && (
+          <div className="animate-slide-up animation-delay-300 mt-4">
+            <Link
+              href="/assessments"
+              className="card p-4 flex items-center gap-3 cursor-pointer"
+            >
+              <div
+                className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                style={{ background: "var(--warning-bg, #fef3c7)" }}
+              >
+                <Pen className="w-5 h-5" style={{ color: "var(--warning-text, #92400e)" }} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-bold text-[var(--text-primary)]">
+                  {pendingAssessments} test{pendingAssessments !== 1 ? "s" : ""} pending results
+                </p>
+                <p className="text-xs text-[var(--text-tertiary)]">
+                  Enter results &rarr;
+                </p>
+              </div>
+              <ChevronRight className="w-4 h-4 text-[var(--text-tertiary)]" />
             </Link>
           </div>
         )}

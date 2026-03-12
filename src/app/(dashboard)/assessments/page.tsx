@@ -22,7 +22,14 @@ interface Assessment {
   correctionDate: string | null;
   totalStudents: number | null;
   totalPassed: number | null;
+  totalMale: number | null;
+  totalFemale: number | null;
+  malePassed: number | null;
+  femalePassed: number | null;
   averageMark: number | null;
+  passRate: number | null;
+  malePassRate: number | null;
+  femalePassRate: number | null;
   class: { name: string };
   subject: { name: string; code: string };
 }
@@ -74,7 +81,7 @@ export default function AssessmentsPage() {
               className="text-sm mt-0.5"
               style={{ color: "var(--text-tertiary)", fontFamily: "var(--font-body)" }}
             >
-              Track tests, marks &amp; pass rates.
+              Track tests and results
             </p>
           </div>
           <Link
@@ -83,7 +90,7 @@ export default function AssessmentsPage() {
             style={{ background: "var(--accent)", color: "#fff" }}
           >
             <Plus className="w-4 h-4" />
-            New
+            Log New Test
           </Link>
         </div>
       </div>
@@ -106,7 +113,7 @@ export default function AssessmentsPage() {
                 boxShadow: tab === t ? "var(--shadow-sm)" : "none",
               }}
             >
-              {t === "upcoming" ? "Upcoming" : "Completed"}
+              {t === "upcoming" ? "Pending Results" : "Completed"}
             </button>
           ))}
         </div>
@@ -145,14 +152,78 @@ export default function AssessmentsPage() {
           <div className="space-y-2">
             {assessments.map((a) => {
               const overdue = !a.corrected && daysSince(a.date) > 14;
+              const overdueDays = daysSince(a.date);
+              const passRate = a.passRate ?? (a.totalStudents && a.totalPassed != null
+                ? Math.round((a.totalPassed / a.totalStudents) * 100 * 10) / 10
+                : null);
+              const passRateColor = passRate != null
+                ? passRate >= 70
+                  ? "var(--success-text, #065f46)"
+                  : passRate >= 50
+                  ? "var(--warning-text, #92400e)"
+                  : "var(--error-text, #991b1b)"
+                : undefined;
+
+              if (a.corrected) {
+                // Completed card
+                return (
+                  <Link
+                    key={a.id}
+                    href={`/assessments/${a.id}/results`}
+                    className="card p-4 flex items-center gap-3 active:scale-[0.98] transition-transform"
+                  >
+                    <div className="flex-1 min-w-0">
+                      <p
+                        style={{ fontSize: 15, fontWeight: 700, color: "var(--text-primary)" }}
+                        className="truncate"
+                      >
+                        {a.title}
+                      </p>
+                      <p
+                        style={{ fontSize: 13, color: "var(--text-secondary)", marginTop: 2 }}
+                        className="truncate"
+                      >
+                        {a.subject.name} &middot; {a.class.name}
+                      </p>
+                      <p
+                        style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--text-quaternary)", marginTop: 2 }}
+                      >
+                        {new Date(a.date).toLocaleDateString("en-GB", {
+                          day: "numeric", month: "short", year: "numeric",
+                        })}
+                      </p>
+                      {a.totalPassed != null && a.totalStudents != null && (
+                        <p style={{ fontSize: 12, color: "var(--text-tertiary)", marginTop: 4 }}>
+                          {a.totalPassed}/{a.totalStudents} passed
+                          {a.averageMark != null && ` \u00B7 Avg: ${a.averageMark}/${a.totalMarks}`}
+                        </p>
+                      )}
+                    </div>
+
+                    {passRate != null && (
+                      <div className="flex-shrink-0 text-right">
+                        <p
+                          style={{
+                            fontFamily: "var(--font-mono)",
+                            fontSize: 24,
+                            fontWeight: 700,
+                            color: passRateColor,
+                            lineHeight: 1,
+                          }}
+                        >
+                          {passRate.toFixed(passRate % 1 === 0 ? 0 : 1)}%
+                        </p>
+                      </div>
+                    )}
+                  </Link>
+                );
+              }
+
+              // Pending card
               return (
                 <Link
                   key={a.id}
-                  href={
-                    a.corrected
-                      ? `/assessments/${a.id}/results`
-                      : `/assessments/${a.id}/results`
-                  }
+                  href={`/assessments/${a.id}/results`}
                   className="card p-4 flex items-center gap-3 active:scale-[0.98] transition-transform"
                 >
                   <div
@@ -160,8 +231,6 @@ export default function AssessmentsPage() {
                     style={{
                       background: overdue
                         ? "var(--warning-bg, #fef3c7)"
-                        : a.corrected
-                        ? "var(--success-bg, #d1fae5)"
                         : "var(--accent-light)",
                     }}
                   >
@@ -169,11 +238,6 @@ export default function AssessmentsPage() {
                       <AlertTriangle
                         className="w-5 h-5"
                         style={{ color: "var(--warning-text, #92400e)" }}
-                      />
-                    ) : a.corrected ? (
-                      <ClipboardCheck
-                        className="w-5 h-5"
-                        style={{ color: "var(--success-text, #065f46)" }}
                       />
                     ) : (
                       <Calendar
@@ -184,49 +248,46 @@ export default function AssessmentsPage() {
                   </div>
 
                   <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <p
+                        style={{ fontSize: 15, fontWeight: 700, color: "var(--text-primary)" }}
+                        className="truncate"
+                      >
+                        {a.title}
+                      </p>
+                      {overdue && (
+                        <span
+                          className="text-xs font-semibold px-2 py-0.5 rounded-full flex-shrink-0"
+                          style={{
+                            background: "var(--warning-bg, #fef3c7)",
+                            color: "var(--warning-text, #92400e)",
+                          }}
+                        >
+                          Overdue — {overdueDays} days
+                        </span>
+                      )}
+                    </div>
                     <p
-                      className="text-sm font-bold truncate"
-                      style={{ color: "var(--text-primary)" }}
+                      style={{ fontSize: 13, color: "var(--text-secondary)", marginTop: 2 }}
+                      className="truncate"
                     >
-                      {a.title}
+                      {a.subject.name} &middot; {a.class.name}
                     </p>
                     <p
-                      className="text-xs mt-0.5 truncate"
-                      style={{ color: "var(--text-tertiary)" }}
-                    >
-                      {a.class.name} &middot; {a.subject.name} &middot;{" "}
-                      {TYPE_LABELS[a.type] || a.type}
-                    </p>
-                    <p
-                      className="text-xs mt-0.5"
-                      style={{
-                        color: overdue
-                          ? "var(--warning-text, #92400e)"
-                          : "var(--text-quaternary)",
-                      }}
+                      style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--text-quaternary)", marginTop: 2 }}
                     >
                       {new Date(a.date).toLocaleDateString("en-GB", {
-                        day: "numeric",
-                        month: "short",
-                        year: "numeric",
+                        day: "numeric", month: "short", year: "numeric",
                       })}
-                      {overdue && " — overdue, enter results"}
-                      {a.corrected &&
-                        a.totalStudents != null &&
-                        a.totalPassed != null &&
-                        ` — ${Math.round(
-                          (a.totalPassed / a.totalStudents) * 100
-                        )}% pass rate`}
-                      {a.corrected &&
-                        a.averageMark != null &&
-                        ` — avg ${a.averageMark}/${a.totalMarks}`}
                     </p>
                   </div>
 
-                  <ChevronRight
-                    className="w-4 h-4 flex-shrink-0"
-                    style={{ color: "var(--text-quaternary)" }}
-                  />
+                  <span
+                    className="text-xs font-bold px-3 py-1.5 rounded-xl flex-shrink-0"
+                    style={{ background: "var(--accent)", color: "#fff" }}
+                  >
+                    Enter Results
+                  </span>
                 </Link>
               );
             })}
