@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import {
   ArrowLeft,
   ChevronLeft,
@@ -670,7 +671,7 @@ export default function EntryTimetablePage() {
                   return (
                     <div className="flex items-center gap-3">
                       {teacher.photoUrl ? (
-                        <img src={teacher.photoUrl} alt={`${teacher.firstName} ${teacher.lastName}`}
+                        <Image src={teacher.photoUrl} alt={`${teacher.firstName} ${teacher.lastName}`} width={44} height={44}
                           className="w-11 h-11 rounded-xl object-cover ring-2 ring-white shadow-sm" />
                       ) : (
                         <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-[var(--accent)] to-[var(--accent-hover)] flex items-center justify-center ring-2 ring-white shadow-sm">
