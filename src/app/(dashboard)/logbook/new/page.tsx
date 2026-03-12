@@ -23,6 +23,9 @@ import {
   Smartphone,
   Plus,
   ClipboardList,
+  Send,
+  Loader2,
+  MessageSquare,
 } from "lucide-react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
@@ -187,6 +190,7 @@ export default function NewEntryPage() {
   const [draftSaved, setDraftSaved] = useState(false);
   const [completionTime, setCompletionTime] = useState(0);
   const [submittedEntries, setSubmittedEntries] = useState<{
+    entryIds: string[];
     subject: string;
     module: string;
     topic: string;
@@ -211,6 +215,9 @@ export default function NewEntryPage() {
     assignmentDetails: string;
     assignmentReviewed: boolean | null;
   } | null>(null);
+  const [reflectionText, setReflectionText] = useState("");
+  const [reflectionSending, setReflectionSending] = useState(false);
+  const [reflectionSent, setReflectionSent] = useState(false);
 
   useEffect(() => {
     timerRef.current = setInterval(() => setSeconds((s) => s + 1), 1000);
@@ -712,6 +719,7 @@ export default function NewEntryPage() {
       const classNames = Array.from(new Set(createdEntries.map((e) => e.class.name)));
 
       setSubmittedEntries({
+        entryIds: createdEntries.map((e: { id: string }) => e.id),
         subject: subjectDisplayName,
         module: firstEntry.moduleName || "—",
         topic: firstEntry.topicText || firstEntry.topics?.[0]?.name || "—",
@@ -798,6 +806,9 @@ export default function NewEntryPage() {
     setSuccess(false);
     setSeconds(0);
     setError("");
+    setReflectionText("");
+    setReflectionSending(false);
+    setReflectionSent(false);
     timerRef.current = setInterval(() => setSeconds((s) => s + 1), 1000);
   }
 
@@ -1008,6 +1019,74 @@ export default function NewEntryPage() {
               )}
             </div>
           </div>
+
+          {/* Self-Reflection (only for non-draft, non-class-did-not-hold entries) */}
+          {!submittedEntries.isDraft && !submittedEntries.classDidNotHold && (
+            <div className="mt-4 card overflow-hidden">
+              <div className="px-4 py-3 border-b border-[var(--border-secondary)] flex items-center gap-2">
+                <MessageSquare className="w-4 h-4 text-emerald-600" />
+                <h3 className="text-sm font-bold text-[var(--text-primary)]">
+                  Quick Reflection
+                </h3>
+                <span className="text-[10px] text-[var(--text-quaternary)]">(optional)</span>
+              </div>
+              <div className="p-4">
+                {reflectionSent ? (
+                  <div className="flex items-center gap-2 text-sm text-emerald-600 font-semibold">
+                    <CheckCircle className="w-4 h-4" />
+                    Reflection saved
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <textarea
+                      value={reflectionText}
+                      onChange={(e) => setReflectionText(e.target.value)}
+                      placeholder="How did the lesson go? Any notes for yourself?"
+                      maxLength={1000}
+                      rows={2}
+                      className="w-full bg-[var(--bg-elevated)] border border-[var(--border-primary)] rounded-xl px-3 py-2 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-quaternary)] focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent resize-none"
+                    />
+                    <div className="flex items-center justify-between">
+                      <p className="text-[10px] text-[var(--text-quaternary)]">
+                        {reflectionText.length}/1000
+                      </p>
+                      <button
+                        onClick={async () => {
+                          if (!reflectionText.trim() || !submittedEntries.entryIds[0]) return;
+                          setReflectionSending(true);
+                          try {
+                            const res = await fetch(`/api/entries/${submittedEntries.entryIds[0]}/remarks`, {
+                              method: "POST",
+                              headers: { "Content-Type": "application/json" },
+                              body: JSON.stringify({ content: reflectionText.trim() }),
+                            });
+                            if (res.ok) {
+                              setReflectionSent(true);
+                              setReflectionText("");
+                            }
+                          } catch {
+                            // silently fail
+                          } finally {
+                            setReflectionSending(false);
+                          }
+                        }}
+                        disabled={!reflectionText.trim() || reflectionSending}
+                        className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-semibold text-white bg-emerald-600 rounded-xl shadow-sm hover:bg-emerald-700 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {reflectionSending ? (
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        ) : (
+                          <Send className="w-3.5 h-3.5" />
+                        )}
+                        Save
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
           <div className="mt-6 space-y-3 pb-8">
             <button onClick={resetForm} className="btn-primary text-center"
               style={{ background: "linear-gradient(135deg, var(--accent), var(--accent-hover))" }}>
