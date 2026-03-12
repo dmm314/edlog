@@ -80,6 +80,14 @@ export default function AdminEntriesPage() {
   // Action state
   const [updatingId, setUpdatingId] = useState<string | null>(null);
 
+  // Remark modal state for verify/flag
+  const [remarkModal, setRemarkModal] = useState<{
+    entryId: string;
+    action: "VERIFIED" | "FLAGGED";
+  } | null>(null);
+  const [remarkText, setRemarkText] = useState("");
+  const [remarkSubmitting, setRemarkSubmitting] = useState(false);
+
   // Debounced search
   const [debouncedSearch, setDebouncedSearch] = useState("");
 
@@ -147,16 +155,34 @@ export default function AdminEntriesPage() {
     }
   }
 
-  async function updateEntryStatus(
-    entryId: string,
-    status: "VERIFIED" | "FLAGGED"
-  ) {
-    setUpdatingId(entryId);
+  function openRemarkModal(entryId: string, action: "VERIFIED" | "FLAGGED") {
+    setRemarkModal({ entryId, action });
+    setRemarkText("");
+  }
+
+  async function submitWithRemark(skipRemark = false) {
+    if (!remarkModal) return;
+    const { entryId, action } = remarkModal;
+
+    // Flag requires a reason
+    if (action === "FLAGGED" && !remarkText.trim() && !skipRemark) return;
+
+    setRemarkSubmitting(true);
     try {
+      // Create remark first if text provided
+      if (remarkText.trim()) {
+        await fetch(`/api/entries/${entryId}/remarks`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ content: remarkText.trim() }),
+        });
+      }
+
+      // Update status
       const res = await fetch(`/api/entries/${entryId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status }),
+        body: JSON.stringify({ status: action }),
       });
       if (res.ok) {
         const updated = await res.json();
@@ -169,7 +195,9 @@ export default function AdminEntriesPage() {
     } catch {
       // silently fail
     } finally {
-      setUpdatingId(null);
+      setRemarkSubmitting(false);
+      setRemarkModal(null);
+      setRemarkText("");
     }
   }
 
@@ -685,12 +713,18 @@ export default function AdminEntriesPage() {
 
                           {/* Action buttons */}
                           <div className="flex items-center gap-2 pt-3 border-t border-[var(--border-secondary)]">
+                            <Link
+                              href={`/logbook/${entry.id}`}
+                              className="flex items-center justify-center gap-1.5 text-sm font-semibold rounded-xl px-3 py-2.5 transition-all border border-[var(--border-primary)] bg-[var(--bg-elevated)] text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)] active:scale-[0.98]"
+                            >
+                              <FileText className="w-4 h-4" />
+                              View
+                            </Link>
                             <button
                               onClick={() =>
-                                updateEntryStatus(entry.id, "VERIFIED")
+                                openRemarkModal(entry.id, "VERIFIED")
                               }
                               disabled={
-                                updatingId === entry.id ||
                                 entry.status === "VERIFIED"
                               }
                               className={`flex-1 flex items-center justify-center gap-1.5 text-sm font-semibold rounded-xl px-3 py-2.5 transition-all ${
@@ -699,21 +733,16 @@ export default function AdminEntriesPage() {
                                   : "bg-[var(--accent)] text-white shadow-sm hover:shadow-md active:scale-[0.98]"
                               }`}
                             >
-                              {updatingId === entry.id ? (
-                                <Loader2 className="w-4 h-4 animate-spin" />
-                              ) : (
-                                <Check className="w-4 h-4" />
-                              )}
+                              <Check className="w-4 h-4" />
                               {entry.status === "VERIFIED"
                                 ? "Verified"
                                 : "Verify"}
                             </button>
                             <button
                               onClick={() =>
-                                updateEntryStatus(entry.id, "FLAGGED")
+                                openRemarkModal(entry.id, "FLAGGED")
                               }
                               disabled={
-                                updatingId === entry.id ||
                                 entry.status === "FLAGGED"
                               }
                               className={`flex-1 flex items-center justify-center gap-1.5 text-sm font-semibold rounded-xl px-3 py-2.5 transition-all border ${
@@ -722,11 +751,7 @@ export default function AdminEntriesPage() {
                                   : "bg-[var(--bg-elevated)] text-[var(--text-secondary)] border-[var(--border-primary)] hover:bg-red-50 hover:text-red-600 hover:border-red-200 active:scale-[0.98]"
                               }`}
                             >
-                              {updatingId === entry.id ? (
-                                <Loader2 className="w-4 h-4 animate-spin" />
-                              ) : (
-                                <Flag className="w-4 h-4" />
-                              )}
+                              <Flag className="w-4 h-4" />
                               {entry.status === "FLAGGED" ? "Flagged" : "Flag"}
                             </button>
                           </div>
@@ -762,6 +787,88 @@ export default function AdminEntriesPage() {
           </>
         )}
       </div>
+
+      {/* Verify/Flag Remark Modal */}
+      {remarkModal && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-end justify-center sm:items-center">
+          <div className="bg-[var(--bg-elevated)] rounded-t-2xl sm:rounded-2xl w-full max-w-md p-5 space-y-4 animate-slide-up shadow-elevated">
+            <h3 className="text-base font-bold text-[var(--text-primary)]">
+              {remarkModal.action === "VERIFIED" ? "Verify Entry" : "Flag Entry"}
+            </h3>
+
+            {remarkModal.action === "VERIFIED" ? (
+              <>
+                <div>
+                  <label className="label-field">Add a note (optional)</label>
+                  <textarea
+                    value={remarkText}
+                    onChange={(e) => setRemarkText(e.target.value)}
+                    placeholder="Good work, well documented"
+                    maxLength={1000}
+                    rows={2}
+                    className="input-field resize-none"
+                  />
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setRemarkModal(null)}
+                    className="flex-1 py-2.5 text-sm font-semibold text-[var(--text-tertiary)] rounded-xl border border-[var(--border-primary)] hover:bg-[var(--bg-tertiary)] transition-all"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => submitWithRemark(true)}
+                    disabled={remarkSubmitting}
+                    className="py-2.5 px-4 text-sm font-semibold text-[var(--text-secondary)] rounded-xl border border-[var(--border-primary)] hover:bg-[var(--bg-tertiary)] transition-all"
+                  >
+                    Verify without note
+                  </button>
+                  <button
+                    onClick={() => submitWithRemark(false)}
+                    disabled={remarkSubmitting || !remarkText.trim()}
+                    className="flex-1 py-2.5 text-sm font-semibold text-white rounded-xl bg-emerald-600 hover:bg-emerald-700 shadow-sm transition-all disabled:opacity-50 flex items-center justify-center gap-1.5"
+                  >
+                    {remarkSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
+                    Verify with note
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <div>
+                  <label className="label-field">
+                    Why are you flagging this entry? <span className="text-red-500">*</span>
+                  </label>
+                  <textarea
+                    value={remarkText}
+                    onChange={(e) => setRemarkText(e.target.value)}
+                    placeholder="e.g., Topic doesn't match the module, incomplete objectives..."
+                    maxLength={1000}
+                    rows={2}
+                    className="input-field resize-none"
+                  />
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setRemarkModal(null)}
+                    className="flex-1 py-2.5 text-sm font-semibold text-[var(--text-tertiary)] rounded-xl border border-[var(--border-primary)] hover:bg-[var(--bg-tertiary)] transition-all"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => submitWithRemark(false)}
+                    disabled={remarkSubmitting || !remarkText.trim()}
+                    className="flex-1 py-2.5 text-sm font-semibold text-white rounded-xl bg-red-600 hover:bg-red-700 shadow-sm transition-all disabled:opacity-50 flex items-center justify-center gap-1.5"
+                  >
+                    {remarkSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Flag className="w-4 h-4" />}
+                    Flag Entry
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

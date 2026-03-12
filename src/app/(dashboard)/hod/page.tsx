@@ -17,6 +17,9 @@ import {
   GraduationCap,
   Megaphone,
   ChevronRight,
+  Send,
+  Loader2,
+  MessageSquare,
 } from "lucide-react";
 
 interface HODStats {
@@ -77,6 +80,11 @@ export default function HODDashboard() {
   const [modules, setModules] = useState<string[]>([]);
   const [expandedEntries, setExpandedEntries] = useState<Set<string>>(new Set());
   const [page, setPage] = useState(0);
+
+  // HOD remark state
+  const [hodRemarkText, setHodRemarkText] = useState<Record<string, string>>({});
+  const [hodRemarkSending, setHodRemarkSending] = useState<string | null>(null);
+  const [hodRemarkSent, setHodRemarkSent] = useState<Set<string>>(new Set());
 
   // Overview: filter by class for teacher monitoring
   const [overviewClassFilter, setOverviewClassFilter] = useState("");
@@ -140,6 +148,27 @@ export default function HODDashboard() {
       else next.add(id);
       return next;
     });
+  }
+
+  async function sendHodRemark(entryId: string) {
+    const content = hodRemarkText[entryId]?.trim();
+    if (!content) return;
+    setHodRemarkSending(entryId);
+    try {
+      const res = await fetch(`/api/entries/${entryId}/remarks`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content }),
+      });
+      if (res.ok) {
+        setHodRemarkSent((prev) => new Set(prev).add(entryId));
+        setHodRemarkText((prev) => ({ ...prev, [entryId]: "" }));
+      }
+    } catch {
+      // silently fail
+    } finally {
+      setHodRemarkSending(null);
+    }
   }
 
   // Filter teacher rankings by class for overview tab
