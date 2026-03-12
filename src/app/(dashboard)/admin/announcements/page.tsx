@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
-import { ArrowLeft, Megaphone, CheckCircle, AlertTriangle, Clock, Users, Search, X, Check } from "lucide-react";
+import { ArrowLeft, Megaphone, CheckCircle, AlertTriangle, Clock, Users, Search, X, Check, History, ChevronDown, ChevronUp } from "lucide-react";
 import { formatDate } from "@/lib/utils";
 
 interface RecentAnnouncement {
@@ -12,12 +12,182 @@ interface RecentAnnouncement {
   count: number;
 }
 
+type DateGroup = "Today" | "Yesterday" | "This Week" | "Earlier";
+
+function getDateGroup(dateStr: string): DateGroup {
+  const now = new Date();
+  const d = new Date(dateStr);
+  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const startOfYesterday = new Date(startOfToday);
+  startOfYesterday.setDate(startOfYesterday.getDate() - 1);
+  const startOfWeek = new Date(startOfToday);
+  const dayOfWeek = startOfToday.getDay();
+  const diffToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+  startOfWeek.setDate(startOfWeek.getDate() - diffToMonday);
+
+  if (d >= startOfToday) return "Today";
+  if (d >= startOfYesterday) return "Yesterday";
+  if (d >= startOfWeek) return "This Week";
+  return "Earlier";
+}
+
+function groupAnnouncementsByDate(
+  items: RecentAnnouncement[]
+): { group: DateGroup; items: RecentAnnouncement[] }[] {
+  const order: DateGroup[] = ["Today", "Yesterday", "This Week", "Earlier"];
+  const grouped: Record<DateGroup, RecentAnnouncement[]> = {
+    Today: [],
+    Yesterday: [],
+    "This Week": [],
+    Earlier: [],
+  };
+  for (const item of items) {
+    grouped[getDateGroup(item.createdAt)].push(item);
+  }
+  return order
+    .filter((g) => grouped[g].length > 0)
+    .map((g) => ({ group: g, items: grouped[g] }));
+}
+
 interface TeacherInfo {
   id: string;
   firstName: string;
   lastName: string;
   subjects: string[];
   membershipStatus: string;
+}
+
+function SentAnnouncementHistory({ announcements }: { announcements: RecentAnnouncement[] }) {
+  const [expanded, setExpanded] = useState(false);
+  const grouped = groupAnnouncementsByDate(announcements);
+
+  // Show only the first 3 when collapsed
+  const visibleCount = expanded ? announcements.length : 3;
+  let shown = 0;
+
+  return (
+    <div
+      className="border"
+      style={{
+        background: "var(--bg-elevated)",
+        borderColor: "var(--border-primary)",
+        borderRadius: "16px",
+        padding: "18px",
+      }}
+    >
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-2">
+          <History className="w-4 h-4 text-[var(--text-tertiary)]" />
+          <h3 className="text-xs font-semibold uppercase tracking-widest text-[var(--text-tertiary)]">
+            Sent History
+          </h3>
+        </div>
+        <span
+          className="text-[11px] font-semibold px-2 py-0.5 rounded-full"
+          style={{
+            background: "var(--bg-secondary)",
+            color: "var(--text-tertiary)",
+          }}
+        >
+          {announcements.length} announcement{announcements.length !== 1 ? "s" : ""}
+        </span>
+      </div>
+
+      <div className="space-y-4">
+        {grouped.map(({ group, items }) => {
+          const groupItems: RecentAnnouncement[] = [];
+          for (const item of items) {
+            if (shown >= visibleCount) break;
+            groupItems.push(item);
+            shown++;
+          }
+          if (groupItems.length === 0) return null;
+
+          return (
+            <div key={group}>
+              <div className="flex items-center gap-2 mb-2">
+                <p
+                  className="text-[11px] font-bold uppercase tracking-wider"
+                  style={{ color: "var(--text-tertiary)" }}
+                >
+                  {group}
+                </p>
+                <div
+                  className="flex-1 h-px"
+                  style={{ background: "var(--border-secondary)" }}
+                />
+              </div>
+              <div className="space-y-2.5">
+                {groupItems.map((ann, i) => (
+                  <div
+                    key={`${group}-${i}`}
+                    className="rounded-xl p-3 border"
+                    style={{
+                      background: "var(--bg-secondary)",
+                      borderColor: "var(--border-secondary)",
+                    }}
+                  >
+                    <p
+                      className="text-sm font-semibold text-[var(--text-primary)]"
+                      style={{ fontFamily: "var(--font-body)" }}
+                    >
+                      {ann.title}
+                    </p>
+                    <p
+                      className="text-xs text-[var(--text-secondary)] mt-0.5 line-clamp-2 whitespace-pre-wrap"
+                      style={{ fontFamily: "var(--font-body)" }}
+                    >
+                      {ann.message}
+                    </p>
+                    <div className="flex items-center gap-2 mt-2">
+                      <Clock className="w-3 h-3 text-[var(--text-quaternary)]" />
+                      <span
+                        className="text-[11px] text-[var(--text-tertiary)]"
+                        style={{ fontFamily: "var(--font-mono)" }}
+                      >
+                        {formatDate(ann.createdAt)}
+                      </span>
+                      <span
+                        className="inline-flex items-center gap-1 text-[11px] font-semibold px-1.5 py-0.5 rounded-full"
+                        style={{
+                          background: "rgba(var(--accent-rgb, 99,102,241), 0.1)",
+                          color: "var(--accent)",
+                        }}
+                      >
+                        <Users className="w-3 h-3" />
+                        {ann.count} recipient{ann.count !== 1 ? "s" : ""}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {announcements.length > 3 && (
+        <button
+          onClick={() => setExpanded(!expanded)}
+          className="w-full flex items-center justify-center gap-1.5 mt-3 pt-3 text-xs font-semibold transition-colors"
+          style={{
+            color: "var(--accent-text)",
+            borderTop: "1px solid var(--border-secondary)",
+          }}
+        >
+          {expanded ? (
+            <>
+              Show less <ChevronUp className="w-3.5 h-3.5" />
+            </>
+          ) : (
+            <>
+              View all {announcements.length} announcements <ChevronDown className="w-3.5 h-3.5" />
+            </>
+          )}
+        </button>
+      )}
+    </div>
+  );
 }
 
 export default function AdminAnnouncementsPage() {
@@ -491,50 +661,9 @@ export default function AdminAnnouncementsPage() {
         </form>
         )}
 
-        {/* Recent Announcements */}
+        {/* Sent Announcement History */}
         {recentAnnouncements.length > 0 && (
-          <div
-            className="border"
-            style={{
-              background: "var(--bg-elevated)",
-              borderColor: "var(--border-primary)",
-              borderRadius: "16px",
-              padding: "18px",
-            }}
-          >
-            <h3
-              className="text-xs font-semibold uppercase tracking-widest text-[var(--text-tertiary)] mb-3"
-            >
-              Recent Announcements
-            </h3>
-            <div className="space-y-3">
-              {recentAnnouncements.map((ann, i) => (
-                <div
-                  key={i}
-                  className="pb-3"
-                  style={{
-                    borderBottom: i < recentAnnouncements.length - 1 ? "1px solid var(--border-secondary)" : "none",
-                  }}
-                >
-                  <p className="text-sm font-semibold text-[var(--text-primary)]" style={{ fontFamily: "var(--font-body)" }}>
-                    {ann.title}
-                  </p>
-                  <p className="text-xs text-[var(--text-secondary)] mt-0.5 line-clamp-2" style={{ fontFamily: "var(--font-body)" }}>
-                    {ann.message}
-                  </p>
-                  <div className="flex items-center gap-2 mt-1.5">
-                    <Clock className="w-3 h-3 text-[var(--text-quaternary)]" />
-                    <span className="text-[11px] text-[var(--text-tertiary)]" style={{ fontFamily: "var(--font-mono)" }}>
-                      {formatDate(ann.createdAt)}
-                    </span>
-                    <span className="text-[11px] text-[var(--text-tertiary)]">
-                      · {ann.count} recipient{ann.count !== 1 ? "s" : ""}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+          <SentAnnouncementHistory announcements={recentAnnouncements} />
         )}
       </div>
 

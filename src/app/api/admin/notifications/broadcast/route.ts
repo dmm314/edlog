@@ -28,7 +28,7 @@ export async function GET() {
           schoolId: user.schoolId!,
         },
         orderBy: { createdAt: "desc" },
-        take: 50,
+        take: 200,
       }),
     ]);
 
@@ -42,7 +42,7 @@ export async function GET() {
         seen.get(key)!.count++;
       }
     }
-    const grouped = Array.from(seen.values()).slice(0, 5);
+    const grouped = Array.from(seen.values()).slice(0, 20);
 
     return NextResponse.json({ teacherCount, recentAnnouncements: grouped });
   } catch (error) {
