@@ -20,7 +20,7 @@ export async function GET() {
     }
 
     const hodSubjectIds = hodAssignments.map((h) => h.subjectId);
-    const hodSchoolIds = [...new Set(hodAssignments.map((h) => h.schoolId))];
+    const hodSchoolIds = Array.from(new Set(hodAssignments.map((h) => h.schoolId)));
 
     const teacherCount = await db.user.count({
       where: {
@@ -76,7 +76,7 @@ export async function POST(request: NextRequest) {
     }
 
     const hodSubjectIds = hodAssignments.map((h) => h.subjectId);
-    const hodSchoolIds = [...new Set(hodAssignments.map((h) => h.schoolId))];
+    const hodSchoolIds = Array.from(new Set(hodAssignments.map((h) => h.schoolId)));
 
     const teachers = await db.user.findMany({
       where: {
