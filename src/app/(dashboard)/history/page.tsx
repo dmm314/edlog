@@ -699,7 +699,7 @@ export default function HistoryPage() {
                     </div>
                     <div>
                       <p className="text-[10px] font-semibold uppercase tracking-widest text-[var(--text-tertiary)]">Objectives</p>
-                      <p className="text-sm text-[var(--text-secondary)] mt-0.5 leading-relaxed">{selectedEntry.objectives}</p>
+                      <p className="text-sm text-[var(--text-secondary)] mt-0.5 leading-relaxed">{Array.isArray(selectedEntry.objectives) ? selectedEntry.objectives.map((o: { text: string }) => o.text).join(", ") : selectedEntry.objectives}</p>
                     </div>
                   </div>
                 </div>
