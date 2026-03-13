@@ -16,11 +16,13 @@ import {
   Users,
   ClipboardList,
   LogOut,
+  BookOpen,
 } from "lucide-react";
 
 interface SideNavProps {
   role: string;
   userName?: string;
+  isCoordinator?: boolean;
 }
 
 interface NavItem {
@@ -31,7 +33,7 @@ interface NavItem {
   activePrefix?: string;
 }
 
-function getNavTabs(role: string): NavItem[] {
+function getNavTabs(role: string, isCoordinator?: boolean): NavItem[] {
   if (role === "REGIONAL_ADMIN") {
     return [
       { href: "/regional", label: "Overview", icon: Globe },
@@ -52,6 +54,16 @@ function getNavTabs(role: string): NavItem[] {
     ];
   }
 
+  if (isCoordinator) {
+    return [
+      { href: "/coordinator", label: "Dashboard", icon: Shield, activePrefix: "/coordinator" },
+      { href: "/coordinator/teachers", label: "Teachers", icon: Users },
+      { href: "/coordinator/timetable", label: "Timetable", icon: Calendar },
+      { href: "/history", label: "My Entries", icon: BookOpen },
+      { href: "/profile", label: "Profile", icon: User },
+    ];
+  }
+
   // TEACHER (default)
   return [
     { href: "/logbook", label: "Home", icon: Home },
@@ -62,9 +74,9 @@ function getNavTabs(role: string): NavItem[] {
   ];
 }
 
-function SideNav({ role, userName }: SideNavProps) {
+function SideNav({ role, userName, isCoordinator }: SideNavProps) {
   const pathname = usePathname();
-  const tabs = getNavTabs(role);
+  const tabs = getNavTabs(role, isCoordinator);
 
   const initials = userName
     ? userName
@@ -74,6 +86,13 @@ function SideNav({ role, userName }: SideNavProps) {
         .slice(0, 2)
         .toUpperCase()
     : "?";
+
+  function getRoleLabel() {
+    if (role === "REGIONAL_ADMIN") return "Regional Admin";
+    if (role === "SCHOOL_ADMIN") return "School Admin";
+    if (isCoordinator) return "VP / Coordinator";
+    return "Teacher";
+  }
 
   return (
     <nav className="sidenav">
@@ -116,9 +135,7 @@ function SideNav({ role, userName }: SideNavProps) {
           <div className="sidenav-avatar">{initials}</div>
           <div style={{ flex: 1, minWidth: 0 }}>
             <p className="sidenav-user-name">{userName || "User"}</p>
-            <p className="sidenav-user-role">
-              {role === "REGIONAL_ADMIN" ? "Regional Admin" : role === "SCHOOL_ADMIN" ? "School Admin" : "Teacher"}
-            </p>
+            <p className="sidenav-user-role">{getRoleLabel()}</p>
           </div>
         </div>
         <button onClick={() => signOut({ callbackUrl: "/login" })} className="sidenav-signout" aria-label="Sign out">

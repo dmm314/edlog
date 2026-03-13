@@ -3,10 +3,11 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Plus, Clock, User, Shield, Globe, BarChart3, Calendar, Users, ClipboardList } from "lucide-react";
+import { Home, Plus, Clock, User, Shield, Globe, BarChart3, Calendar, Users, ClipboardList, BookOpen } from "lucide-react";
 
 interface BottomNavProps {
   role: string;
+  isCoordinator?: boolean;
 }
 
 interface NavItem {
@@ -17,7 +18,7 @@ interface NavItem {
   activePrefix?: string;
 }
 
-function getNavTabs(role: string): NavItem[] {
+function getNavTabs(role: string, isCoordinator?: boolean): NavItem[] {
   if (role === "REGIONAL_ADMIN") {
     return [
       { href: "/regional", label: "Overview", icon: Globe },
@@ -37,6 +38,16 @@ function getNavTabs(role: string): NavItem[] {
     ];
   }
 
+  if (isCoordinator) {
+    return [
+      { href: "/coordinator", label: "Dashboard", icon: Shield, activePrefix: "/coordinator" },
+      { href: "/coordinator/teachers", label: "Teachers", icon: Users },
+      { href: "/coordinator/timetable", label: "Timetable", icon: Calendar },
+      { href: "/history", label: "My Entries", icon: BookOpen },
+      { href: "/profile", label: "Profile", icon: User },
+    ];
+  }
+
   // TEACHER (default)
   return [
     { href: "/logbook", label: "Home", icon: Home },
@@ -47,9 +58,9 @@ function getNavTabs(role: string): NavItem[] {
   ];
 }
 
-function BottomNav({ role }: BottomNavProps) {
+function BottomNav({ role, isCoordinator }: BottomNavProps) {
   const pathname = usePathname();
-  const tabs = getNavTabs(role);
+  const tabs = getNavTabs(role, isCoordinator);
 
   return (
     <nav

@@ -2,7 +2,7 @@
 
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { BottomNav } from "@/components/BottomNav";
 import { SideNav } from "@/components/SideNav";
 
@@ -13,12 +13,24 @@ export default function DashboardLayout({
 }) {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const [isCoordinator, setIsCoordinator] = useState(false);
 
   useEffect(() => {
     if (status === "unauthenticated") {
       router.push("/login");
     }
   }, [status, router]);
+
+  // Check coordinator status for TEACHER role users
+  useEffect(() => {
+    const role = (session?.user as Record<string, unknown>)?.role as string | undefined;
+    if (status !== "authenticated" || role !== "TEACHER") return;
+
+    fetch("/api/coordinator/check")
+      .then((res) => res.ok ? res.json() : { isCoordinator: false })
+      .then((data) => setIsCoordinator(!!data.isCoordinator))
+      .catch(() => {});
+  }, [status, session]);
 
   if (status === "loading") {
     return (
@@ -57,11 +69,11 @@ export default function DashboardLayout({
 
   return (
     <div className="min-h-screen dashboard-shell" style={{ backgroundColor: "var(--bg-primary)" }}>
-      <SideNav role={role} userName={userName} />
+      <SideNav role={role} userName={userName} isCoordinator={isCoordinator} />
       <div className="dashboard-content">
         {children}
       </div>
-      <BottomNav role={role} />
+      <BottomNav role={role} isCoordinator={isCoordinator} />
     </div>
   );
 }
