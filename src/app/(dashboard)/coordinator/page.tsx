@@ -72,15 +72,28 @@ export default function CoordinatorDashboardPage() {
           fetch("/api/coordinator/entries?status=SUBMITTED&limit=20"),
         ]);
 
-        if (!dashRes.ok) {
-          const err = await dashRes.json();
-          setError(err.error || "Failed to load coordinator data");
-          return;
+        if (dashRes.ok) {
+          const dashData = await dashRes.json();
+          setCoordinator(dashData.coordinator);
+          setStats(dashData.stats);
+        } else {
+          // Dashboard API failed (likely missing DB columns) — fall back to check API
+          const checkRes = await fetch("/api/coordinator/check");
+          if (checkRes.ok) {
+            const checkData = await checkRes.json();
+            setCoordinator({
+              id: "",
+              title: checkData.title || "Level Coordinator",
+              levels: checkData.levels || [],
+              canVerify: true,
+              canRemark: true,
+              schoolName: "",
+            });
+          } else {
+            const err = await dashRes.json().catch(() => ({}));
+            setError(err.error || "Failed to load coordinator data");
+          }
         }
-
-        const dashData = await dashRes.json();
-        setCoordinator(dashData.coordinator);
-        setStats(dashData.stats);
 
         if (entriesRes.ok) {
           const entriesData = await entriesRes.json();

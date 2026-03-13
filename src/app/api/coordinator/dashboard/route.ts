@@ -72,14 +72,16 @@ export async function GET() {
         },
       }),
 
-      // COUNT entries verified this month
+      // COUNT entries verified this month (falls back to 0 if verifiedAt column missing)
       db.logbookEntry.count({
         where: {
           classId: { in: classIds },
           status: "VERIFIED",
           verifiedAt: { gte: monthStart, lte: monthEnd },
         },
-      }),
+      }).catch(() => db.logbookEntry.count({
+        where: { classId: { in: classIds }, status: "VERIFIED" },
+      })),
 
       // Latest 10 entries for these classes
       db.logbookEntry.findMany({

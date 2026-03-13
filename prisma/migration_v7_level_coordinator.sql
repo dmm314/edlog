@@ -44,9 +44,10 @@ END $$;
 
 -- 5. Add verified-by fields to LogbookEntry (coordinator verification metadata)
 ALTER TABLE "LogbookEntry" ADD COLUMN IF NOT EXISTS "verifiedById"    TEXT;
-ALTER TABLE "LogbookEntry" ADD COLUMN IF NOT EXISTS "verifiedByName"  TEXT;
-ALTER TABLE "LogbookEntry" ADD COLUMN IF NOT EXISTS "verifiedByTitle" TEXT;
-ALTER TABLE "LogbookEntry" ADD COLUMN IF NOT EXISTS "verifiedAt"      TIMESTAMP(3);
+ALTER TABLE "LogbookEntry" ADD COLUMN IF NOT EXISTS "verifiedByName"        TEXT;
+ALTER TABLE "LogbookEntry" ADD COLUMN IF NOT EXISTS "verifiedByTitle"       TEXT;
+ALTER TABLE "LogbookEntry" ADD COLUMN IF NOT EXISTS "verifiedAt"            TIMESTAMP(3);
+ALTER TABLE "LogbookEntry" ADD COLUMN IF NOT EXISTS "verificationSignature" TEXT;
 
 -- 6. Foreign key for verifiedById
 DO $$ BEGIN
