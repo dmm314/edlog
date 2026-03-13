@@ -12,6 +12,9 @@ import {
   Megaphone,
   ClipboardList,
   Loader2,
+  Phone,
+  Mail,
+  Clock,
 } from "lucide-react";
 import { NotificationBell } from "@/components/NotificationBell";
 import { TeacherActivityRow } from "@/components/TeacherActivityRow";
@@ -24,6 +27,58 @@ interface CoordinatorInfo {
   canVerify: boolean;
   canRemark: boolean;
   schoolName: string;
+}
+
+interface TimetableSlot {
+  id: string;
+  dayOfWeek: number;
+  startTime: string;
+  endTime: string;
+  periodLabel: string;
+  teacher: string;
+  teacherId: string;
+  teacherEmail: string;
+  teacherPhone: string | null;
+  className: string;
+  classId: string;
+  level: string;
+  subject: string;
+}
+
+function parseTimeMins(t: string): number {
+  const parts = t.includes("T") ? t.split("T")[1].split(":") : t.split(":");
+  return parseInt(parts[0], 10) * 60 + parseInt(parts[1], 10);
+}
+
+function fmtTime(t: string): string {
+  const parts = t.includes("T") ? t.split("T")[1].split(":") : t.split(":");
+  const h = parseInt(parts[0], 10);
+  const m = parseInt(parts[1], 10);
+  return `${h % 12 || 12}:${m.toString().padStart(2, "0")} ${h >= 12 ? "PM" : "AM"}`;
+}
+
+function getActiveLiveSlots(slots: TimetableSlot[]): TimetableSlot[] {
+  const now = new Date();
+  const dow = now.getDay();
+  const nowMins = now.getHours() * 60 + now.getMinutes();
+  return slots.filter((s) => {
+    if (s.dayOfWeek !== dow) return false;
+    return nowMins >= parseTimeMins(s.startTime) && nowMins < parseTimeMins(s.endTime);
+  });
+}
+
+function getNextSlots(slots: TimetableSlot[]): TimetableSlot[] {
+  const now = new Date();
+  const dow = now.getDay();
+  if (dow < 1 || dow > 5) return [];
+  const nowMins = now.getHours() * 60 + now.getMinutes();
+  const upcoming = slots
+    .filter((s) => s.dayOfWeek === dow && parseTimeMins(s.startTime) > nowMins)
+    .sort((a, b) => parseTimeMins(a.startTime) - parseTimeMins(b.startTime));
+  if (upcoming.length === 0) return [];
+  const nextTime = parseTimeMins(upcoming[0].startTime);
+  // Return all slots starting at the same "next" time
+  return upcoming.filter((s) => parseTimeMins(s.startTime) === nextTime);
 }
 
 interface Stats {
@@ -59,16 +114,18 @@ export default function CoordinatorDashboardPage() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [pendingEntries, setPendingEntries] = useState<PendingEntry[]>([]);
   const [teachers, setTeachers] = useState<TeacherRow[]>([]);
+  const [timetableSlots, setTimetableSlots] = useState<TimetableSlot[]>([]);
   const [loading, setLoading] = useState(true);
   const [verifying, setVerifying] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchData() {
       // Load coordinator info + entries in parallel; dashboard is optional
-      const [dashRes, entriesRes, teachersRes] = await Promise.allSettled([
+      const [dashRes, entriesRes, teachersRes, ttRes] = await Promise.allSettled([
         fetch("/api/coordinator/dashboard"),
         fetch("/api/coordinator/entries?status=SUBMITTED&limit=5"),
         fetch("/api/coordinator/teachers"),
+        fetch("/api/coordinator/timetable"),
       ]);
 
       if (dashRes.status === "fulfilled" && dashRes.value.ok) {
@@ -95,6 +152,11 @@ export default function CoordinatorDashboardPage() {
       if (teachersRes.status === "fulfilled" && teachersRes.value.ok) {
         const d = await teachersRes.value.json();
         setTeachers(Array.isArray(d.teachers) ? d.teachers : []);
+      }
+
+      if (ttRes.status === "fulfilled" && ttRes.value.ok) {
+        const d = await ttRes.value.json();
+        setTimetableSlots(d.slots || []);
       }
 
       setLoading(false);
@@ -137,6 +199,8 @@ export default function CoordinatorDashboardPage() {
 
   const levelSummary = coordinator?.levels?.join(", ") || "";
   const pendingCount = stats?.pendingVerification ?? 0;
+  const liveSlots = getActiveLiveSlots(timetableSlots);
+  const nextSlots = liveSlots.length === 0 ? getNextSlots(timetableSlots) : [];
 
   if (loading) {
     return (
@@ -239,6 +303,106 @@ export default function CoordinatorDashboardPage() {
               style={{ background: "var(--bg-tertiary)", color: "var(--text-secondary)" }}>
               Teacher mode →
             </button>
+          </div>
+        )}
+
+        {/* ── LIVE NOW / NEXT UP ── */}
+        {(liveSlots.length > 0 || nextSlots.length > 0) && (
+          <div className="animate-slide-up animation-delay-100">
+            {liveSlots.length > 0 ? (
+              <div className="rounded-2xl overflow-hidden border"
+                style={{ background: "#F0FDF4", borderColor: "#86EFAC" }}>
+                {/* Section header */}
+                <div className="px-4 pt-3.5 pb-2.5 flex items-center gap-2"
+                  style={{ borderBottom: "1px solid #BBF7D0" }}>
+                  <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                  <p className="text-xs font-bold uppercase tracking-widest" style={{ color: "#15803D" }}>
+                    Live Now · {liveSlots.length} class{liveSlots.length !== 1 ? "es" : ""} in progress
+                  </p>
+                </div>
+                <div className="divide-y" style={{ borderColor: "#BBF7D0" }}>
+                  {liveSlots.map((slot) => (
+                    <div key={slot.id} className="px-4 py-3 flex items-start gap-3">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="min-w-0">
+                            <p className="text-sm font-bold leading-snug" style={{ color: "#14532D" }}>
+                              {slot.subject}
+                              <span className="font-medium ml-1.5" style={{ color: "#166534" }}>
+                                — {slot.className}
+                              </span>
+                            </p>
+                            <p className="text-xs mt-0.5" style={{ color: "#15803D" }}>
+                              {fmtTime(slot.startTime)} – {fmtTime(slot.endTime)} · {slot.periodLabel}
+                            </p>
+                          </div>
+                        </div>
+                        {/* Teacher contact row */}
+                        <div className="flex items-center justify-between mt-2 pt-2"
+                          style={{ borderTop: "1px solid #BBF7D0" }}>
+                          <div className="flex items-center gap-2 min-w-0">
+                            <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 text-[10px] font-black text-white"
+                              style={{ background: "#16A34A" }}>
+                              {slot.teacher.split(" ").map((n) => n[0]).slice(0, 2).join("")}
+                            </div>
+                            <div className="min-w-0">
+                              <p className="text-xs font-semibold truncate" style={{ color: "#14532D" }}>
+                                {slot.teacher}
+                              </p>
+                              {slot.teacherEmail && (
+                                <p className="text-[10px] truncate" style={{ color: "#166534" }}>
+                                  {slot.teacherEmail}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-1.5 flex-shrink-0">
+                            {slot.teacherPhone && (
+                              <a href={`tel:${slot.teacherPhone}`}
+                                className="flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1.5 rounded-lg transition-colors"
+                                style={{ background: "#DCFCE7", color: "#15803D" }}>
+                                <Phone className="w-3 h-3" />
+                                Call
+                              </a>
+                            )}
+                            <a href={`mailto:${slot.teacherEmail}`}
+                              className="flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1.5 rounded-lg transition-colors"
+                              style={{ background: "#DCFCE7", color: "#15803D" }}>
+                              <Mail className="w-3 h-3" />
+                              Email
+                            </a>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : nextSlots.length > 0 ? (
+              <div className="rounded-2xl overflow-hidden border"
+                style={{ background: "var(--bg-elevated)", borderColor: "var(--border-primary)" }}>
+                <div className="px-4 pt-3.5 pb-2.5 flex items-center gap-2"
+                  style={{ borderBottom: "1px solid var(--border-secondary)" }}>
+                  <Clock className="w-3.5 h-3.5" style={{ color: "#7C3AED" }} />
+                  <p className="text-xs font-bold uppercase tracking-widest" style={{ color: "var(--text-tertiary)" }}>
+                    Next Up · {fmtTime(nextSlots[0].startTime)}
+                  </p>
+                </div>
+                <div className="divide-y" style={{ borderColor: "var(--border-secondary)" }}>
+                  {nextSlots.map((slot) => (
+                    <div key={slot.id} className="px-4 py-3">
+                      <p className="text-sm font-bold text-[var(--text-primary)]">
+                        {slot.subject}
+                        <span className="font-medium text-[var(--text-secondary)] ml-1.5">— {slot.className}</span>
+                      </p>
+                      <p className="text-xs text-[var(--text-tertiary)] mt-0.5">
+                        {slot.teacher} · {slot.periodLabel}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : null}
           </div>
         )}
 
