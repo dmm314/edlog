@@ -95,6 +95,9 @@ export default function LogbookPage() {
   const [userName, setUserName] = useState("");
   const [unreadAnnouncements, setUnreadAnnouncements] = useState(0);
   const [pendingAssessments, setPendingAssessments] = useState(0);
+  const [isCoordinator, setIsCoordinator] = useState(false);
+  const [coordinatorTitle, setCoordinatorTitle] = useState("");
+  const [coordinatorPendingCount, setCoordinatorPendingCount] = useState(0);
 
   const today = useMemo(() => new Date(), []);
   const dayOfWeek = today.getDay();
@@ -185,6 +188,19 @@ export default function LogbookPage() {
           }
         } catch {
           // silently fail
+        }
+
+        // Check if teacher is a Level Coordinator
+        try {
+          const coordRes = await fetch("/api/coordinator/dashboard");
+          if (coordRes.ok) {
+            const coordData = await coordRes.json();
+            setIsCoordinator(true);
+            setCoordinatorTitle(coordData.coordinator?.title || "Level Coordinator");
+            setCoordinatorPendingCount(coordData.stats?.pendingVerification || 0);
+          }
+        } catch {
+          // not a coordinator
         }
       } catch {
         // silently fail
@@ -956,6 +972,36 @@ export default function LogbookPage() {
                 </p>
               </div>
               <ChevronDown className="w-4 h-4 text-[var(--text-tertiary)] -rotate-90" />
+            </Link>
+          </div>
+        )}
+
+        {/* ── Level Coordinator Banner ─────────────────────────── */}
+        {isCoordinator && (
+          <div className="animate-slide-up animation-delay-300 mt-4">
+            <Link
+              href="/coordinator"
+              className="card p-4 flex items-center gap-3 border-l-4"
+              style={{ borderLeftColor: "#8B5CF6" }}
+            >
+              <div
+                className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
+                style={{ background: "rgba(139,92,246,0.1)" }}
+              >
+                <Shield className="w-5 h-5" style={{ color: "#7C3AED" }} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-bold text-[var(--text-primary)] text-sm">Level Coordinator</p>
+                <p className="text-[11px] text-[var(--text-tertiary)]">
+                  {coordinatorTitle}
+                  {coordinatorPendingCount > 0 && (
+                    <span className="ml-1 font-semibold" style={{ color: "#D97706" }}>
+                      — {coordinatorPendingCount} entr{coordinatorPendingCount === 1 ? "y" : "ies"} to review
+                    </span>
+                  )}
+                </p>
+              </div>
+              <ChevronRight className="w-4 h-4 text-[var(--text-quaternary)]" />
             </Link>
           </div>
         )}

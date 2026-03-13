@@ -43,7 +43,33 @@ export async function GET(
 
     // Authorization check
     if (user.role === "TEACHER" && entry.teacherId !== user.id) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      // Check if this teacher is a coordinator who has access to this entry's class level
+      const coordinator = await db.levelCoordinator.findFirst({
+        where: {
+          userId: user.id,
+          isActive: true,
+          schoolId: entry.teacher.schoolId || user.schoolId || undefined,
+        },
+      });
+
+      if (!coordinator) {
+        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      }
+
+      // Verify the entry's class is within coordinator's assigned levels
+      const entryClass = await db.class.findUnique({
+        where: { id: entry.classId },
+        select: { level: true, schoolId: true },
+      });
+
+      const inScope =
+        entryClass &&
+        entryClass.schoolId === coordinator.schoolId &&
+        coordinator.levels.includes(entryClass.level);
+
+      if (!inScope) {
+        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      }
     }
     if (user.role === "SCHOOL_ADMIN" && entry.teacher.schoolId !== user.schoolId) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });

@@ -155,6 +155,16 @@ function getSubjectText(index: number): string {
   return colors[index % colors.length];
 }
 
+const LEVEL_ORDER = [
+  "Form 1",
+  "Form 2",
+  "Form 3",
+  "Form 4",
+  "Form 5",
+  "Lower Sixth",
+  "Upper Sixth",
+];
+
 const ADMIN_ET_STATE_KEY = "edlog_admin_et_state";
 
 function saveAdminETState(classId: string | null) {
@@ -173,6 +183,7 @@ export default function EntryTimetablePage() {
   const savedState = useMemo(() => loadAdminETState(), []);
   const [classes, setClasses] = useState<ClassOption[]>([]);
   const [selectedClassId, setSelectedClassId] = useState<string | null>(savedState?.classId || null);
+  const [expandedLevel, setExpandedLevel] = useState<string | null>(null);
   const [weekStart, setWeekStart] = useState<Date>(() => getMonday(new Date()));
   const [loading, setLoading] = useState(true);
   const [loadingGrid, setLoadingGrid] = useState(false);
@@ -328,6 +339,37 @@ export default function EntryTimetablePage() {
     });
   }, [slots, entries]);
 
+  // Group classes by level for hierarchical navigation
+  const groupedByLevel = useMemo(() => {
+    const groups: Record<string, ClassOption[]> = {};
+    for (const cls of classes) {
+      const level = cls.level || "Other";
+      if (!groups[level]) groups[level] = [];
+      groups[level].push(cls);
+    }
+    return [
+      ...LEVEL_ORDER.filter((l) => groups[l]?.length > 0).map((level) => ({
+        level,
+        classes: [...groups[level]].sort((a, b) => a.name.localeCompare(b.name)),
+        totalSlots: groups[level].reduce((sum, c) => sum + c.slotCount, 0),
+        compliance: (() => {
+          const allReady = groups[level].every((c) => c.slotCount > 0 && c.teacherCount > 0);
+          const someReady = groups[level].some((c) => c.slotCount > 0 && c.teacherCount > 0);
+          return allReady ? "green" : someReady ? "amber" : "red";
+        })(),
+      })),
+      // Any levels not in LEVEL_ORDER
+      ...Object.keys(groups)
+        .filter((l) => !LEVEL_ORDER.includes(l))
+        .map((level) => ({
+          level,
+          classes: [...groups[level]].sort((a, b) => a.name.localeCompare(b.name)),
+          totalSlots: groups[level].reduce((sum, c) => sum + c.slotCount, 0),
+          compliance: "amber" as const,
+        })),
+    ];
+  }, [classes]);
+
   // ─── CLASS LIST VIEW ───
   if (!selectedClassId) {
     return (
@@ -346,13 +388,16 @@ export default function EntryTimetablePage() {
           </div>
         </div>
 
-        <div className="px-5 mt-4 max-w-lg mx-auto space-y-3">
+        <div className="px-5 mt-4 max-w-lg mx-auto space-y-2">
           {loading ? (
-            <div className="space-y-3">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="card p-4 animate-pulse">
-                  <div className="h-4 bg-[var(--skeleton-base)] rounded w-1/2 mb-2" />
-                  <div className="h-3 bg-[var(--skeleton-base)] rounded w-1/3" />
+            <div className="space-y-2">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="card p-4 animate-pulse flex items-center justify-between">
+                  <div>
+                    <div className="h-4 bg-[var(--skeleton-base)] rounded w-24 mb-1.5" />
+                    <div className="h-3 bg-[var(--skeleton-base)] rounded w-36" />
+                  </div>
+                  <div className="h-4 w-4 bg-[var(--skeleton-base)] rounded" />
                 </div>
               ))}
             </div>
@@ -362,31 +407,99 @@ export default function EntryTimetablePage() {
               <p className="text-[var(--text-secondary)] font-semibold">No classes set up yet</p>
               <Link href="/admin/classes" className="text-sm text-[var(--accent-text)] font-semibold mt-2 inline-block">Add classes first</Link>
             </div>
-          ) : (
+          ) : !expandedLevel ? (
+            /* ── LEVEL GROUP VIEW ── */
             <>
-              <p className="text-xs font-bold uppercase tracking-widest text-[var(--text-tertiary)] px-1">Select a Class</p>
-              {classes.map((cls, i) => (
+              <p className="text-xs font-bold uppercase tracking-widest text-[var(--text-tertiary)] px-1 pb-1">
+                Select a Level
+              </p>
+              {groupedByLevel.map((group, gi) => {
+                const dotColor =
+                  group.compliance === "green"
+                    ? "#16A34A"
+                    : group.compliance === "amber"
+                    ? "#D97706"
+                    : "#DC2626";
+                return (
+                  <button
+                    key={group.level}
+                    onClick={() => setExpandedLevel(group.level)}
+                    className="card p-4 w-full text-left flex items-center justify-between hover:-translate-y-0.5 transition-all duration-200 group active:scale-[0.98]"
+                    style={{ animationDelay: `${gi * 40}ms` }}
+                  >
+                    <div className="flex-1 min-w-0">
+                      <h4
+                        className="font-bold text-[var(--text-primary)]"
+                        style={{ fontSize: "15px" }}
+                      >
+                        {group.level.toUpperCase()}
+                      </h4>
+                      <p className="text-[11px] text-[var(--text-tertiary)] mt-0.5">
+                        {group.classes.length} class{group.classes.length !== 1 ? "es" : ""}
+                        {group.totalSlots > 0 && (
+                          <span> · {group.totalSlots} slots/wk</span>
+                        )}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2.5 flex-shrink-0">
+                      <span
+                        className="w-2.5 h-2.5 rounded-full flex-shrink-0"
+                        style={{ backgroundColor: dotColor }}
+                        title={
+                          group.compliance === "green"
+                            ? "All classes set up"
+                            : group.compliance === "amber"
+                            ? "Some classes need setup"
+                            : "No classes set up"
+                        }
+                      />
+                      <ChevronRight className="w-4 h-4 text-[var(--text-quaternary)] group-hover:text-[var(--text-tertiary)] group-hover:translate-x-0.5 transition-all" />
+                    </div>
+                  </button>
+                );
+              })}
+            </>
+          ) : (
+            /* ── CLASS LIST WITHIN A LEVEL ── */
+            <>
+              <button
+                onClick={() => setExpandedLevel(null)}
+                className="inline-flex items-center gap-1.5 text-sm mb-1 transition-colors"
+                style={{ color: "var(--accent-text)" }}
+              >
+                <ChevronLeft className="w-4 h-4" />
+                All Levels
+              </button>
+              <p className="text-xs font-bold uppercase tracking-widest text-[var(--text-tertiary)] px-1 pb-1">
+                {expandedLevel}
+              </p>
+              {(groupedByLevel.find((g) => g.level === expandedLevel)?.classes ?? []).map((cls, i) => (
                 <button
                   key={cls.id}
                   onClick={() => { setSelectedClassId(cls.id); saveAdminETState(cls.id); }}
                   className="card p-4 w-full text-left flex items-center gap-3.5 hover:-translate-y-0.5 transition-all duration-200 group active:scale-[0.98]"
-                  style={{ animationDelay: `${i * 50}ms` }}
+                  style={{
+                    borderLeft: "4px solid transparent",
+                    animationDelay: `${i * 40}ms`,
+                  }}
                 >
-                  <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${getSubjectColor(i)} flex items-center justify-center shadow-sm flex-shrink-0 group-hover:scale-110 transition-transform`}>
-                    <span className="text-sm font-bold text-white">{cls.name.slice(0, 3)}</span>
+                  <div
+                    className={`w-10 h-10 rounded-xl bg-gradient-to-br ${getSubjectColor(i)} flex items-center justify-center shadow-sm flex-shrink-0 group-hover:scale-110 transition-transform`}
+                  >
+                    <span className="text-xs font-bold text-white">{cls.name.slice(0, 3)}</span>
                   </div>
                   <div className="flex-1 min-w-0">
                     <h4 className="font-bold text-[var(--text-primary)] text-sm">{cls.name}</h4>
-                    <div className="flex items-center gap-3 mt-1 text-[11px] text-[var(--text-tertiary)]">
+                    <div className="flex items-center gap-3 mt-0.5 text-[11px] text-[var(--text-tertiary)]">
                       <span className="flex items-center gap-1">
-                        <Calendar className="w-3 h-3" />{cls.slotCount} slots
+                        <Calendar className="w-3 h-3" />{cls.slotCount} slot{cls.slotCount !== 1 ? "s" : ""}
                       </span>
                       <span className="flex items-center gap-1">
-                        <Users className="w-3 h-3" />{cls.teacherCount} teachers
+                        <Users className="w-3 h-3" />{cls.teacherCount} teacher{cls.teacherCount !== 1 ? "s" : ""}
                       </span>
                     </div>
                   </div>
-                  <ChevronRight className="w-5 h-5 text-[var(--text-quaternary)] group-hover:text-[var(--text-tertiary)] group-hover:translate-x-0.5 transition-all" />
+                  <ChevronRight className="w-4 h-4 text-[var(--text-quaternary)] group-hover:text-[var(--text-tertiary)] group-hover:translate-x-0.5 transition-all" />
                 </button>
               ))}
             </>
@@ -405,7 +518,7 @@ export default function EntryTimetablePage() {
         <div className="max-w-lg mx-auto relative">
           <button onClick={() => { setSelectedClassId(null); setSelectedEntry(null); setSelectedSlot(null); saveAdminETState(null); }}
             className="inline-flex items-center gap-1.5 text-white/60 hover:text-white text-sm mb-4 transition-colors">
-            <ArrowLeft className="w-4 h-4" />All Classes
+            <ArrowLeft className="w-4 h-4" />{expandedLevel || "All Classes"}
           </button>
           <h1 className="text-xl font-bold text-white">{className}</h1>
           <p className="text-[var(--header-text-muted)] text-sm mt-0.5">Entry timetable</p>
