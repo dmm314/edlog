@@ -40,9 +40,9 @@ export default function CoordinatorTeachersPage() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const [teachersRes, dashRes] = await Promise.all([
+        const [teachersRes, checkRes] = await Promise.all([
           fetch("/api/coordinator/teachers"),
-          fetch("/api/coordinator/dashboard"),
+          fetch("/api/coordinator/check"),
         ]);
 
         if (teachersRes.ok) {
@@ -53,11 +53,11 @@ export default function CoordinatorTeachersPage() {
           setError(err.error || "Failed to load teachers");
         }
 
-        if (dashRes.ok) {
-          const dashData = await dashRes.json();
+        if (checkRes.ok) {
+          const checkData = await checkRes.json();
           setCoordinator({
-            title: dashData.coordinator.title,
-            levels: dashData.coordinator.levels,
+            title: checkData.title || "Level Coordinator",
+            levels: checkData.levels || [],
           });
         }
       } catch {

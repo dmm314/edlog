@@ -3,18 +3,20 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import {
-  ChevronRight,
-  Shield,
   Users,
-  CheckCircle,
-  ClipboardList,
+  ChevronRight,
   Calendar,
-  BookOpen,
-  Flag,
+  BarChart3,
+  CheckCircle2,
+  Check,
+  Megaphone,
+  ClipboardList,
+  Loader2,
 } from "lucide-react";
 import { NotificationBell } from "@/components/NotificationBell";
-import { formatDate } from "@/lib/utils";
+import { TeacherActivityRow } from "@/components/TeacherActivityRow";
 import { useCoordinatorMode } from "@/contexts/CoordinatorModeContext";
+import { formatDate } from "@/lib/utils";
 
 interface CoordinatorInfo {
   id: string;
@@ -36,24 +38,20 @@ interface PendingEntry {
   id: string;
   date: string;
   period: number | null;
-  moduleName: string | null;
-  topicText: string | null;
   status: string;
   teacher: { id: string; firstName: string; lastName: string };
   class: { id: string; name: string; level: string };
   topics: { id: string; name: string; subject: { id: string; name: string } }[];
   assignment?: { subject: { id: string; name: string } } | null;
+  createdAt: string;
 }
 
-function TeacherInitials({ firstName, lastName }: { firstName: string; lastName: string }) {
-  return (
-    <div
-      className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 font-bold text-white text-xs"
-      style={{ background: "linear-gradient(135deg, #6D28D9, #7C3AED)" }}
-    >
-      {firstName[0]}{lastName[0]}
-    </div>
-  );
+interface TeacherRow {
+  id: string;
+  firstName: string;
+  lastName: string;
+  entryCountThisMonth: number;
+  subjects: { id: string; name: string }[];
 }
 
 export default function CoordinatorDashboardPage() {
@@ -61,369 +59,356 @@ export default function CoordinatorDashboardPage() {
   const [coordinator, setCoordinator] = useState<CoordinatorInfo | null>(null);
   const [stats, setStats] = useState<Stats | null>(null);
   const [pendingEntries, setPendingEntries] = useState<PendingEntry[]>([]);
+  const [teachers, setTeachers] = useState<TeacherRow[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [verifying, setVerifying] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchData() {
-      try {
-        const [dashRes, entriesRes] = await Promise.all([
-          fetch("/api/coordinator/dashboard"),
-          fetch("/api/coordinator/entries?status=SUBMITTED&limit=20"),
-        ]);
+      // Load coordinator info + entries in parallel; dashboard is optional
+      const [dashRes, entriesRes, teachersRes] = await Promise.allSettled([
+        fetch("/api/coordinator/dashboard"),
+        fetch("/api/coordinator/entries?status=SUBMITTED&limit=5"),
+        fetch("/api/coordinator/teachers"),
+      ]);
 
-        if (dashRes.ok) {
-          const dashData = await dashRes.json();
-          setCoordinator(dashData.coordinator);
-          setStats(dashData.stats);
-        } else {
-          // Dashboard API failed (likely missing DB columns) — fall back to check API
-          const checkRes = await fetch("/api/coordinator/check");
-          if (checkRes.ok) {
-            const checkData = await checkRes.json();
-            setCoordinator({
-              id: "",
-              title: checkData.title || "Level Coordinator",
-              levels: checkData.levels || [],
-              canVerify: true,
-              canRemark: true,
-              schoolName: "",
-            });
-          } else {
-            const err = await dashRes.json().catch(() => ({}));
-            setError(err.error || "Failed to load coordinator data");
-          }
+      if (dashRes.status === "fulfilled" && dashRes.value.ok) {
+        const d = await dashRes.value.json();
+        setCoordinator(d.coordinator);
+        setStats(d.stats);
+      } else {
+        // Fallback to lighter check endpoint
+        const checkRes = await fetch("/api/coordinator/check");
+        if (checkRes.ok) {
+          const c = await checkRes.json();
+          setCoordinator({
+            id: "", title: c.title || "Level Coordinator",
+            levels: c.levels || [], canVerify: true, canRemark: true, schoolName: "",
+          });
         }
-
-        if (entriesRes.ok) {
-          const entriesData = await entriesRes.json();
-          setPendingEntries(entriesData.entries || []);
-        }
-      } catch {
-        setError("Failed to connect to server");
-      } finally {
-        setLoading(false);
       }
+
+      if (entriesRes.status === "fulfilled" && entriesRes.value.ok) {
+        const d = await entriesRes.value.json();
+        setPendingEntries(d.entries || []);
+      }
+
+      if (teachersRes.status === "fulfilled" && teachersRes.value.ok) {
+        const d = await teachersRes.value.json();
+        setTeachers(Array.isArray(d.teachers) ? d.teachers : []);
+      }
+
+      setLoading(false);
     }
     fetchData();
   }, []);
 
+  async function handleVerify(entryId: string) {
+    setVerifying(entryId);
+    try {
+      const res = await fetch("/api/coordinator/entries", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ entryId, status: "VERIFIED", verifierName: coordinator?.title || "Coordinator", verifierTitle: coordinator?.title }),
+      });
+      if (res.ok) {
+        setPendingEntries((prev) => prev.filter((e) => e.id !== entryId));
+        setStats((prev) => prev ? { ...prev, pendingVerification: Math.max(0, prev.pendingVerification - 1), verifiedCount: prev.verifiedCount + 1 } : prev);
+      }
+    } catch { /* silently fail */ }
+    finally { setVerifying(null); }
+  }
+
+  function timeAgo(dateStr: string): string {
+    const diff = Date.now() - new Date(dateStr).getTime();
+    const mins = Math.floor(diff / 60000);
+    if (mins < 60) return `${mins}m ago`;
+    const hours = Math.floor(mins / 60);
+    if (hours < 24) return `${hours}h ago`;
+    return `${Math.floor(hours / 24)}d ago`;
+  }
+
+  const topTeachers = [...teachers]
+    .sort((a, b) => {
+      const aExp = Math.max(a.subjects.length * 5, 5);
+      const bExp = Math.max(b.subjects.length * 5, 5);
+      return (a.entryCountThisMonth / aExp) - (b.entryCountThisMonth / bExp);
+    })
+    .slice(0, 6);
+
+  const levelSummary = coordinator?.levels?.join(", ") || "";
+  const pendingCount = stats?.pendingVerification ?? 0;
+
   if (loading) {
     return (
       <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-primary)" }}>
-        <div
-          className="px-5 pt-10 pb-7 rounded-b-[2rem]"
-          style={{ background: "linear-gradient(135deg, #4C1D95 0%, #6D28D9 50%, #7C3AED 100%)" }}
-        >
+        <div className="px-5 pt-10 pb-8 rounded-b-[2rem]"
+          style={{ background: "linear-gradient(135deg, #4C1D95 0%, #6D28D9 50%, #7C3AED 100%)" }}>
           <div className="max-w-lg mx-auto">
-            <div className="skeleton h-4 w-20 !bg-white/10 mb-2" />
-            <div className="skeleton h-7 w-44 !bg-white/15 mb-1" />
-            <div className="skeleton h-3 w-32 !bg-white/8 mb-5" />
+            <div className="skeleton h-4 w-24 !bg-white/10 mb-2" />
+            <div className="skeleton h-7 w-44 !bg-white/15 mb-5" />
             <div className="flex gap-2">
-              {[1, 2, 3, 4].map((i) => (
+              {[1, 2, 3].map((i) => (
                 <div key={i} className="flex-1 rounded-[14px] p-3 bg-white/[0.04]">
-                  <div className="skeleton h-6 w-10 mx-auto !bg-white/10 mb-1" />
-                  <div className="skeleton h-2 w-14 mx-auto !bg-white/5" />
+                  <div className="skeleton h-7 w-12 mx-auto !bg-white/10 mb-1" />
+                  <div className="skeleton h-2 w-16 mx-auto !bg-white/5" />
                 </div>
               ))}
             </div>
           </div>
         </div>
-        <div className="px-5 mt-4 max-w-lg mx-auto space-y-3">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="card p-4 animate-pulse">
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-[var(--skeleton-base)]" />
-                <div className="flex-1">
-                  <div className="skeleton h-3 w-32 mb-2" />
-                  <div className="skeleton h-2 w-24" />
-                </div>
+        <div className="px-5 mt-4 max-w-lg mx-auto space-y-4">
+          <div className="grid grid-cols-2 gap-3">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="card p-4">
+                <div className="skeleton h-10 w-10 rounded-xl mb-3" />
+                <div className="skeleton h-4 w-20 mb-1" />
+                <div className="skeleton h-3 w-14" />
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
     );
   }
 
-  if (error || !coordinator) {
+  if (!coordinator) {
     return (
       <div className="min-h-screen flex items-center justify-center pb-24" style={{ backgroundColor: "var(--bg-primary)" }}>
         <div className="text-center px-5">
-          <Shield className="w-12 h-12 mx-auto mb-3" style={{ color: "var(--text-quaternary)" }} />
-          <p className="font-semibold text-[var(--text-secondary)]">{error || "Coordinator record not found"}</p>
-          <Link href="/logbook" className="text-sm font-semibold mt-3 inline-block" style={{ color: "#7C3AED" }}>
-            Go to Dashboard
-          </Link>
+          <p className="font-semibold text-[var(--text-secondary)]">Coordinator record not found</p>
+          <Link href="/logbook" className="text-sm font-semibold mt-3 inline-block" style={{ color: "#7C3AED" }}>Go to Teacher Dashboard</Link>
         </div>
       </div>
     );
   }
 
-  const levelSummary = coordinator.levels.length === 1
-    ? coordinator.levels[0]
-    : coordinator.levels.join(", ");
-
-  const pendingCount = stats?.pendingVerification ?? 0;
-
   return (
     <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-primary)" }}>
-      {/* ── Purple Gradient Header ── */}
+      {/* ── HEADER — Purple gradient for coordinator ── */}
       <div
         className="px-5 pt-10 pb-7 rounded-b-[2rem] relative overflow-hidden"
         style={{ background: "linear-gradient(135deg, #4C1D95 0%, #6D28D9 50%, #7C3AED 100%)" }}
       >
-        {/* Dot pattern */}
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            opacity: 0.04,
-            backgroundImage: "radial-gradient(circle at 2px 2px, white 1px, transparent 0)",
-            backgroundSize: "20px 20px",
-          }}
-        />
+        <div className="absolute inset-0 pointer-events-none"
+          style={{ opacity: 0.04, backgroundImage: "radial-gradient(circle at 2px 2px, white 1px, transparent 0)", backgroundSize: "20px 20px" }} />
+
         <div className="max-w-lg mx-auto relative">
           <div className="flex items-start justify-between animate-fade-in">
             <div>
               <p style={{ fontSize: "12px", fontWeight: 500, color: "rgba(196,181,253,0.8)" }}>
-                Level Coordinator
-              </p>
-              <h1
-                className="mt-1"
-                style={{
-                  fontFamily: "var(--font-display)",
-                  fontSize: "22px",
-                  fontWeight: 700,
-                  color: "white",
-                  lineHeight: 1.2,
-                }}
-              >
                 {coordinator.title}
-              </h1>
-              <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.7)", marginTop: "2px" }}>
-                Managing {levelSummary} classes
               </p>
-              <p style={{ fontSize: "11px", color: "rgba(255,255,255,0.45)", marginTop: "2px" }}>
-                {coordinator.schoolName}
+              <h1 className="font-display text-[22px] font-bold tracking-tight" style={{ color: "white", lineHeight: 1.2 }}>
+                {coordinator.schoolName || "Coordinator Portal"}
+              </h1>
+              <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.5)", marginTop: "2px" }}>
+                Managing {levelSummary} classes
               </p>
             </div>
             <NotificationBell />
           </div>
 
-          {/* Stat pods */}
+          {/* 3 stat pods */}
           <div className="flex mt-5 animate-slide-up animation-delay-75" style={{ gap: "8px" }}>
             {[
-              {
-                value: pendingCount,
-                label: "To Review",
-                color: pendingCount > 0 ? "#FBBF24" : "#A78BFA",
-              },
-              {
-                value: stats?.verifiedCount ?? 0,
-                label: "Verified",
-                color: "#4ADE80",
-              },
-              {
-                value: stats?.totalTeachers ?? 0,
-                label: "Teachers",
-                color: "#818CF8",
-              },
-              {
-                value: stats?.totalEntries ?? 0,
-                label: "This month",
-                color: "#C4B5FD",
-              },
+              { value: stats?.totalTeachers ?? teachers.length, label: "Teachers", color: "#818CF8" },
+              { value: stats?.totalEntries ?? 0, label: "This month", color: "#F59E0B" },
+              { value: pendingCount, label: "To Review", color: pendingCount > 0 ? "#FBBF24" : "#4ADE80" },
             ].map((stat) => (
-              <div
-                key={stat.label}
-                className="flex-1 text-center"
-                style={{
-                  background: "rgba(255,255,255,0.06)",
-                  border: "1px solid rgba(255,255,255,0.08)",
-                  borderRadius: "14px",
-                  padding: "10px 6px",
-                }}
-              >
-                <p
-                  className="leading-none tabular-nums"
-                  style={{ fontSize: "20px", fontWeight: 800, color: stat.color }}
-                >
-                  {stat.value}
-                </p>
-                <p style={{ fontSize: "10px", color: "rgba(255,255,255,0.4)", marginTop: "5px" }}>
-                  {stat.label}
-                </p>
+              <div key={stat.label} className="flex-1 text-center"
+                style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "14px", padding: "12px" }}>
+                <p className="leading-none tabular-nums"
+                  style={{ fontSize: "22px", fontWeight: 800, color: stat.color }}>{stat.value}</p>
+                <p style={{ fontSize: "10px", color: "rgba(255,255,255,0.4)", marginTop: "6px" }}>{stat.label}</p>
               </div>
             ))}
           </div>
         </div>
       </div>
 
-      <div className="px-5 mt-4 max-w-lg mx-auto space-y-4">
+      <div className="px-5 mt-4 max-w-lg mx-auto space-y-4 desktop-content">
         {/* Mode switch banner for dual-role users */}
         {hasTeachingAssignments && (
-          <div
-            className="flex items-center gap-3 px-3 py-2.5 rounded-xl animate-fade-in"
-            style={{ background: "var(--bg-elevated)", border: "1px solid var(--border-primary)" }}
-          >
+          <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl animate-fade-in"
+            style={{ background: "var(--bg-elevated)", border: "1px solid var(--border-primary)" }}>
             <p className="flex-1 text-xs font-medium" style={{ color: "var(--text-tertiary)" }}>
               You&apos;re in Coordinator mode
             </p>
-            <button
-              onClick={() => switchMode("teacher")}
+            <button onClick={() => switchMode("teacher")}
               className="text-xs font-bold px-3 py-1.5 rounded-lg transition-all active:scale-95"
-              style={{ background: "var(--bg-tertiary)", color: "var(--text-secondary)" }}
-            >
+              style={{ background: "var(--bg-tertiary)", color: "var(--text-secondary)" }}>
               Teacher mode →
             </button>
           </div>
         )}
 
-        {/* Quick nav cards */}
-        <div className="grid grid-cols-2 gap-2 animate-slide-up">
-          <Link
-            href="/coordinator/teachers"
-            className="p-4 transition-all active:scale-[0.97]"
-            style={{
-              background: "linear-gradient(135deg, #EDE9FE, #DDD6FE)",
-              borderRadius: "16px",
-            }}
-          >
-            <Users className="w-5 h-5 mb-2" style={{ color: "#5B21B6" }} />
-            <p className="text-sm font-bold" style={{ color: "var(--text-primary)" }}>Teachers</p>
-            <p className="text-xs mt-0.5" style={{ color: "var(--text-secondary)" }}>
-              {stats?.totalTeachers ?? 0} at your levels
-            </p>
-          </Link>
-          <Link
-            href="/coordinator/timetable"
-            className="p-4 transition-all active:scale-[0.97]"
-            style={{
-              background: "linear-gradient(135deg, #F0FDF4, #DCFCE7)",
-              borderRadius: "16px",
-            }}
-          >
-            <Calendar className="w-5 h-5 mb-2" style={{ color: "#166534" }} />
-            <p className="text-sm font-bold" style={{ color: "var(--text-primary)" }}>Timetable</p>
-            <p className="text-xs mt-0.5" style={{ color: "var(--text-secondary)" }}>
-              {levelSummary} schedule
-            </p>
-          </Link>
+        {/* ── QUICK ACTIONS — 2×2 gradient grid ── */}
+        <div className="animate-slide-up animation-delay-150">
+          <h3 className="text-xs font-bold uppercase tracking-widest text-[var(--text-tertiary)] mb-3 px-1">
+            Quick Actions
+          </h3>
+          <div className="grid grid-cols-2 desktop-actions-row" style={{ gap: "8px" }}>
+            {[
+              {
+                href: "/coordinator/entries",
+                icon: CheckCircle2,
+                label: "Verify Entries",
+                count: `${pendingCount} pending`,
+                gradient: "linear-gradient(135deg, #F5F3FF, #EDE9FE)",
+                iconColor: "#6D28D9",
+              },
+              {
+                href: "/coordinator/timetable",
+                icon: Calendar,
+                label: "Timetable",
+                count: "View schedule",
+                gradient: "linear-gradient(135deg, #F0FDF4, #DCFCE7)",
+                iconColor: "#16A34A",
+              },
+              {
+                href: "/coordinator/reports",
+                icon: BarChart3,
+                label: "Reports",
+                count: "Entries database",
+                gradient: "linear-gradient(135deg, #FEF3C7, #FDE68A)",
+                iconColor: "#D97706",
+              },
+              {
+                href: "/coordinator/teachers",
+                icon: Users,
+                label: "Teachers",
+                count: `${stats?.totalTeachers ?? teachers.length} at your level`,
+                gradient: "linear-gradient(135deg, #FFF1F2, #FFE4E6)",
+                iconColor: "#E11D48",
+              },
+            ].map((action) => {
+              const Icon = action.icon;
+              return (
+                <Link key={action.href} href={action.href}
+                  className="p-4 transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.97]"
+                  style={{ background: action.gradient, borderRadius: "16px" }}>
+                  <div className="mb-2.5" style={{ color: action.iconColor }}>
+                    <Icon style={{ width: "18px", height: "18px" }} />
+                  </div>
+                  <p style={{ fontSize: "14px", fontWeight: 700, color: "var(--text-primary)" }}>{action.label}</p>
+                  <p className="mt-0.5" style={{ fontSize: "12px", color: "var(--text-secondary)" }}>{action.count}</p>
+                </Link>
+              );
+            })}
+          </div>
         </div>
 
-        {/* ── Pending Review Section ── */}
-        <div className="animate-slide-up animation-delay-150">
-          <div className="flex items-center justify-between mb-3 px-1">
-            <h2 className="text-sm font-bold text-[var(--text-primary)] flex items-center gap-2">
-              <ClipboardList className="w-4 h-4" style={{ color: "#7C3AED" }} />
-              Pending Review
-              {pendingCount > 0 && (
-                <span
-                  className="text-[10px] font-bold px-2 py-0.5 rounded-full"
-                  style={{ background: "#FEF3C7", color: "#92400E" }}
-                >
-                  {pendingCount}
+        {/* ── SEND ANNOUNCEMENT ── */}
+        <Link href="/coordinator/announcements"
+          className="animate-slide-up animation-delay-175 flex items-center justify-between p-4 group active:scale-[0.98] transition-all duration-200"
+          style={{ background: "linear-gradient(135deg, #FFFBEB, #FEF3C7)", border: "1px solid #FDE68A", borderRadius: "16px" }}>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center">
+              <Megaphone className="w-5 h-5 text-amber-600" />
+            </div>
+            <div>
+              <span style={{ fontSize: 14, fontWeight: 700, color: "#92400E" }}>Send Announcement</span>
+              <span className="block" style={{ fontSize: 12, color: "#B45309" }}>
+                Broadcast to {levelSummary} teachers
+              </span>
+            </div>
+          </div>
+          <ChevronRight className="w-4 h-4 text-amber-400 group-hover:translate-x-0.5 transition-transform" />
+        </Link>
+
+        {/* ── TEACHER ACTIVITY ── */}
+        {topTeachers.length > 0 && (
+          <div className="animate-slide-up animation-delay-225 border"
+            style={{ background: "var(--bg-elevated)", borderColor: "var(--border-primary)", borderRadius: "20px", padding: "18px" }}>
+            <div className="flex items-center justify-between mb-4">
+              <h3 style={{ fontSize: "14px", fontWeight: 700, color: "var(--text-primary)" }}>
+                Teacher Activity
+              </h3>
+              <Link href="/coordinator/teachers" className="text-xs font-semibold hover:underline" style={{ color: "#7C3AED" }}>
+                View all →
+              </Link>
+            </div>
+            <div className="space-y-1">
+              {topTeachers.map((t) => {
+                const expectedPerWeek = Math.max(t.subjects.length * 5, 5);
+                return (
+                  <TeacherActivityRow
+                    key={t.id}
+                    name={`${t.firstName} ${t.lastName}`}
+                    initials={`${t.firstName[0]}${t.lastName[0]}`}
+                    entriesLogged={t.entryCountThisMonth}
+                    entriesExpected={expectedPerWeek}
+                  />
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* ── PENDING VERIFICATION ── */}
+        {pendingEntries.length > 0 && (
+          <div className="animate-slide-up animation-delay-300 border"
+            style={{ background: "var(--bg-elevated)", borderColor: "var(--border-primary)", borderRadius: "20px", padding: "18px" }}>
+            <div className="flex items-center justify-between mb-3">
+              <h3 style={{ fontSize: "14px", fontWeight: 700, color: "var(--text-primary)" }}>
+                Pending Verification
+              </h3>
+              {pendingCount > 5 && (
+                <span className="text-xs font-bold px-2 py-0.5 rounded-full"
+                  style={{ background: "#FEF3C7", color: "#92400E" }}>
+                  {pendingCount} total
                 </span>
               )}
-            </h2>
-          </div>
-
-          {pendingEntries.length === 0 ? (
-            <div className="card p-8 text-center">
-              <CheckCircle className="w-10 h-10 mx-auto mb-3" style={{ color: "#4ADE80" }} />
-              <p className="font-bold text-[var(--text-primary)]">All caught up!</p>
-              <p className="text-sm text-[var(--text-tertiary)] mt-1">
-                No entries pending review at your levels
-              </p>
             </div>
-          ) : (
-            <div className="space-y-2">
+            <div className="divide-y" style={{ borderColor: "var(--border-secondary)" }}>
               {pendingEntries.map((entry) => {
-                const subjectName =
-                  entry.assignment?.subject?.name ||
-                  entry.topics?.[0]?.subject?.name ||
-                  "Unknown subject";
-                const topicPreview =
-                  entry.topics?.length > 0
-                    ? entry.topics[0].name
-                    : entry.topicText || "No topic";
-
+                const teacherName = `${entry.teacher.firstName} ${entry.teacher.lastName}`;
+                const subjectName = entry.assignment?.subject?.name || entry.topics?.[0]?.subject?.name || "Unknown";
+                const isVerifying = verifying === entry.id;
                 return (
-                  <div
-                    key={entry.id}
-                    className="card p-4 flex items-start gap-3"
-                    style={{ borderLeft: "3px solid #7C3AED" }}
-                  >
-                    <TeacherInitials
-                      firstName={entry.teacher.firstName}
-                      lastName={entry.teacher.lastName}
-                    />
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="min-w-0">
-                          <p className="text-sm font-bold text-[var(--text-primary)]">
-                            {entry.teacher.firstName} {entry.teacher.lastName}
-                          </p>
-                          <p className="text-xs text-[var(--text-tertiary)] mt-0.5">
-                            {subjectName} · {entry.class.name} · {formatDate(entry.date)}
-                            {entry.period ? ` · P${entry.period}` : ""}
-                          </p>
-                          <p className="text-xs text-[var(--text-secondary)] mt-1 truncate">
-                            {topicPreview}
-                          </p>
-                        </div>
-                        <span
-                          className="text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0"
-                          style={{ background: "#EFF6FF", color: "#1D4ED8", border: "1px solid #BFDBFE" }}
-                        >
-                          Submitted
-                        </span>
-                      </div>
-                      <Link
-                        href={`/coordinator/entries/${entry.id}`}
-                        className="inline-flex items-center gap-1 mt-2.5 px-3 py-1.5 rounded-lg text-xs font-bold text-white active:scale-95 transition-transform"
-                        style={{ background: "#7C3AED" }}
-                      >
-                        Review
-                        <ChevronRight className="w-3 h-3" />
-                      </Link>
-                    </div>
+                  <div key={entry.id} className="flex items-center justify-between py-3 first:pt-0 last:pb-0">
+                    <Link href={`/coordinator/entries/${entry.id}`} className="min-w-0 flex-1 group">
+                      <p className="text-sm font-semibold text-[var(--text-primary)] truncate group-hover:underline">
+                        {teacherName}
+                      </p>
+                      <p className="text-xs text-[var(--text-tertiary)] mt-0.5 truncate">
+                        {subjectName} · {entry.class.name} · {timeAgo(entry.createdAt)}
+                      </p>
+                    </Link>
+                    <button onClick={() => handleVerify(entry.id)} disabled={!!verifying}
+                      className="flex items-center justify-center flex-shrink-0 ml-3 transition-all active:scale-90 disabled:opacity-50"
+                      style={{ width: "36px", height: "36px", borderRadius: "12px", background: "#DCFCE7", color: "#16A34A" }}
+                      aria-label="Quick verify">
+                      {isVerifying
+                        ? <Loader2 className="w-4 h-4 animate-spin" />
+                        : <Check className="w-4 h-4" />}
+                    </button>
                   </div>
                 );
               })}
             </div>
-          )}
-        </div>
-
-        {/* Info about coordinator scope */}
-        <div
-          className="animate-slide-up animation-delay-225 card p-4 flex items-start gap-3"
-          style={{ borderLeft: "3px solid #A78BFA" }}
-        >
-          <div
-            className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5"
-            style={{ background: "#EDE9FE" }}
-          >
-            <BookOpen className="w-4 h-4" style={{ color: "#6D28D9" }} />
+            <Link href="/coordinator/entries"
+              className="block text-center text-xs font-semibold mt-3 pt-3"
+              style={{ color: "#7C3AED", borderTop: "1px solid var(--border-secondary)" }}>
+              View all pending →
+            </Link>
           </div>
-          <div>
-            <p className="text-sm font-bold text-[var(--text-primary)]">Your scope</p>
-            <p className="text-xs text-[var(--text-tertiary)] mt-0.5">
-              You see entries, teachers, and timetables for:{" "}
-              <span className="font-semibold" style={{ color: "#6D28D9" }}>{levelSummary}</span>
-            </p>
-          </div>
-        </div>
+        )}
 
-        {/* Flag legend */}
-        <div className="card p-3 flex items-center gap-4 text-xs text-[var(--text-tertiary)]">
-          <span className="flex items-center gap-1">
-            <CheckCircle className="w-3.5 h-3.5 text-emerald-500" /> Verify = OK
-          </span>
-          <span className="flex items-center gap-1">
-            <Flag className="w-3.5 h-3.5 text-red-500" /> Flag = needs correction
-          </span>
-        </div>
+        {/* ── ALL CAUGHT UP ── */}
+        {pendingEntries.length === 0 && !loading && (
+          <div className="card p-6 text-center animate-slide-up">
+            <ClipboardList className="w-8 h-8 mx-auto mb-2" style={{ color: "#A78BFA" }} />
+            <p className="font-bold text-[var(--text-primary)] text-sm">All caught up!</p>
+            <p className="text-xs text-[var(--text-tertiary)] mt-1">No entries pending review at {levelSummary}</p>
+            <Link href="/coordinator/reports"
+              className="inline-block mt-3 text-xs font-bold px-4 py-2 rounded-xl text-white transition-all active:scale-95"
+              style={{ background: "#7C3AED" }}>
+              Browse all entries
+            </Link>
+          </div>
+        )}
       </div>
     </div>
   );
