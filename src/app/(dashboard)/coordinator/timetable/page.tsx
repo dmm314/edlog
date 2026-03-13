@@ -45,24 +45,25 @@ export default function CoordinatorTimetablePage() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const [ttRes, dashRes] = await Promise.all([
+        // Fetch timetable + coordinator info in parallel; dashboard is optional
+        const [ttRes, checkRes] = await Promise.all([
           fetch("/api/coordinator/timetable"),
-          fetch("/api/coordinator/dashboard"),
+          fetch("/api/coordinator/check"),
         ]);
 
         if (ttRes.ok) {
           const data = await ttRes.json();
           setSlots(data.slots || []);
         } else {
-          const err = await ttRes.json();
+          const err = await ttRes.json().catch(() => ({}));
           setError(err.error || "Failed to load timetable");
         }
 
-        if (dashRes.ok) {
-          const dashData = await dashRes.json();
+        if (checkRes.ok) {
+          const checkData = await checkRes.json();
           setCoordinator({
-            levels: dashData.coordinator.levels,
-            title: dashData.coordinator.title,
+            levels: checkData.levels || [],
+            title: checkData.title || "Level Coordinator",
           });
         }
       } catch {
