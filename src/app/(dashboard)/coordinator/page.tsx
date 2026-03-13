@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { NotificationBell } from "@/components/NotificationBell";
 import { formatDate } from "@/lib/utils";
+import { useCoordinatorMode } from "@/contexts/CoordinatorModeContext";
 
 interface CoordinatorInfo {
   id: string;
@@ -56,6 +57,7 @@ function TeacherInitials({ firstName, lastName }: { firstName: string; lastName:
 }
 
 export default function CoordinatorDashboardPage() {
+  const { hasTeachingAssignments, switchMode } = useCoordinatorMode();
   const [coordinator, setCoordinator] = useState<CoordinatorInfo | null>(null);
   const [stats, setStats] = useState<Stats | null>(null);
   const [pendingEntries, setPendingEntries] = useState<PendingEntry[]>([]);
@@ -245,6 +247,25 @@ export default function CoordinatorDashboardPage() {
       </div>
 
       <div className="px-5 mt-4 max-w-lg mx-auto space-y-4">
+        {/* Mode switch banner for dual-role users */}
+        {hasTeachingAssignments && (
+          <div
+            className="flex items-center gap-3 px-3 py-2.5 rounded-xl animate-fade-in"
+            style={{ background: "var(--bg-elevated)", border: "1px solid var(--border-primary)" }}
+          >
+            <p className="flex-1 text-xs font-medium" style={{ color: "var(--text-tertiary)" }}>
+              You&apos;re in Coordinator mode
+            </p>
+            <button
+              onClick={() => switchMode("teacher")}
+              className="text-xs font-bold px-3 py-1.5 rounded-lg transition-all active:scale-95"
+              style={{ background: "var(--bg-tertiary)", color: "var(--text-secondary)" }}
+            >
+              Teacher mode →
+            </button>
+          </div>
+        )}
+
         {/* Quick nav cards */}
         <div className="grid grid-cols-2 gap-2 animate-slide-up">
           <Link

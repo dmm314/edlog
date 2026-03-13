@@ -16,13 +16,15 @@ import {
   Users,
   ClipboardList,
   LogOut,
-  BookOpen,
 } from "lucide-react";
+import type { PortalMode } from "@/contexts/CoordinatorModeContext";
 
 interface SideNavProps {
   role: string;
   userName?: string;
   isCoordinator?: boolean;
+  activeMode?: PortalMode;
+  switchMode?: (mode: PortalMode) => void;
 }
 
 interface NavItem {
@@ -33,7 +35,7 @@ interface NavItem {
   activePrefix?: string;
 }
 
-function getNavTabs(role: string, isCoordinator?: boolean): NavItem[] {
+function getNavTabs(role: string, isCoordinator?: boolean, activeMode?: PortalMode): NavItem[] {
   if (role === "REGIONAL_ADMIN") {
     return [
       { href: "/regional", label: "Overview", icon: Globe },
@@ -54,17 +56,18 @@ function getNavTabs(role: string, isCoordinator?: boolean): NavItem[] {
     ];
   }
 
-  if (isCoordinator) {
+  // COORDINATOR mode
+  if (isCoordinator && activeMode === "coordinator") {
     return [
       { href: "/coordinator", label: "Dashboard", icon: Shield, activePrefix: "/coordinator" },
+      { href: "/coordinator/reports", label: "Entries", icon: ClipboardList, activePrefix: "/coordinator/reports" },
       { href: "/coordinator/teachers", label: "Teachers", icon: Users },
       { href: "/coordinator/timetable", label: "Timetable", icon: Calendar },
-      { href: "/history", label: "My Entries", icon: BookOpen },
       { href: "/profile", label: "Profile", icon: User },
     ];
   }
 
-  // TEACHER (default)
+  // TEACHER mode (default)
   return [
     { href: "/logbook", label: "Home", icon: Home },
     { href: "/logbook/new", label: "New Entry", icon: Plus, highlight: true },
@@ -74,9 +77,9 @@ function getNavTabs(role: string, isCoordinator?: boolean): NavItem[] {
   ];
 }
 
-function SideNav({ role, userName, isCoordinator }: SideNavProps) {
+function SideNav({ role, userName, isCoordinator, activeMode, switchMode }: SideNavProps) {
   const pathname = usePathname();
-  const tabs = getNavTabs(role, isCoordinator);
+  const tabs = getNavTabs(role, isCoordinator, activeMode);
 
   const initials = userName
     ? userName
@@ -90,7 +93,8 @@ function SideNav({ role, userName, isCoordinator }: SideNavProps) {
   function getRoleLabel() {
     if (role === "REGIONAL_ADMIN") return "Regional Admin";
     if (role === "SCHOOL_ADMIN") return "School Admin";
-    if (isCoordinator) return "VP / Coordinator";
+    if (isCoordinator && activeMode === "coordinator") return "VP / Coordinator";
+    if (isCoordinator) return "Teacher · VP";
     return "Teacher";
   }
 
@@ -112,6 +116,38 @@ function SideNav({ role, userName, isCoordinator }: SideNavProps) {
           Edlog
         </span>
       </div>
+
+      {/* Mode switcher for dual-role users */}
+      {isCoordinator && switchMode && (
+        <div className="px-3 mb-2">
+          <div
+            className="flex gap-1 p-1 rounded-xl"
+            style={{ background: "var(--bg-tertiary)" }}
+          >
+            <button
+              onClick={() => switchMode("teacher")}
+              className="flex-1 py-1.5 rounded-lg text-xs font-bold transition-all"
+              style={{
+                background: activeMode === "teacher" ? "var(--bg-elevated)" : "transparent",
+                color: activeMode === "teacher" ? "var(--text-primary)" : "var(--text-tertiary)",
+                boxShadow: activeMode === "teacher" ? "var(--shadow-card)" : "none",
+              }}
+            >
+              Teacher
+            </button>
+            <button
+              onClick={() => switchMode("coordinator")}
+              className="flex-1 py-1.5 rounded-lg text-xs font-bold transition-all"
+              style={{
+                background: activeMode === "coordinator" ? "#7C3AED" : "transparent",
+                color: activeMode === "coordinator" ? "white" : "var(--text-tertiary)",
+              }}
+            >
+              VP
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Nav items */}
       <div className="sidenav-items">

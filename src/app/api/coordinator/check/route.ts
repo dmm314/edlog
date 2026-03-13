@@ -21,10 +21,15 @@ export async function GET() {
       select: { id: true, title: true, levels: true },
     });
 
+    const assignmentCount = coordinator
+      ? await db.teacherAssignment.count({ where: { teacherId: user.id } })
+      : 0;
+
     return NextResponse.json({
       isCoordinator: !!coordinator,
       title: coordinator?.title ?? null,
       levels: coordinator?.levels ?? [],
+      hasTeachingAssignments: assignmentCount > 0,
     });
   } catch {
     // If the LevelCoordinator table doesn't exist yet, treat as non-coordinator

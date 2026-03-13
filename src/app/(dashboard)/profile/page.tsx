@@ -30,6 +30,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { formatDate } from "@/lib/utils";
+import { useCoordinatorMode } from "@/contexts/CoordinatorModeContext";
 
 // ── Types ────────────────────────────────────────────────
 
@@ -270,6 +271,7 @@ function QuickLinkRow({ href, icon, label }: { href: string; icon: React.ReactNo
 
 export default function ProfilePage() {
   const { data: session } = useSession();
+  const { isCoordinator, coordinatorTitle, activeMode, switchMode, hasTeachingAssignments } = useCoordinatorMode();
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -536,6 +538,47 @@ export default function ProfilePage() {
 
       {/* ═══ CONTENT ═══ */}
       <div className="px-5 mt-5 max-w-lg mx-auto flex flex-col gap-2.5">
+
+        {/* ═══ MODE SWITCHER (dual-role teacher+coordinator) ═══ */}
+        {isCoordinator && hasTeachingAssignments && (
+          <div
+            className="rounded-2xl p-3 animate-fade-slide-in"
+            style={{
+              backgroundColor: activeMode === "coordinator"
+                ? "rgba(109,40,217,0.06)"
+                : "var(--bg-elevated)",
+              border: `1px solid ${activeMode === "coordinator" ? "rgba(124,58,237,0.2)" : "var(--border-primary)"}`,
+            }}
+          >
+            <p className="text-[10px] font-bold uppercase tracking-widest mb-2" style={{ color: "var(--text-tertiary)" }}>
+              Switch portal
+            </p>
+            <div className="flex gap-1.5">
+              <button
+                onClick={() => switchMode("teacher")}
+                className="flex-1 py-2.5 rounded-xl text-center text-sm font-semibold transition-all"
+                style={{
+                  background: activeMode === "teacher" ? "var(--accent)" : "var(--bg-tertiary)",
+                  color: activeMode === "teacher" ? "white" : "var(--text-tertiary)",
+                  boxShadow: activeMode === "teacher" ? "0 2px 8px rgba(245,158,11,0.35)" : "none",
+                }}
+              >
+                Teacher
+              </button>
+              <button
+                onClick={() => switchMode("coordinator")}
+                className="flex-1 py-2.5 rounded-xl text-center text-sm font-semibold transition-all"
+                style={{
+                  background: activeMode === "coordinator" ? "#7C3AED" : "var(--bg-tertiary)",
+                  color: activeMode === "coordinator" ? "white" : "var(--text-tertiary)",
+                  boxShadow: activeMode === "coordinator" ? "0 2px 8px rgba(124,58,237,0.35)" : "none",
+                }}
+              >
+                {coordinatorTitle || "Coordinator"}
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* ═══ QUICK STATS BAR ═══ */}
         {loading ? (

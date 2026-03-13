@@ -2,9 +2,12 @@
 
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { BottomNav } from "@/components/BottomNav";
 import { SideNav } from "@/components/SideNav";
+import { CoordinatorModeContext, type PortalMode } from "@/contexts/CoordinatorModeContext";
+
+const PORTAL_MODE_KEY = "edlog-portal-mode";
 
 export default function DashboardLayout({
   children,
@@ -13,7 +16,12 @@ export default function DashboardLayout({
 }) {
   const { data: session, status } = useSession();
   const router = useRouter();
+
+  // Coordinator state
   const [isCoordinator, setIsCoordinator] = useState(false);
+  const [coordinatorTitle, setCoordinatorTitle] = useState<string | null>(null);
+  const [hasTeachingAssignments, setHasTeachingAssignments] = useState(true);
+  const [activeMode, setActiveMode] = useState<PortalMode>("teacher");
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -27,10 +35,36 @@ export default function DashboardLayout({
     if (status !== "authenticated" || role !== "TEACHER") return;
 
     fetch("/api/coordinator/check")
-      .then((res) => res.ok ? res.json() : { isCoordinator: false })
-      .then((data) => setIsCoordinator(!!data.isCoordinator))
+      .then((res) => res.ok ? res.json() : { isCoordinator: false, hasTeachingAssignments: true })
+      .then((data) => {
+        setIsCoordinator(!!data.isCoordinator);
+        setCoordinatorTitle(data.title ?? null);
+        const hasAssignments = data.hasTeachingAssignments !== false;
+        setHasTeachingAssignments(hasAssignments);
+
+        if (data.isCoordinator) {
+          if (!hasAssignments) {
+            // Pure coordinator — always coordinator mode
+            setActiveMode("coordinator");
+          } else {
+            // Dual role — respect saved preference
+            const saved = typeof window !== "undefined"
+              ? localStorage.getItem(PORTAL_MODE_KEY)
+              : null;
+            if (saved === "coordinator") setActiveMode("coordinator");
+            // else stay "teacher"
+          }
+        }
+      })
       .catch(() => {});
   }, [status, session]);
+
+  const switchMode = useCallback((mode: PortalMode) => {
+    setActiveMode(mode);
+    if (typeof window !== "undefined") {
+      localStorage.setItem(PORTAL_MODE_KEY, mode);
+    }
+  }, []);
 
   if (status === "loading") {
     return (
@@ -68,12 +102,16 @@ export default function DashboardLayout({
   const userName = (session.user as Record<string, unknown>)?.name as string | undefined;
 
   return (
-    <div className="min-h-screen dashboard-shell" style={{ backgroundColor: "var(--bg-primary)" }}>
-      <SideNav role={role} userName={userName} isCoordinator={isCoordinator} />
-      <div className="dashboard-content">
-        {children}
+    <CoordinatorModeContext.Provider
+      value={{ activeMode, isCoordinator, coordinatorTitle, hasTeachingAssignments, switchMode }}
+    >
+      <div className="min-h-screen dashboard-shell" style={{ backgroundColor: "var(--bg-primary)" }}>
+        <SideNav role={role} userName={userName} isCoordinator={isCoordinator} activeMode={activeMode} switchMode={switchMode} />
+        <div className="dashboard-content">
+          {children}
+        </div>
+        <BottomNav role={role} isCoordinator={isCoordinator} activeMode={activeMode} />
       </div>
-      <BottomNav role={role} isCoordinator={isCoordinator} />
-    </div>
+    </CoordinatorModeContext.Provider>
   );
 }

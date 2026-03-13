@@ -46,13 +46,18 @@ export async function GET(request: NextRequest) {
     const { classIds } = ctx;
     const { searchParams } = new URL(request.url);
 
-    const teacherId = searchParams.get("teacherId");
-    const classId = searchParams.get("classId");
-    const status = searchParams.get("status");
-    const from = searchParams.get("from");
-    const to = searchParams.get("to");
+    // Support both old API (teacherId, classId, from, to) and DataTable API (filter[...], search, sort, order, cursor/offset)
+    const teacherId = searchParams.get("teacherId") || searchParams.get("filter[teacher]");
+    const classId = searchParams.get("classId") || searchParams.get("filter[class]");
+    const status = searchParams.get("status") || searchParams.get("filter[status]");
+    const from = searchParams.get("from") || searchParams.get("filter[dateFrom]");
+    const to = searchParams.get("to") || searchParams.get("filter[dateTo]");
+    const search = searchParams.get("search");
+    const sortField = searchParams.get("sort") || "date";
+    const sortOrder = searchParams.get("order") === "asc" ? "asc" : "desc";
     const limit = Math.min(parseInt(searchParams.get("limit") || "20"), 100);
-    const offset = parseInt(searchParams.get("offset") || "0");
+    const offset = parseInt(searchParams.get("offset") || searchParams.get("cursor") || "0");
+    const includeFilters = searchParams.get("includeFilters") === "true";
 
     // Build where clause — always scoped to coordinator's class IDs
     const where: Record<string, unknown> = {
@@ -73,6 +78,25 @@ export async function GET(request: NextRequest) {
       if (from) (where.date as Record<string, unknown>).gte = new Date(from);
       if (to) (where.date as Record<string, unknown>).lte = new Date(to);
     }
+    if (search) {
+      where.OR = [
+        { topics: { some: { name: { contains: search, mode: "insensitive" } } } },
+        { teacher: { firstName: { contains: search, mode: "insensitive" } } },
+        { teacher: { lastName: { contains: search, mode: "insensitive" } } },
+        { class: { name: { contains: search, mode: "insensitive" } } },
+      ];
+    }
+
+    // Build orderBy
+    type Order = "asc" | "desc";
+    const ord: Order = sortOrder;
+    const orderByMap: Record<string, unknown> = {
+      date: { date: ord },
+      teacher: { teacher: { lastName: ord } },
+      class: { class: { name: ord } },
+      status: { status: ord },
+    };
+    const orderBy = orderByMap[sortField] ?? { date: ord };
 
     const [entries, total] = await Promise.all([
       db.logbookEntry.findMany({
@@ -89,14 +113,50 @@ export async function GET(request: NextRequest) {
             include: { author: { select: { firstName: true, lastName: true } } },
           },
         },
-        orderBy: { date: "desc" },
+        orderBy,
         take: limit,
         skip: offset,
       }),
       db.logbookEntry.count({ where }),
     ]);
 
-    return NextResponse.json({ entries, total });
+    // Build filter options scoped to coordinator's levels (only when requested)
+    let filters = null;
+    if (includeFilters) {
+      const [teachers, classes] = await Promise.all([
+        db.user.findMany({
+          where: {
+            assignments: { some: { classId: { in: classIds } } },
+          },
+          select: { id: true, firstName: true, lastName: true },
+          orderBy: { lastName: "asc" },
+        }),
+        db.class.findMany({
+          where: { id: { in: classIds } },
+          select: { id: true, name: true, level: true },
+          orderBy: { name: "asc" },
+        }),
+      ]);
+
+      filters = {
+        teachers: teachers.map((t) => ({ value: t.id, label: `${t.firstName} ${t.lastName}` })),
+        classes: classes.map((c) => ({ value: c.id, label: c.name })),
+        statuses: [
+          { value: "SUBMITTED", label: "Submitted" },
+          { value: "VERIFIED", label: "Verified" },
+          { value: "FLAGGED", label: "Flagged" },
+          { value: "DRAFT", label: "Draft" },
+        ],
+      };
+    }
+
+    return NextResponse.json({
+      entries,
+      total,
+      // DataTable pagination format
+      pagination: { total, offset, limit, hasMore: offset + limit < total },
+      ...(filters ? { filters } : {}),
+    });
   } catch (error) {
     console.error("GET /api/coordinator/entries error:", error);
     return NextResponse.json({ error: "Failed to fetch entries" }, { status: 500 });
