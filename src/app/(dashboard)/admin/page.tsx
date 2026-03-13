@@ -11,6 +11,7 @@ import {
   CheckCircle2,
   Check,
   Megaphone,
+  Shield,
 } from "lucide-react";
 import { NotificationBell } from "@/components/NotificationBell";
 import { TeacherActivityRow } from "@/components/TeacherActivityRow";
@@ -341,6 +342,32 @@ export default function AdminDashboardPage() {
             })}
           </div>
         </div>
+
+        {/* ── MANAGE VPs ── */}
+        <Link
+          href="/admin/coordinators"
+          className="animate-slide-up animation-delay-175 flex items-center justify-between p-4 group active:scale-[0.98] transition-all duration-200"
+          style={{
+            background: "linear-gradient(135deg, #F5F3FF, #EDE9FE)",
+            border: "1px solid #DDD6FE",
+            borderRadius: "16px",
+          }}
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "#EDE9FE" }}>
+              <Shield className="w-5 h-5" style={{ color: "#6D28D9" }} />
+            </div>
+            <div>
+              <span style={{ fontFamily: "var(--font-body)", fontSize: 14, fontWeight: 700, color: "#3B0764" }}>
+                Manage VPs
+              </span>
+              <span className="block" style={{ fontFamily: "var(--font-body)", fontSize: 12, color: "#5B21B6" }}>
+                Level Coordinators — assign per class level
+              </span>
+            </div>
+          </div>
+          <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" style={{ color: "#7C3AED" }} />
+        </Link>
 
         {/* ── SEND ANNOUNCEMENT ── */}
         <Link
