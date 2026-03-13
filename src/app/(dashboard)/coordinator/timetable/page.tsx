@@ -167,8 +167,6 @@ export default function CoordinatorTimetablePage() {
 
   const selectedClass = classes.find((c) => c.id === selectedClassId);
   const levelSummary = coordinator?.levels.join(", ") || "";
-  const classColorIdx = classes.findIndex((c) => c.id === selectedClassId);
-  const classColor = CLASS_COLORS[classColorIdx % CLASS_COLORS.length] ?? CLASS_COLORS[0];
 
   // ─── Loading skeleton ───
   if (loading) {
@@ -256,7 +254,6 @@ export default function CoordinatorTimetablePage() {
                   </p>
                   <div className="space-y-2">
                     {levelClasses.sort((a, b) => a.name.localeCompare(b.name)).map((cls, clsIdx) => {
-                      const globalIdx = classes.findIndex((c) => c.id === cls.id);
                       const color = CLASS_COLORS[(levelIdx * 2 + clsIdx) % CLASS_COLORS.length];
                       const slotCount = classSlotCount[cls.id] || 0;
                       const teacherCount = classTeacherCount[cls.id] || 0;
