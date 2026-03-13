@@ -19,6 +19,7 @@ import { NotificationBell } from "@/components/NotificationBell";
 import { StreakBadge } from "@/components/StreakBadge";
 import { WeeklyProgress } from "@/components/WeeklyProgress";
 import type { EntryWithRelations } from "@/types";
+import { useCoordinatorMode } from "@/contexts/CoordinatorModeContext";
 
 const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
@@ -85,6 +86,7 @@ function getCurrentPeriodIndex(slots: TimetableSlotInfo[]): number {
 }
 
 export default function LogbookPage() {
+  const { isCoordinator: isCoordinatorCtx, coordinatorTitle: coordinatorTitleCtx, switchMode } = useCoordinatorMode();
   const [entries, setEntries] = useState<EntryWithRelations[]>([]);
   const [todaySlots, setTodaySlots] = useState<TimetableSlotInfo[]>([]);
   const [allSlots, setAllSlots] = useState<AllSlotInfo[]>([]);
@@ -977,32 +979,39 @@ export default function LogbookPage() {
         )}
 
         {/* ── Level Coordinator Banner ─────────────────────────── */}
-        {isCoordinator && (
+        {(isCoordinator || isCoordinatorCtx) && (
           <div className="animate-slide-up animation-delay-300 mt-4">
-            <Link
-              href="/coordinator"
-              className="card p-4 flex items-center gap-3 border-l-4"
+            <div
+              className="card p-3 flex items-center gap-3 border-l-4"
               style={{ borderLeftColor: "#8B5CF6" }}
             >
               <div
-                className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
+                className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
                 style={{ background: "rgba(139,92,246,0.1)" }}
               >
-                <Shield className="w-5 h-5" style={{ color: "#7C3AED" }} />
+                <Shield className="w-4 h-4" style={{ color: "#7C3AED" }} />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="font-bold text-[var(--text-primary)] text-sm">Level Coordinator</p>
+                <p className="font-bold text-[var(--text-primary)] text-xs">
+                  You&apos;re in Teacher mode
+                </p>
                 <p className="text-[11px] text-[var(--text-tertiary)]">
-                  {coordinatorTitle}
+                  {(coordinatorTitle || coordinatorTitleCtx) || "Level Coordinator"}
                   {coordinatorPendingCount > 0 && (
                     <span className="ml-1 font-semibold" style={{ color: "#D97706" }}>
-                      — {coordinatorPendingCount} entr{coordinatorPendingCount === 1 ? "y" : "ies"} to review
+                      — {coordinatorPendingCount} to review
                     </span>
                   )}
                 </p>
               </div>
-              <ChevronRight className="w-4 h-4 text-[var(--text-quaternary)]" />
-            </Link>
+              <button
+                onClick={() => switchMode("coordinator")}
+                className="flex-shrink-0 text-xs font-bold px-3 py-1.5 rounded-lg transition-all active:scale-95"
+                style={{ background: "#EDE9FE", color: "#5B21B6" }}
+              >
+                Switch →
+              </button>
+            </div>
           </div>
         )}
 

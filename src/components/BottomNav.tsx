@@ -4,10 +4,12 @@ import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Home, Plus, Clock, User, Shield, Globe, BarChart3, Calendar, Users, ClipboardList, BookOpen } from "lucide-react";
+import type { PortalMode } from "@/contexts/CoordinatorModeContext";
 
 interface BottomNavProps {
   role: string;
   isCoordinator?: boolean;
+  activeMode?: PortalMode;
 }
 
 interface NavItem {
@@ -18,7 +20,7 @@ interface NavItem {
   activePrefix?: string;
 }
 
-function getNavTabs(role: string, isCoordinator?: boolean): NavItem[] {
+function getNavTabs(role: string, isCoordinator?: boolean, activeMode?: PortalMode): NavItem[] {
   if (role === "REGIONAL_ADMIN") {
     return [
       { href: "/regional", label: "Overview", icon: Globe },
@@ -38,17 +40,18 @@ function getNavTabs(role: string, isCoordinator?: boolean): NavItem[] {
     ];
   }
 
-  if (isCoordinator) {
+  // COORDINATOR mode (only when user is coordinator AND mode is coordinator)
+  if (isCoordinator && activeMode === "coordinator") {
     return [
       { href: "/coordinator", label: "Dashboard", icon: Shield, activePrefix: "/coordinator" },
+      { href: "/coordinator/reports", label: "Entries", icon: ClipboardList, activePrefix: "/coordinator/reports" },
       { href: "/coordinator/teachers", label: "Teachers", icon: Users },
       { href: "/coordinator/timetable", label: "Timetable", icon: Calendar },
-      { href: "/history", label: "My Entries", icon: BookOpen },
       { href: "/profile", label: "Profile", icon: User },
     ];
   }
 
-  // TEACHER (default)
+  // TEACHER mode (default — even if user is a coordinator)
   return [
     { href: "/logbook", label: "Home", icon: Home },
     { href: "/logbook/new", label: "New Entry", icon: Plus, highlight: true },
@@ -58,9 +61,9 @@ function getNavTabs(role: string, isCoordinator?: boolean): NavItem[] {
   ];
 }
 
-function BottomNav({ role, isCoordinator }: BottomNavProps) {
+function BottomNav({ role, isCoordinator, activeMode }: BottomNavProps) {
   const pathname = usePathname();
-  const tabs = getNavTabs(role, isCoordinator);
+  const tabs = getNavTabs(role, isCoordinator, activeMode);
 
   return (
     <nav
