@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import {
@@ -84,7 +84,7 @@ export default function CoordinatorEntryReviewPage() {
   const [formError, setFormError] = useState("");
   const [done, setDone] = useState(false);
   const [doneStatus, setDoneStatus] = useState<"VERIFIED" | "FLAGGED" | null>(null);
-  const sigClearRef = useRef<(() => void) | null>(null);
+
 
   useEffect(() => {
     async function fetchData() {

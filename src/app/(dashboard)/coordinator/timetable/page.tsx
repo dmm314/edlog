@@ -84,7 +84,10 @@ export default function CoordinatorTimetablePage() {
     return map;
   }, [slots]);
 
-  const selectedSlots = slotsByDay[selectedDay] || [];
+  const selectedSlots = useMemo(
+    () => slotsByDay[selectedDay] || [],
+    [slotsByDay, selectedDay]
+  );
 
   // Group by class for selected day
   const slotsByClass = useMemo(() => {
