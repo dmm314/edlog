@@ -20,6 +20,7 @@ import { StreakBadge } from "@/components/StreakBadge";
 import { WeeklyProgress } from "@/components/WeeklyProgress";
 import type { EntryWithRelations } from "@/types";
 import { useCoordinatorMode } from "@/contexts/CoordinatorModeContext";
+import { getTimeGreeting, getDisplayName } from "@/lib/greeting";
 
 const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
@@ -58,13 +59,6 @@ function isEditable(entry: EntryWithRelations): boolean {
   return Date.now() - new Date(entry.createdAt).getTime() < oneHour;
 }
 
-function getGreeting(): string {
-  const hour = new Date().getHours();
-  if (hour < 12) return "Good morning";
-  if (hour < 17) return "Good afternoon";
-  return "Good evening";
-}
-
 function getCurrentPeriodIndex(slots: TimetableSlotInfo[]): number {
   const now = new Date();
   const currentMinutes = now.getHours() * 60 + now.getMinutes();
@@ -94,7 +88,11 @@ export default function LogbookPage() {
   const [isHOD, setIsHOD] = useState(false);
   const [unfilledOpen, setUnfilledOpen] = useState(false);
   const [hodSubjects, setHodSubjects] = useState<string[]>([]);
-  const [userName, setUserName] = useState("");
+  const [userFirstName, setUserFirstName] = useState("");
+  const [userLastName, setUserLastName] = useState("");
+  const [userGender, setUserGender] = useState<string | null>(null);
+  const [genderPromptDismissed, setGenderPromptDismissed] = useState(true); // default true to avoid flash
+  const [savingGender, setSavingGender] = useState(false);
   const [unreadAnnouncements, setUnreadAnnouncements] = useState(0);
   const [pendingAssessments, setPendingAssessments] = useState(0);
   const [isCoordinator, setIsCoordinator] = useState(false);
@@ -105,7 +103,6 @@ export default function LogbookPage() {
   const dayOfWeek = today.getDay();
   const todayStr = today.toISOString().split("T")[0];
   const isWeekday = dayOfWeek >= 1 && dayOfWeek <= 5;
-  const greeting = getGreeting();
 
   useEffect(() => {
     async function fetchData() {
@@ -155,12 +152,26 @@ export default function LogbookPage() {
           // not an HOD
         }
 
-        // Get user name
+        // Get user name + gender
         try {
           const sessionRes = await fetch("/api/auth/session");
           if (sessionRes.ok) {
             const sessionData = await sessionRes.json();
-            setUserName(sessionData?.user?.name || "");
+            const u = sessionData?.user;
+            setUserFirstName(u?.firstName || "");
+            setUserLastName(u?.lastName || "");
+          }
+          // Fetch gender from profile (session may not have it yet until re-login)
+          const profileRes = await fetch("/api/profile");
+          if (profileRes.ok) {
+            const profileData = await profileRes.json();
+            const g = profileData.gender ?? null;
+            setUserGender(g);
+            // Show gender prompt if gender is null and not dismissed
+            const dismissed = typeof window !== "undefined"
+              ? localStorage.getItem("edlog-gender-prompt-dismissed") === "true"
+              : true;
+            setGenderPromptDismissed(dismissed || g !== null);
           }
         } catch {
           // silently fail
@@ -469,6 +480,29 @@ export default function LogbookPage() {
     return sortedTodaySlots.length > 0 && todayFilledCount === sortedTodaySlots.length;
   }, [sortedTodaySlots, todayFilledCount]);
 
+  async function handleSetGender(gender: "MALE" | "FEMALE") {
+    setSavingGender(true);
+    try {
+      const res = await fetch("/api/profile", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ gender }),
+      });
+      if (res.ok) {
+        setUserGender(gender);
+        setGenderPromptDismissed(true);
+      }
+    } catch { /* silently fail */ }
+    finally { setSavingGender(false); }
+  }
+
+  function dismissGenderPrompt() {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("edlog-gender-prompt-dismissed", "true");
+    }
+    setGenderPromptDismissed(true);
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-primary)" }}>
@@ -570,7 +604,7 @@ export default function LogbookPage() {
                   color: "#a8a29e",
                 }}
               >
-                {greeting}
+                {getTimeGreeting()}
               </p>
               <h1
                 style={{
@@ -582,7 +616,9 @@ export default function LogbookPage() {
                   lineHeight: 1.2,
                 }}
               >
-                {userName || "My Logbook"}
+                {userFirstName || userLastName
+                  ? getDisplayName(userFirstName, userLastName, userGender)
+                  : "My Logbook"}
               </h1>
             </div>
             <NotificationBell />
@@ -630,6 +666,41 @@ export default function LogbookPage() {
 
       {/* ── Main Content ──────────────────────────────────────────── */}
       <div className="px-4 mt-4 max-w-lg mx-auto desktop-content" style={{ paddingBottom: "90px" }}>
+        {/* ── Gender Prompt (one-time) ─────────────────────────────── */}
+        {!genderPromptDismissed && (
+          <div className="mb-3 rounded-2xl border p-4 animate-slide-up"
+            style={{ background: "var(--bg-elevated)", borderColor: "var(--border-primary)" }}>
+            <div className="flex items-start justify-between gap-2 mb-3">
+              <div>
+                <p className="text-sm font-bold text-[var(--text-primary)]">Complete your profile</p>
+                <p className="text-xs text-[var(--text-tertiary)] mt-0.5">
+                  Set your gender so we can address you properly in the app.
+                </p>
+              </div>
+              <button onClick={dismissGenderPrompt} className="text-[var(--text-quaternary)] hover:text-[var(--text-tertiary)] p-1 flex-shrink-0">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            </div>
+            <div className="flex gap-2">
+              <button onClick={() => handleSetGender("MALE")} disabled={savingGender}
+                className="flex-1 py-2 rounded-xl text-sm font-bold transition-all active:scale-95 disabled:opacity-50"
+                style={{ background: "#DBEAFE", color: "#1E40AF" }}>
+                Male
+              </button>
+              <button onClick={() => handleSetGender("FEMALE")} disabled={savingGender}
+                className="flex-1 py-2 rounded-xl text-sm font-bold transition-all active:scale-95 disabled:opacity-50"
+                style={{ background: "#FCE7F3", color: "#9D174D" }}>
+                Female
+              </button>
+              <button onClick={dismissGenderPrompt}
+                className="px-4 py-2 rounded-xl text-sm font-semibold transition-all active:scale-95"
+                style={{ background: "var(--bg-secondary)", color: "var(--text-tertiary)" }}>
+                Later
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* ── Unread Announcements Banner ─────────────────────────── */}
         {unreadAnnouncements > 0 && (
           <Link

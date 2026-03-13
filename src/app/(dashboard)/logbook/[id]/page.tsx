@@ -17,6 +17,9 @@ import {
   Send,
   MessageSquare,
   Loader2,
+  CheckCircle,
+  Shield,
+  Eye,
 } from "lucide-react";
 import { formatDate } from "@/lib/utils";
 
@@ -59,6 +62,24 @@ interface EntryDetail {
     startTime: string;
     endTime: string;
   } | null;
+  verifiedByName?: string | null;
+  verifiedByTitle?: string | null;
+  verifiedAt?: string | null;
+  verificationSignature?: string | null;
+  views?: {
+    viewerRole: string;
+    viewerTitle: string | null;
+    viewedAt: string;
+    viewer: { id: string; firstName: string; lastName: string };
+  }[];
+  remarks?: {
+    id: string;
+    content: string;
+    remarkType: string;
+    authorRole: string;
+    createdAt: string;
+    author: { id: string; firstName: string; lastName: string; role: string; photoUrl: string | null };
+  }[];
 }
 
 interface Remark {
@@ -76,12 +97,20 @@ interface Remark {
   };
 }
 
+function fmtDateTime(iso: string): string {
+  const d = new Date(iso);
+  return d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })
+    + " · "
+    + d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+}
+
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 function RemarkRoleBadge({ authorRole, remarkType }: { authorRole: string; remarkType: string }) {
   const config: Record<string, { bg: string; text: string; border: string; label: string }> = {
     self_reflection: { bg: "bg-emerald-50", text: "text-emerald-700", border: "border-emerald-200", label: "Teacher" },
     hod_review: { bg: "bg-amber-50", text: "text-amber-700", border: "border-amber-200", label: "HOD" },
     admin_verification: { bg: "bg-blue-50", text: "text-blue-700", border: "border-blue-200", label: "Admin" },
+    coordinator_review: { bg: "bg-purple-50", text: "text-purple-700", border: "border-purple-200", label: "VP Review" },
     inspector_note: { bg: "bg-purple-50", text: "text-purple-700", border: "border-purple-200", label: "Inspector" },
   };
   const c = config[remarkType] || config.self_reflection;
@@ -97,6 +126,7 @@ function RemarkColorBar({ remarkType }: { remarkType: string }) {
     self_reflection: "bg-emerald-500",
     hod_review: "bg-amber-500",
     admin_verification: "bg-blue-500",
+    coordinator_review: "bg-purple-500",
     inspector_note: "bg-purple-500",
   };
   return <div className={`w-1 rounded-full self-stretch flex-shrink-0 ${colors[remarkType] || "bg-gray-400"}`} />;
@@ -225,6 +255,8 @@ export default function EntryDetailPage() {
       : entry.topicText || "N/A";
   const teacherName = `${entry.teacher.firstName} ${entry.teacher.lastName}`;
 
+  const hasSeen = (entry.views?.length ?? 0) > 0;
+
   function getStatusBadge(status: string) {
     switch (status) {
       case "VERIFIED":
@@ -245,10 +277,23 @@ export default function EntryDetailPage() {
             Draft
           </span>
         );
+      case "SUBMITTED":
+        if (hasSeen) {
+          return (
+            <span className="inline-flex items-center gap-1 text-[10px] font-bold bg-amber-50 text-amber-700 px-2 py-0.5 rounded-full border border-amber-100">
+              <CheckCircle className="w-3 h-3" /> Reviewed
+            </span>
+          );
+        }
+        return (
+          <span className="text-[10px] font-bold bg-[var(--bg-tertiary)] text-[var(--text-tertiary)] px-2 py-0.5 rounded-full border border-[var(--border-secondary)]">
+            Pending
+          </span>
+        );
       default:
         return (
-          <span className="text-[10px] font-bold bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full border border-blue-100">
-            Submitted
+          <span className="text-[10px] font-bold bg-[var(--bg-tertiary)] text-[var(--text-tertiary)] px-2 py-0.5 rounded-full border border-[var(--border-secondary)]">
+            Pending
           </span>
         );
     }
@@ -294,6 +339,64 @@ export default function EntryDetailPage() {
       </div>
 
       <div className="px-5 mt-4 max-w-lg mx-auto space-y-4">
+        {/* ── Verification Audit Trail ── */}
+        {(entry.status === "VERIFIED" || entry.status === "FLAGGED") && (
+          <div className="rounded-2xl border overflow-hidden"
+            style={{
+              background: entry.status === "VERIFIED" ? "#F0FDF4" : "#FFF1F2",
+              borderColor: entry.status === "VERIFIED" ? "#86EFAC" : "#FCA5A5",
+            }}>
+            <div className="px-4 py-3 flex items-center gap-2"
+              style={{ borderBottom: `1px solid ${entry.status === "VERIFIED" ? "#BBF7D0" : "#FCA5A5"}` }}>
+              {entry.status === "VERIFIED"
+                ? <CheckCircle className="w-5 h-5 text-emerald-600 flex-shrink-0" />
+                : <Flag className="w-5 h-5 text-red-500 flex-shrink-0" />}
+              <p className="text-sm font-bold" style={{ color: entry.status === "VERIFIED" ? "#14532D" : "#7F1D1D" }}>
+                {entry.status === "VERIFIED" ? "Entry Verified" : "Entry Flagged"}
+              </p>
+            </div>
+            <div className="px-4 py-3 space-y-1.5">
+              {entry.verifiedByName && (
+                <div className="flex items-center gap-2">
+                  <Shield className="w-3.5 h-3.5 flex-shrink-0" style={{ color: entry.status === "VERIFIED" ? "#16A34A" : "#DC2626" }} />
+                  <p className="text-xs" style={{ color: entry.status === "VERIFIED" ? "#166534" : "#991B1B" }}>
+                    <span className="font-semibold">{entry.verifiedByName}</span>
+                    {entry.verifiedByTitle && <span className="ml-1 text-[var(--text-tertiary)]">({entry.verifiedByTitle})</span>}
+                  </p>
+                </div>
+              )}
+              {entry.verifiedAt && (
+                <div className="flex items-center gap-2">
+                  <Clock className="w-3.5 h-3.5 flex-shrink-0 text-[var(--text-quaternary)]" />
+                  <p className="text-xs text-[var(--text-tertiary)]">{fmtDateTime(entry.verifiedAt)}</p>
+                </div>
+              )}
+              {entry.verificationSignature && (
+                <div className="mt-2 pt-2" style={{ borderTop: `1px solid ${entry.status === "VERIFIED" ? "#BBF7D0" : "#FCA5A5"}` }}>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-tertiary)] mb-1.5">Signature</p>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={entry.verificationSignature} alt="Verification signature"
+                    className="max-h-16 rounded border" style={{ borderColor: "var(--border-secondary)" }} />
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* ── Seen By Info (for SUBMITTED entries viewed by coordinator/admin) ── */}
+        {entry.status === "SUBMITTED" && hasSeen && entry.views && (
+          <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl"
+            style={{ background: "#FFFBEB", border: "1px solid #FDE68A" }}>
+            <Eye className="w-3.5 h-3.5 flex-shrink-0 text-amber-600" />
+            <p className="text-xs text-amber-800">
+              Seen by{" "}
+              <span className="font-semibold">
+                {entry.views.map((v) => v.viewerTitle || `${v.viewer.firstName} ${v.viewer.lastName}`).join(", ")}
+              </span>
+            </p>
+          </div>
+        )}
+
         {/* Entry Details Card */}
         <div className="card p-4 space-y-3.5">
           {/* Module */}

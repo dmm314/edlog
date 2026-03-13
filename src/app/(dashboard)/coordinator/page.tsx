@@ -15,6 +15,7 @@ import {
   Phone,
   Mail,
   Clock,
+  Eye,
 } from "lucide-react";
 import { NotificationBell } from "@/components/NotificationBell";
 import { TeacherActivityRow } from "@/components/TeacherActivityRow";
@@ -98,6 +99,7 @@ interface PendingEntry {
   topics: { id: string; name: string; subject: { id: string; name: string } }[];
   assignment?: { subject: { id: string; name: string } } | null;
   createdAt: string;
+  views?: { viewerRole: string; viewerTitle: string | null }[];
 }
 
 interface TeacherRow {
@@ -529,12 +531,25 @@ export default function CoordinatorDashboardPage() {
                 const teacherName = `${entry.teacher.firstName} ${entry.teacher.lastName}`;
                 const subjectName = entry.assignment?.subject?.name || entry.topics?.[0]?.subject?.name || "Unknown";
                 const isVerifying = verifying === entry.id;
+                const isSeen = entry.views && entry.views.length > 0;
+                const seenByTitle = isSeen ? (entry.views![0].viewerTitle || "VP") : null;
                 return (
-                  <div key={entry.id} className="flex items-center justify-between py-3 first:pt-0 last:pb-0">
+                  <div key={entry.id}
+                    className="flex items-center justify-between py-3 first:pt-0 last:pb-0"
+                    style={!isSeen ? { borderLeft: "3px solid #8B5CF6", paddingLeft: "10px", marginLeft: "-2px" } : {}}>
                     <Link href={`/coordinator/entries/${entry.id}`} className="min-w-0 flex-1 group">
-                      <p className="text-sm font-semibold text-[var(--text-primary)] truncate group-hover:underline">
-                        {teacherName}
-                      </p>
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <p className={`text-sm truncate group-hover:underline ${!isSeen ? "font-bold text-[var(--text-primary)]" : "font-semibold text-[var(--text-secondary)]"}`}>
+                          {teacherName}
+                        </p>
+                        {isSeen && (
+                          <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold px-1.5 py-0.5 rounded-full flex-shrink-0"
+                            style={{ background: "#EDE9FE", color: "#6D28D9" }}>
+                            <Eye className="w-2.5 h-2.5" />
+                            {seenByTitle}
+                          </span>
+                        )}
+                      </div>
                       <p className="text-xs text-[var(--text-tertiary)] mt-0.5 truncate">
                         {subjectName} · {entry.class.name} · {timeAgo(entry.createdAt)}
                       </p>
