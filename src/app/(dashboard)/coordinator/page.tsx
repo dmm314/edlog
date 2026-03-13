@@ -16,7 +16,6 @@ import {
 import { NotificationBell } from "@/components/NotificationBell";
 import { TeacherActivityRow } from "@/components/TeacherActivityRow";
 import { useCoordinatorMode } from "@/contexts/CoordinatorModeContext";
-import { formatDate } from "@/lib/utils";
 
 interface CoordinatorInfo {
   id: string;
