@@ -77,27 +77,40 @@ export async function POST(request: NextRequest) {
 
     const { coordinator, classIds } = ctx;
     const body = await request.json();
-    const { title, message } = body;
+    const { title, message, teacherId: targetTeacherId } = body;
 
     if (!title?.trim()) return NextResponse.json({ error: "Title is required" }, { status: 400 });
     if (title.length > 100) return NextResponse.json({ error: "Title max 100 characters" }, { status: 400 });
     if (!message?.trim()) return NextResponse.json({ error: "Message is required" }, { status: 400 });
     if (message.length > 500) return NextResponse.json({ error: "Message max 500 characters" }, { status: 400 });
 
-    // Get distinct teachers at this coordinator's levels
-    const teacherRows = await db.teacherAssignment.findMany({
-      where: { classId: { in: classIds }, schoolId: coordinator.schoolId },
-      select: { teacherId: true },
-      distinct: ["teacherId"],
-    });
+    let recipientIds: string[];
 
-    if (teacherRows.length === 0) {
-      return NextResponse.json({ error: "No teachers found at your levels" }, { status: 400 });
+    if (targetTeacherId) {
+      // Direct message: verify teacher is assigned within coordinator's scope
+      const assignment = await db.teacherAssignment.findFirst({
+        where: { teacherId: targetTeacherId, classId: { in: classIds }, schoolId: coordinator.schoolId },
+      });
+      if (!assignment) {
+        return NextResponse.json({ error: "Teacher not found in your scope" }, { status: 400 });
+      }
+      recipientIds = [targetTeacherId];
+    } else {
+      // Broadcast: get distinct teachers at this coordinator's levels
+      const teacherRows = await db.teacherAssignment.findMany({
+        where: { classId: { in: classIds }, schoolId: coordinator.schoolId },
+        select: { teacherId: true },
+        distinct: ["teacherId"],
+      });
+      if (teacherRows.length === 0) {
+        return NextResponse.json({ error: "No teachers found at your levels" }, { status: 400 });
+      }
+      recipientIds = teacherRows.map((r) => r.teacherId);
     }
 
     await db.notification.createMany({
-      data: teacherRows.map((r) => ({
-        userId: r.teacherId,
+      data: recipientIds.map((id) => ({
+        userId: id,
         type: "SCHOOL_ANNOUNCEMENT",
         title: title.trim(),
         message: message.trim(),
@@ -106,7 +119,7 @@ export async function POST(request: NextRequest) {
       })),
     });
 
-    return NextResponse.json({ teacherCount: teacherRows.length });
+    return NextResponse.json({ teacherCount: recipientIds.length });
   } catch (error) {
     console.error("POST /api/coordinator/announcements error:", error);
     return NextResponse.json({ error: "Failed to send" }, { status: 500 });

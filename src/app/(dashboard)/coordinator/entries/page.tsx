@@ -414,11 +414,13 @@ export default function CoordinatorEntriesPage() {
                                 <Phone className="w-2.5 h-2.5" /> Call
                               </a>
                             )}
-                            <a href={`mailto:${entry.teacher.email}`} onClick={(e) => e.stopPropagation()}
+                            <Link
+                              href={`/coordinator/announcements?teacherId=${entry.teacher.id}&teacherName=${encodeURIComponent(`${entry.teacher.firstName} ${entry.teacher.lastName}`)}`}
+                              onClick={(e) => e.stopPropagation()}
                               className="flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-lg active:scale-95"
                               style={{ background: "#EDE9FE", color: "#5B21B6" }}>
                               <Mail className="w-2.5 h-2.5" /> Mail
-                            </a>
+                            </Link>
                           </div>
                         </div>
                       </div>
@@ -583,12 +585,13 @@ export default function CoordinatorEntriesPage() {
                                   <Phone className="w-2.5 h-2.5" /> Call
                                 </a>
                               )}
-                              <a href={`mailto:${slot.teacherEmail}`}
-                                onClick={(e) => { e.stopPropagation(); e.preventDefault(); window.location.href = `mailto:${slot.teacherEmail}`; }}
+                              <Link
+                                href={`/coordinator/announcements?teacherId=${slot.teacherId}&teacherName=${encodeURIComponent(slot.teacher)}`}
+                                onClick={(e) => e.stopPropagation()}
                                 className="flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-lg"
                                 style={{ background: "#EDE9FE", color: "#5B21B6" }}>
                                 <Mail className="w-2.5 h-2.5" /> Mail
-                              </a>
+                              </Link>
                             </div>
                           </div>
                         </div>
