@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Megaphone, CheckCircle, AlertTriangle, Clock, Users, Send, History, ChevronDown, ChevronUp } from "lucide-react";
+import { ArrowLeft, Megaphone, CheckCircle, AlertTriangle, Clock, Users, Send, History, ChevronDown, ChevronUp, X } from "lucide-react";
 import { formatDate } from "@/lib/utils";
 
 interface RecentAnnouncement {
@@ -212,6 +213,10 @@ function SentAnnouncementHistory({ announcements }: { announcements: RecentAnnou
 }
 
 export default function CoordinatorAnnouncementsPage() {
+  const searchParams = useSearchParams();
+  const targetTeacherId = searchParams.get("teacherId") || null;
+  const targetTeacherName = searchParams.get("teacherName") || null;
+
   const [title, setTitle] = useState("");
   const [message, setMessage] = useState("");
   const [teacherCount, setTeacherCount] = useState<number | null>(null);
@@ -264,7 +269,11 @@ export default function CoordinatorAnnouncementsPage() {
       const res = await fetch("/api/coordinator/announcements", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title: title.trim(), message: message.trim() }),
+        body: JSON.stringify({
+          title: title.trim(),
+          message: message.trim(),
+          ...(targetTeacherId ? { teacherId: targetTeacherId } : {}),
+        }),
       });
 
       if (res.ok) {
@@ -309,7 +318,7 @@ export default function CoordinatorAnnouncementsPage() {
             <div>
               <h1 className="text-xl font-bold text-white">Announcements</h1>
               <p className="text-white/50 text-sm mt-0.5">
-                Broadcast to teachers at {levelSummary}
+                {targetTeacherName ? `Direct message to ${targetTeacherName}` : `Broadcast to teachers at ${levelSummary}`}
               </p>
             </div>
           </div>
@@ -359,7 +368,9 @@ export default function CoordinatorAnnouncementsPage() {
               Announcement Sent!
             </p>
             <p className="text-sm text-[var(--text-secondary)] mt-1.5" style={{ fontFamily: "var(--font-body)" }}>
-              Delivered to {success} teacher{success !== 1 ? "s" : ""} at {levelSummary}
+              {targetTeacherName
+                ? `Delivered to ${targetTeacherName}`
+                : `Delivered to ${success} teacher${success !== 1 ? "s" : ""} at ${levelSummary}`}
             </p>
             <button
               onClick={() => setSuccess(null)}
@@ -439,15 +450,21 @@ export default function CoordinatorAnnouncementsPage() {
               </div>
 
               {/* Recipient info */}
-              {teacherCount !== null && (
-                <div
-                  className="mt-4 flex items-center gap-2.5 rounded-xl px-3.5 py-3 border"
-                  style={{
-                    background: "var(--bg-secondary)",
-                    borderColor: "var(--border-secondary)",
-                  }}
-                >
-                  <Users className="w-4 h-4 text-purple-500 flex-shrink-0" />
+              <div
+                className="mt-4 flex items-center gap-2.5 rounded-xl px-3.5 py-3 border"
+                style={{
+                  background: targetTeacherId ? "#F5F3FF" : "var(--bg-secondary)",
+                  borderColor: targetTeacherId ? "#C4B5FD" : "var(--border-secondary)",
+                }}
+              >
+                <Users className="w-4 h-4 text-purple-500 flex-shrink-0" />
+                {targetTeacherId && targetTeacherName ? (
+                  <p className="text-sm text-[var(--text-secondary)] flex-1" style={{ fontFamily: "var(--font-body)" }}>
+                    Direct message to{" "}
+                    <span className="font-semibold text-purple-700">{targetTeacherName}</span>{" "}
+                    only.
+                  </p>
+                ) : teacherCount !== null ? (
                   <p className="text-sm text-[var(--text-secondary)]" style={{ fontFamily: "var(--font-body)" }}>
                     This announcement will be sent to{" "}
                     <span className="font-semibold text-[var(--text-primary)]">
@@ -455,8 +472,8 @@ export default function CoordinatorAnnouncementsPage() {
                     </span>{" "}
                     at {levelSummary}.
                   </p>
-                </div>
-              )}
+                ) : null}
+              </div>
 
               {/* Preview */}
               {(title.trim() || message.trim()) && (
@@ -509,7 +526,9 @@ export default function CoordinatorAnnouncementsPage() {
               ) : (
                 <>
                   <Megaphone className="w-4 h-4" />
-                  {teacherCount !== null && teacherCount > 0
+                  {targetTeacherName
+                    ? `Send to ${targetTeacherName}`
+                    : teacherCount !== null && teacherCount > 0
                     ? `Send to ${teacherCount} teacher${teacherCount !== 1 ? "s" : ""} at ${levelSummary}`
                     : "Send Announcement"}
                 </>
@@ -546,11 +565,15 @@ export default function CoordinatorAnnouncementsPage() {
               </h3>
             </div>
             <p className="text-sm text-[var(--text-secondary)] mb-5" style={{ fontFamily: "var(--font-body)" }}>
-              Send this announcement to{" "}
-              <strong className="text-[var(--text-primary)]">
-                {teacherCount ?? "all"} teacher{teacherCount !== 1 ? "s" : ""}
-              </strong>{" "}
-              at {levelSummary}?
+              {targetTeacherName ? (
+                <>Send this message to <strong className="text-[var(--text-primary)]">{targetTeacherName}</strong>?</>
+              ) : (
+                <>Send this announcement to{" "}
+                <strong className="text-[var(--text-primary)]">
+                  {teacherCount ?? "all"} teacher{teacherCount !== 1 ? "s" : ""}
+                </strong>{" "}
+                at {levelSummary}?</>
+              )}
             </p>
 
             {/* Preview in modal */}
