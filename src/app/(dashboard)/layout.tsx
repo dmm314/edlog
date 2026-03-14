@@ -64,7 +64,12 @@ export default function DashboardLayout({
     if (typeof window !== "undefined") {
       localStorage.setItem(PORTAL_MODE_KEY, mode);
     }
-  }, []);
+    if (mode === "coordinator") {
+      router.push("/coordinator");
+    } else {
+      router.push("/logbook");
+    }
+  }, [router]);
 
   if (status === "loading") {
     return (
