@@ -14,6 +14,7 @@ import {
   Clock,
   Megaphone,
   ChevronRight,
+  ClipboardList,
 } from "lucide-react";
 import { NotificationBell } from "@/components/NotificationBell";
 import { StreakBadge } from "@/components/StreakBadge";
@@ -23,6 +24,35 @@ import { useCoordinatorMode } from "@/contexts/CoordinatorModeContext";
 import { getTimeGreeting, getDisplayName } from "@/lib/greeting";
 
 const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
+const WEEKEND_MESSAGES = [
+  "You've earned this rest. Recharge and come back strong.",
+  "Teaching is a marathon, not a sprint. Rest up.",
+  "Take this time to do something you love outside the classroom.",
+  "Your students are lucky to have you. Now go enjoy your weekend.",
+  "A well-rested teacher is a great teacher. See you Monday.",
+];
+
+const FREE_DAY_MESSAGES = [
+  "Use this time to prepare, mark, or simply breathe.",
+  "A day to catch up on planning or just enjoy some quiet.",
+  "No rush today. The classroom will be there tomorrow.",
+  "Great teachers prepare on days like this. Or rest. Both are valid.",
+];
+
+const ALL_CAUGHT_UP_MESSAGES = [
+  "Every class logged. Your students' progress is being recorded.",
+  "All done! Consistency like this is what makes great teachers.",
+  "100% logged today. That's the standard.",
+  "Another day of complete records. Your future self will thank you.",
+];
+
+function getRotatingMessage(messages: string[]): string {
+  const dayOfYear = Math.floor(
+    (Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 86400000
+  );
+  return messages[dayOfYear % messages.length];
+}
 
 interface TimetableSlotInfo {
   id: string;
@@ -886,77 +916,201 @@ export default function LogbookPage() {
 
         {/* All caught up celebration */}
         {isWeekday && allLoggedToday && sortedTodaySlots.length > 0 && (
-          <div className="animate-scale-in mt-4 card p-6 text-center">
-            <div
-              className="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-3"
-              style={{ background: "#DCFCE7" }}
-            >
-              <CheckCircle className="w-7 h-7" style={{ color: "#16A34A" }} />
-            </div>
-            <p className="font-display text-xl font-bold text-[var(--text-primary)]">
+          <div className="animate-scale-in mt-4 card p-6 text-center" style={{
+            background: "linear-gradient(135deg, rgba(16,163,74,0.06), rgba(74,222,128,0.03))",
+            border: "1px solid rgba(16,163,74,0.12)"
+          }}>
+            <div className="text-4xl mb-3">🎉</div>
+            <h3 style={{
+              fontFamily: "var(--font-display)",
+              fontSize: "20px",
+              fontWeight: 700,
+              color: "var(--text-primary)"
+            }}>
               All caught up!
+            </h3>
+            <p style={{
+              fontFamily: "var(--font-body)",
+              fontSize: "14px",
+              color: "var(--text-tertiary)",
+              marginTop: "6px",
+              lineHeight: 1.6
+            }}>
+              {getRotatingMessage(ALL_CAUGHT_UP_MESSAGES)}
             </p>
             {streakDays > 0 && (
-              <p className="text-sm text-[var(--text-tertiary)] mt-1.5">
-                {streakDays} day streak
+              <p style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: "13px",
+                color: "var(--accent-text)",
+                fontWeight: 600,
+                marginTop: "10px"
+              }}>
+                🔥 {streakDays}-day streak — keep it going!
               </p>
             )}
           </div>
         )}
 
-        {/* Weekend / No classes notice */}
-        {(!isWeekday || sortedTodaySlots.length === 0) && (
-          <div className="animate-slide-up card p-6 flex items-center gap-4">
-            <div
-              className="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0"
-              style={{ backgroundColor: "var(--bg-tertiary)" }}
-            >
-              <Calendar className="w-7 h-7 text-[var(--text-tertiary)]" />
-            </div>
-            <div>
-              <p className="text-base font-bold text-[var(--text-primary)]">
-                No classes today
-              </p>
-              <div className="flex gap-3 mt-2">
-                <Link
-                  href="/timetable"
-                  className="text-sm font-medium text-[var(--text-secondary)] underline underline-offset-2"
-                >
-                  View timetable
+        {/* Weekend card */}
+        {!isWeekday && (
+          <div className="animate-slide-up card p-6 text-center" style={{
+            background: "linear-gradient(135deg, rgba(245,158,11,0.04), rgba(251,191,36,0.02))",
+            border: "1px solid rgba(245,158,11,0.1)"
+          }}>
+            <div className="text-4xl mb-3">🌴</div>
+            <h3 style={{
+              fontFamily: "var(--font-display)",
+              fontSize: "20px",
+              fontWeight: 700,
+              color: "var(--text-primary)"
+            }}>
+              Happy Weekend!
+            </h3>
+            <p style={{
+              fontFamily: "var(--font-body)",
+              fontSize: "14px",
+              color: "var(--text-tertiary)",
+              marginTop: "6px",
+              lineHeight: 1.6
+            }}>
+              {dayOfWeek === 6
+                ? `It's Saturday — ${getRotatingMessage(WEEKEND_MESSAGES)}`
+                : `Enjoy your Sunday. ${getRotatingMessage(WEEKEND_MESSAGES)}`}
+            </p>
+            {unfilledWeekSlots.length > 0 && (
+              <Link href="/logbook/new"
+                className="inline-flex items-center gap-2 mt-4 px-4 py-2.5 rounded-xl text-sm font-semibold"
+                style={{
+                  background: "var(--accent-light)",
+                  color: "var(--accent-text)"
+                }}>
+                <ClipboardList className="w-4 h-4" />
+                Catch up on {unfilledWeekSlots.length} unfilled entries
+              </Link>
+            )}
+          </div>
+        )}
+
+        {/* Weekday — no classes scheduled */}
+        {isWeekday && sortedTodaySlots.length === 0 && (
+          <div className="animate-slide-up card p-6 text-center" style={{
+            background: "linear-gradient(135deg, rgba(16,163,74,0.04), rgba(74,222,128,0.02))",
+            border: "1px solid rgba(16,163,74,0.08)"
+          }}>
+            <div className="text-4xl mb-3">☕</div>
+            <h3 style={{
+              fontFamily: "var(--font-display)",
+              fontSize: "20px",
+              fontWeight: 700,
+              color: "var(--text-primary)"
+            }}>
+              Free day — no classes!
+            </h3>
+            <p style={{
+              fontFamily: "var(--font-body)",
+              fontSize: "14px",
+              color: "var(--text-tertiary)",
+              marginTop: "6px",
+              lineHeight: 1.6
+            }}>
+              {getRotatingMessage(FREE_DAY_MESSAGES)}
+            </p>
+            <div className="flex gap-3 justify-center mt-5">
+              <Link href="/timetable"
+                className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-semibold"
+                style={{ background: "var(--bg-tertiary)", color: "var(--text-secondary)" }}>
+                <Calendar className="w-4 h-4" />
+                View timetable
+              </Link>
+              {unfilledWeekSlots.length > 0 && (
+                <Link href="/logbook/new"
+                  className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-semibold"
+                  style={{ background: "var(--accent-light)", color: "var(--accent-text)" }}>
+                  <BookOpen className="w-4 h-4" />
+                  Catch up
                 </Link>
-                {unfilledWeekSlots.length > 0 && (
-                  <Link
-                    href="/history"
-                    className="text-sm font-medium text-[var(--text-secondary)] underline underline-offset-2"
-                  >
-                    Catch up on entries
-                  </Link>
-                )}
-              </div>
+              )}
             </div>
           </div>
         )}
 
         {/* ── Next Class Info ──────────────────────────────────────── */}
-        {nextClassInfo && (
-          <div className="animate-slide-up animation-delay-75 mt-4 card p-4 flex items-start gap-3">
-            <div
-              className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5"
-              style={{
-                background: nextClassInfo.type === "prep" ? "var(--accent-light)" : "var(--bg-tertiary)",
-              }}
-            >
-              <Clock
-                className="w-5 h-5"
-                style={{
-                  color: nextClassInfo.type === "prep" ? "var(--accent-text)" : "var(--text-tertiary)",
-                }}
-              />
+        {nextClassInfo && nextClassInfo.type === "prep" && (
+          <div className="animate-slide-up animation-delay-75 mt-4 card p-5" style={{
+            background: "linear-gradient(135deg, rgba(245,158,11,0.06), rgba(251,191,36,0.03))",
+            border: "1px solid rgba(245,158,11,0.12)"
+          }}>
+            <div className="flex items-center gap-4">
+              <div className="text-3xl">⏰</div>
+              <div>
+                <h3 style={{
+                  fontFamily: "var(--font-body)",
+                  fontSize: "16px",
+                  fontWeight: 700,
+                  color: "var(--text-primary)"
+                }}>
+                  {nextClassInfo.message}
+                </h3>
+                <p style={{
+                  fontFamily: "var(--font-body)",
+                  fontSize: "13px",
+                  color: "var(--text-tertiary)",
+                  marginTop: "3px"
+                }}>
+                  {nextClassInfo.detail}
+                </p>
+                <p style={{
+                  fontFamily: "var(--font-body)",
+                  fontSize: "13px",
+                  color: "var(--accent-text)",
+                  fontWeight: 600,
+                  marginTop: "4px"
+                }}>
+                  {nextClassInfo.hint}
+                </p>
+              </div>
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-bold text-[var(--text-primary)]">{nextClassInfo.message}</p>
-              <p className="text-xs text-[var(--text-tertiary)] mt-0.5">{nextClassInfo.detail}</p>
-              <p className="text-xs text-[var(--text-quaternary)] mt-1 italic">{nextClassInfo.hint}</p>
+          </div>
+        )}
+        {nextClassInfo && nextClassInfo.type !== "prep" && (
+          <div className="animate-slide-up animation-delay-75 mt-4 card p-5" style={{
+            background: "linear-gradient(135deg, rgba(99,102,241,0.04), rgba(129,140,248,0.02))",
+            border: "1px solid rgba(99,102,241,0.08)"
+          }}>
+            <div className="flex items-center gap-4">
+              <div className="text-3xl">
+                {nextClassInfo.type === "rest-long" ? "🌙" : "🕐"}
+              </div>
+              <div>
+                <h3 style={{
+                  fontFamily: "var(--font-body)",
+                  fontSize: "16px",
+                  fontWeight: 700,
+                  color: "var(--text-primary)"
+                }}>
+                  {nextClassInfo.message}
+                </h3>
+                {nextClassInfo.detail && (
+                  <p style={{
+                    fontFamily: "var(--font-body)",
+                    fontSize: "13px",
+                    color: "var(--text-tertiary)",
+                    marginTop: "3px"
+                  }}>
+                    Next up: {nextClassInfo.detail}
+                  </p>
+                )}
+                <p style={{
+                  fontFamily: "var(--font-body)",
+                  fontSize: "13px",
+                  color: "var(--text-tertiary)",
+                  marginTop: "4px",
+                  fontStyle: "italic"
+                }}>
+                  {nextClassInfo.hint}
+                </p>
+              </div>
             </div>
           </div>
         )}

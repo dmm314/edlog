@@ -45,16 +45,17 @@ export default function AdminDashboardPage() {
   const [pendingEntries, setPendingEntries] = useState<PendingEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [verifying, setVerifying] = useState<string | null>(null);
+  const [coordinators, setCoordinators] = useState<{ id: string; title: string; levels: string[]; isActive: boolean; user: { firstName: string; lastName: string } }[]>([]);
 
   useEffect(() => {
     async function fetchAll() {
       try {
-        const [statsRes, schoolRes, teachersRes, entriesRes] = await Promise.all([
+        const [statsRes, schoolRes, teachersRes, entriesRes, coordsRes] = await Promise.all([
           fetch("/api/admin/stats"),
           fetch("/api/admin/school"),
           fetch("/api/admin/teachers"),
           fetch("/api/admin/entries?status=SUBMITTED&limit=5"),
+          fetch("/api/admin/coordinators"),
         ]);
 
         if (statsRes.ok) {
@@ -76,6 +77,11 @@ export default function AdminDashboardPage() {
           const data = await entriesRes.json();
           setPendingEntries(data.entries || []);
         }
+
+        if (coordsRes.ok) {
+          const coords = await coordsRes.json();
+          setCoordinators(Array.isArray(coords) ? coords : []);
+        }
       } catch {
         setError("Failed to connect to server");
       } finally {
@@ -84,24 +90,6 @@ export default function AdminDashboardPage() {
     }
     fetchAll();
   }, []);
-
-  async function handleVerify(entryId: string) {
-    setVerifying(entryId);
-    try {
-      const res = await fetch(`/api/entries/${entryId}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: "VERIFIED" }),
-      });
-      if (res.ok) {
-        setPendingEntries((prev) => prev.filter((e) => e.id !== entryId));
-      }
-    } catch {
-      // silently fail
-    } finally {
-      setVerifying(null);
-    }
-  }
 
   function timeAgo(dateStr: string): string {
     const diff = Date.now() - new Date(dateStr).getTime();
@@ -296,8 +284,8 @@ export default function AdminDashboardPage() {
               {
                 href: "/admin/entries",
                 icon: CheckCircle2,
-                label: "Verify Entries",
-                count: `${pendingEntries.length} pending`,
+                label: "Entry Overview",
+                count: "View all entries",
                 gradient: "linear-gradient(135deg, #EEF2FF, #E0E7FF)",
                 iconColor: "#4F46E5",
               },
@@ -465,65 +453,65 @@ export default function AdminDashboardPage() {
           </div>
         )}
 
-        {/* ── PENDING VERIFICATION ── */}
-        {pendingEntries.length > 0 && (
-          <div
-            className="animate-slide-up animation-delay-300 border"
-            style={{ background: "var(--bg-elevated)", borderColor: "var(--border-primary)", borderRadius: "20px", padding: "18px" }}
-          >
-            <div className="flex items-center justify-between mb-3">
-              <h3 style={{ fontFamily: "var(--font-body)", fontSize: "14px", fontWeight: 700, color: "var(--text-primary)" }}>
-                Pending Verification
-              </h3>
-            </div>
-            <div className="divide-y" style={{ borderColor: "var(--border-secondary)" }}>
-              {pendingEntries.map((entry) => {
-                const teacherName = `${entry.teacher.firstName} ${entry.teacher.lastName}`;
-                const subjectName = entry.assignment?.subject?.name
-                  || entry.topics?.[0]?.subject?.name
-                  || "Unknown";
-                const isVerifying = verifying === entry.id;
-                return (
-                  <div
-                    key={entry.id}
-                    className="flex items-center justify-between py-3 first:pt-0 last:pb-0"
-                  >
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-semibold text-[var(--text-primary)] truncate">
-                        {teacherName}
-                      </p>
-                      <p className="text-xs text-[var(--text-tertiary)] mt-0.5 truncate">
-                        {subjectName} · {entry.class.name} · {timeAgo(entry.createdAt)}
-                      </p>
-                    </div>
-                    <button
-                      onClick={() => handleVerify(entry.id)}
-                      disabled={isVerifying}
-                      className="flex items-center justify-center flex-shrink-0 ml-3 transition-all active:scale-90 disabled:opacity-50"
-                      style={{
-                        width: "36px",
-                        height: "36px",
-                        borderRadius: "12px",
-                        background: "#DCFCE7",
-                        color: "#16A34A",
-                      }}
-                      aria-label="Verify entry"
-                    >
-                      {isVerifying ? (
-                        <div className="w-4 h-4 border-2 rounded-full animate-spin" style={{ borderColor: "#16A34A", borderTopColor: "transparent" }} />
-                      ) : (
-                        <Check className="w-4 h-4" />
-                      )}
-                    </button>
-                  </div>
-                );
-              })}
-            </div>
-            <Link href="/admin/entries" className="block text-center text-xs font-semibold mt-3 pt-3" style={{ color: "var(--accent-text)", borderTop: "1px solid var(--border-secondary)" }}>
-              View all pending →
+        {/* ── VERIFICATION STATUS ── */}
+        <div
+          className="animate-slide-up animation-delay-300 border"
+          style={{ background: "var(--bg-elevated)", borderColor: "var(--border-primary)", borderRadius: "20px", padding: "18px" }}
+        >
+          <div className="flex items-center justify-between mb-4">
+            <h3 style={{ fontFamily: "var(--font-body)", fontSize: "14px", fontWeight: 700, color: "var(--text-primary)" }}>
+              Verification Status
+            </h3>
+            <Link href="/admin/entries" className="text-xs font-semibold" style={{ color: "var(--accent-text)" }}>
+              View all →
             </Link>
           </div>
-        )}
+
+          {/* Summary stats */}
+          <div className="grid grid-cols-3 gap-2 mb-4">
+            {[
+              { label: "Pending", value: pendingEntries.length, color: "#3B82F6", bg: "#EFF6FF" },
+              { label: "Verified", value: stats?.verifiedEntries ?? 0, color: "#16A34A", bg: "#F0FDF4" },
+              { label: "Flagged", value: stats?.flaggedEntries ?? 0, color: "#DC2626", bg: "#FEF2F2" },
+            ].map((s) => (
+              <div key={s.label} className="rounded-xl p-3 text-center" style={{ background: s.bg }}>
+                <p className="text-lg font-bold tabular-nums" style={{ color: s.color }}>{s.value}</p>
+                <p className="text-[10px] font-semibold mt-0.5" style={{ color: s.color, opacity: 0.7 }}>{s.label}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* Per-VP breakdown */}
+          {coordinators.filter((c) => c.isActive).length > 0 ? (
+            <div className="space-y-2" style={{ borderTop: "1px solid var(--border-secondary)", paddingTop: "12px" }}>
+              <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--text-tertiary)" }}>
+                Level Coordinators (VPs)
+              </p>
+              {coordinators.filter((c) => c.isActive).map((coord) => (
+                <div key={coord.id} className="flex items-center justify-between">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs font-semibold" style={{ color: "var(--text-primary)" }}>
+                      {coord.user.firstName} {coord.user.lastName}
+                    </p>
+                    <p className="text-[10px]" style={{ color: "var(--text-tertiary)" }}>
+                      {coord.title} · {coord.levels.join(", ")}
+                    </p>
+                  </div>
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full ml-2" style={{ background: "#DCFCE7", color: "#15803D" }}>
+                    Active
+                  </span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="rounded-xl p-3 text-center" style={{ background: "rgba(245,158,11,0.06)", border: "1px solid rgba(245,158,11,0.15)" }}>
+              <p className="text-xs font-semibold" style={{ color: "#92400E" }}>No VPs assigned yet</p>
+              <Link href="/admin/coordinators" className="text-xs font-bold underline mt-1 block" style={{ color: "#D97706" }}>
+                Set up Level Coordinators →
+              </Link>
+            </div>
+          )}
+        </div>
 
         {/* ── ENTRIES BY WEEK CHART ── */}
         {stats && stats.entriesByWeek.length > 0 && (
