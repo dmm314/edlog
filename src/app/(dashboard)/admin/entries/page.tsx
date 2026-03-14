@@ -20,6 +20,8 @@ import {
   PenTool,
   Loader2,
   Users,
+  Bell,
+  AlertTriangle,
 } from "lucide-react";
 import Image from "next/image";
 import { formatDate } from "@/lib/utils";
@@ -65,6 +67,9 @@ export default function AdminEntriesPage() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState("");
 
+  // Whether this school has active VPs (null = loading)
+  const [hasVPs, setHasVPs] = useState<boolean | null>(null);
+
   // Search & filter state
   const [searchQuery, setSearchQuery] = useState("");
   const [filterTeacher, setFilterTeacher] = useState("");
@@ -77,17 +82,22 @@ export default function AdminEntriesPage() {
   // Expand state
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
 
-  // Action state
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [_updatingId, _setUpdatingId] = useState<string | null>(null);
+  // Remark modal (admin observation — no status change)
+  const [remarkModal, setRemarkModal] = useState<{ entryId: string } | null>(null);
+  const [remarkText, setRemarkText] = useState("");
+  const [remarkSubmitting, setRemarkSubmitting] = useState(false);
 
-  // Remark modal state for verify/flag
-  const [remarkModal, setRemarkModal] = useState<{
+  // Fallback verify/flag modal (only when no VPs)
+  const [verifyModal, setVerifyModal] = useState<{
     entryId: string;
     action: "VERIFIED" | "FLAGGED";
   } | null>(null);
-  const [remarkText, setRemarkText] = useState("");
-  const [remarkSubmitting, setRemarkSubmitting] = useState(false);
+  const [verifyRemarkText, setVerifyRemarkText] = useState("");
+  const [verifySubmitting, setVerifySubmitting] = useState(false);
+
+  // Notify VP state
+  const [notifyingId, setNotifyingId] = useState<string | null>(null);
+  const [notifyResult, setNotifyResult] = useState<Record<string, "sent" | "no-vp">>({});
 
   // Debounced search
   const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -98,6 +108,24 @@ export default function AdminEntriesPage() {
     }, 400);
     return () => clearTimeout(timer);
   }, [searchQuery]);
+
+  // Check if school has active VPs
+  useEffect(() => {
+    async function checkVPs() {
+      try {
+        const res = await fetch("/api/admin/coordinators");
+        if (res.ok) {
+          const coordinators = await res.json();
+          setHasVPs(Array.isArray(coordinators) && coordinators.some((c: { isActive: boolean }) => c.isActive));
+        } else {
+          setHasVPs(false);
+        }
+      } catch {
+        setHasVPs(false);
+      }
+    }
+    checkVPs();
+  }, []);
 
   const buildQueryString = useCallback(
     (offset: number) => {
@@ -115,7 +143,6 @@ export default function AdminEntriesPage() {
     [debouncedSearch, filterTeacher, filterSubject, filterClass, filterFrom, filterTo]
   );
 
-  // Fetch entries on filter/search change
   useEffect(() => {
     async function fetchEntries() {
       setLoading(true);
@@ -141,9 +168,7 @@ export default function AdminEntriesPage() {
   async function loadMore() {
     setLoadingMore(true);
     try {
-      const res = await fetch(
-        `/api/entries?${buildQueryString(entries.length)}`
-      );
+      const res = await fetch(`/api/entries?${buildQueryString(entries.length)}`);
       const data = await res.json();
       if (res.ok) {
         setEntries((prev) => [...prev, ...data.entries]);
@@ -156,43 +181,15 @@ export default function AdminEntriesPage() {
     }
   }
 
-  function openRemarkModal(entryId: string, action: "VERIFIED" | "FLAGGED") {
-    setRemarkModal({ entryId, action });
-    setRemarkText("");
-  }
-
-  async function submitWithRemark(skipRemark = false) {
-    if (!remarkModal) return;
-    const { entryId, action } = remarkModal;
-
-    // Flag requires a reason
-    if (action === "FLAGGED" && !remarkText.trim() && !skipRemark) return;
-
+  async function submitRemark() {
+    if (!remarkModal || !remarkText.trim()) return;
     setRemarkSubmitting(true);
     try {
-      // Create remark first if text provided
-      if (remarkText.trim()) {
-        await fetch(`/api/entries/${entryId}/remarks`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ content: remarkText.trim() }),
-        });
-      }
-
-      // Update status
-      const res = await fetch(`/api/entries/${entryId}`, {
-        method: "PATCH",
+      await fetch(`/api/entries/${remarkModal.entryId}/remarks`, {
+        method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: action }),
+        body: JSON.stringify({ content: remarkText.trim() }),
       });
-      if (res.ok) {
-        const updated = await res.json();
-        setEntries((prev) =>
-          prev.map((e) =>
-            e.id === entryId ? { ...e, status: updated.status } : e
-          )
-        );
-      }
     } catch {
       // silently fail
     } finally {
@@ -202,14 +199,67 @@ export default function AdminEntriesPage() {
     }
   }
 
+  async function submitVerifyFallback(skipRemark = false) {
+    if (!verifyModal) return;
+    const { entryId, action } = verifyModal;
+    if (action === "FLAGGED" && !verifyRemarkText.trim() && !skipRemark) return;
+
+    setVerifySubmitting(true);
+    try {
+      if (verifyRemarkText.trim()) {
+        await fetch(`/api/entries/${entryId}/remarks`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ content: verifyRemarkText.trim() }),
+        });
+      }
+      const res = await fetch(`/api/entries/${entryId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: action }),
+      });
+      if (res.ok) {
+        const updated = await res.json();
+        setEntries((prev) =>
+          prev.map((e) => (e.id === entryId ? { ...e, status: updated.status } : e))
+        );
+      }
+    } catch {
+      // silently fail
+    } finally {
+      setVerifySubmitting(false);
+      setVerifyModal(null);
+      setVerifyRemarkText("");
+    }
+  }
+
+  async function notifyVP(entryId: string) {
+    setNotifyingId(entryId);
+    try {
+      const res = await fetch(`/api/admin/entries/${entryId}/notify-vp`, {
+        method: "POST",
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setNotifyResult((prev) => ({ ...prev, [entryId]: "sent" }));
+      } else if (res.status === 404) {
+        setNotifyResult((prev) => ({ ...prev, [entryId]: "no-vp" }));
+      } else {
+        setNotifyResult((prev) => ({ ...prev, [entryId]: "no-vp" }));
+        console.error(data.error);
+      }
+    } catch {
+      setNotifyResult((prev) => ({ ...prev, [entryId]: "no-vp" }));
+    } finally {
+      setNotifyingId(null);
+    }
+  }
+
   function toggleExpand(id: string) {
     setExpandedIds((prev) => {
       const next = new Set(prev);
-      if (next.has(id)) {
-        next.delete(id);
-      } else {
-        next.add(id);
-      }
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
       return next;
     });
   }
@@ -232,11 +282,9 @@ export default function AdminEntriesPage() {
               photoUrl: t.photoUrl,
             }))
           );
-          const subjectMap = new Map<string, string>();
           const classMap = new Map<string, string>();
           for (const t of teachers) {
             for (const sc of t.subjectClasses || []) {
-              subjectMap.set(sc.subject, sc.subject);
               for (const c of sc.classes) {
                 classMap.set(c, c);
               }
@@ -246,11 +294,10 @@ export default function AdminEntriesPage() {
           if (statsRes.ok) {
             const stats = await statsRes.json();
             if (stats.entriesBySubject) {
-              const subjects = stats.entriesBySubject.map((s: { subject: string; count: number }) => ({
+              setAllSubjects(stats.entriesBySubject.map((s: { subject: string }) => ({
                 id: s.subject,
                 name: s.subject,
-              }));
-              setAllSubjects(subjects);
+              })));
             }
           }
           setAllClasses(Array.from(classMap.entries()).map(([id, name]) => ({ id, name })).sort((a, b) => a.name.localeCompare(b.name)));
@@ -262,10 +309,7 @@ export default function AdminEntriesPage() {
     fetchFilterOptions();
   }, []);
 
-  const filteredEntries = entries;
-
-  const hasActiveFilters =
-    filterTeacher || filterSubject || filterClass || filterFrom || filterTo;
+  const hasActiveFilters = filterTeacher || filterSubject || filterClass || filterFrom || filterTo;
 
   function clearFilters() {
     setFilterTeacher("");
@@ -278,16 +322,12 @@ export default function AdminEntriesPage() {
 
   function getSubjectName(entry: EntryWithRelations): string {
     if (entry.assignment?.subject) return entry.assignment.subject.name;
-    if (entry.topics?.length > 0 && entry.topics[0].subject) {
-      return entry.topics[0].subject.name;
-    }
+    if (entry.topics?.length > 0 && entry.topics[0].subject) return entry.topics[0].subject.name;
     return "N/A";
   }
 
   function getTopicNames(entry: EntryWithRelations): string {
-    if (entry.topics?.length > 0) {
-      return entry.topics.map((t) => t.name).join(", ");
-    }
+    if (entry.topics?.length > 0) return entry.topics.map((t) => t.name).join(", ");
     if (entry.topicText) return entry.topicText;
     return "N/A";
   }
@@ -298,14 +338,14 @@ export default function AdminEntriesPage() {
         return (
           <span className="inline-flex items-center gap-1 text-[10px] font-bold bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full border border-emerald-100">
             <Check className="w-3 h-3" />
-            Verified
+            Verified by VP
           </span>
         );
       case "FLAGGED":
         return (
           <span className="inline-flex items-center gap-1 text-[10px] font-bold bg-red-50 text-red-700 px-2 py-0.5 rounded-full border border-red-100">
             <Flag className="w-3 h-3" />
-            Flagged
+            Flagged by VP
           </span>
         );
       case "DRAFT":
@@ -317,7 +357,7 @@ export default function AdminEntriesPage() {
       default:
         return (
           <span className="inline-flex items-center gap-1 text-[10px] font-bold bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full border border-blue-100">
-            Submitted
+            Pending
           </span>
         );
     }
@@ -340,16 +380,14 @@ export default function AdminEntriesPage() {
             <ArrowLeft className="w-4 h-4" />
             Back to Dashboard
           </Link>
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-xl font-bold text-white flex items-center gap-2">
-                <BookOpen className="w-5 h-5 text-[var(--header-text-muted)]" />
-                All Entries
-              </h1>
-              <p className="text-[var(--header-text-muted)] text-sm mt-0.5">
-                {total} entr{total !== 1 ? "ies" : "y"} across your school
-              </p>
-            </div>
+          <div>
+            <h1 className="text-xl font-bold text-white flex items-center gap-2">
+              <BookOpen className="w-5 h-5 text-[var(--header-text-muted)]" />
+              Entry Overview
+            </h1>
+            <p className="text-[var(--header-text-muted)] text-sm mt-0.5">
+              {total} entr{total !== 1 ? "ies" : "y"} across your school
+            </p>
           </div>
         </div>
       </div>
@@ -359,6 +397,21 @@ export default function AdminEntriesPage() {
         {error && (
           <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-4 py-3 font-medium">
             {error}
+          </div>
+        )}
+
+        {/* No VPs fallback banner */}
+        {hasVPs === false && (
+          <div className="flex items-start gap-3 px-4 py-3 rounded-xl text-sm" style={{
+            background: "rgba(245,158,11,0.08)",
+            border: "1px solid rgba(245,158,11,0.2)"
+          }}>
+            <AlertTriangle className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
+            <p style={{ color: "#92400E" }}>
+              You&apos;re verifying directly because no VPs have been assigned.{" "}
+              <Link href="/admin/coordinators" className="font-semibold underline">Set up VPs</Link>{" "}
+              for better workflow.
+            </p>
           </div>
         )}
 
@@ -409,67 +462,39 @@ export default function AdminEntriesPage() {
             </div>
             <div>
               <label className="label-field">Teacher</label>
-              <select
-                value={filterTeacher}
-                onChange={(e) => setFilterTeacher(e.target.value)}
-                className="input-field"
-              >
+              <select value={filterTeacher} onChange={(e) => setFilterTeacher(e.target.value)} className="input-field">
                 <option value="">All teachers</option>
                 {allTeachers.map((t) => (
-                  <option key={t.id} value={t.id}>
-                    {t.name}
-                  </option>
+                  <option key={t.id} value={t.id}>{t.name}</option>
                 ))}
               </select>
             </div>
             <div>
               <label className="label-field">Subject</label>
-              <select
-                value={filterSubject}
-                onChange={(e) => setFilterSubject(e.target.value)}
-                className="input-field"
-              >
+              <select value={filterSubject} onChange={(e) => setFilterSubject(e.target.value)} className="input-field">
                 <option value="">All subjects</option>
                 {allSubjects.map((s) => (
-                  <option key={s.id} value={s.id}>
-                    {s.name}
-                  </option>
+                  <option key={s.id} value={s.id}>{s.name}</option>
                 ))}
               </select>
             </div>
             <div>
               <label className="label-field">Class</label>
-              <select
-                value={filterClass}
-                onChange={(e) => setFilterClass(e.target.value)}
-                className="input-field"
-              >
+              <select value={filterClass} onChange={(e) => setFilterClass(e.target.value)} className="input-field">
                 <option value="">All classes</option>
                 {allClasses.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
+                  <option key={c.id} value={c.id}>{c.name}</option>
                 ))}
               </select>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="label-field">From</label>
-                <input
-                  type="date"
-                  value={filterFrom}
-                  onChange={(e) => setFilterFrom(e.target.value)}
-                  className="input-field"
-                />
+                <input type="date" value={filterFrom} onChange={(e) => setFilterFrom(e.target.value)} className="input-field" />
               </div>
               <div>
                 <label className="label-field">To</label>
-                <input
-                  type="date"
-                  value={filterTo}
-                  onChange={(e) => setFilterTo(e.target.value)}
-                  className="input-field"
-                />
+                <input type="date" value={filterTo} onChange={(e) => setFilterTo(e.target.value)} className="input-field" />
               </div>
             </div>
           </div>
@@ -478,8 +503,7 @@ export default function AdminEntriesPage() {
         {/* Results count */}
         {(searchQuery || hasActiveFilters) && !loading && (
           <p className="text-xs text-[var(--text-tertiary)] font-medium px-1">
-            Showing {filteredEntries.length} of {total} entr
-            {total !== 1 ? "ies" : "y"}
+            Showing {entries.length} of {total} entr{total !== 1 ? "ies" : "y"}
           </p>
         )}
 
@@ -500,7 +524,7 @@ export default function AdminEntriesPage() {
               </div>
             ))}
           </div>
-        ) : filteredEntries.length === 0 ? (
+        ) : entries.length === 0 ? (
           <div className="text-center py-16 animate-fade-in">
             <div className="w-16 h-16 bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-sm">
               <BookOpen className="w-8 h-8 text-[var(--text-quaternary)]" />
@@ -512,33 +536,27 @@ export default function AdminEntriesPage() {
                 : "No entries have been submitted yet"}
             </p>
             {(hasActiveFilters || searchQuery) && (
-              <button
-                onClick={clearFilters}
-                className="text-sm text-[var(--accent-text)] font-semibold mt-3"
-              >
+              <button onClick={clearFilters} className="text-sm text-[var(--accent-text)] font-semibold mt-3">
                 Clear filters
               </button>
             )}
           </div>
         ) : (
           <>
-            {/* Entries List */}
             <div className="space-y-3">
-              {filteredEntries.map((entry) => {
+              {entries.map((entry) => {
                 const isExpanded = expandedIds.has(entry.id);
                 const subjectName = getSubjectName(entry);
                 const topicNames = getTopicNames(entry);
                 const teacherName = entry.teacher
                   ? `${entry.teacher.firstName} ${entry.teacher.lastName}`
                   : "Unknown";
+                const vpResult = notifyResult[entry.id];
 
                 return (
                   <div key={entry.id} className="card overflow-hidden hover:shadow-card-hover transition-all duration-200">
                     {/* Collapsed header */}
-                    <button
-                      onClick={() => toggleExpand(entry.id)}
-                      className="w-full p-4 text-left"
-                    >
+                    <button onClick={() => toggleExpand(entry.id)} className="w-full p-4 text-left">
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 flex-wrap mb-2">
@@ -550,15 +568,10 @@ export default function AdminEntriesPage() {
                             </span>
                             {getStatusBadge(entry.status)}
                           </div>
-                          {/* Teacher info with photo */}
                           <div className="flex items-center gap-2.5">
-                            {entry.teacher && (
-                              <EntryTeacherAvatar teacher={entry.teacher} size="md" />
-                            )}
+                            {entry.teacher && <EntryTeacherAvatar teacher={entry.teacher} size="md" />}
                             <div className="min-w-0">
-                              <span className="text-sm font-bold text-[var(--text-primary)] truncate block">
-                                {teacherName}
-                              </span>
+                              <span className="text-sm font-bold text-[var(--text-primary)] truncate block">{teacherName}</span>
                               <div className="flex items-center gap-2.5 text-[11px] text-[var(--text-tertiary)]">
                                 <span className="flex items-center gap-1">
                                   <Calendar className="w-3 h-3" />
@@ -594,53 +607,38 @@ export default function AdminEntriesPage() {
                               <Layers className="w-3.5 h-3.5 text-[var(--text-tertiary)]" />
                             </div>
                             <div>
-                              <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-tertiary)]">
-                                Topic
-                              </p>
-                              <p className="text-sm text-[var(--text-secondary)] font-medium">
-                                {topicNames}
-                              </p>
+                              <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-tertiary)]">Topic</p>
+                              <p className="text-sm text-[var(--text-secondary)] font-medium">{topicNames}</p>
                             </div>
                           </div>
 
                           {/* Module */}
-                          {(entry.moduleName ||
-                            entry.topics?.some((t) => t.moduleName)) && (
+                          {(entry.moduleName || entry.topics?.some((t) => t.moduleName)) && (
                             <div className="flex items-start gap-3">
                               <div className="w-7 h-7 bg-[var(--bg-tertiary)] rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
                                 <GraduationCap className="w-3.5 h-3.5 text-[var(--text-tertiary)]" />
                               </div>
                               <div>
-                                <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-tertiary)]">
-                                  Module
-                                </p>
+                                <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-tertiary)]">Module</p>
                                 <p className="text-sm text-[var(--text-secondary)] font-medium">
-                                  {entry.moduleName ||
-                                    entry.topics
-                                      ?.map((t) => t.moduleName)
-                                      .filter(Boolean)
-                                      .join(", ") ||
-                                    "N/A"}
+                                  {entry.moduleName || entry.topics?.map((t) => t.moduleName).filter(Boolean).join(", ") || "N/A"}
                                 </p>
                               </div>
                             </div>
                           )}
 
-                          {/* Duration & Timetable */}
+                          {/* Duration */}
                           <div className="flex items-start gap-3">
                             <div className="w-7 h-7 bg-[var(--bg-tertiary)] rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
                               <Clock className="w-3.5 h-3.5 text-[var(--text-tertiary)]" />
                             </div>
                             <div>
-                              <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-tertiary)]">
-                                Duration
-                              </p>
+                              <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-tertiary)]">Duration</p>
                               <p className="text-sm text-[var(--text-secondary)] font-medium">
                                 {entry.duration} min
                                 {entry.timetableSlot && (
                                   <span className="text-[var(--text-tertiary)] ml-2">
-                                    ({entry.timetableSlot.startTime} -{" "}
-                                    {entry.timetableSlot.endTime})
+                                    ({entry.timetableSlot.startTime} - {entry.timetableSlot.endTime})
                                   </span>
                                 )}
                               </p>
@@ -654,12 +652,8 @@ export default function AdminEntriesPage() {
                                 <FileText className="w-3.5 h-3.5 text-[var(--text-tertiary)]" />
                               </div>
                               <div>
-                                <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-tertiary)]">
-                                  Notes
-                                </p>
-                                <p className="text-sm text-[var(--text-secondary)] whitespace-pre-wrap">
-                                  {entry.notes}
-                                </p>
+                                <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-tertiary)]">Notes</p>
+                                <p className="text-sm text-[var(--text-secondary)] whitespace-pre-wrap">{entry.notes}</p>
                               </div>
                             </div>
                           )}
@@ -671,9 +665,7 @@ export default function AdminEntriesPage() {
                                 <PenTool className="w-3.5 h-3.5 text-[var(--text-tertiary)]" />
                               </div>
                               <div>
-                                <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-tertiary)]">
-                                  Objectives
-                                </p>
+                                <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-tertiary)]">Objectives</p>
                                 <p className="text-sm text-[var(--text-secondary)] whitespace-pre-wrap">
                                   {Array.isArray(entry.objectives) ? entry.objectives.map((o: { text: string }) => o.text).join(", ") : entry.objectives}
                                 </p>
@@ -682,14 +674,11 @@ export default function AdminEntriesPage() {
                           )}
 
                           {/* Attendance & Engagement */}
-                          {(entry.studentAttendance !== null ||
-                            entry.engagementLevel) && (
+                          {(entry.studentAttendance !== null || entry.engagementLevel) && (
                             <div className="flex gap-3">
                               {entry.studentAttendance !== null && (
                                 <div className="flex-1 bg-[var(--bg-tertiary)] rounded-xl p-3 border border-[var(--border-secondary)]">
-                                  <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-tertiary)]">
-                                    Attendance
-                                  </p>
+                                  <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-tertiary)]">Attendance</p>
                                   <p className="text-sm font-bold text-[var(--text-secondary)] mt-0.5">
                                     <Users className="w-3.5 h-3.5 inline mr-1 text-[var(--text-tertiary)]" />
                                     {entry.studentAttendance} students
@@ -698,9 +687,7 @@ export default function AdminEntriesPage() {
                               )}
                               {entry.engagementLevel && (
                                 <div className="flex-1 bg-[var(--bg-tertiary)] rounded-xl p-3 border border-[var(--border-secondary)]">
-                                  <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-tertiary)]">
-                                    Engagement
-                                  </p>
+                                  <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-tertiary)]">Engagement</p>
                                   <p className={`text-sm font-bold mt-0.5 ${
                                     entry.engagementLevel === "HIGH" ? "text-emerald-600" :
                                     entry.engagementLevel === "MEDIUM" ? "text-amber-600" : "text-red-500"
@@ -721,40 +708,72 @@ export default function AdminEntriesPage() {
                               <FileText className="w-4 h-4" />
                               View
                             </Link>
+
+                            {/* Admin remark button (always visible) */}
                             <button
-                              onClick={() =>
-                                openRemarkModal(entry.id, "VERIFIED")
-                              }
-                              disabled={
-                                entry.status === "VERIFIED"
-                              }
-                              className={`flex-1 flex items-center justify-center gap-1.5 text-sm font-semibold rounded-xl px-3 py-2.5 transition-all ${
-                                entry.status === "VERIFIED"
-                                  ? "bg-emerald-50 text-emerald-700 border border-emerald-100 cursor-default"
-                                  : "bg-[var(--accent)] text-white shadow-sm hover:shadow-md active:scale-[0.98]"
-                              }`}
+                              onClick={() => { setRemarkModal({ entryId: entry.id }); setRemarkText(""); }}
+                              className="flex items-center justify-center gap-1.5 text-sm font-semibold rounded-xl px-3 py-2.5 transition-all border border-[var(--border-primary)] bg-[var(--bg-elevated)] text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)] active:scale-[0.98]"
                             >
-                              <Check className="w-4 h-4" />
-                              {entry.status === "VERIFIED"
-                                ? "Verified"
-                                : "Verify"}
+                              <PenTool className="w-4 h-4" />
+                              Remark
                             </button>
-                            <button
-                              onClick={() =>
-                                openRemarkModal(entry.id, "FLAGGED")
-                              }
-                              disabled={
-                                entry.status === "FLAGGED"
-                              }
-                              className={`flex-1 flex items-center justify-center gap-1.5 text-sm font-semibold rounded-xl px-3 py-2.5 transition-all border ${
-                                entry.status === "FLAGGED"
-                                  ? "bg-red-50 text-red-700 border-red-100 cursor-default"
-                                  : "bg-[var(--bg-elevated)] text-[var(--text-secondary)] border-[var(--border-primary)] hover:bg-red-50 hover:text-red-600 hover:border-red-200 active:scale-[0.98]"
-                              }`}
-                            >
-                              <Flag className="w-4 h-4" />
-                              {entry.status === "FLAGGED" ? "Flagged" : "Flag"}
-                            </button>
+
+                            {/* With VPs: Notify VP button */}
+                            {hasVPs && (
+                              vpResult === "sent" ? (
+                                <span className="flex-1 flex items-center justify-center gap-1.5 text-sm font-semibold rounded-xl px-3 py-2.5 bg-emerald-50 text-emerald-700 border border-emerald-100">
+                                  <Check className="w-4 h-4" />
+                                  VP Notified
+                                </span>
+                              ) : vpResult === "no-vp" ? (
+                                <span className="flex-1 flex items-center justify-center gap-1.5 text-sm font-semibold rounded-xl px-3 py-2.5 bg-amber-50 text-amber-700 border border-amber-100 text-center">
+                                  No VP for this level
+                                </span>
+                              ) : (
+                                <button
+                                  onClick={() => notifyVP(entry.id)}
+                                  disabled={notifyingId === entry.id}
+                                  className="flex-1 flex items-center justify-center gap-1.5 text-sm font-semibold rounded-xl px-3 py-2.5 transition-all border border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100 active:scale-[0.98] disabled:opacity-50"
+                                >
+                                  {notifyingId === entry.id ? (
+                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                  ) : (
+                                    <Bell className="w-4 h-4" />
+                                  )}
+                                  Notify VP
+                                </button>
+                              )
+                            )}
+
+                            {/* Without VPs: fallback verify/flag */}
+                            {hasVPs === false && (
+                              <>
+                                <button
+                                  onClick={() => { setVerifyModal({ entryId: entry.id, action: "VERIFIED" }); setVerifyRemarkText(""); }}
+                                  disabled={entry.status === "VERIFIED"}
+                                  className={`flex-1 flex items-center justify-center gap-1.5 text-sm font-semibold rounded-xl px-3 py-2.5 transition-all ${
+                                    entry.status === "VERIFIED"
+                                      ? "bg-emerald-50 text-emerald-700 border border-emerald-100 cursor-default"
+                                      : "bg-[var(--accent)] text-white shadow-sm hover:shadow-md active:scale-[0.98]"
+                                  }`}
+                                >
+                                  <Check className="w-4 h-4" />
+                                  {entry.status === "VERIFIED" ? "Verified" : "Verify"}
+                                </button>
+                                <button
+                                  onClick={() => { setVerifyModal({ entryId: entry.id, action: "FLAGGED" }); setVerifyRemarkText(""); }}
+                                  disabled={entry.status === "FLAGGED"}
+                                  className={`flex-1 flex items-center justify-center gap-1.5 text-sm font-semibold rounded-xl px-3 py-2.5 transition-all border ${
+                                    entry.status === "FLAGGED"
+                                      ? "bg-red-50 text-red-700 border-red-100 cursor-default"
+                                      : "bg-[var(--bg-elevated)] text-[var(--text-secondary)] border-[var(--border-primary)] hover:bg-red-50 hover:text-red-600 hover:border-red-200 active:scale-[0.98]"
+                                  }`}
+                                >
+                                  <Flag className="w-4 h-4" />
+                                  {entry.status === "FLAGGED" ? "Flagged" : "Flag"}
+                                </button>
+                              </>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -778,9 +797,7 @@ export default function AdminEntriesPage() {
                       Loading...
                     </>
                   ) : (
-                    <>
-                      Load More ({entries.length} of {total})
-                    </>
+                    <>Load More ({entries.length} of {total})</>
                   )}
                 </button>
               </div>
@@ -789,21 +806,62 @@ export default function AdminEntriesPage() {
         )}
       </div>
 
-      {/* Verify/Flag Remark Modal */}
+      {/* Admin Remark Modal (observation only — no status change) */}
       {remarkModal && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-end justify-center sm:items-center">
           <div className="bg-[var(--bg-elevated)] rounded-t-2xl sm:rounded-2xl w-full max-w-md p-5 space-y-4 animate-slide-up shadow-elevated">
+            <div>
+              <h3 className="text-base font-bold text-[var(--text-primary)]">Add Admin Remark</h3>
+              <p className="text-xs text-[var(--text-tertiary)] mt-1">
+                Your remark is visible to the teacher and their VP. It does not change the entry status.
+              </p>
+            </div>
+            <div>
+              <label className="label-field">Remark <span className="text-red-500">*</span></label>
+              <textarea
+                value={remarkText}
+                onChange={(e) => setRemarkText(e.target.value)}
+                placeholder="e.g., Please ensure topics are aligned with the term plan..."
+                maxLength={1000}
+                rows={3}
+                className="input-field resize-none"
+              />
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setRemarkModal(null)}
+                className="flex-1 py-2.5 text-sm font-semibold text-[var(--text-tertiary)] rounded-xl border border-[var(--border-primary)] hover:bg-[var(--bg-tertiary)] transition-all"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={submitRemark}
+                disabled={remarkSubmitting || !remarkText.trim()}
+                className="flex-1 py-2.5 text-sm font-semibold text-white rounded-xl bg-[var(--accent)] hover:bg-[var(--accent-hover)] shadow-sm transition-all disabled:opacity-50 flex items-center justify-center gap-1.5"
+              >
+                {remarkSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+                Save Remark
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Fallback Verify/Flag Modal (only when no VPs) */}
+      {verifyModal && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-end justify-center sm:items-center">
+          <div className="bg-[var(--bg-elevated)] rounded-t-2xl sm:rounded-2xl w-full max-w-md p-5 space-y-4 animate-slide-up shadow-elevated">
             <h3 className="text-base font-bold text-[var(--text-primary)]">
-              {remarkModal.action === "VERIFIED" ? "Verify Entry" : "Flag Entry"}
+              {verifyModal.action === "VERIFIED" ? "Verify Entry" : "Flag Entry"}
             </h3>
 
-            {remarkModal.action === "VERIFIED" ? (
+            {verifyModal.action === "VERIFIED" ? (
               <>
                 <div>
                   <label className="label-field">Add a note (optional)</label>
                   <textarea
-                    value={remarkText}
-                    onChange={(e) => setRemarkText(e.target.value)}
+                    value={verifyRemarkText}
+                    onChange={(e) => setVerifyRemarkText(e.target.value)}
                     placeholder="Good work, well documented"
                     maxLength={1000}
                     rows={2}
@@ -812,24 +870,24 @@ export default function AdminEntriesPage() {
                 </div>
                 <div className="flex gap-2">
                   <button
-                    onClick={() => setRemarkModal(null)}
+                    onClick={() => setVerifyModal(null)}
                     className="flex-1 py-2.5 text-sm font-semibold text-[var(--text-tertiary)] rounded-xl border border-[var(--border-primary)] hover:bg-[var(--bg-tertiary)] transition-all"
                   >
                     Cancel
                   </button>
                   <button
-                    onClick={() => submitWithRemark(true)}
-                    disabled={remarkSubmitting}
+                    onClick={() => submitVerifyFallback(true)}
+                    disabled={verifySubmitting}
                     className="py-2.5 px-4 text-sm font-semibold text-[var(--text-secondary)] rounded-xl border border-[var(--border-primary)] hover:bg-[var(--bg-tertiary)] transition-all"
                   >
                     Verify without note
                   </button>
                   <button
-                    onClick={() => submitWithRemark(false)}
-                    disabled={remarkSubmitting || !remarkText.trim()}
+                    onClick={() => submitVerifyFallback(false)}
+                    disabled={verifySubmitting || !verifyRemarkText.trim()}
                     className="flex-1 py-2.5 text-sm font-semibold text-white rounded-xl bg-emerald-600 hover:bg-emerald-700 shadow-sm transition-all disabled:opacity-50 flex items-center justify-center gap-1.5"
                   >
-                    {remarkSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
+                    {verifySubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
                     Verify with note
                   </button>
                 </div>
@@ -841,8 +899,8 @@ export default function AdminEntriesPage() {
                     Why are you flagging this entry? <span className="text-red-500">*</span>
                   </label>
                   <textarea
-                    value={remarkText}
-                    onChange={(e) => setRemarkText(e.target.value)}
+                    value={verifyRemarkText}
+                    onChange={(e) => setVerifyRemarkText(e.target.value)}
                     placeholder="e.g., Topic doesn't match the module, incomplete objectives..."
                     maxLength={1000}
                     rows={2}
@@ -851,17 +909,17 @@ export default function AdminEntriesPage() {
                 </div>
                 <div className="flex gap-2">
                   <button
-                    onClick={() => setRemarkModal(null)}
+                    onClick={() => setVerifyModal(null)}
                     className="flex-1 py-2.5 text-sm font-semibold text-[var(--text-tertiary)] rounded-xl border border-[var(--border-primary)] hover:bg-[var(--bg-tertiary)] transition-all"
                   >
                     Cancel
                   </button>
                   <button
-                    onClick={() => submitWithRemark(false)}
-                    disabled={remarkSubmitting || !remarkText.trim()}
+                    onClick={() => submitVerifyFallback(false)}
+                    disabled={verifySubmitting || !verifyRemarkText.trim()}
                     className="flex-1 py-2.5 text-sm font-semibold text-white rounded-xl bg-red-600 hover:bg-red-700 shadow-sm transition-all disabled:opacity-50 flex items-center justify-center gap-1.5"
                   >
-                    {remarkSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Flag className="w-4 h-4" />}
+                    {verifySubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Flag className="w-4 h-4" />}
                     Flag Entry
                   </button>
                 </div>

@@ -51,6 +51,8 @@ export async function GET() {
       totalEntries,
       entriesThisMonth,
       entriesThisWeek,
+      verifiedEntries,
+      flaggedEntries,
     ] = await Promise.all([
       db.user.count({
         where: { schoolId: user.schoolId, role: "TEACHER", isVerified: true },
@@ -69,6 +71,12 @@ export async function GET() {
           teacher: { schoolId: user.schoolId },
           date: { gte: startOfWeek },
         },
+      }),
+      db.logbookEntry.count({
+        where: { teacher: { schoolId: user.schoolId }, status: "VERIFIED" },
+      }),
+      db.logbookEntry.count({
+        where: { teacher: { schoolId: user.schoolId }, status: "FLAGGED" },
       }),
     ]);
 
@@ -126,6 +134,8 @@ export async function GET() {
       totalEntries,
       entriesThisMonth,
       entriesThisWeek,
+      verifiedEntries,
+      flaggedEntries,
       complianceRate: Math.min(complianceRate, 100),
       entriesBySubject,
       entriesByWeek,

@@ -99,6 +99,8 @@ export interface AdminStats {
   totalEntries: number;
   entriesThisMonth: number;
   entriesThisWeek: number;
+  verifiedEntries: number;
+  flaggedEntries: number;
   complianceRate: number;
   entriesBySubject: { subject: string; count: number }[];
   entriesByWeek: { week: string; count: number }[];
