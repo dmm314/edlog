@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Megaphone, CheckCircle, AlertTriangle, Clock, Users, Send, History, ChevronDown, ChevronUp, X } from "lucide-react";
+import { ArrowLeft, Megaphone, CheckCircle, AlertTriangle, Clock, Users, Send, History, ChevronDown, ChevronUp } from "lucide-react";
 import { formatDate } from "@/lib/utils";
 
 interface RecentAnnouncement {
