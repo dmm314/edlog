@@ -5,7 +5,21 @@ import {
   parseReportParams,
   buildPagination,
   formatReportResponse,
+  generateCSV,
+  buildCsvResponse,
 } from "@/lib/reports";
+
+const TEACHERS_CSV_COLUMNS = [
+  { key: "name", label: "Teacher Name" },
+  { key: "gender", label: "Gender" },
+  { key: "phone", label: "Phone" },
+  { key: "school", label: "School" },
+  { key: "division", label: "Division" },
+  { key: "subjects", label: "Subjects" },
+  { key: "classes", label: "Classes" },
+  { key: "entriesThisMonth", label: "Entries This Month" },
+  { key: "lastActive", label: "Last Active" },
+];
 
 export const dynamic = "force-dynamic";
 
@@ -20,6 +34,7 @@ export async function GET(request: NextRequest) {
     }
 
     const regionId = user.regionId;
+    const format = request.nextUrl.searchParams.get("format");
     const params = parseReportParams(request.nextUrl.searchParams);
     const { search, sort, order, cursor, limit, filters } = params;
 
@@ -90,7 +105,7 @@ export async function GET(request: NextRequest) {
     };
 
     const prismaOrderBy = directSorts[sortField] || { createdAt: "desc" };
-    const paginationArgs = buildPagination(cursor, limit);
+    const paginationArgs = format === "csv" ? {} : buildPagination(cursor, limit);
 
     // Fetch teachers with aggregated data
     const teachers = await db.user.findMany({
@@ -162,6 +177,12 @@ export async function GET(request: NextRequest) {
         if (aVal > bVal) return 1 * multiplier;
         return 0;
       });
+    }
+
+    // CSV export path
+    if (format === "csv") {
+      const csv = generateCSV(data, TEACHERS_CSV_COLUMNS);
+      return buildCsvResponse(csv, "teachers-report.csv");
     }
 
     // Filter options

@@ -1,8 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSessionUser } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { parseReportParams } from "@/lib/reports";
+import { parseReportParams, generateCSV, buildCsvResponse } from "@/lib/reports";
 import { Prisma } from "@prisma/client";
+
+const COVERAGE_CSV_COLUMNS = [
+  { key: "subject", label: "Subject" },
+  { key: "level", label: "Level" },
+  { key: "moduleNum", label: "Module #" },
+  { key: "moduleName", label: "Module" },
+  { key: "topic", label: "Topic" },
+  { key: "schoolsCovering", label: "Schools Covering" },
+  { key: "totalSchools", label: "Total Schools" },
+  { key: "coverageRate", label: "Coverage %" },
+  { key: "totalEntries", label: "Total Entries" },
+  { key: "teachersCovering", label: "Teachers Covering" },
+  { key: "lastTaught", label: "Last Taught" },
+];
 
 export const dynamic = "force-dynamic";
 
@@ -32,6 +46,7 @@ export async function GET(request: NextRequest) {
     }
 
     const regionId = user.regionId;
+    const format = request.nextUrl.searchParams.get("format");
     const params = parseReportParams(request.nextUrl.searchParams);
     const { search, sort, order, cursor, limit, filters } = params;
 
@@ -204,6 +219,26 @@ export async function GET(request: NextRequest) {
     }
 
     const total = enriched.length;
+
+    // CSV export path — return all rows without pagination
+    if (format === "csv") {
+      const csvData = enriched.map((r) => ({
+        id: r.id,
+        subject: r.subject_name,
+        level: r.classLevel,
+        moduleNum: r.moduleNum,
+        moduleName: r.moduleName || "—",
+        topic: r.name,
+        schoolsCovering: Number(r.schools_covering),
+        totalSchools: r.totalSchools,
+        coverageRate: r.coverageRate,
+        totalEntries: Number(r.total_entries),
+        teachersCovering: Number(r.teachers_covering),
+        lastTaught: r.last_taught ? r.last_taught.toISOString() : null,
+      }));
+      const csv = generateCSV(csvData, COVERAGE_CSV_COLUMNS);
+      return buildCsvResponse(csv, "coverage-report.csv");
+    }
 
     // Cursor-based pagination (manual)
     let startIdx = 0;

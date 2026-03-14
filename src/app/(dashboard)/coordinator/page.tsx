@@ -243,7 +243,7 @@ export default function CoordinatorDashboardPage() {
       <div className="min-h-screen flex items-center justify-center pb-24" style={{ backgroundColor: "var(--bg-primary)" }}>
         <div className="text-center px-5">
           <p className="font-semibold text-[var(--text-secondary)]">Coordinator record not found</p>
-          <Link href="/logbook" className="text-sm font-semibold mt-3 inline-block" style={{ color: "#7C3AED" }}>Go to Teacher Dashboard</Link>
+          <Link href="/logbook" className="text-sm font-semibold mt-3 inline-block" style={{ color: "var(--accent)" }}>Go to Teacher Dashboard</Link>
         </div>
       </div>
     );
@@ -314,41 +314,41 @@ export default function CoordinatorDashboardPage() {
           <div className="animate-slide-up animation-delay-100">
             {liveSlots.length > 0 ? (
               <div className="rounded-2xl overflow-hidden border"
-                style={{ background: "#F0FDF4", borderColor: "#86EFAC" }}>
+                style={{ background: "rgba(22,163,74,0.07)", borderColor: "rgba(22,163,74,0.25)" }}>
                 {/* Section header */}
                 <div className="px-4 pt-3.5 pb-2.5 flex items-center gap-2"
-                  style={{ borderBottom: "1px solid #BBF7D0" }}>
+                  style={{ borderBottom: "1px solid rgba(22,163,74,0.2)" }}>
                   <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                  <p className="text-xs font-bold uppercase tracking-widest" style={{ color: "#15803D" }}>
+                  <p className="text-xs font-bold uppercase tracking-widest" style={{ color: "var(--text-secondary)" }}>
                     Live Now · {liveSlots.length} class{liveSlots.length !== 1 ? "es" : ""} in progress
                   </p>
                 </div>
-                <div className="divide-y" style={{ borderColor: "#BBF7D0" }}>
+                <div className="divide-y" style={{ borderColor: "rgba(22,163,74,0.15)" }}>
                   {liveSlots.map((slot) => (
                     <div key={slot.id} className="px-4 py-3 flex items-start gap-3">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between gap-2">
                           <div className="min-w-0">
-                            <p className="text-sm font-bold leading-snug" style={{ color: "#14532D" }}>
+                            <p className="text-sm font-bold leading-snug" style={{ color: "var(--text-primary)" }}>
                               {slot.subject}
-                              <span className="font-medium ml-1.5" style={{ color: "#166534" }}>
+                              <span className="font-medium ml-1.5" style={{ color: "var(--text-secondary)" }}>
                                 — {slot.className}
                               </span>
                             </p>
-                            <p className="text-xs mt-0.5" style={{ color: "#15803D" }}>
+                            <p className="text-xs mt-0.5" style={{ color: "var(--text-secondary)" }}>
                               {fmtTime(slot.startTime)} – {fmtTime(slot.endTime)} · {slot.periodLabel}
                             </p>
                           </div>
                         </div>
                         {/* Teacher contact row */}
                         <div className="flex items-center justify-between mt-2 pt-2"
-                          style={{ borderTop: "1px solid #BBF7D0" }}>
+                          style={{ borderTop: "1px solid rgba(22,163,74,0.15)" }}>
                           <div className="flex items-center gap-2 min-w-0">
                             {slot.teacherPhotoUrl ? (
                               // eslint-disable-next-line @next/next/no-img-element
                               <img src={slot.teacherPhotoUrl} alt={slot.teacher}
                                 className="w-7 h-7 rounded-lg object-cover flex-shrink-0"
-                                style={{ border: "1px solid #BBF7D0" }} />
+                                style={{ border: "1px solid rgba(22,163,74,0.2)" }} />
                             ) : (
                               <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 text-[10px] font-black text-white"
                                 style={{ background: "#16A34A" }}>
@@ -356,11 +356,11 @@ export default function CoordinatorDashboardPage() {
                               </div>
                             )}
                             <div className="min-w-0">
-                              <p className="text-xs font-semibold truncate" style={{ color: "#14532D" }}>
+                              <p className="text-xs font-semibold truncate" style={{ color: "var(--text-primary)" }}>
                                 {slot.teacher}
                               </p>
                               {slot.teacherEmail && (
-                                <p className="text-[10px] truncate" style={{ color: "#166534" }}>
+                                <p className="text-[10px] truncate" style={{ color: "var(--text-secondary)" }}>
                                   {slot.teacherEmail}
                                 </p>
                               )}
@@ -370,14 +370,14 @@ export default function CoordinatorDashboardPage() {
                             {slot.teacherPhone && (
                               <a href={`tel:${slot.teacherPhone}`}
                                 className="flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1.5 rounded-lg transition-colors"
-                                style={{ background: "#DCFCE7", color: "#15803D" }}>
+                                style={{ background: "rgba(22,163,74,0.15)", color: "var(--text-primary)" }}>
                                 <Phone className="w-3 h-3" />
                                 Call
                               </a>
                             )}
                             <a href={`mailto:${slot.teacherEmail}`}
                               className="flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1.5 rounded-lg transition-colors"
-                              style={{ background: "#DCFCE7", color: "#15803D" }}>
+                              style={{ background: "rgba(22,163,74,0.15)", color: "var(--text-primary)" }}>
                               <Mail className="w-3 h-3" />
                               Email
                             </a>
@@ -393,7 +393,7 @@ export default function CoordinatorDashboardPage() {
                 style={{ background: "var(--bg-elevated)", borderColor: "var(--border-primary)" }}>
                 <div className="px-4 pt-3.5 pb-2.5 flex items-center gap-2"
                   style={{ borderBottom: "1px solid var(--border-secondary)" }}>
-                  <Clock className="w-3.5 h-3.5" style={{ color: "#7C3AED" }} />
+                  <Clock className="w-3.5 h-3.5" style={{ color: "var(--accent)" }} />
                   <p className="text-xs font-bold uppercase tracking-widest" style={{ color: "var(--text-tertiary)" }}>
                     Next Up · {fmtTime(nextSlots[0].startTime)}
                   </p>
@@ -428,15 +428,15 @@ export default function CoordinatorDashboardPage() {
                 icon: CheckCircle2,
                 label: "Verify Entries",
                 count: `${pendingCount} pending`,
-                gradient: "linear-gradient(135deg, #F5F3FF, #EDE9FE)",
-                iconColor: "#6D28D9",
+                gradient: "linear-gradient(135deg, rgba(109,40,217,0.08), rgba(109,40,217,0.16))",
+                iconColor: "#7C3AED",
               },
               {
                 href: "/coordinator/timetable",
                 icon: Calendar,
                 label: "Timetable",
                 count: "View schedule",
-                gradient: "linear-gradient(135deg, #F0FDF4, #DCFCE7)",
+                gradient: "linear-gradient(135deg, rgba(22,163,74,0.08), rgba(22,163,74,0.15))",
                 iconColor: "#16A34A",
               },
               {
@@ -444,7 +444,7 @@ export default function CoordinatorDashboardPage() {
                 icon: BarChart3,
                 label: "Reports",
                 count: "Entries database",
-                gradient: "linear-gradient(135deg, #FEF3C7, #FDE68A)",
+                gradient: "linear-gradient(135deg, rgba(217,119,6,0.08), rgba(217,119,6,0.16))",
                 iconColor: "#D97706",
               },
               {
@@ -452,7 +452,7 @@ export default function CoordinatorDashboardPage() {
                 icon: Users,
                 label: "Teachers",
                 count: `${stats?.totalTeachers ?? teachers.length} at your level`,
-                gradient: "linear-gradient(135deg, #FFF1F2, #FFE4E6)",
+                gradient: "linear-gradient(135deg, rgba(225,29,72,0.06), rgba(225,29,72,0.13))",
                 iconColor: "#E11D48",
               },
             ].map((action) => {
@@ -475,14 +475,14 @@ export default function CoordinatorDashboardPage() {
         {/* ── SEND ANNOUNCEMENT ── */}
         <Link href="/coordinator/announcements"
           className="animate-slide-up animation-delay-175 flex items-center justify-between p-4 group active:scale-[0.98] transition-all duration-200"
-          style={{ background: "linear-gradient(135deg, #FFFBEB, #FEF3C7)", border: "1px solid #FDE68A", borderRadius: "16px" }}>
+          style={{ background: "linear-gradient(135deg, rgba(217,119,6,0.06), rgba(217,119,6,0.12))", border: "1px solid rgba(217,119,6,0.25)", borderRadius: "16px" }}>
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center">
               <Megaphone className="w-5 h-5 text-amber-600" />
             </div>
             <div>
-              <span style={{ fontSize: 14, fontWeight: 700, color: "#92400E" }}>Send Announcement</span>
-              <span className="block" style={{ fontSize: 12, color: "#B45309" }}>
+              <span style={{ fontSize: 14, fontWeight: 700, color: "var(--text-primary)" }}>Send Announcement</span>
+              <span className="block" style={{ fontSize: 12, color: "var(--text-secondary)" }}>
                 Broadcast to {levelSummary} teachers
               </span>
             </div>
@@ -498,7 +498,7 @@ export default function CoordinatorDashboardPage() {
               <h3 style={{ fontSize: "14px", fontWeight: 700, color: "var(--text-primary)" }}>
                 Teacher Activity
               </h3>
-              <Link href="/coordinator/teachers" className="text-xs font-semibold hover:underline" style={{ color: "#7C3AED" }}>
+              <Link href="/coordinator/teachers" className="text-xs font-semibold hover:underline" style={{ color: "var(--accent)" }}>
                 View all →
               </Link>
             </div>
@@ -529,7 +529,7 @@ export default function CoordinatorDashboardPage() {
               </h3>
               {pendingCount > 5 && (
                 <span className="text-xs font-bold px-2 py-0.5 rounded-full"
-                  style={{ background: "#FEF3C7", color: "#92400E" }}>
+                  style={{ background: "rgba(217,119,6,0.12)", color: "var(--text-secondary)" }}>
                   {pendingCount} total
                 </span>
               )}
@@ -544,7 +544,7 @@ export default function CoordinatorDashboardPage() {
                 return (
                   <div key={entry.id}
                     className="flex items-center justify-between py-3 first:pt-0 last:pb-0"
-                    style={!isSeen ? { borderLeft: "3px solid #8B5CF6", paddingLeft: "10px", marginLeft: "-2px" } : {}}>
+                    style={!isSeen ? { borderLeft: "3px solid var(--accent)", paddingLeft: "10px", marginLeft: "-2px" } : {}}>
                     <Link href={`/coordinator/entries/${entry.id}`} className="min-w-0 flex-1 group">
                       <div className="flex items-center gap-1.5 flex-wrap">
                         <p className={`text-sm truncate group-hover:underline ${!isSeen ? "font-bold text-[var(--text-primary)]" : "font-semibold text-[var(--text-secondary)]"}`}>
@@ -552,7 +552,7 @@ export default function CoordinatorDashboardPage() {
                         </p>
                         {isSeen && (
                           <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold px-1.5 py-0.5 rounded-full flex-shrink-0"
-                            style={{ background: "#EDE9FE", color: "#6D28D9" }}>
+                            style={{ background: "rgba(109,40,217,0.12)", color: "var(--accent)" }}>
                             <Eye className="w-2.5 h-2.5" />
                             {seenByTitle}
                           </span>
@@ -564,7 +564,7 @@ export default function CoordinatorDashboardPage() {
                     </Link>
                     <button onClick={() => handleVerify(entry.id)} disabled={!!verifying}
                       className="flex items-center justify-center flex-shrink-0 ml-3 transition-all active:scale-90 disabled:opacity-50"
-                      style={{ width: "36px", height: "36px", borderRadius: "12px", background: "#DCFCE7", color: "#16A34A" }}
+                      style={{ width: "36px", height: "36px", borderRadius: "12px", background: "rgba(22,163,74,0.15)", color: "#16A34A" }}
                       aria-label="Quick verify">
                       {isVerifying
                         ? <Loader2 className="w-4 h-4 animate-spin" />
@@ -576,7 +576,7 @@ export default function CoordinatorDashboardPage() {
             </div>
             <Link href="/coordinator/entries"
               className="block text-center text-xs font-semibold mt-3 pt-3"
-              style={{ color: "#7C3AED", borderTop: "1px solid var(--border-secondary)" }}>
+              style={{ color: "var(--accent)", borderTop: "1px solid var(--border-secondary)" }}>
               View all pending →
             </Link>
           </div>
@@ -585,12 +585,12 @@ export default function CoordinatorDashboardPage() {
         {/* ── ALL CAUGHT UP ── */}
         {pendingEntries.length === 0 && !loading && (
           <div className="card p-6 text-center animate-slide-up">
-            <ClipboardList className="w-8 h-8 mx-auto mb-2" style={{ color: "#A78BFA" }} />
+            <ClipboardList className="w-8 h-8 mx-auto mb-2" style={{ color: "var(--accent)" }} />
             <p className="font-bold text-[var(--text-primary)] text-sm">All caught up!</p>
             <p className="text-xs text-[var(--text-tertiary)] mt-1">No entries pending review at {levelSummary}</p>
             <Link href="/coordinator/reports"
               className="inline-block mt-3 text-xs font-bold px-4 py-2 rounded-xl text-white transition-all active:scale-95"
-              style={{ background: "#7C3AED" }}>
+              style={{ background: "var(--accent)" }}>
               Browse all entries
             </Link>
           </div>

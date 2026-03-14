@@ -5,7 +5,18 @@ import {
   parseReportParams,
   buildPagination,
   formatReportResponse,
+  generateCSV,
+  buildCsvResponse,
 } from "@/lib/reports";
+
+const ASSIGNMENTS_CSV_COLUMNS = [
+  { key: "teacher", label: "Teacher" },
+  { key: "subject", label: "Subject" },
+  { key: "class", label: "Class" },
+  { key: "level", label: "Level" },
+  { key: "division", label: "Division" },
+  { key: "periodsPerWeek", label: "Periods/Week" },
+];
 
 export const dynamic = "force-dynamic";
 
@@ -20,6 +31,7 @@ export async function GET(request: NextRequest) {
     }
 
     const schoolId = user.schoolId;
+    const format = request.nextUrl.searchParams.get("format");
     const params = parseReportParams(request.nextUrl.searchParams);
     const { search, sort, order, cursor, limit, filters } = params;
 
@@ -69,7 +81,7 @@ export async function GET(request: NextRequest) {
     };
 
     const prismaOrderBy = directSorts[sortField] || { subject: { name: "asc" } };
-    const paginationArgs = buildPagination(cursor, limit);
+    const paginationArgs = format === "csv" ? {} : buildPagination(cursor, limit);
 
     // Fetch assignments with period count
     const assignments = await db.teacherAssignment.findMany({
@@ -114,6 +126,12 @@ export async function GET(request: NextRequest) {
           ? a.periodsPerWeek - b.periodsPerWeek
           : b.periodsPerWeek - a.periodsPerWeek
       );
+    }
+
+    // CSV export path
+    if (format === "csv") {
+      const csv = generateCSV(data, ASSIGNMENTS_CSV_COLUMNS);
+      return buildCsvResponse(csv, "assignments-report.csv");
     }
 
     // Get filter options

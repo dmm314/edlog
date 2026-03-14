@@ -5,7 +5,22 @@ import {
   parseReportParams,
   buildPagination,
   formatReportResponse,
+  generateCSV,
+  buildCsvResponse,
 } from "@/lib/reports";
+
+const TEACHERS_CSV_COLUMNS = [
+  { key: "name", label: "Teacher Name" },
+  { key: "teacherCode", label: "Code" },
+  { key: "gender", label: "Gender" },
+  { key: "phone", label: "Phone" },
+  { key: "subjects", label: "Subjects" },
+  { key: "classes", label: "Classes" },
+  { key: "entriesThisWeek", label: "Entries This Week" },
+  { key: "entriesThisMonth", label: "Entries This Month" },
+  { key: "lastActive", label: "Last Active" },
+  { key: "status", label: "Status" },
+];
 
 export const dynamic = "force-dynamic";
 
@@ -20,6 +35,7 @@ export async function GET(request: NextRequest) {
     }
 
     const schoolId = user.schoolId;
+    const format = request.nextUrl.searchParams.get("format");
     const params = parseReportParams(request.nextUrl.searchParams);
     const { search, sort, order, cursor, limit, filters } = params;
 
@@ -102,7 +118,7 @@ export async function GET(request: NextRequest) {
       firstName: { teacher: { firstName: sortDir } },
     };
 
-    const paginationArgs = buildPagination(cursor, limit);
+    const paginationArgs = format === "csv" ? {} : buildPagination(cursor, limit);
     const prismaOrderBy = directSorts[sortField] || { createdAt: "desc" };
 
     // Fetch teacher schools with all needed data
@@ -197,6 +213,12 @@ export async function GET(request: NextRequest) {
         if (aVal > bVal) return sortDir === "asc" ? 1 : -1;
         return 0;
       });
+    }
+
+    // CSV export path
+    if (format === "csv") {
+      const csv = generateCSV(data, TEACHERS_CSV_COLUMNS);
+      return buildCsvResponse(csv, "teachers-report.csv");
     }
 
     // Get filter options

@@ -1,8 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSessionUser } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { parseReportParams } from "@/lib/reports";
+import { parseReportParams, generateCSV, buildCsvResponse } from "@/lib/reports";
 import { Prisma } from "@prisma/client";
+
+const COVERAGE_CSV_COLUMNS = [
+  { key: "subject", label: "Subject" },
+  { key: "level", label: "Level" },
+  { key: "moduleNum", label: "Module #" },
+  { key: "moduleName", label: "Module" },
+  { key: "topic", label: "Topic" },
+  { key: "taughtBy", label: "Taught By" },
+  { key: "timesCovered", label: "Times Covered" },
+  { key: "lastTaught", label: "Last Taught" },
+  { key: "covered", label: "Covered" },
+];
 
 export const dynamic = "force-dynamic";
 
@@ -31,12 +43,15 @@ export async function GET(request: NextRequest) {
     }
 
     const schoolId = user.schoolId;
+    const format = request.nextUrl.searchParams.get("format");
     const params = parseReportParams(request.nextUrl.searchParams);
     const { search, sort, order, cursor, limit, filters } = params;
 
     // Build dynamic WHERE conditions for the Topic query
     const conditions: Prisma.Sql[] = [
       Prisma.sql`ss."schoolId" = ${schoolId}`,
+      // Only include topics for levels the school actually has classes at
+      Prisma.sql`t."classLevel" IN (SELECT DISTINCT c.level FROM "Class" c WHERE c."schoolId" = ${schoolId})`,
     ];
 
     if (filters.subject) {
@@ -176,19 +191,8 @@ export async function GET(request: NextRequest) {
 
     const total = filteredRows.length;
 
-    // Apply cursor-based pagination manually
-    let startIdx = 0;
-    if (cursor) {
-      const cursorIdx = filteredRows.findIndex((r) => r.id === cursor);
-      if (cursorIdx >= 0) startIdx = cursorIdx + 1;
-    }
-
-    const page = filteredRows.slice(startIdx, startIdx + limit + 1);
-    const hasNext = page.length > limit;
-    const trimmed = hasNext ? page.slice(0, limit) : page;
-
-    // Format data
-    const data = trimmed.map((r) => ({
+    // Format data helper
+    const mapRow = (r: (typeof filteredRows)[0]) => ({
       id: r.id,
       subject: r.subject_name,
       level: r.classLevel,
@@ -200,7 +204,26 @@ export async function GET(request: NextRequest) {
       timesCovered: Number(r.times_covered),
       lastTaught: r.last_taught ? r.last_taught.toISOString() : null,
       covered: Number(r.times_covered) > 0,
-    }));
+    });
+
+    // CSV export path — return all rows without pagination
+    if (format === "csv") {
+      const csv = generateCSV(filteredRows.map(mapRow), COVERAGE_CSV_COLUMNS);
+      return buildCsvResponse(csv, "coverage-report.csv");
+    }
+
+    // Apply cursor-based pagination manually
+    let startIdx = 0;
+    if (cursor) {
+      const cursorIdx = filteredRows.findIndex((r) => r.id === cursor);
+      if (cursorIdx >= 0) startIdx = cursorIdx + 1;
+    }
+
+    const page = filteredRows.slice(startIdx, startIdx + limit + 1);
+    const hasNext = page.length > limit;
+    const trimmed = hasNext ? page.slice(0, limit) : page;
+
+    const data = trimmed.map(mapRow);
 
     // Get filter options
     const [subjectOptions, levelOptions] = await Promise.all([
@@ -208,18 +231,17 @@ export async function GET(request: NextRequest) {
         where: { schoolId },
         select: { subject: { select: { name: true } } },
       }),
-      db.topic.findMany({
-        where: {
-          subject: { schools: { some: { schoolId } } },
-        },
-        select: { classLevel: true },
-        distinct: ["classLevel"],
+      // Only show levels the school actually has classes at
+      db.class.findMany({
+        where: { schoolId },
+        select: { level: true },
+        distinct: ["level"],
       }),
     ]);
 
     const responseFilters = {
       subject: subjectOptions.map((s) => s.subject.name).sort(),
-      level: levelOptions.map((l) => l.classLevel).sort(),
+      level: levelOptions.map((l) => l.level).sort(),
       covered: ["all", "covered", "gaps"],
     };
 

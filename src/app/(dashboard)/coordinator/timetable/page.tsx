@@ -66,14 +66,14 @@ function isCurrentlyActive(slot: SlotInfo): boolean {
   return nowMins >= startMins && nowMins < endMins;
 }
 
-// Colour palette for classes (cycles by index)
+// Colour palette for classes (cycles by index) — rgba-based for dark mode compatibility
 const CLASS_COLORS = [
-  { bg: "#EDE9FE", border: "#C4B5FD", text: "#3B0764", badge: "#6D28D9" },
-  { bg: "#DBEAFE", border: "#93C5FD", text: "#1E3A5F", badge: "#2563EB" },
-  { bg: "#D1FAE5", border: "#6EE7B7", text: "#064E3B", badge: "#059669" },
-  { bg: "#FEF3C7", border: "#FCD34D", text: "#78350F", badge: "#D97706" },
-  { bg: "#FFE4E6", border: "#FCA5A5", text: "#7F1D1D", badge: "#E11D48" },
-  { bg: "#F0FDF4", border: "#86EFAC", text: "#14532D", badge: "#16A34A" },
+  { bg: "rgba(109,40,217,0.10)", border: "rgba(109,40,217,0.28)", badge: "#7C3AED" },
+  { bg: "rgba(37,99,235,0.10)", border: "rgba(37,99,235,0.28)", badge: "#2563EB" },
+  { bg: "rgba(5,150,105,0.10)", border: "rgba(5,150,105,0.28)", badge: "#059669" },
+  { bg: "rgba(217,119,6,0.10)", border: "rgba(217,119,6,0.28)", badge: "#D97706" },
+  { bg: "rgba(225,29,72,0.08)", border: "rgba(225,29,72,0.22)", badge: "#E11D48" },
+  { bg: "rgba(22,163,74,0.08)", border: "rgba(22,163,74,0.25)", badge: "#16A34A" },
 ];
 
 export default function CoordinatorTimetablePage() {
@@ -274,16 +274,16 @@ export default function CoordinatorTimetablePage() {
                             </div>
                             <div>
                               <div className="flex items-center gap-2">
-                                <p className="text-sm font-bold" style={{ color: color.text }}>{cls.name}</p>
+                                <p className="text-sm font-bold" style={{ color: "var(--text-primary)" }}>{cls.name}</p>
                                 {hasLiveSlot && (
                                   <span className="flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded-full"
-                                    style={{ background: "#DCFCE7", color: "#15803D" }}>
+                                    style={{ background: "rgba(22,163,74,0.15)", color: "#16A34A" }}>
                                     <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse inline-block" />
                                     LIVE
                                   </span>
                                 )}
                               </div>
-                              <p className="text-xs mt-0.5" style={{ color: color.text, opacity: 0.65 }}>
+                              <p className="text-xs mt-0.5" style={{ color: "var(--text-secondary)" }}>
                                 {slotCount} period{slotCount !== 1 ? "s" : ""} · {teacherCount} teacher{teacherCount !== 1 ? "s" : ""}
                               </p>
                             </div>
@@ -379,14 +379,14 @@ export default function CoordinatorTimetablePage() {
                 <div key={slot.id}
                   className="rounded-2xl border overflow-hidden transition-all"
                   style={{
-                    background: active ? "#F0FDF4" : "var(--bg-elevated)",
-                    borderColor: active ? "#86EFAC" : "var(--border-primary)",
-                    boxShadow: active ? "0 0 0 2px rgba(134,239,172,0.4)" : undefined,
+                    background: active ? "rgba(22,163,74,0.08)" : "var(--bg-elevated)",
+                    borderColor: active ? "rgba(22,163,74,0.3)" : "var(--border-primary)",
+                    boxShadow: active ? "0 0 0 2px rgba(22,163,74,0.2)" : undefined,
                   }}>
                   <div className="px-4 py-3.5 flex items-start gap-3">
                     {/* Time column */}
                     <div className="w-16 flex-shrink-0 pt-0.5">
-                      <p className="text-xs font-bold tabular-nums" style={{ color: active ? "#15803D" : "var(--text-secondary)", fontFamily: "var(--font-mono)" }}>
+                      <p className="text-xs font-bold tabular-nums" style={{ color: "var(--text-secondary)", fontFamily: "var(--font-mono)" }}>
                         {formatTime(slot.startTime)}
                       </p>
                       <p className="text-[10px] tabular-nums mt-0.5" style={{ color: "var(--text-quaternary)", fontFamily: "var(--font-mono)" }}>
@@ -397,7 +397,7 @@ export default function CoordinatorTimetablePage() {
                     {/* Content */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <p className="text-sm font-bold" style={{ color: active ? "#14532D" : "var(--text-primary)" }}>
+                        <p className="text-sm font-bold" style={{ color: "var(--text-primary)" }}>
                           {slot.subject}
                         </p>
                         {active && (
@@ -407,13 +407,13 @@ export default function CoordinatorTimetablePage() {
                           </span>
                         )}
                       </div>
-                      <p className="text-xs mt-0.5" style={{ color: active ? "#166534" : "var(--text-secondary)" }}>
+                      <p className="text-xs mt-0.5" style={{ color: "var(--text-secondary)" }}>
                         {slot.periodLabel}
                       </p>
 
                       {/* Teacher info */}
                       <div className="mt-2.5 pt-2.5 flex items-center justify-between gap-2"
-                        style={{ borderTop: `1px solid ${active ? "#BBF7D0" : "var(--border-secondary)"}` }}>
+                        style={{ borderTop: "1px solid var(--border-secondary)" }}>
                         <div className="flex items-center gap-2 min-w-0">
                           {slot.teacherPhotoUrl ? (
                             // eslint-disable-next-line @next/next/no-img-element
@@ -422,12 +422,12 @@ export default function CoordinatorTimetablePage() {
                               style={{ border: "1px solid var(--border-secondary)" }} />
                           ) : (
                             <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 text-[10px] font-black text-white"
-                              style={{ background: active ? "#16A34A" : "linear-gradient(135deg, #6D28D9, #7C3AED)" }}>
+                              style={{ background: active ? "#16A34A" : "linear-gradient(135deg, var(--accent), var(--accent))" }}>
                               {slot.teacher.split(" ").map((n) => n[0]).slice(0, 2).join("")}
                             </div>
                           )}
                           <div className="min-w-0">
-                            <p className="text-xs font-semibold truncate" style={{ color: active ? "#15803D" : "var(--text-primary)" }}>
+                            <p className="text-xs font-semibold truncate" style={{ color: "var(--text-primary)" }}>
                               {slot.teacher}
                             </p>
                             {slot.teacherEmail && (
@@ -440,7 +440,7 @@ export default function CoordinatorTimetablePage() {
                         {slot.teacherPhone && (
                           <a href={`tel:${slot.teacherPhone}`}
                             className="flex-shrink-0 text-[11px] font-semibold px-2.5 py-1.5 rounded-lg transition-colors"
-                            style={{ background: active ? "#DCFCE7" : "var(--bg-secondary)", color: active ? "#15803D" : "var(--accent-text)" }}>
+                            style={{ background: active ? "rgba(22,163,74,0.15)" : "var(--bg-secondary)", color: "var(--text-primary)" }}>
                             Call
                           </a>
                         )}
