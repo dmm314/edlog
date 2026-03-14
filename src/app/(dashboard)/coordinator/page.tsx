@@ -40,6 +40,7 @@ interface TimetableSlot {
   teacherId: string;
   teacherEmail: string;
   teacherPhone: string | null;
+  teacherPhotoUrl?: string | null;
   className: string;
   classId: string;
   level: string;
@@ -343,10 +344,17 @@ export default function CoordinatorDashboardPage() {
                         <div className="flex items-center justify-between mt-2 pt-2"
                           style={{ borderTop: "1px solid #BBF7D0" }}>
                           <div className="flex items-center gap-2 min-w-0">
-                            <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 text-[10px] font-black text-white"
-                              style={{ background: "#16A34A" }}>
-                              {slot.teacher.split(" ").map((n) => n[0]).slice(0, 2).join("")}
-                            </div>
+                            {slot.teacherPhotoUrl ? (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img src={slot.teacherPhotoUrl} alt={slot.teacher}
+                                className="w-7 h-7 rounded-lg object-cover flex-shrink-0"
+                                style={{ border: "1px solid #BBF7D0" }} />
+                            ) : (
+                              <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 text-[10px] font-black text-white"
+                                style={{ background: "#16A34A" }}>
+                                {slot.teacher.split(" ").map((n) => n[0]).slice(0, 2).join("")}
+                              </div>
+                            )}
                             <div className="min-w-0">
                               <p className="text-xs font-semibold truncate" style={{ color: "#14532D" }}>
                                 {slot.teacher}

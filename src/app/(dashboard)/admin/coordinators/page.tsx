@@ -52,6 +52,7 @@ interface NewCredentials {
   email: string;
   password: string;
   name: string;
+  teacherCode?: string | null;
 }
 
 // Returns the coordinator for a given level (if one exists and is active)
@@ -202,6 +203,7 @@ export default function CoordinatorsPage() {
           email: newEmail.trim(),
           password: newPassword,
           name: `${newFirstName.trim()} ${newLastName.trim()}`,
+          teacherCode: data.credentials?.teacherCode,
         });
         await fetchData();
       } else {
@@ -283,6 +285,9 @@ export default function CoordinatorsPage() {
             <div className="bg-[var(--bg-tertiary)] rounded-xl p-3 space-y-1.5 text-sm font-mono">
               <p><span className="text-[var(--text-tertiary)]">Email:</span> <span className="text-[var(--text-primary)] font-bold">{newCredentials.email}</span></p>
               <p><span className="text-[var(--text-tertiary)]">Password:</span> <span className="text-[var(--text-primary)] font-bold">{newCredentials.password}</span></p>
+              {newCredentials.teacherCode && (
+                <p><span className="text-[var(--text-tertiary)]">Unique ID:</span> <span className="text-[var(--text-primary)] font-bold">{newCredentials.teacherCode}</span></p>
+              )}
             </div>
             <button
               onClick={() => setNewCredentials(null)}

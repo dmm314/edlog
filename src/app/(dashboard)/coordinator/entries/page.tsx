@@ -26,7 +26,7 @@ interface Entry {
   date: string;
   period: number | null;
   status: string;
-  teacher: { id: string; firstName: string; lastName: string; email: string; phone?: string | null };
+  teacher: { id: string; firstName: string; lastName: string; email: string; phone?: string | null; photoUrl?: string | null };
   class: { id: string; name: string; level: string };
   topics: { id: string; name: string; subject: { id: string; name: string } }[];
   assignment?: { subject: { id: string; name: string } } | null;
@@ -44,10 +44,31 @@ interface TimetableSlot {
   teacherId: string;
   teacherEmail: string;
   teacherPhone: string | null;
+  teacherPhotoUrl?: string | null;
   className: string;
   classId: string;
   level: string;
   subject: string;
+}
+
+function TeacherAvatar({ photoUrl, firstName, lastName, size = "sm" }: { photoUrl?: string | null; firstName: string; lastName: string; size?: "sm" | "md" }) {
+  const dim = size === "md" ? "w-9 h-9" : "w-6 h-6";
+  const textSize = size === "md" ? "text-xs" : "text-[9px]";
+  const radius = size === "md" ? "rounded-xl" : "rounded-lg";
+  if (photoUrl) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img src={photoUrl} alt={`${firstName} ${lastName}`}
+        className={`${dim} ${radius} object-cover flex-shrink-0`}
+        style={{ border: "1px solid var(--border-secondary)" }} />
+    );
+  }
+  return (
+    <div className={`${dim} ${radius} flex items-center justify-center flex-shrink-0 font-black text-white ${textSize}`}
+      style={{ background: "linear-gradient(135deg, #6D28D9, #7C3AED)" }}>
+      {firstName[0]}{lastName[0]}
+    </div>
+  );
 }
 
 interface FilterOption { value: string; label: string }
@@ -380,9 +401,7 @@ export default function CoordinatorEntriesPage() {
                         {/* Teacher row */}
                         <div className="flex items-center justify-between pt-2.5" style={{ borderTop: "1px solid var(--border-secondary)" }}>
                           <div className="flex items-center gap-2 min-w-0">
-                            <div className="w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0 text-[9px] font-black text-white" style={{ background: "#6D28D9" }}>
-                              {entry.teacher.firstName[0]}{entry.teacher.lastName[0]}
-                            </div>
+                            <TeacherAvatar photoUrl={entry.teacher.photoUrl} firstName={entry.teacher.firstName} lastName={entry.teacher.lastName} />
                             <p className="text-xs font-semibold text-[var(--text-secondary)] truncate">
                               {entry.teacher.firstName} {entry.teacher.lastName}
                             </p>
@@ -552,9 +571,7 @@ export default function CoordinatorEntriesPage() {
                           {/* Teacher contact */}
                           <div className="flex items-center justify-between pt-2" style={{ borderTop: "1px solid var(--border-secondary)" }}>
                             <div className="flex items-center gap-1.5 min-w-0">
-                              <div className="w-5 h-5 rounded-md flex items-center justify-center flex-shrink-0 text-[8px] font-black text-white" style={{ background: "#6D28D9" }}>
-                                {slot.teacher.split(" ").map((n) => n[0]).slice(0, 2).join("")}
-                              </div>
+                              <TeacherAvatar photoUrl={slot.teacherPhotoUrl} firstName={slot.teacher.split(" ")[0] || "?"} lastName={slot.teacher.split(" ").slice(1).join(" ") || "?"} />
                               <p className="text-xs text-[var(--text-secondary)] truncate">{slot.teacher}</p>
                             </div>
                             <div className="flex items-center gap-1.5 flex-shrink-0">

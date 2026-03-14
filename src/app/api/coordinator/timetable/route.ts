@@ -41,7 +41,7 @@ export async function GET() {
       include: {
         assignment: {
           include: {
-            teacher: { select: { id: true, firstName: true, lastName: true, email: true, phone: true } },
+            teacher: { select: { id: true, firstName: true, lastName: true, email: true, phone: true, photoUrl: true } },
             class: { select: { id: true, name: true, level: true } },
             subject: { select: { id: true, name: true } },
           },
@@ -61,6 +61,7 @@ export async function GET() {
         teacherId: s.assignment.teacher.id,
         teacherEmail: s.assignment.teacher.email,
         teacherPhone: s.assignment.teacher.phone ?? null,
+        teacherPhotoUrl: s.assignment.teacher.photoUrl ?? null,
         className: s.assignment.class.name,
         classId: s.assignment.class.id,
         level: s.assignment.class.level,
