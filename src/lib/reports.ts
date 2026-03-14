@@ -193,24 +193,58 @@ export function formatReportResponse<T extends { id?: string }>(
 }
 
 /**
+ * Format a value for CSV output.
+ * - Dates → "9 Mar 2026" (en-GB short)
+ * - Arrays → semicolon-separated
+ * - Other values → stringified
+ * - Escapes commas, quotes, and newlines per RFC 4180.
+ */
+function formatCsvValue(value: unknown): string {
+  if (value === null || value === undefined) return "";
+
+  // Date objects
+  if (value instanceof Date) {
+    return value.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+  }
+
+  // ISO date strings (YYYY-MM-DD or full ISO)
+  if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}(T[\d:.Z+-]+)?$/.test(value)) {
+    const d = new Date(value);
+    if (!isNaN(d.getTime())) {
+      return d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+    }
+  }
+
+  // Arrays → semicolon-separated
+  if (Array.isArray(value)) {
+    return value.map((v) => formatCsvValue(v)).join("; ");
+  }
+
+  const str = String(value);
+  // Wrap in quotes if field contains commas, quotes, or newlines
+  if (str.includes(",") || str.includes('"') || str.includes("\n") || str.includes("\r")) {
+    return '"' + str.replace(/"/g, '""') + '"';
+  }
+  return str;
+}
+
+/**
  * Generate a CSV string from data rows and column definitions.
  * Handles proper escaping of commas, quotes, and newlines per RFC 4180.
+ * Includes UTF-8 BOM so Excel opens the file correctly.
  */
 export function generateCSV<T>(
   data: T[],
   columns: { key: string; label: string }[]
 ): string {
-  const escapeField = (value: unknown): string => {
-    if (value === null || value === undefined) return "";
-    const str = String(value);
-    // If the field contains commas, quotes, or newlines, wrap in quotes and escape internal quotes
-    if (str.includes(",") || str.includes('"') || str.includes("\n") || str.includes("\r")) {
-      return '"' + str.replace(/"/g, '""') + '"';
+  const escapeHeader = (label: string): string => {
+    if (label.includes(",") || label.includes('"') || label.includes("\n")) {
+      return '"' + label.replace(/"/g, '""') + '"';
     }
-    return str;
+    return label;
   };
 
-  const header = columns.map((col) => escapeField(col.label)).join(",");
+  const header = columns.map((col) => escapeHeader(col.label)).join(",");
 
   const rows = data.map((row) => {
     return columns
@@ -226,10 +260,24 @@ export function generateCSV<T>(
             break;
           }
         }
-        return escapeField(value);
+        return formatCsvValue(value);
       })
       .join(",");
   });
 
-  return [header, ...rows].join("\n");
+  // \uFEFF = UTF-8 BOM so Excel opens with correct encoding
+  return "\uFEFF" + [header, ...rows].join("\n");
+}
+
+/**
+ * Build a Next.js Response for a CSV download.
+ * Sets Content-Type and Content-Disposition headers.
+ */
+export function buildCsvResponse(csv: string, filename: string): Response {
+  return new Response(csv, {
+    headers: {
+      "Content-Type": "text/csv; charset=utf-8",
+      "Content-Disposition": `attachment; filename="${filename}"`,
+    },
+  });
 }

@@ -1,8 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSessionUser } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { parseReportParams } from "@/lib/reports";
+import { parseReportParams, generateCSV, buildCsvResponse } from "@/lib/reports";
 import { Prisma } from "@prisma/client";
+
+const SCHOOL_COVERAGE_CSV_COLUMNS = [
+  { key: "school", label: "School" },
+  { key: "schoolCode", label: "Code" },
+  { key: "division", label: "Division" },
+  { key: "totalTopics", label: "Total Topics" },
+  { key: "topicsCovered", label: "Topics Covered" },
+  { key: "coverageRate", label: "Coverage %" },
+  { key: "totalEntries", label: "Total Entries" },
+  { key: "teacherCount", label: "Teachers" },
+  { key: "lastActivity", label: "Last Activity" },
+  { key: "gaps", label: "Gap Topics" },
+  { key: "totalGaps", label: "Total Gaps" },
+];
 
 export const dynamic = "force-dynamic";
 
@@ -33,6 +47,7 @@ export async function GET(request: NextRequest) {
     }
 
     const regionId = user.regionId;
+    const format = request.nextUrl.searchParams.get("format");
     const params = parseReportParams(request.nextUrl.searchParams);
     const { search, sort, order, cursor, limit, filters } = params;
 
@@ -265,6 +280,12 @@ export async function GET(request: NextRequest) {
     });
 
     const total = data.length;
+
+    // CSV export path — return all rows without pagination
+    if (format === "csv") {
+      const csv = generateCSV(data, SCHOOL_COVERAGE_CSV_COLUMNS);
+      return buildCsvResponse(csv, "school-coverage-report.csv");
+    }
 
     // Cursor-based pagination
     let startIdx = 0;

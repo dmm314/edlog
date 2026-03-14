@@ -5,7 +5,18 @@ import {
   parseReportParams,
   buildPagination,
   formatReportResponse,
+  generateCSV,
+  buildCsvResponse,
 } from "@/lib/reports";
+
+const ASSIGNMENTS_CSV_COLUMNS = [
+  { key: "teacher", label: "Teacher" },
+  { key: "school", label: "School" },
+  { key: "division", label: "Division" },
+  { key: "subject", label: "Subject" },
+  { key: "class", label: "Class" },
+  { key: "level", label: "Level" },
+];
 
 export const dynamic = "force-dynamic";
 
@@ -20,6 +31,7 @@ export async function GET(request: NextRequest) {
     }
 
     const regionId = user.regionId;
+    const format = request.nextUrl.searchParams.get("format");
     const params = parseReportParams(request.nextUrl.searchParams);
     const { search, sort, order, cursor, limit, filters } = params;
 
@@ -83,7 +95,7 @@ export async function GET(request: NextRequest) {
       { school: { name: "asc" } },
       { subject: { name: "asc" } },
     ];
-    const paginationArgs = buildPagination(cursor, limit);
+    const paginationArgs = format === "csv" ? {} : buildPagination(cursor, limit);
 
     // Fetch assignments
     const assignments = await db.teacherAssignment.findMany({
@@ -114,6 +126,12 @@ export async function GET(request: NextRequest) {
       class: a.class.name,
       level: a.class.level,
     }));
+
+    // CSV export path
+    if (format === "csv") {
+      const csv = generateCSV(data, ASSIGNMENTS_CSV_COLUMNS);
+      return buildCsvResponse(csv, "assignments-report.csv");
+    }
 
     // Filter options
     const [divisionOptions, schoolOptions, subjectOptions, levelOptions] = await Promise.all([

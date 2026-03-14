@@ -57,7 +57,7 @@ function formatDateCell(value: unknown): string {
   if (!value) return "—";
   const d = typeof value === "string" ? new Date(value) : value instanceof Date ? value : null;
   if (!d || isNaN(d.getTime())) return "—";
-  return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+  return d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
 }
 
 function getNestedValue(obj: unknown, path: string): unknown {
@@ -278,9 +278,9 @@ export function DataTable<T = Record<string, unknown>>({
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-    } catch {
-      // Could integrate with toast system if desired
-      console.error("Export failed");
+    } catch (err) {
+      console.error("Export failed:", err);
+      alert("Export failed. Please try again.");
     } finally {
       setExporting(false);
     }
@@ -590,7 +590,7 @@ export function DataTable<T = Record<string, unknown>>({
                           position: colIndex === 0 ? "sticky" : undefined,
                           left: colIndex === 0 ? 0 : undefined,
                           zIndex: colIndex === 0 ? 2 : 1,
-                          background: "var(--bg-elevated)",
+                          background: "var(--bg-secondary)",
                         }}
                       >
                         <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>

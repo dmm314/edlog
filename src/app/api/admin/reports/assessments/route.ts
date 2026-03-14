@@ -5,7 +5,22 @@ import {
   parseReportParams,
   buildPagination,
   formatReportResponse,
+  generateCSV,
+  buildCsvResponse,
 } from "@/lib/reports";
+
+const ASSESSMENTS_CSV_COLUMNS = [
+  { key: "date", label: "Date" },
+  { key: "teacher", label: "Teacher" },
+  { key: "subject", label: "Subject" },
+  { key: "class", label: "Class" },
+  { key: "title", label: "Title" },
+  { key: "type", label: "Type" },
+  { key: "corrected", label: "Corrected" },
+  { key: "totalStudents", label: "Total Students" },
+  { key: "passRate", label: "Pass Rate" },
+  { key: "averageMark", label: "Average Mark" },
+];
 
 export const dynamic = "force-dynamic";
 
@@ -20,6 +35,7 @@ export async function GET(request: NextRequest) {
     }
 
     const schoolId = user.schoolId;
+    const format = request.nextUrl.searchParams.get("format");
     const params = parseReportParams(request.nextUrl.searchParams);
     const { search, sort, order, cursor, limit, filters } = params;
 
@@ -88,7 +104,7 @@ export async function GET(request: NextRequest) {
       class: { class: { name: sortDir } },
     };
     const prismaOrderBy = directSorts[sortField] || { date: "desc" };
-    const paginationArgs = buildPagination(cursor, limit);
+    const paginationArgs = format === "csv" ? {} : buildPagination(cursor, limit);
 
     const assessments = await db.assessment.findMany({
       where,
@@ -129,6 +145,12 @@ export async function GET(request: NextRequest) {
         averageMark: a.averageMark != null ? `${a.averageMark}/${a.totalMarks}` : "—",
       };
     });
+
+    // CSV export path
+    if (format === "csv") {
+      const csv = generateCSV(data, ASSESSMENTS_CSV_COLUMNS);
+      return buildCsvResponse(csv, "assessments-report.csv");
+    }
 
     const [subjectOptions, classOptions, teacherOptions] = await Promise.all([
       db.teacherAssignment.findMany({

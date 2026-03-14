@@ -5,7 +5,26 @@ import {
   parseReportParams,
   buildPagination,
   formatReportResponse,
+  generateCSV,
+  buildCsvResponse,
 } from "@/lib/reports";
+
+const ACTIVITY_CSV_COLUMNS = [
+  { key: "date", label: "Date" },
+  { key: "teacher", label: "Teacher" },
+  { key: "subject", label: "Subject" },
+  { key: "class", label: "Class" },
+  { key: "level", label: "Level" },
+  { key: "period", label: "Period" },
+  { key: "moduleName", label: "Module" },
+  { key: "topicText", label: "Topic" },
+  { key: "familyOfSituation", label: "Family of Situation" },
+  { key: "lessonMode", label: "Lesson Mode" },
+  { key: "bilingual", label: "Bilingual" },
+  { key: "engagementLevel", label: "Engagement" },
+  { key: "studentAttendance", label: "Student Attendance" },
+  { key: "status", label: "Status" },
+];
 
 export const dynamic = "force-dynamic";
 
@@ -20,6 +39,7 @@ export async function GET(request: NextRequest) {
     }
 
     const schoolId = user.schoolId;
+    const format = request.nextUrl.searchParams.get("format");
     const params = parseReportParams(request.nextUrl.searchParams);
     const { search, sort, order, cursor, limit, filters } = params;
 
@@ -125,7 +145,7 @@ export async function GET(request: NextRequest) {
     };
 
     const prismaOrderBy = directSorts[sortField] || { date: "desc" };
-    const paginationArgs = buildPagination(cursor, limit);
+    const paginationArgs = format === "csv" ? {} : buildPagination(cursor, limit);
 
     // Fetch entries
     const entries = await db.logbookEntry.findMany({
@@ -176,6 +196,12 @@ export async function GET(request: NextRequest) {
       lessonMode: e.lessonMode || "physical",
       bilingual: e.bilingualActivity ? "Yes" : "No",
     }));
+
+    // CSV export path
+    if (format === "csv") {
+      const csv = generateCSV(data, ACTIVITY_CSV_COLUMNS);
+      return buildCsvResponse(csv, "activity-report.csv");
+    }
 
     // Get filter options
     const [subjectOptions, classOptions, teacherOptions] = await Promise.all([
