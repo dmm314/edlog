@@ -12,6 +12,8 @@ import {
   Check,
   Megaphone,
   Shield,
+  BookOpen,
+  Layers,
 } from "lucide-react";
 import { NotificationBell } from "@/components/NotificationBell";
 import { TeacherActivityRow } from "@/components/TeacherActivityRow";
@@ -322,6 +324,22 @@ export default function AdminDashboardPage() {
                 count: `${stats?.totalTeachers ?? 0} active`,
                 gradient: "linear-gradient(135deg, #FFF1F2, #FFE4E6)",
                 iconColor: "#E11D48",
+              },
+              {
+                href: "/admin/classes",
+                icon: BookOpen,
+                label: "Manage Classes",
+                count: "Add & organise classes",
+                gradient: "linear-gradient(135deg, #F0F9FF, #E0F2FE)",
+                iconColor: "#0284C7",
+              },
+              {
+                href: "/admin/subjects",
+                icon: Layers,
+                label: "Assign Subjects",
+                count: "Subjects per class",
+                gradient: "linear-gradient(135deg, #F7FEE7, #ECFCCB)",
+                iconColor: "#65A30D",
               },
             ].map((action) => {
               const Icon = action.icon;
