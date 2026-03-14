@@ -4,6 +4,25 @@ import { db } from "@/lib/db";
 import { getSessionUser } from "@/lib/auth";
 import { hash } from "bcryptjs";
 
+// Generate a unique teacher/coordinator code (TCH-XXXXXX format)
+function generateCode(): string {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // No I/O/0/1 for readability
+  let code = "TCH-";
+  for (let i = 0; i < 6; i++) {
+    code += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return code;
+}
+
+async function uniqueTeacherCode(): Promise<string> {
+  for (let i = 0; i < 10; i++) {
+    const code = generateCode();
+    const exists = await db.user.findUnique({ where: { teacherCode: code } });
+    if (!exists) return code;
+  }
+  return `TCH-${Date.now().toString(36).toUpperCase().slice(-6)}`;
+}
+
 const VALID_LEVELS = [
   "Form 1",
   "Form 2",
@@ -116,17 +135,23 @@ export async function POST(request: NextRequest) {
               { teacherSchools: { some: { schoolId: user.schoolId!, status: "ACTIVE" } } },
             ],
           },
-          select: { id: true, firstName: true, lastName: true, email: true },
+          select: { id: true, firstName: true, lastName: true, email: true, teacherCode: true },
         });
       } catch {
         teacher = await db.user.findFirst({
           where: { id: teacherId, schoolId: user.schoolId, role: "TEACHER" },
-          select: { id: true, firstName: true, lastName: true, email: true },
+          select: { id: true, firstName: true, lastName: true, email: true, teacherCode: true },
         });
       }
 
       if (!teacher) {
         return NextResponse.json({ error: "Teacher not found in your school" }, { status: 404 });
+      }
+
+      // If teacher has no unique ID yet, generate one now
+      if (!teacher.teacherCode) {
+        const code = await uniqueTeacherCode();
+        await db.user.update({ where: { id: teacherId }, data: { teacherCode: code } });
       }
 
       // Upsert: if this teacher already has a coordinator record at this school, update it
@@ -181,6 +206,7 @@ export async function POST(request: NextRequest) {
     }
 
     const passwordHash = await hash(password, 12);
+    const teacherCode = await uniqueTeacherCode();
 
     // Create user, TeacherSchool link, and LevelCoordinator in a transaction
     const result = await db.$transaction(async (tx) => {
@@ -193,6 +219,7 @@ export async function POST(request: NextRequest) {
           role: "TEACHER",
           isVerified: true,
           schoolId: user.schoolId,
+          teacherCode,
         },
       });
 
@@ -227,9 +254,10 @@ export async function POST(request: NextRequest) {
             firstName: result.newUser.firstName,
             lastName: result.newUser.lastName,
             email: result.newUser.email,
+            teacherCode: result.newUser.teacherCode,
           },
         },
-        credentials: { email, password }, // Return plaintext so admin can share securely
+        credentials: { email, password, teacherCode: result.newUser.teacherCode },
       },
       { status: 201 }
     );

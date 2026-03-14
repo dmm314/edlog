@@ -22,6 +22,7 @@ interface SlotInfo {
   teacherId: string;
   teacherEmail: string;
   teacherPhone: string | null;
+  teacherPhotoUrl?: string | null;
   className: string;
   classId: string;
   level: string;
@@ -413,15 +414,28 @@ export default function CoordinatorTimetablePage() {
                       {/* Teacher info */}
                       <div className="mt-2.5 pt-2.5 flex items-center justify-between gap-2"
                         style={{ borderTop: `1px solid ${active ? "#BBF7D0" : "var(--border-secondary)"}` }}>
-                        <div className="min-w-0">
-                          <p className="text-xs font-semibold truncate" style={{ color: active ? "#15803D" : "var(--text-primary)" }}>
-                            {slot.teacher}
-                          </p>
-                          {slot.teacherEmail && (
-                            <p className="text-[11px] truncate mt-0.5" style={{ color: "var(--text-tertiary)" }}>
-                              {slot.teacherEmail}
-                            </p>
+                        <div className="flex items-center gap-2 min-w-0">
+                          {slot.teacherPhotoUrl ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={slot.teacherPhotoUrl} alt={slot.teacher}
+                              className="w-8 h-8 rounded-xl object-cover flex-shrink-0"
+                              style={{ border: "1px solid var(--border-secondary)" }} />
+                          ) : (
+                            <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 text-[10px] font-black text-white"
+                              style={{ background: active ? "#16A34A" : "linear-gradient(135deg, #6D28D9, #7C3AED)" }}>
+                              {slot.teacher.split(" ").map((n) => n[0]).slice(0, 2).join("")}
+                            </div>
                           )}
+                          <div className="min-w-0">
+                            <p className="text-xs font-semibold truncate" style={{ color: active ? "#15803D" : "var(--text-primary)" }}>
+                              {slot.teacher}
+                            </p>
+                            {slot.teacherEmail && (
+                              <p className="text-[11px] truncate" style={{ color: "var(--text-tertiary)" }}>
+                                {slot.teacherEmail}
+                              </p>
+                            )}
+                          </div>
                         </div>
                         {slot.teacherPhone && (
                           <a href={`tel:${slot.teacherPhone}`}

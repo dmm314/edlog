@@ -104,7 +104,7 @@ export async function GET(request: NextRequest) {
         where,
         include: {
           teacher: {
-            select: { id: true, firstName: true, lastName: true, email: true, phone: true },
+            select: { id: true, firstName: true, lastName: true, email: true, phone: true, photoUrl: true },
           },
           class: { select: { id: true, name: true, level: true, section: true } },
           topics: { include: { subject: { select: { id: true, name: true } } } },
