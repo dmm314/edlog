@@ -9,7 +9,6 @@ import {
   Calendar,
   BarChart3,
   CheckCircle2,
-  Check,
   Megaphone,
   Shield,
   BookOpen,
@@ -90,16 +89,6 @@ export default function AdminDashboardPage() {
     }
     fetchAll();
   }, []);
-
-  function timeAgo(dateStr: string): string {
-    const diff = Date.now() - new Date(dateStr).getTime();
-    const mins = Math.floor(diff / 60000);
-    if (mins < 60) return `${mins}m ago`;
-    const hours = Math.floor(mins / 60);
-    if (hours < 24) return `${hours}h ago`;
-    const days = Math.floor(hours / 24);
-    return `${days}d ago`;
-  }
 
   // Sort teachers by compliance ascending (lowest first — admin sees who's behind)
   const topTeachers = teachers
