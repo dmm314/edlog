@@ -177,6 +177,7 @@ export const {
         token.role = u.role as string;
         token.firstName = u.firstName as string;
         token.lastName = u.lastName as string;
+        token.gender = u.gender as string | null;
         token.schoolId = u.schoolId as string | null;
         token.regionId = u.regionId as string | null;
       }
@@ -196,6 +197,7 @@ export const {
         u.role = token.role;
         u.firstName = token.firstName;
         u.lastName = token.lastName;
+        u.gender = token.gender;
         u.schoolId = token.schoolId;
         u.regionId = token.regionId;
       }
@@ -236,6 +238,7 @@ export async function getSessionUser() {
       email: true,
       firstName: true,
       lastName: true,
+      gender: true,
       role: true,
       schoolId: true,
       regionId: true,
@@ -250,6 +253,7 @@ export async function getSessionUser() {
     email: dbUser.email,
     firstName: dbUser.firstName,
     lastName: dbUser.lastName,
+    gender: dbUser.gender as string | null,
     role: dbUser.role as Role,
     schoolId: dbUser.schoolId,
     regionId: dbUser.regionId,

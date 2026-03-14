@@ -34,6 +34,21 @@ export async function GET(
         },
         assignment: { include: { subject: true } },
         timetableSlot: true,
+        views: {
+          select: {
+            viewerRole: true,
+            viewerTitle: true,
+            viewedAt: true,
+            viewer: { select: { id: true, firstName: true, lastName: true } },
+          },
+          orderBy: { viewedAt: "asc" },
+        },
+        remarks: {
+          orderBy: { createdAt: "asc" },
+          include: {
+            author: { select: { id: true, firstName: true, lastName: true, role: true, photoUrl: true } },
+          },
+        },
       },
     });
 

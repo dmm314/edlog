@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getSessionUser } from "@/lib/auth";
 import { sanitizeHtml } from "@/lib/utils";
+import { getDisplayName } from "@/lib/greeting";
 
 // Helper: get coordinator record and class IDs for the current user
 async function getCoordinatorContext(userId: string, schoolId?: string | null) {
@@ -111,6 +112,14 @@ export async function GET(request: NextRequest) {
             orderBy: { createdAt: "desc" },
             take: 1,
             include: { author: { select: { firstName: true, lastName: true } } },
+          },
+          views: {
+            select: {
+              viewerRole: true,
+              viewerTitle: true,
+              viewedAt: true,
+              viewer: { select: { id: true, firstName: true, lastName: true, gender: true } },
+            },
           },
         },
         orderBy,
@@ -223,7 +232,7 @@ export async function PATCH(request: NextRequest) {
         verificationSignature: signature || null,
       },
       include: {
-        teacher: { select: { id: true, firstName: true, lastName: true } },
+        teacher: { select: { id: true, firstName: true, lastName: true, gender: true } },
         class: { select: { id: true, name: true } },
       },
     });
@@ -236,23 +245,23 @@ export async function PATCH(request: NextRequest) {
           authorId: user.id,
           authorRole: "LEVEL_COORDINATOR",
           content: sanitizeHtml(remark.trim()),
-          remarkType: "admin_verification",
-        },
-      });
-
-      // Notify the teacher
-      await db.notification.create({
-        data: {
-          userId: updated.teacher.id,
-          type: "LOG_REVIEWED",
-          title: "Entry reviewed by coordinator",
-          message: `Your entry for ${updated.class.name} has been ${status === "VERIFIED" ? "verified" : "flagged"} by ${resolvedVerifierTitle}.`,
-          link: `/logbook`,
-          senderRole: "TEACHER", // coordinator has TEACHER base role
-          schoolId: ctx.coordinator.schoolId,
+          remarkType: "coordinator_review",
         },
       });
     }
+
+    // Always notify the teacher when an entry is reviewed
+    await db.notification.create({
+      data: {
+        userId: updated.teacher.id,
+        type: "LOG_REVIEWED",
+        title: `Entry ${status === "VERIFIED" ? "verified" : "flagged"} by ${resolvedVerifierTitle}`,
+        message: `Your entry for ${updated.class.name} has been ${status === "VERIFIED" ? "verified" : "flagged"} by ${resolvedVerifierTitle} (${getDisplayName(user.firstName, user.lastName, user.gender)}).`,
+        link: `/logbook`,
+        senderRole: "TEACHER",
+        schoolId: ctx.coordinator.schoolId,
+      },
+    });
 
     return NextResponse.json({ entry: updated });
   } catch (error) {
