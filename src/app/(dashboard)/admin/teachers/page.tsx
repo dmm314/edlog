@@ -108,6 +108,8 @@ export default function ManageTeachersPage() {
   useEffect(() => {
     fetchTeachers();
     fetchSchoolCode();
+    // Silently assign teacher codes to any accounts missing one
+    fetch("/api/admin/fix-teacher-codes", { method: "POST" }).catch(() => {});
   }, []);
 
   async function fetchTeachers() {

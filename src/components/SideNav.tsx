@@ -61,6 +61,7 @@ function getNavTabs(role: string, isCoordinator?: boolean, activeMode?: PortalMo
     return [
       { href: "/coordinator", label: "Dashboard", icon: Shield, activePrefix: "/coordinator" },
       { href: "/coordinator/entries", label: "Entries", icon: ClipboardList, activePrefix: "/coordinator/entries" },
+      { href: "/coordinator/reports", label: "Reports", icon: BarChart3, activePrefix: "/coordinator/reports" },
       { href: "/coordinator/teachers", label: "Teachers", icon: Users },
       { href: "/coordinator/timetable", label: "Timetable", icon: Calendar },
       { href: "/profile", label: "Profile", icon: User },
