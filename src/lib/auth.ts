@@ -142,6 +142,7 @@ export const {
             role: user.role,
             schoolId: user.schoolId,
             regionId: user.regionId,
+            createdAt: user.createdAt.toISOString(),
           } as unknown as { id: string; email: string; name: string };
         } catch (err) {
           // ── If ANYTHING goes wrong, log it ──
@@ -180,6 +181,7 @@ export const {
         token.gender = u.gender as string | null;
         token.schoolId = u.schoolId as string | null;
         token.regionId = u.regionId as string | null;
+        token.createdAt = u.createdAt as string;
       }
       return token;
     },
@@ -200,6 +202,7 @@ export const {
         u.gender = token.gender;
         u.schoolId = token.schoolId;
         u.regionId = token.regionId;
+        u.createdAt = token.createdAt;
       }
       return session;
     },

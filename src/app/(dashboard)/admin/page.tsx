@@ -17,6 +17,7 @@ import {
 import { NotificationBell } from "@/components/NotificationBell";
 import { TeacherActivityRow } from "@/components/TeacherActivityRow";
 import { OnboardingTour } from "@/components/OnboardingTour";
+import { HelpHint } from "@/components/HelpHint";
 import { ADMIN_TOUR } from "@/lib/tour-steps";
 import type { AdminStats, TeacherWithStats } from "@/types";
 
@@ -47,6 +48,7 @@ export default function AdminDashboardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [coordinators, setCoordinators] = useState<{ id: string; title: string; levels: string[]; isActive: boolean; user: { firstName: string; lastName: string } }[]>([]);
+  const [userCreatedAt, setUserCreatedAt] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     async function fetchAll() {
@@ -83,6 +85,14 @@ export default function AdminDashboardPage() {
           const coords = await coordsRes.json();
           setCoordinators(Array.isArray(coords) ? coords : []);
         }
+        // Fetch createdAt for HelpHints
+        try {
+          const sessionRes = await fetch("/api/auth/session");
+          if (sessionRes.ok) {
+            const s = await sessionRes.json();
+            if (s?.user?.createdAt) setUserCreatedAt(s.user.createdAt as string);
+          }
+        } catch { /* silently fail */ }
       } catch {
         setError("Failed to connect to server");
       } finally {
@@ -206,13 +216,13 @@ export default function AdminDashboardPage() {
           {/* 3 stat pods */}
           <div data-tour="admin-stats" className="flex mt-5 animate-slide-up animation-delay-75" style={{ gap: "8px" }}>
             {[
-              { value: stats?.totalTeachers ?? 0, label: "Teachers", color: "#818CF8" },
-              { value: stats?.entriesThisWeek ?? 0, label: "This week", color: "#F59E0B" },
-              { value: `${complianceRate}%`, label: "Compliance", color: complianceRate >= 80 ? "#4ADE80" : complianceRate >= 50 ? "#FBBF24" : "#FB7185" },
+              { value: stats?.totalTeachers ?? 0, label: "Teachers", color: "#818CF8", hint: undefined },
+              { value: stats?.entriesThisWeek ?? 0, label: "This week", color: "#F59E0B", hint: undefined },
+              { value: `${complianceRate}%`, label: "Compliance", color: complianceRate >= 80 ? "#4ADE80" : complianceRate >= 50 ? "#FBBF24" : "#FB7185", hint: "The percentage of expected entries submitted across your school this month." },
             ].map((stat) => (
               <div
                 key={stat.label}
-                className="flex-1 text-center"
+                className="flex-1 text-center relative"
                 style={{
                   background: "rgba(255,255,255,0.04)",
                   border: "1px solid rgba(255,255,255,0.06)",
@@ -220,6 +230,9 @@ export default function AdminDashboardPage() {
                   padding: "12px",
                 }}
               >
+                {stat.hint && (
+                  <HelpHint text={stat.hint} position="bottom" createdAt={userCreatedAt} className="absolute -top-1 -right-1 z-10" />
+                )}
                 <p
                   className="leading-none tabular-nums"
                   style={{ fontFamily: "var(--font-body)", fontSize: "22px", fontWeight: 800, color: stat.color }}
@@ -343,13 +356,14 @@ export default function AdminDashboardPage() {
         {/* ── MANAGE VPs ── */}
         <Link
           href="/admin/coordinators"
-          className="animate-slide-up animation-delay-175 flex items-center justify-between p-4 group active:scale-[0.98] transition-all duration-200"
+          className="animate-slide-up animation-delay-175 flex items-center justify-between p-4 group active:scale-[0.98] transition-all duration-200 relative"
           style={{
             background: "linear-gradient(135deg, #F5F3FF, #EDE9FE)",
             border: "1px solid #DDD6FE",
             borderRadius: "16px",
           }}
         >
+          <HelpHint text="Assign Vice Principals to manage entry verification for each class level." position="left" createdAt={userCreatedAt} className="absolute top-3 right-3 z-10" />
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "#EDE9FE" }}>
               <Shield className="w-5 h-5" style={{ color: "#6D28D9" }} />
@@ -369,13 +383,14 @@ export default function AdminDashboardPage() {
         {/* ── SEND ANNOUNCEMENT ── */}
         <Link
           href="/admin/announcements"
-          className="animate-slide-up animation-delay-175 flex items-center justify-between p-4 group active:scale-[0.98] transition-all duration-200"
+          className="animate-slide-up animation-delay-175 flex items-center justify-between p-4 group active:scale-[0.98] transition-all duration-200 relative"
           style={{
             background: "linear-gradient(135deg, #FFFBEB, #FEF3C7)",
             border: "1px solid #FDE68A",
             borderRadius: "16px",
           }}
         >
+          <HelpHint text="Send a message to all teachers at your school. They'll see it in their notifications." position="left" createdAt={userCreatedAt} className="absolute top-3 right-3 z-10" />
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center">
               <Megaphone className="w-5 h-5 text-amber-600" />
@@ -420,9 +435,12 @@ export default function AdminDashboardPage() {
             style={{ background: "var(--bg-elevated)", borderColor: "var(--border-primary)", borderRadius: "20px", padding: "18px" }}
           >
             <div className="flex items-center justify-between mb-4">
-              <h3 style={{ fontFamily: "var(--font-body)", fontSize: "14px", fontWeight: 700, color: "var(--text-primary)" }}>
-                Teacher Activity
-              </h3>
+              <div className="flex items-center gap-2">
+                <h3 style={{ fontFamily: "var(--font-body)", fontSize: "14px", fontWeight: 700, color: "var(--text-primary)" }}>
+                  Teacher Activity
+                </h3>
+                <HelpHint text="Teachers sorted by logging activity. Those logging least appear first so you can follow up." position="left" createdAt={userCreatedAt} />
+              </div>
               <Link href="/admin/teachers" className="text-xs font-semibold hover:underline" style={{ color: "var(--accent-text)" }}>
                 View all →
               </Link>

@@ -20,6 +20,7 @@ import { NotificationBell } from "@/components/NotificationBell";
 import { StreakBadge } from "@/components/StreakBadge";
 import { WeeklyProgress } from "@/components/WeeklyProgress";
 import { OnboardingTour } from "@/components/OnboardingTour";
+import { HelpHint } from "@/components/HelpHint";
 import { TEACHER_TOUR } from "@/lib/tour-steps";
 import type { EntryWithRelations } from "@/types";
 import { useCoordinatorMode } from "@/contexts/CoordinatorModeContext";
@@ -123,6 +124,7 @@ export default function LogbookPage() {
   const [userFirstName, setUserFirstName] = useState("");
   const [userLastName, setUserLastName] = useState("");
   const [userGender, setUserGender] = useState<string | null>(null);
+  const [userCreatedAt, setUserCreatedAt] = useState<string | undefined>(undefined);
   const [genderPromptDismissed, setGenderPromptDismissed] = useState(true); // default true to avoid flash
   const [savingGender, setSavingGender] = useState(false);
   const [unreadAnnouncements, setUnreadAnnouncements] = useState(0);
@@ -192,6 +194,7 @@ export default function LogbookPage() {
             const u = sessionData?.user;
             setUserFirstName(u?.firstName || "");
             setUserLastName(u?.lastName || "");
+            if (u?.createdAt) setUserCreatedAt(u.createdAt as string);
           }
           // Fetch gender from profile (session may not have it yet until re-login)
           const profileRes = await fetch("/api/profile");
@@ -658,11 +661,17 @@ export default function LogbookPage() {
 
           {/* Streak + Syllabus pods */}
           <div className="flex animate-slide-up animation-delay-75" style={{ gap: "10px" }}>
-            <div data-tour="streak" className="flex-1">
+            <div data-tour="streak" className="flex-1 relative">
+              <HelpHint
+                text="Your consecutive logging days. Log every teaching day to keep your streak alive!"
+                position="bottom"
+                createdAt={userCreatedAt}
+                className="absolute -top-1 -right-1 z-10"
+              />
               <StreakBadge days={streakDays} className="w-full" />
             </div>
             <div
-              className="flex flex-col items-center justify-center"
+              className="flex flex-col items-center justify-center relative"
               style={{
                 minWidth: "80px",
                 background: "rgba(255,255,255,0.04)",
@@ -671,6 +680,12 @@ export default function LogbookPage() {
                 padding: "12px 14px",
               }}
             >
+              <HelpHint
+                text="The percentage of your curriculum topics you've covered so far this term."
+                position="bottom"
+                createdAt={userCreatedAt}
+                className="absolute -top-1 -right-1 z-10"
+              />
               <p
                 className="leading-none tabular-nums"
                 style={{
@@ -1121,7 +1136,13 @@ export default function LogbookPage() {
 
         {/* ── Weekly Progress ──────────────────────────────────────── */}
         {weeklyProgressData.totalPeriods > 0 && (
-          <div className="animate-slide-up animation-delay-150 mt-4">
+          <div className="animate-slide-up animation-delay-150 mt-4 relative">
+            <HelpHint
+              text="How many of your scheduled periods you've logged each day this week."
+              position="top"
+              createdAt={userCreatedAt}
+              className="absolute top-3 right-3 z-10"
+            />
             <WeeklyProgress
               days={weeklyProgressData.days}
               totalCompleted={weeklyProgressData.totalCompleted}

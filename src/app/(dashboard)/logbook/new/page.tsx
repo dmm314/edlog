@@ -30,6 +30,7 @@ import {
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { getFamilyOfSituation } from "@/lib/family-of-situation";
+import { HelpHint } from "@/components/HelpHint";
 
 const SignaturePad = dynamic(
   () => import("@/components/SignaturePad").then((mod) => mod.SignaturePad),
@@ -128,6 +129,7 @@ export default function NewEntryPage() {
   const [filledPeriods, setFilledPeriods] = useState<Set<number>>(new Set());
   const [filledSlotIds, setFilledSlotIds] = useState<Set<string>>(new Set());
   const [loadingData, setLoadingData] = useState(true);
+  const [userCreatedAt, setUserCreatedAt] = useState<string | undefined>(undefined);
   const [loadingSlots, setLoadingSlots] = useState(false);
 
   const [selectedSlotIds, setSelectedSlotIds] = useState<string[]>([]);
@@ -240,6 +242,10 @@ export default function NewEntryPage() {
       }
     }
     fetchData();
+
+    fetch("/api/auth/session").then(r => r.ok ? r.json() : null).then(s => {
+      if (s?.user?.createdAt) setUserCreatedAt(s.user.createdAt as string);
+    }).catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -1401,7 +1407,10 @@ export default function NewEntryPage() {
 
                 {subjectId && !classDidNotHold && modules.length > 0 && (
                   <div>
-                    <p className="text-[13px] text-[var(--text-tertiary)] mb-3">Select the module you taught:</p>
+                    <div className="flex items-center gap-2 mb-3">
+                      <p className="text-[13px] text-[var(--text-tertiary)]">Select the module you taught:</p>
+                      <HelpHint text="Select the module (unit/chapter) your lesson was part of. Topics will auto-populate based on this." position="right" createdAt={userCreatedAt} />
+                    </div>
                     <div className="flex flex-col gap-2">
                       {modules.map((mod, i) => {
                         const topicCount = topicsForModuleCount(mod);
@@ -1469,8 +1478,12 @@ export default function NewEntryPage() {
 
                 {topicsForModule.length > 0 && (
                   <>
-                    <p style={{ fontFamily: "var(--font-body)", fontSize: 12, color: "var(--text-tertiary)", margin: 0 }}>
-                      {contextSubjectName} {selectedClassLevel}{moduleName ? ` · ${moduleName}` : ""} · {topicsForModule.length} topics in syllabus
+                    <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
+                      <p style={{ fontFamily: "var(--font-body)", fontSize: 12, color: "var(--text-tertiary)", margin: 0 }}>
+                        {contextSubjectName} {selectedClassLevel}{moduleName ? ` · ${moduleName}` : ""} · {topicsForModule.length} topics in syllabus
+                      </p>
+                      <HelpHint text="Tap the specific topics you covered. This tracks your syllabus progress automatically." position="right" createdAt={userCreatedAt} />
+                    </div>
                     </p>
                     <p className="text-[11px] font-semibold uppercase text-[var(--text-tertiary)]" style={{ letterSpacing: "0.06em" }}>Or select from curriculum</p>
                     <div className="flex flex-wrap gap-1.5">
@@ -1581,7 +1594,10 @@ export default function NewEntryPage() {
                 {/* ── CBA: Family of Situation ── */}
                 {moduleName && (
                   <div>
-                    <p className="text-[13px] font-semibold text-[var(--text-primary)] mb-2">Family of Situation</p>
+                    <div className="flex items-center gap-2 mb-2">
+                      <p className="text-[13px] font-semibold text-[var(--text-primary)]">Family of Situation</p>
+                      <HelpHint text="The official MINSEC real-life context for this module. Auto-filled from the curriculum — you can change it if needed." position="right" createdAt={userCreatedAt} />
+                    </div>
                     {familyOfSitCustom ? (
                       <div className="flex gap-2">
                         <input
