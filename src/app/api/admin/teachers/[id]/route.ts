@@ -27,7 +27,7 @@ export async function GET(
             },
           },
           entries: {
-            where: { class: { schoolId: user.schoolId } },
+            where: { class: { schoolId: user.schoolId ?? undefined } },
             orderBy: { date: "desc" },
             take: 50,
             include: {
