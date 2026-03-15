@@ -17,8 +17,39 @@ export async function GET() {
       );
     }
 
+    // Fetch teachers: direct school members + TeacherSchool ACTIVE invitees
+    let teachers: { id: string; firstName: string; lastName: string }[] = [];
+    try {
+      const memberships = await db.teacherSchool.findMany({
+        where: { schoolId: user.schoolId, status: "ACTIVE" },
+        select: { teacher: { select: { id: true, firstName: true, lastName: true, isVerified: true } } },
+      });
+      const memberIds = new Set(memberships.map((m) => m.teacher.id));
+      const directTeachers = await db.user.findMany({
+        where: {
+          schoolId: user.schoolId,
+          role: "TEACHER",
+          isVerified: true,
+          id: { notIn: Array.from(memberIds) },
+        },
+        select: { id: true, firstName: true, lastName: true },
+      });
+      teachers = [
+        ...memberships
+          .filter((m) => m.teacher.isVerified)
+          .map((m) => ({ id: m.teacher.id, firstName: m.teacher.firstName, lastName: m.teacher.lastName })),
+        ...directTeachers,
+      ].sort((a, b) => a.lastName.localeCompare(b.lastName));
+    } catch {
+      teachers = await db.user.findMany({
+        where: { schoolId: user.schoolId, role: "TEACHER", isVerified: true },
+        select: { id: true, firstName: true, lastName: true },
+        orderBy: { lastName: "asc" },
+      });
+    }
+
     // Run queries individually so one failure doesn't break everything
-    const [assignments, teachers, classes, classSubjects, divisions] = await Promise.all([
+    const [assignments, classes, classSubjects, divisions] = await Promise.all([
       db.teacherAssignment.findMany({
         where: { schoolId: user.schoolId },
         include: {
@@ -43,15 +74,6 @@ export async function GET() {
           { class: { name: "asc" } },
         ],
       }).catch((e) => { console.error("assignments query failed:", e); return []; }),
-      db.user.findMany({
-        where: {
-          schoolId: user.schoolId,
-          role: "TEACHER",
-          isVerified: true,
-        },
-        select: { id: true, firstName: true, lastName: true },
-        orderBy: { lastName: "asc" },
-      }).catch((e) => { console.error("teachers query failed:", e); return []; }),
       db.class.findMany({
         where: { schoolId: user.schoolId },
         select: { id: true, name: true, level: true },
@@ -153,11 +175,16 @@ export async function POST(request: Request) {
       );
     }
 
-    // Verify teacher belongs to this school
-    const teacher = await db.user.findFirst({
-      where: { id: teacherId, schoolId: user.schoolId, role: "TEACHER" },
-    });
-    if (!teacher) {
+    // Verify teacher belongs to this school (direct or via TeacherSchool)
+    const [teacherDirect, teacherMembership] = await Promise.all([
+      db.user.findFirst({
+        where: { id: teacherId, schoolId: user.schoolId, role: "TEACHER" },
+      }),
+      db.teacherSchool.findFirst({
+        where: { teacherId, schoolId: user.schoolId, status: { in: ["PENDING", "ACTIVE"] } },
+      }).catch(() => null),
+    ]);
+    if (!teacherDirect && !teacherMembership) {
       return NextResponse.json(
         { error: "Teacher not found in your school" },
         { status: 404 }

@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
     const offset = parseInt(searchParams.get("offset") || "0");
 
     const where: Record<string, unknown> = {
-      teacher: { schoolId: user.schoolId },
+      class: { schoolId: user.schoolId },
     };
 
     if (from || to) {

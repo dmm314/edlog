@@ -250,7 +250,7 @@ export async function POST(request: Request) {
     const assignment = await db.teacherAssignment.findFirst({
       where: { id: assignmentId, schoolId: user.schoolId },
       include: {
-        class: { select: { id: true, name: true } },
+        class: { select: { id: true, name: true, level: true } },
       },
     });
 
@@ -275,7 +275,7 @@ export async function POST(request: Request) {
       include: {
         assignment: {
           include: {
-            class: { select: { name: true } },
+            class: { select: { name: true, level: true } },
             subject: { select: { name: true } },
           },
         },
@@ -307,15 +307,31 @@ export async function POST(request: Request) {
     }
 
     const forceDoubleBook = body.forceDoubleBook === true;
-    if (sameSchoolConflicts.length === 1 && !forceDoubleBook) {
+    if (sameSchoolConflicts.length === 1) {
       const conflict = sameSchoolConflicts[0].assignment;
-      return NextResponse.json(
-        {
-          warning: true,
-          error: `This teacher is already teaching ${conflict.subject.name} in ${conflict.class.name} on ${DAYS[parseInt(dayOfWeek) - 1] || `Day ${dayOfWeek}`} at ${sameSchoolConflicts[0].startTime}-${sameSchoolConflicts[0].endTime}. If you proceed, this will create a joint class — ${conflict.class.name} and ${assignment.class.name} will share this teacher at the same time.`,
-        },
-        { status: 409 }
-      );
+      const conflictLevel = conflict.class.level;
+      const newLevel = assignment.class.level;
+
+      // Different levels cannot share a teacher slot — hard block
+      if (conflictLevel !== newLevel) {
+        return NextResponse.json(
+          {
+            error: `Double-booking blocked: This teacher is already assigned to ${conflict.subject.name} in ${conflict.class.name} (${conflictLevel}) at this time. Teachers cannot teach different class levels simultaneously.`,
+          },
+          { status: 409 }
+        );
+      }
+
+      // Same level: joint class is allowed with confirmation
+      if (!forceDoubleBook) {
+        return NextResponse.json(
+          {
+            warning: true,
+            error: `This teacher is already teaching ${conflict.subject.name} in ${conflict.class.name} on ${DAYS[parseInt(dayOfWeek) - 1] || `Day ${dayOfWeek}`} at ${sameSchoolConflicts[0].startTime}-${sameSchoolConflicts[0].endTime}. If you proceed, this will create a joint class — ${conflict.class.name} and ${assignment.class.name} will share this teacher at the same time.`,
+          },
+          { status: 409 }
+        );
+      }
     }
 
     // Class conflict check
