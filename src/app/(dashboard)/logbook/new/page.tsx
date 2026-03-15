@@ -1484,7 +1484,6 @@ export default function NewEntryPage() {
                       </p>
                       <HelpHint text="Tap the specific topics you covered. This tracks your syllabus progress automatically." position="right" createdAt={userCreatedAt} />
                     </div>
-                    </p>
                     <p className="text-[11px] font-semibold uppercase text-[var(--text-tertiary)]" style={{ letterSpacing: "0.06em" }}>Or select from curriculum</p>
                     <div className="flex flex-wrap gap-1.5">
                       {topicsForModule.map((topic) => {
