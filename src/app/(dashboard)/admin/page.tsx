@@ -16,6 +16,8 @@ import {
 } from "lucide-react";
 import { NotificationBell } from "@/components/NotificationBell";
 import { TeacherActivityRow } from "@/components/TeacherActivityRow";
+import { OnboardingTour } from "@/components/OnboardingTour";
+import { ADMIN_TOUR } from "@/lib/tour-steps";
 import type { AdminStats, TeacherWithStats } from "@/types";
 
 
@@ -173,7 +175,7 @@ export default function AdminDashboardPage() {
 
         <div className="max-w-lg mx-auto relative">
           {/* Top row: label + notification */}
-          <div className="flex items-start justify-between animate-fade-in">
+          <div data-tour="admin-welcome" className="flex items-start justify-between animate-fade-in">
             <div>
               <div className="flex items-center gap-2 mb-1">
                 <p style={{ fontFamily: "var(--font-body)", fontSize: "12px", fontWeight: 500, color: "#94A3B8" }}>
@@ -202,7 +204,7 @@ export default function AdminDashboardPage() {
           </div>
 
           {/* 3 stat pods */}
-          <div className="flex mt-5 animate-slide-up animation-delay-75" style={{ gap: "8px" }}>
+          <div data-tour="admin-stats" className="flex mt-5 animate-slide-up animation-delay-75" style={{ gap: "8px" }}>
             {[
               { value: stats?.totalTeachers ?? 0, label: "Teachers", color: "#818CF8" },
               { value: stats?.entriesThisWeek ?? 0, label: "This week", color: "#F59E0B" },
@@ -264,7 +266,7 @@ export default function AdminDashboardPage() {
         )}
 
         {/* ── QUICK ACTIONS — 2×2 gradient grid ── */}
-        <div className="animate-slide-up animation-delay-150">
+        <div data-tour="admin-quick-actions" className="animate-slide-up animation-delay-150">
           <h3 className="text-xs font-bold uppercase tracking-widest text-[var(--text-tertiary)] mb-3 px-1">
             Quick Actions
           </h3>
@@ -413,6 +415,7 @@ export default function AdminDashboardPage() {
         {/* ── TEACHER ACTIVITY ── */}
         {topTeachers.length > 0 && (
           <div
+            data-tour="admin-teacher-activity"
             className="animate-slide-up animation-delay-225 border"
             style={{ background: "var(--bg-elevated)", borderColor: "var(--border-primary)", borderRadius: "20px", padding: "18px" }}
           >
@@ -545,6 +548,7 @@ export default function AdminDashboardPage() {
         )}
 
       </div>
+      <OnboardingTour steps={ADMIN_TOUR} tourKey="admin" />
     </div>
   );
 }

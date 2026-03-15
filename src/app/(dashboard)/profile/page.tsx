@@ -27,8 +27,10 @@ import {
   BarChart3,
   Moon,
   Sun,
+  HelpCircle,
 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { formatDate } from "@/lib/utils";
 import { useCoordinatorMode } from "@/contexts/CoordinatorModeContext";
 
@@ -271,6 +273,7 @@ function QuickLinkRow({ href, icon, label }: { href: string; icon: React.ReactNo
 
 export default function ProfilePage() {
   const { data: session } = useSession();
+  const router = useRouter();
   const { isCoordinator, coordinatorTitle, activeMode, switchMode, hasTeachingAssignments } = useCoordinatorMode();
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -1377,6 +1380,47 @@ export default function ProfilePage() {
             </div>
             <ChevronRight className="w-4 h-4" style={{ color: "var(--text-tertiary)" }} />
           </Link>
+        )}
+
+        {/* ═══ REPLAY TOUR ═══ */}
+        {!loading && (
+          <button
+            onClick={() => {
+              const role = (profile?.role || "TEACHER").toLowerCase();
+              const tourKey =
+                role === "school_admin" ? "admin"
+                : role === "regional_admin" ? "regional"
+                : isCoordinator ? "coordinator"
+                : "teacher";
+              localStorage.removeItem(`edlog-tour-${tourKey}`);
+              router.push(
+                role === "school_admin" ? "/admin"
+                : role === "regional_admin" ? "/regional"
+                : isCoordinator ? "/coordinator"
+                : "/logbook"
+              );
+            }}
+            className="w-full flex items-center gap-3 rounded-2xl px-4 py-3.5 text-left transition-colors"
+            style={{
+              backgroundColor: "var(--bg-elevated)",
+              border: "1px solid var(--border-primary)",
+            }}
+          >
+            <div
+              className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+              style={{ background: "var(--accent-light)" }}
+            >
+              <HelpCircle className="w-5 h-5" style={{ color: "var(--accent-text)" }} />
+            </div>
+            <div>
+              <p style={{ fontFamily: "var(--font-body)", fontSize: "14px", fontWeight: 600, color: "var(--text-primary)" }}>
+                Replay App Tour
+              </p>
+              <p style={{ fontFamily: "var(--font-body)", fontSize: "12px", color: "var(--text-tertiary)" }}>
+                See the guided walkthrough again
+              </p>
+            </div>
+          </button>
         )}
 
         {/* ═══ SIGN OUT ═══ */}

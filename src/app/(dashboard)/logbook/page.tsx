@@ -19,6 +19,8 @@ import {
 import { NotificationBell } from "@/components/NotificationBell";
 import { StreakBadge } from "@/components/StreakBadge";
 import { WeeklyProgress } from "@/components/WeeklyProgress";
+import { OnboardingTour } from "@/components/OnboardingTour";
+import { TEACHER_TOUR } from "@/lib/tour-steps";
 import type { EntryWithRelations } from "@/types";
 import { useCoordinatorMode } from "@/contexts/CoordinatorModeContext";
 import { getTimeGreeting, getDisplayName } from "@/lib/greeting";
@@ -625,7 +627,7 @@ export default function LogbookPage() {
       >
         <div className="max-w-lg mx-auto relative">
           {/* Greeting + Bell */}
-          <div className="flex items-start justify-between mb-5">
+          <div data-tour="welcome" className="flex items-start justify-between mb-5">
             <div className="animate-fade-in">
               <p
                 style={{
@@ -656,7 +658,9 @@ export default function LogbookPage() {
 
           {/* Streak + Syllabus pods */}
           <div className="flex animate-slide-up animation-delay-75" style={{ gap: "10px" }}>
-            <StreakBadge days={streakDays} className="flex-1" />
+            <div data-tour="streak" className="flex-1">
+              <StreakBadge days={streakDays} className="w-full" />
+            </div>
             <div
               className="flex flex-col items-center justify-center"
               style={{
@@ -755,7 +759,7 @@ export default function LogbookPage() {
 
         {/* ── Today's Schedule ─────────────────────────────────────── */}
         {isWeekday && sortedTodaySlots.length > 0 && (
-          <div className="animate-slide-up">
+          <div data-tour="today-schedule" className="animate-slide-up">
             {/* Section header */}
             <div className="flex items-center justify-between mb-3 px-1">
               <h2
@@ -1290,6 +1294,7 @@ export default function LogbookPage() {
           </div>
         )}
       </div>
+      <OnboardingTour steps={TEACHER_TOUR} tourKey="teacher" />
     </div>
   );
 }
