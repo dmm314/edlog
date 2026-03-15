@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { Search, X, SearchX, Download, ArrowUpDown, ArrowUp, ArrowDown, ChevronLeft, ChevronRight, AlertCircle, RefreshCw } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
+import { HelpHint } from "@/components/HelpHint";
 import { useDataTable, type DataTablePagination } from "@/hooks/useDataTable";
 
 // ── Types ──────────────────────────────────────────────────────────
@@ -40,6 +41,7 @@ export interface DataTableProps<T = Record<string, unknown>> {
   emptyTitle?: string;
   emptyDescription?: string;
   onDataLoad?: (data: T[], pagination: DataTablePagination) => void;
+  createdAt?: string;
 }
 
 // ── Helpers ────────────────────────────────────────────────────────
@@ -92,6 +94,7 @@ export function DataTable<T = Record<string, unknown>>({
   emptyTitle = "No results found",
   emptyDescription = "Try adjusting your search or filters.",
   onDataLoad,
+  createdAt,
 }: DataTableProps<T>) {
   const router = useRouter();
   const pathname = usePathname();
@@ -332,9 +335,18 @@ export function DataTable<T = Record<string, unknown>>({
       <div style={{ padding: "20px 24px 0" }}>
         <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 16 }}>
           <div>
-            <h2 style={{ fontFamily: "var(--font-body)", fontSize: 18, fontWeight: 700, color: "var(--text-primary)", margin: 0 }}>
-              {title}
-            </h2>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <h2 style={{ fontFamily: "var(--font-body)", fontSize: 18, fontWeight: 700, color: "var(--text-primary)", margin: 0 }}>
+                {title}
+              </h2>
+              {createdAt && (
+                <HelpHint
+                  text="Use the search bar to find records, filters to narrow results, and column headers to sort. Data updates as teachers log."
+                  position="right"
+                  createdAt={createdAt}
+                />
+              )}
+            </div>
             {description && (
               <p style={{ fontFamily: "var(--font-body)", fontSize: 14, color: "var(--text-tertiary)", margin: "4px 0 0" }}>
                 {description}

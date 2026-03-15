@@ -20,6 +20,7 @@ import {
 import { NotificationBell } from "@/components/NotificationBell";
 import { TeacherActivityRow } from "@/components/TeacherActivityRow";
 import { OnboardingTour } from "@/components/OnboardingTour";
+import { HelpHint } from "@/components/HelpHint";
 import { COORDINATOR_TOUR } from "@/lib/tour-steps";
 import { useCoordinatorMode } from "@/contexts/CoordinatorModeContext";
 
@@ -122,6 +123,7 @@ export default function CoordinatorDashboardPage() {
   const [timetableSlots, setTimetableSlots] = useState<TimetableSlot[]>([]);
   const [loading, setLoading] = useState(true);
   const [verifying, setVerifying] = useState<string | null>(null);
+  const [userCreatedAt, setUserCreatedAt] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     async function fetchData() {
@@ -165,6 +167,15 @@ export default function CoordinatorDashboardPage() {
       }
 
       setLoading(false);
+
+      // Fetch createdAt for HelpHints
+      try {
+        const sessionRes = await fetch("/api/auth/session");
+        if (sessionRes.ok) {
+          const s = await sessionRes.json();
+          if (s?.user?.createdAt) setUserCreatedAt(s.user.createdAt as string);
+        }
+      } catch { /* silently fail */ }
     }
     fetchData();
   }, []);
@@ -280,12 +291,15 @@ export default function CoordinatorDashboardPage() {
           {/* 3 stat pods */}
           <div data-tour="coordinator-stats" className="flex mt-5 animate-slide-up animation-delay-75" style={{ gap: "8px" }}>
             {[
-              { value: stats?.totalTeachers ?? teachers.length, label: "Teachers", color: "#818CF8" },
-              { value: stats?.totalEntries ?? 0, label: "This month", color: "#F59E0B" },
-              { value: pendingCount, label: "To Review", color: pendingCount > 0 ? "#FBBF24" : "#4ADE80" },
+              { value: stats?.totalTeachers ?? teachers.length, label: "Teachers", color: "#818CF8", hint: undefined },
+              { value: stats?.totalEntries ?? 0, label: "This month", color: "#F59E0B", hint: undefined },
+              { value: pendingCount, label: "To Review", color: pendingCount > 0 ? "#FBBF24" : "#4ADE80", hint: "Entries waiting for your review. Tap any entry to read it, leave a remark, and verify." },
             ].map((stat) => (
-              <div key={stat.label} className="flex-1 text-center"
+              <div key={stat.label} className="flex-1 text-center relative"
                 style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "14px", padding: "12px" }}>
+                {stat.hint && (
+                  <HelpHint text={stat.hint} position="bottom" createdAt={userCreatedAt} className="absolute -top-1 -right-1 z-10" />
+                )}
                 <p className="leading-none tabular-nums"
                   style={{ fontSize: "22px", fontWeight: 800, color: stat.color }}>{stat.value}</p>
                 <p style={{ fontSize: "10px", color: "rgba(255,255,255,0.4)", marginTop: "6px" }}>{stat.label}</p>

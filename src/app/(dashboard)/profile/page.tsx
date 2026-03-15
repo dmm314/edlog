@@ -28,6 +28,8 @@ import {
   Moon,
   Sun,
   HelpCircle,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -280,6 +282,10 @@ export default function ProfilePage() {
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState("");
   const [copiedTC, setCopiedTC] = useState(false);
+  const [hintsVisible, setHintsVisible] = useState(() => {
+    if (typeof window === "undefined") return true;
+    return localStorage.getItem("edlog-hints-dismissed") !== "true";
+  });
 
   // Expanded sections
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
@@ -1421,6 +1427,65 @@ export default function ProfilePage() {
               </p>
             </div>
           </button>
+        )}
+
+        {/* ═══ HELP HINTS TOGGLE ═══ */}
+        {!loading && (
+          hintsVisible ? (
+            <button
+              onClick={() => {
+                localStorage.setItem("edlog-hints-dismissed", "true");
+                setHintsVisible(false);
+              }}
+              className="w-full flex items-center gap-3 rounded-2xl px-4 py-3.5 text-left transition-colors"
+              style={{
+                backgroundColor: "var(--bg-elevated)",
+                border: "1px solid var(--border-primary)",
+              }}
+            >
+              <div
+                className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                style={{ background: "var(--bg-tertiary)" }}
+              >
+                <EyeOff className="w-5 h-5" style={{ color: "var(--text-tertiary)" }} />
+              </div>
+              <div>
+                <p style={{ fontFamily: "var(--font-body)", fontSize: "14px", fontWeight: 600, color: "var(--text-primary)" }}>
+                  Hide Help Hints
+                </p>
+                <p style={{ fontFamily: "var(--font-body)", fontSize: "12px", color: "var(--text-tertiary)" }}>
+                  Remove the &quot;!&quot; indicators from buttons and cards
+                </p>
+              </div>
+            </button>
+          ) : (
+            <button
+              onClick={() => {
+                localStorage.removeItem("edlog-hints-dismissed");
+                setHintsVisible(true);
+              }}
+              className="w-full flex items-center gap-3 rounded-2xl px-4 py-3.5 text-left transition-colors"
+              style={{
+                backgroundColor: "var(--bg-elevated)",
+                border: "1px solid var(--border-primary)",
+              }}
+            >
+              <div
+                className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                style={{ background: "var(--accent-light)" }}
+              >
+                <Eye className="w-5 h-5" style={{ color: "var(--accent-text)" }} />
+              </div>
+              <div>
+                <p style={{ fontFamily: "var(--font-body)", fontSize: "14px", fontWeight: 600, color: "var(--text-primary)" }}>
+                  Show Help Hints
+                </p>
+                <p style={{ fontFamily: "var(--font-body)", fontSize: "12px", color: "var(--text-tertiary)" }}>
+                  Re-enable the &quot;!&quot; helper indicators
+                </p>
+              </div>
+            </button>
+          )
         )}
 
         {/* ═══ SIGN OUT ═══ */}

@@ -17,6 +17,7 @@ import {
 import { NotificationBell } from "@/components/NotificationBell";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import { OnboardingTour } from "@/components/OnboardingTour";
+import { HelpHint } from "@/components/HelpHint";
 import { REGIONAL_TOUR } from "@/lib/tour-steps";
 import type { RegionalStats } from "@/types";
 
@@ -30,6 +31,7 @@ function getRankColor(rank: number, total: number): string {
 export default function RegionalDashboardPage() {
   const [stats, setStats] = useState<RegionalStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [userCreatedAt, setUserCreatedAt] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     async function fetchStats() {
@@ -45,6 +47,11 @@ export default function RegionalDashboardPage() {
       }
     }
     fetchStats();
+
+    // Fetch createdAt for HelpHints
+    fetch("/api/auth/session").then(r => r.ok ? r.json() : null).then(s => {
+      if (s?.user?.createdAt) setUserCreatedAt(s.user.createdAt as string);
+    }).catch(() => {});
   }, []);
 
   if (loading) {
@@ -186,7 +193,7 @@ export default function RegionalDashboardPage() {
           </div>
 
           <div
-            className="p-4 active:scale-[0.97] transition-all duration-[80ms]"
+            className="p-4 active:scale-[0.97] transition-all duration-[80ms] relative"
             style={{
               background: "var(--bg-elevated)",
               border: "1px solid var(--border-primary)",
@@ -194,6 +201,12 @@ export default function RegionalDashboardPage() {
               boxShadow: "var(--shadow-card)",
             }}
           >
+            <HelpHint
+              text="Average logging compliance across all schools in your region. Based on entries submitted vs. expected."
+              position="bottom"
+              createdAt={userCreatedAt}
+              className="absolute -top-1 -right-1 z-10"
+            />
             <div className="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center mb-2">
               <TrendingUp className="w-5 h-5 text-emerald-600" />
             </div>
@@ -239,9 +252,16 @@ export default function RegionalDashboardPage() {
             }}
           >
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-semibold text-[var(--text-primary)]" style={{ fontFamily: "var(--font-body)" }}>
-                School Rankings
-              </h3>
+              <div className="flex items-center gap-2">
+                <h3 className="text-sm font-semibold text-[var(--text-primary)]" style={{ fontFamily: "var(--font-body)" }}>
+                  School Rankings
+                </h3>
+                <HelpHint
+                  text="Schools sorted by compliance — lowest first. This helps you identify which schools need attention."
+                  position="right"
+                  createdAt={userCreatedAt}
+                />
+              </div>
               <Link
                 href="/regional/schools"
                 className="text-xs text-[var(--accent-text)] font-medium"
