@@ -16,6 +16,8 @@ import {
 } from "lucide-react";
 import { NotificationBell } from "@/components/NotificationBell";
 import { ProgressBar } from "@/components/ui/ProgressBar";
+import { OnboardingTour } from "@/components/OnboardingTour";
+import { REGIONAL_TOUR } from "@/lib/tour-steps";
 import type { RegionalStats } from "@/types";
 
 function getRankColor(rank: number, total: number): string {
@@ -99,7 +101,7 @@ export default function RegionalDashboardPage() {
           }}
         />
         <div className="max-w-lg mx-auto relative">
-          <div className="flex items-start justify-between">
+          <div data-tour="regional-welcome" className="flex items-start justify-between">
             <div>
               <p
                 className="text-teal-400 text-xs font-medium"
@@ -142,7 +144,7 @@ export default function RegionalDashboardPage() {
         )}
 
         {/* Stat pods — 2×2 grid */}
-        <div className="animate-fade-slide-in grid grid-cols-2 gap-3 desktop-stats-row" style={{ animationDelay: "80ms" }}>
+        <div data-tour="regional-stats" className="animate-fade-slide-in grid grid-cols-2 gap-3 desktop-stats-row" style={{ animationDelay: "80ms" }}>
           <div
             className="p-4 active:scale-[0.97] transition-all duration-[80ms]"
             style={{
@@ -337,6 +339,7 @@ export default function RegionalDashboardPage() {
           ))}
         </div>
       </div>
+      <OnboardingTour steps={REGIONAL_TOUR} tourKey="regional" />
     </div>
   );
 }

@@ -19,6 +19,8 @@ import {
 } from "lucide-react";
 import { NotificationBell } from "@/components/NotificationBell";
 import { TeacherActivityRow } from "@/components/TeacherActivityRow";
+import { OnboardingTour } from "@/components/OnboardingTour";
+import { COORDINATOR_TOUR } from "@/lib/tour-steps";
 import { useCoordinatorMode } from "@/contexts/CoordinatorModeContext";
 
 interface CoordinatorInfo {
@@ -260,7 +262,7 @@ export default function CoordinatorDashboardPage() {
           style={{ opacity: 0.04, backgroundImage: "radial-gradient(circle at 2px 2px, white 1px, transparent 0)", backgroundSize: "20px 20px" }} />
 
         <div className="max-w-lg mx-auto relative">
-          <div className="flex items-start justify-between animate-fade-in">
+          <div data-tour="coordinator-welcome" className="flex items-start justify-between animate-fade-in">
             <div>
               <p style={{ fontSize: "12px", fontWeight: 500, color: "rgba(196,181,253,0.8)" }}>
                 {coordinator.title}
@@ -276,7 +278,7 @@ export default function CoordinatorDashboardPage() {
           </div>
 
           {/* 3 stat pods */}
-          <div className="flex mt-5 animate-slide-up animation-delay-75" style={{ gap: "8px" }}>
+          <div data-tour="coordinator-stats" className="flex mt-5 animate-slide-up animation-delay-75" style={{ gap: "8px" }}>
             {[
               { value: stats?.totalTeachers ?? teachers.length, label: "Teachers", color: "#818CF8" },
               { value: stats?.totalEntries ?? 0, label: "This month", color: "#F59E0B" },
@@ -296,7 +298,7 @@ export default function CoordinatorDashboardPage() {
       <div className="px-5 mt-4 max-w-lg mx-auto space-y-4 desktop-content">
         {/* Mode switch banner for dual-role users */}
         {hasTeachingAssignments && (
-          <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl animate-fade-in"
+          <div data-tour="coordinator-mode-switch" className="flex items-center gap-3 px-3 py-2.5 rounded-xl animate-fade-in"
             style={{ background: "var(--bg-elevated)", border: "1px solid var(--border-primary)" }}>
             <p className="flex-1 text-xs font-medium" style={{ color: "var(--text-tertiary)" }}>
               You&apos;re in Coordinator mode
@@ -521,7 +523,7 @@ export default function CoordinatorDashboardPage() {
 
         {/* ── PENDING VERIFICATION ── */}
         {pendingEntries.length > 0 && (
-          <div className="animate-slide-up animation-delay-300 border"
+          <div data-tour="coordinator-pending" className="animate-slide-up animation-delay-300 border"
             style={{ background: "var(--bg-elevated)", borderColor: "var(--border-primary)", borderRadius: "20px", padding: "18px" }}>
             <div className="flex items-center justify-between mb-3">
               <h3 style={{ fontSize: "14px", fontWeight: 700, color: "var(--text-primary)" }}>
@@ -596,6 +598,7 @@ export default function CoordinatorDashboardPage() {
           </div>
         )}
       </div>
+      <OnboardingTour steps={COORDINATOR_TOUR} tourKey="coordinator" />
     </div>
   );
 }
