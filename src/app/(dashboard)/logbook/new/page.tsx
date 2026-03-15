@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   CheckCircle,
   Clock,
@@ -116,6 +116,7 @@ const STEP_LABELS = ["Module", "Topic", "Details"];
 
 export default function NewEntryPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   // ─── Step state ───
   const [step, setStep] = useState(0);
@@ -136,8 +137,8 @@ export default function NewEntryPage() {
   const [additionalClassIds, setAdditionalClassIds] = useState<string[]>([]);
 
   const [date, setDate] = useState(() => {
-    const d = new Date();
-    return d.toISOString().split("T")[0];
+    const presetDate = searchParams.get("date");
+    return presetDate || new Date().toISOString().split("T")[0];
   });
   const [classId, setClassId] = useState("");
   const [subjectId, setSubjectId] = useState("");
@@ -328,6 +329,25 @@ export default function NewEntryPage() {
       setAssignmentId(subjectsForClass[0].assignmentId);
     }
   }, [subjectsForClass]);
+
+  // Pre-fill from URL params (assignmentId, slotId, didNotHold) once assignments load
+  useEffect(() => {
+    if (!assignments.length) return;
+    const presetAssignmentId = searchParams.get("assignmentId");
+    const presetSlotId = searchParams.get("slotId");
+    const presetDidNotHold = searchParams.get("didNotHold") === "true";
+    if (presetAssignmentId) {
+      const assignment = assignments.find((a) => a.id === presetAssignmentId);
+      if (assignment) {
+        setClassId(assignment.class.id);
+        setSubjectId(assignment.subject.id);
+        setAssignmentId(assignment.id);
+      }
+    }
+    if (presetSlotId) setTimetableSlotId(presetSlotId);
+    if (presetDidNotHold) setClassDidNotHold(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [assignments]);
 
   const selectedClassLevel = useMemo(() => {
     return assignedClasses.find((c) => c.id === classId)?.level || "";
