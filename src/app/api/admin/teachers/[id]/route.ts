@@ -27,7 +27,7 @@ export async function GET(
             },
           },
           entries: {
-            where: { class: { schoolId: user.schoolId } },
+            where: { class: { schoolId: user.schoolId ?? undefined } },
             orderBy: { date: "desc" },
             take: 50,
             include: {
@@ -41,7 +41,7 @@ export async function GET(
       db.teacherSchool.findFirst({
         where: {
           teacherId: params.id,
-          schoolId: user.schoolId,
+          schoolId: user.schoolId ?? undefined,
           status: { in: ["PENDING", "ACTIVE"] },
         },
       }),
