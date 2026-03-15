@@ -41,7 +41,7 @@ export async function GET(
       db.teacherSchool.findFirst({
         where: {
           teacherId: params.id,
-          schoolId: user.schoolId,
+          schoolId: user.schoolId ?? undefined,
           status: { in: ["PENDING", "ACTIVE"] },
         },
       }),
