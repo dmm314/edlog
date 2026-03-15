@@ -34,7 +34,7 @@ export async function GET() {
     });
 
     const entryFilter = {
-      teacher: { schoolId: user.schoolId },
+      class: { schoolId: user.schoolId },
       OR: [
         { topics: { some: { subjectId: { in: hodSubjectIds } } } },
         { assignment: { subjectId: { in: hodSubjectIds } } },

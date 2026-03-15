@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
       : hodSubjectIds;
 
     const where: Record<string, unknown> = {
-      teacher: { schoolId: user.schoolId },
+      class: { schoolId: user.schoolId },
       OR: [
         { topics: { some: { subjectId: { in: filterSubjectIds } } } },
         { assignment: { subjectId: { in: filterSubjectIds } } },
@@ -139,7 +139,7 @@ export async function GET(request: NextRequest) {
     // Also get distinct moduleName values from entries themselves
     const entryModules = await db.logbookEntry.findMany({
       where: {
-        teacher: { schoolId: user.schoolId },
+        class: { schoolId: user.schoolId },
         moduleName: { not: null },
         OR: [
           { topics: { some: { subjectId: { in: hodSubjectIds } } } },

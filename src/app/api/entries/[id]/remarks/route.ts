@@ -19,7 +19,7 @@ export async function GET(
       select: {
         id: true,
         teacherId: true,
-        teacher: {
+        class: {
           select: { schoolId: true, school: { select: { regionId: true } } },
         },
       },
@@ -45,9 +45,9 @@ export async function GET(
           return NextResponse.json({ error: "Forbidden" }, { status: 403 });
         }
       }
-    } else if (user.role === "SCHOOL_ADMIN" && entry.teacher.schoolId !== user.schoolId) {
+    } else if (user.role === "SCHOOL_ADMIN" && entry.class.schoolId !== user.schoolId) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    } else if (user.role === "REGIONAL_ADMIN" && entry.teacher.school?.regionId !== user.regionId) {
+    } else if (user.role === "REGIONAL_ADMIN" && entry.class.school?.regionId !== user.regionId) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
@@ -106,9 +106,8 @@ export async function POST(
     const entry = await db.logbookEntry.findUnique({
       where: { id: params.id },
       include: {
-        teacher: {
+        class: {
           select: {
-            id: true,
             schoolId: true,
             school: { select: { regionId: true } },
           },
@@ -128,14 +127,14 @@ export async function POST(
 
     if (user.role === "REGIONAL_ADMIN") {
       // Regional admin: must be in same region
-      if (entry.teacher.school?.regionId !== user.regionId) {
+      if (entry.class.school?.regionId !== user.regionId) {
         return NextResponse.json({ error: "Forbidden" }, { status: 403 });
       }
       remarkType = "inspector_note";
       authorRole = "REGIONAL_ADMIN";
     } else if (user.role === "SCHOOL_ADMIN") {
       // School admin: must be at same school
-      if (entry.teacher.schoolId !== user.schoolId) {
+      if (entry.class.schoolId !== user.schoolId) {
         return NextResponse.json({ error: "Forbidden" }, { status: 403 });
       }
       remarkType = "admin_verification";
@@ -158,7 +157,7 @@ export async function POST(
         const hodRecord = await db.headOfDepartment.findFirst({
           where: {
             teacherId: user.id,
-            schoolId: entry.teacher.schoolId!,
+            schoolId: entry.class.schoolId!,
             subjectId: entrySubjectId,
           },
         });

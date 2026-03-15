@@ -24,7 +24,11 @@ export async function POST(
       );
     }
 
-    if (teacher.schoolId !== user.schoolId) {
+    const isAtSchool = teacher.schoolId === user.schoolId
+      || await db.teacherSchool.findFirst({
+        where: { teacherId: teacher.id, schoolId: user.schoolId!, status: "ACTIVE" },
+      });
+    if (!isAtSchool) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 

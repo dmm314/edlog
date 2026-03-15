@@ -55,7 +55,14 @@ export async function GET() {
       flaggedEntries,
     ] = await Promise.all([
       db.user.count({
-        where: { schoolId: user.schoolId, role: "TEACHER", isVerified: true },
+        where: {
+          isVerified: true,
+          role: "TEACHER",
+          OR: [
+            { schoolId: user.schoolId },
+            { teacherSchools: { some: { schoolId: user.schoolId!, status: "ACTIVE" } } },
+          ],
+        },
       }),
       db.logbookEntry.count({
         where: { class: { schoolId: user.schoolId } },

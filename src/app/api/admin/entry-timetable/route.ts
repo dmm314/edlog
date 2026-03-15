@@ -87,7 +87,6 @@ export async function GET(request: NextRequest) {
     const entries = await db.logbookEntry.findMany({
       where: {
         classId,
-        teacher: { schoolId: user.schoolId },
         date: {
           gte: weekStartDate,
           lte: weekEndDate,

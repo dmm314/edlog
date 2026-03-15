@@ -42,10 +42,13 @@ export async function GET(request: NextRequest) {
     const now = new Date();
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 
-    // Build WHERE — teachers at schools in this region
+    // Build WHERE — teachers at schools in this region (direct or via TeacherSchool invitation)
     const where: Record<string, unknown> = {
       role: "TEACHER",
-      school: { regionId },
+      OR: [
+        { school: { regionId } },
+        { teacherSchools: { some: { school: { regionId }, status: "ACTIVE" } } },
+      ],
     };
 
     if (filters.division) {

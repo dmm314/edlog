@@ -100,9 +100,9 @@ export async function GET(request: NextRequest) {
         s."principalName",
         s.status::text,
         d.name as division_name,
-        (SELECT COUNT(*) FROM "User" u WHERE u."schoolId" = s.id AND u.role = 'TEACHER') as teacher_count,
-        (SELECT COUNT(*) FROM "LogbookEntry" le JOIN "User" u ON le."teacherId" = u.id WHERE u."schoolId" = s.id AND le.date >= ${startOfWeek}) as entries_this_week,
-        (SELECT COUNT(*) FROM "LogbookEntry" le JOIN "User" u ON le."teacherId" = u.id WHERE u."schoolId" = s.id AND le.date >= ${startOfMonth}) as entries_this_month
+        (SELECT COUNT(*) FROM "User" u WHERE u.role = 'TEACHER' AND (u."schoolId" = s.id OR u.id IN (SELECT ts."teacherId" FROM "TeacherSchool" ts WHERE ts."schoolId" = s.id AND ts.status = 'ACTIVE'))) as teacher_count,
+        (SELECT COUNT(*) FROM "LogbookEntry" le JOIN "Class" c ON c.id = le."classId" WHERE c."schoolId" = s.id AND le.date >= ${startOfWeek}) as entries_this_week,
+        (SELECT COUNT(*) FROM "LogbookEntry" le JOIN "Class" c ON c.id = le."classId" WHERE c."schoolId" = s.id AND le.date >= ${startOfMonth}) as entries_this_month
       FROM "School" s
       JOIN "Division" d ON d.id = s."divisionId"
       ${whereClause}

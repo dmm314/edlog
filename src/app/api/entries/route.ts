@@ -29,9 +29,9 @@ export async function GET(request: NextRequest) {
     if (user.role === "TEACHER") {
       where.teacherId = user.id;
     } else if (user.role === "SCHOOL_ADMIN") {
-      where.teacher = { schoolId: user.schoolId };
+      where.class = { schoolId: user.schoolId };
     } else if (user.role === "REGIONAL_ADMIN") {
-      where.teacher = { school: { regionId: user.regionId } };
+      where.class = { school: { regionId: user.regionId } };
     }
 
     if (from || to) {
@@ -45,7 +45,7 @@ export async function GET(request: NextRequest) {
     // Support filtering by class name (for admin UI)
     const className = searchParams.get("className");
     if (className && !classId) {
-      where.class = { name: className };
+      where.class = { ...(where.class as Record<string, unknown> || {}), name: className };
     }
 
     // Support filtering by class level (for HOD filtering by form)

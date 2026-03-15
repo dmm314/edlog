@@ -48,24 +48,6 @@ export async function GET(
           },
           orderBy: { name: "asc" },
         },
-        teachers: {
-          where: { role: "TEACHER" },
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            email: true,
-            isVerified: true,
-            _count: { select: { entries: true } },
-            assignments: {
-              select: {
-                subject: { select: { name: true } },
-                class: { select: { name: true } },
-              },
-            },
-          },
-          orderBy: { lastName: "asc" },
-        },
         subjects: {
           include: {
             subject: { select: { id: true, name: true, code: true } },
@@ -81,11 +63,41 @@ export async function GET(
       );
     }
 
-    // Count total entries
-    const totalEntries = school.teachers.reduce(
-      (sum, t) => sum + t._count.entries,
-      0
-    );
+    // Fetch teachers via OR pattern (direct + invited)
+    const schoolTeachers = await db.user.findMany({
+      where: {
+        role: "TEACHER",
+        OR: [
+          { schoolId: school.id },
+          { teacherSchools: { some: { schoolId: school.id, status: "ACTIVE" } } },
+        ],
+      },
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        email: true,
+        isVerified: true,
+        _count: {
+          select: {
+            entries: { where: { class: { schoolId: school.id } } },
+          },
+        },
+        assignments: {
+          where: { schoolId: school.id },
+          select: {
+            subject: { select: { name: true } },
+            class: { select: { name: true } },
+          },
+        },
+      },
+      orderBy: { lastName: "asc" },
+    });
+
+    // Count total entries scoped to this school's classes
+    const totalEntries = await db.logbookEntry.count({
+      where: { class: { schoolId: school.id } },
+    });
 
     const result = {
       id: school.id,
@@ -118,7 +130,7 @@ export async function GET(
         entryCount: c._count.entries,
         teacherCount: c._count.assignments,
       })),
-      teachers: school.teachers.map((t) => ({
+      teachers: schoolTeachers.map((t) => ({
         id: t.id,
         name: `${t.firstName} ${t.lastName}`,
         email: t.email,
@@ -133,7 +145,7 @@ export async function GET(
         code: s.subject.code,
       })),
       totalEntries,
-      teacherCount: school.teachers.length,
+      teacherCount: schoolTeachers.length,
     };
 
     return NextResponse.json(result);
