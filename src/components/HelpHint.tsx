@@ -55,7 +55,7 @@ export function HelpHint({ text, position = "top", createdAt, className }: HelpH
         onClick={(e) => {
           e.preventDefault();
           e.stopPropagation();
-          visible ? handleHide() : handleShow();
+          if (visible) { handleHide(); } else { handleShow(); }
         }}
         aria-label="Help"
         style={{
