@@ -13,29 +13,44 @@ export async function GET(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const teacher = await db.user.findUnique({
-      where: { id: params.id },
-      include: {
-        assignments: {
-          include: {
-            class: { select: { id: true, name: true, level: true } },
-            subject: { select: { id: true, name: true, code: true } },
-            _count: { select: { entries: true, periods: true } },
+    // Check teacher belongs to this school (direct schoolId OR via TeacherSchool membership)
+    const [teacher, membership] = await Promise.all([
+      db.user.findUnique({
+        where: { id: params.id },
+        include: {
+          assignments: {
+            where: { schoolId: user.schoolId },
+            include: {
+              class: { select: { id: true, name: true, level: true } },
+              subject: { select: { id: true, name: true, code: true } },
+              _count: { select: { entries: true, periods: true } },
+            },
           },
-        },
-        entries: {
-          orderBy: { date: "desc" },
-          take: 50,
-          include: {
-            class: { select: { name: true } },
-            topics: { select: { name: true, subject: { select: { name: true } } } },
+          entries: {
+            where: { class: { schoolId: user.schoolId } },
+            orderBy: { date: "desc" },
+            take: 50,
+            include: {
+              class: { select: { name: true } },
+              topics: { select: { name: true, subject: { select: { name: true } } } },
+            },
           },
+          _count: { select: { entries: true } },
         },
-        _count: { select: { entries: true } },
-      },
-    });
+      }),
+      db.teacherSchool.findFirst({
+        where: {
+          teacherId: params.id,
+          schoolId: user.schoolId,
+          status: { in: ["PENDING", "ACTIVE"] },
+        },
+      }),
+    ]);
 
-    if (!teacher || teacher.schoolId !== user.schoolId) {
+    const belongsToSchool =
+      teacher?.schoolId === user.schoolId || membership !== null;
+
+    if (!teacher || !belongsToSchool) {
       return NextResponse.json(
         { error: "Teacher not found" },
         { status: 404 }

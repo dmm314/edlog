@@ -114,7 +114,9 @@ export async function GET(request: NextRequest) {
       db.logbookEntry.findMany({
         where,
         include: {
-          class: true,
+          class: {
+            include: { school: { select: { id: true, name: true } } },
+          },
           topics: {
             include: { subject: true },
           },

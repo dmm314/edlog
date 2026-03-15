@@ -58,25 +58,25 @@ export async function GET() {
         where: { schoolId: user.schoolId, role: "TEACHER", isVerified: true },
       }),
       db.logbookEntry.count({
-        where: { teacher: { schoolId: user.schoolId } },
+        where: { class: { schoolId: user.schoolId } },
       }),
       db.logbookEntry.count({
         where: {
-          teacher: { schoolId: user.schoolId },
+          class: { schoolId: user.schoolId },
           date: { gte: startOfMonth },
         },
       }),
       db.logbookEntry.count({
         where: {
-          teacher: { schoolId: user.schoolId },
+          class: { schoolId: user.schoolId },
           date: { gte: startOfWeek },
         },
       }),
       db.logbookEntry.count({
-        where: { teacher: { schoolId: user.schoolId }, status: "VERIFIED" },
+        where: { class: { schoolId: user.schoolId }, status: "VERIFIED" },
       }),
       db.logbookEntry.count({
-        where: { teacher: { schoolId: user.schoolId }, status: "FLAGGED" },
+        where: { class: { schoolId: user.schoolId }, status: "FLAGGED" },
       }),
     ]);
 
@@ -88,7 +88,7 @@ export async function GET() {
 
     try {
       const entries = await db.logbookEntry.findMany({
-        where: { teacher: { schoolId: user.schoolId } },
+        where: { class: { schoolId: user.schoolId } },
         include: {
           assignment: { include: { subject: true } },
           topics: { include: { subject: true } },
