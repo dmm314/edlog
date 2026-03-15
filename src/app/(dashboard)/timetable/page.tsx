@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Calendar, ArrowLeft } from "lucide-react";
+import { Calendar, ArrowLeft, Eye, PenTool, Clock } from "lucide-react";
 import { getSubjectColor } from "@/lib/colors";
 
 /* ------------------------------------------------------------------ */
@@ -27,6 +27,24 @@ interface TimetableSlot {
   assignment: SlotAssignment;
   jointWith?: string[];
 }
+
+type SlotEntryInfo = {
+  entryId: string;
+  status: string;
+  date: string;
+  moduleName: string | null;
+  topicText: string | null;
+};
+
+type ActiveSlot = {
+  slot: TimetableSlot;
+  dayValue: number;
+  eligibleDate: string | null;
+  existingEntry: SlotEntryInfo | null;
+  isFuture: boolean;
+  isPast: boolean;
+  isToday: boolean;
+};
 
 /* ------------------------------------------------------------------ */
 /*  Constants                                                          */
@@ -54,7 +72,6 @@ function getTodayDow(): number {
 /** Get subject abbreviation (first 3-4 chars) */
 function abbrev(name: string): string {
   if (name.length <= 4) return name;
-  // Use first letters of words if multi-word
   const words = name.split(/\s+/);
   if (words.length >= 2) {
     return words.map((w) => w[0]).join("").toUpperCase().slice(0, 4);
@@ -64,7 +81,6 @@ function abbrev(name: string): string {
 
 /** Get class abbreviation */
 function classAbbrev(name: string): string {
-  // e.g. "Form 3 A" -> "F3A", "Lower Sixth Science" -> "LS-Sci"
   return name
     .replace("Form ", "F")
     .replace("Lower Sixth", "L6")
@@ -100,6 +116,17 @@ function isCurrentPeriod(startTime: string, endTime: string): boolean {
   const startMin = sh * 60 + sm;
   const endMin = eh * 60 + em;
   return nowMin >= startMin && nowMin < endMin;
+}
+
+/** Get the ISO date string for a given day-of-week value (1=Mon…5=Fri) in the current week */
+function getSlotDate(dayValue: number): string {
+  const now = new Date();
+  const currentDow = now.getDay();
+  const todayValue = currentDow === 0 ? 7 : currentDow; // treat Sunday as 7
+  const diff = dayValue - todayValue;
+  const date = new Date(now);
+  date.setDate(now.getDate() + diff);
+  return date.toISOString().split("T")[0];
 }
 
 /* ------------------------------------------------------------------ */
@@ -162,6 +189,8 @@ export default function TimetablePage() {
   const [slotsByDay, setSlotsByDay] = useState<Record<number, TimetableSlot[]>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [slotEntries, setSlotEntries] = useState<Record<string, SlotEntryInfo>>({});
+  const [activeSlot, setActiveSlot] = useState<ActiveSlot | null>(null);
 
   const todayDow = getTodayDow();
 
@@ -189,6 +218,14 @@ export default function TimetablePage() {
       }
     }
     fetchAllDays();
+  }, []);
+
+  /* ----- Fetch slot entry status ----- */
+  useEffect(() => {
+    fetch("/api/timetable/slot-status")
+      .then((r) => (r.ok ? r.json() : { slotEntries: {} }))
+      .then((data) => setSlotEntries(data.slotEntries || {}))
+      .catch(() => {});
   }, []);
 
   /* ----- Derived data ----- */
@@ -220,12 +257,44 @@ export default function TimetablePage() {
     return grid;
   }, [slotsByDay]);
 
-  function handleCellTap(slot: TimetableSlot) {
-    const params = new URLSearchParams({
-      assignmentId: slot.assignment.id,
-      slotId: slot.id,
+  function handleCellTap(slot: TimetableSlot, dayValue: number) {
+    const now = new Date();
+    const currentDow = now.getDay();
+    const todayValue = currentDow === 0 ? 7 : currentDow; // 1=Mon…7=Sun
+
+    // Calculate date for this slot's day in the current week
+    const dayDiff = dayValue - todayValue;
+    const slotDate = new Date(now);
+    slotDate.setDate(now.getDate() + dayDiff);
+    const slotDateStr = slotDate.toISOString().split("T")[0];
+
+    // Check for existing entry by slotId+date
+    let existingEntry: SlotEntryInfo | null = slotEntries[`${slot.id}:${slotDateStr}`] || null;
+
+    // Also check by period number + classId if no direct match
+    if (!existingEntry) {
+      const periodMatch = slot.periodLabel.match(/\d+/);
+      if (periodMatch) {
+        existingEntry =
+          slotEntries[`period:${periodMatch[0]}:${slot.assignment.classId}:${slotDateStr}`] || null;
+      }
+    }
+
+    const isToday = dayDiff === 0;
+    const isPast = dayDiff < 0;
+    const isFuture = dayDiff > 0;
+
+    const eligibleDate = isFuture ? null : slotDateStr;
+
+    setActiveSlot({
+      slot,
+      dayValue,
+      eligibleDate,
+      existingEntry,
+      isFuture,
+      isPast,
+      isToday,
     });
-    router.push(`/logbook/new?${params.toString()}`);
   }
 
   return (
@@ -369,15 +438,35 @@ export default function TimetablePage() {
 
                       if (slot) {
                         const color = getSubjectColor(slot.assignment.subjectName);
+                        const slotDateStr = getSlotDate(day.value);
+                        const periodMatch = slot.periodLabel.match(/\d+/);
+                        const periodNum = periodMatch ? periodMatch[0] : null;
+                        const hasEntry =
+                          slotEntries[`${slot.id}:${slotDateStr}`] ||
+                          (periodNum
+                            ? slotEntries[`period:${periodNum}:${slot.assignment.classId}:${slotDateStr}`]
+                            : null) ||
+                          null;
+                        // Weekend (todayDow===0): all days are past
+                        const isPastDay = todayDow === 0 ? true : day.value < todayDow;
+                        const showFilledDot = !!hasEntry;
+                        const showUnfilledDot = isPastDay && !hasEntry;
+
                         return (
                           <button
                             key={day.value}
-                            onClick={() => handleCellTap(slot)}
-                            className={`p-1 m-0.5 rounded-lg text-left transition-all active:scale-[0.97] duration-[80ms] ${color.bg} ${
+                            onClick={() => handleCellTap(slot, day.value)}
+                            className={`relative p-1 m-0.5 rounded-lg text-left transition-all active:scale-[0.97] duration-[80ms] ${color.bg} ${
                               isCurrentCell ? "ring-2 ring-[var(--accent)]" : ""
-                            } ${isToday && !isCurrentCell ? "bg-amber-50/50" : ""}`}
+                            } ${isToday && !isCurrentCell ? "bg-amber-50/50" : ""} ${hasEntry ? "opacity-75" : ""}`}
                             style={{ borderRadius: "8px" }}
                           >
+                            {showFilledDot && (
+                              <div className="absolute top-0.5 right-0.5 w-[6px] h-[6px] rounded-full bg-emerald-500" />
+                            )}
+                            {showUnfilledDot && (
+                              <div className="absolute top-0.5 right-0.5 w-[6px] h-[6px] rounded-full bg-amber-400" />
+                            )}
                             <p
                               className={`text-[12px] font-bold leading-tight ${color.text}`}
                               style={{ fontFamily: "var(--font-body)" }}
@@ -432,10 +521,222 @@ export default function TimetablePage() {
                   );
                 })}
               </div>
+              {/* Entry status dots legend */}
+              <div className="flex items-center gap-4 mt-2">
+                <div className="flex items-center gap-1.5">
+                  <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                  <span className="text-[10px] text-[var(--text-tertiary)]" style={{ fontFamily: "var(--font-body)" }}>Logged</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-2 h-2 rounded-full bg-amber-400" />
+                  <span className="text-[10px] text-[var(--text-tertiary)]" style={{ fontFamily: "var(--font-body)" }}>Not yet logged</span>
+                </div>
+              </div>
             </div>
           </>
         )}
       </div>
+
+      {/* ============ Action Sheet ============ */}
+      {activeSlot && (
+        <div className="fixed inset-0 z-50 flex items-end justify-center">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/40"
+            onClick={() => setActiveSlot(null)}
+          />
+
+          {/* Sheet */}
+          <div
+            className="relative w-full max-w-lg mx-auto rounded-t-2xl overflow-hidden"
+            style={{
+              background: "var(--bg-elevated)",
+              borderTop: "1px solid var(--border-primary)",
+              boxShadow: "var(--shadow-elevated)",
+              paddingBottom: "env(safe-area-inset-bottom)",
+            }}
+          >
+            {/* Drag handle */}
+            <div className="flex justify-center py-3">
+              <div className="w-10 h-1 rounded-full bg-[var(--bg-tertiary)]" />
+            </div>
+
+            {/* Slot info header */}
+            <div className="px-5 pb-3">
+              <div className="flex items-center gap-3">
+                <div
+                  className={`w-11 h-11 rounded-xl flex items-center justify-center ${getSubjectColor(activeSlot.slot.assignment.subjectName).bg}`}
+                >
+                  <span className={`text-sm font-bold ${getSubjectColor(activeSlot.slot.assignment.subjectName).text}`}>
+                    {abbrev(activeSlot.slot.assignment.subjectName)}
+                  </span>
+                </div>
+                <div>
+                  <p style={{ fontFamily: "var(--font-body)", fontSize: "16px", fontWeight: 700, color: "var(--text-primary)" }}>
+                    {activeSlot.slot.assignment.subjectName}
+                  </p>
+                  <p style={{ fontFamily: "var(--font-body)", fontSize: "13px", color: "var(--text-tertiary)" }}>
+                    {activeSlot.slot.assignment.className} · {activeSlot.slot.periodLabel} · {activeSlot.slot.startTime}–{activeSlot.slot.endTime}
+                  </p>
+                  <p style={{ fontFamily: "var(--font-body)", fontSize: "12px", color: "var(--text-tertiary)" }}>
+                    {DAYS.find((d) => d.value === activeSlot.dayValue)?.label}
+                    {activeSlot.eligibleDate
+                      ? ` · ${new Date(activeSlot.eligibleDate + "T00:00:00").toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}`
+                      : " · This week"}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="px-5 pb-5 space-y-2">
+
+              {/* CASE 1: Entry exists */}
+              {activeSlot.existingEntry && (
+                <>
+                  {/* Status badge */}
+                  <div
+                    className="flex items-center gap-2 px-3 py-2 rounded-xl"
+                    style={{
+                      background:
+                        activeSlot.existingEntry.status === "VERIFIED"
+                          ? "rgba(16,185,129,0.08)"
+                          : activeSlot.existingEntry.status === "FLAGGED"
+                          ? "rgba(239,68,68,0.08)"
+                          : "rgba(245,158,11,0.08)",
+                    }}
+                  >
+                    <div
+                      className="w-2 h-2 rounded-full flex-shrink-0"
+                      style={{
+                        background:
+                          activeSlot.existingEntry.status === "VERIFIED"
+                            ? "#10B981"
+                            : activeSlot.existingEntry.status === "FLAGGED"
+                            ? "#EF4444"
+                            : "#F59E0B",
+                      }}
+                    />
+                    <p style={{ fontFamily: "var(--font-body)", fontSize: "13px", fontWeight: 600, color: "var(--text-secondary)" }}>
+                      {activeSlot.existingEntry.status === "VERIFIED"
+                        ? "Entry verified ✓"
+                        : activeSlot.existingEntry.status === "FLAGGED"
+                        ? "Entry flagged — needs revision"
+                        : "Entry submitted — pending review"}
+                    </p>
+                  </div>
+
+                  {/* Preview */}
+                  {(activeSlot.existingEntry.moduleName || activeSlot.existingEntry.topicText) && (
+                    <p style={{ fontFamily: "var(--font-body)", fontSize: "12px", color: "var(--text-tertiary)", padding: "0 4px" }}>
+                      {activeSlot.existingEntry.moduleName}
+                      {activeSlot.existingEntry.topicText
+                        ? ` — ${activeSlot.existingEntry.topicText.substring(0, 60)}${activeSlot.existingEntry.topicText.length > 60 ? "..." : ""}`
+                        : ""}
+                    </p>
+                  )}
+
+                  {/* View button */}
+                  <button
+                    onClick={() => {
+                      router.push(`/logbook/${activeSlot.existingEntry!.entryId}`);
+                      setActiveSlot(null);
+                    }}
+                    className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm transition-all active:scale-[0.98]"
+                    style={{
+                      background: "var(--bg-tertiary)",
+                      color: "var(--text-primary)",
+                      fontFamily: "var(--font-body)",
+                    }}
+                  >
+                    <Eye className="w-4 h-4" />
+                    View Entry
+                  </button>
+                </>
+              )}
+
+              {/* CASE 2: No entry yet, eligible to fill */}
+              {!activeSlot.existingEntry && activeSlot.eligibleDate && !activeSlot.isFuture && (
+                <>
+                  <button
+                    onClick={() => {
+                      const params = new URLSearchParams({
+                        assignmentId: activeSlot.slot.assignment.id,
+                        slotId: activeSlot.slot.id,
+                        date: activeSlot.eligibleDate!,
+                      });
+                      router.push(`/logbook/new?${params.toString()}`);
+                      setActiveSlot(null);
+                    }}
+                    className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-bold text-sm text-white transition-all active:scale-[0.98]"
+                    style={{
+                      background: "linear-gradient(135deg, var(--accent), var(--accent-hover))",
+                      boxShadow: "0 4px 12px -4px rgba(245,158,11,0.3)",
+                      fontFamily: "var(--font-body)",
+                    }}
+                  >
+                    <PenTool className="w-4 h-4" />
+                    Log Entry for{" "}
+                    {new Date(activeSlot.eligibleDate + "T00:00:00").toLocaleDateString("en-GB", {
+                      day: "numeric",
+                      month: "short",
+                    })}
+                  </button>
+
+                  {/* Class didn't hold */}
+                  <button
+                    onClick={() => {
+                      const params = new URLSearchParams({
+                        assignmentId: activeSlot.slot.assignment.id,
+                        slotId: activeSlot.slot.id,
+                        date: activeSlot.eligibleDate!,
+                        didNotHold: "true",
+                      });
+                      router.push(`/logbook/new?${params.toString()}`);
+                      setActiveSlot(null);
+                    }}
+                    className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl font-semibold text-sm transition-all active:scale-[0.98]"
+                    style={{
+                      background: "var(--bg-tertiary)",
+                      color: "var(--text-tertiary)",
+                      fontFamily: "var(--font-body)",
+                    }}
+                  >
+                    Class didn&apos;t hold
+                  </button>
+                </>
+              )}
+
+              {/* CASE 3: Future day */}
+              {activeSlot.isFuture && !activeSlot.existingEntry && (
+                <div
+                  className="flex items-center gap-3 px-4 py-3 rounded-xl"
+                  style={{ background: "var(--bg-tertiary)" }}
+                >
+                  <Clock className="w-5 h-5 text-[var(--text-tertiary)] flex-shrink-0" />
+                  <div>
+                    <p style={{ fontFamily: "var(--font-body)", fontSize: "13px", fontWeight: 600, color: "var(--text-secondary)" }}>
+                      Not yet — this class is on {DAYS.find((d) => d.value === activeSlot.dayValue)?.label}
+                    </p>
+                    <p style={{ fontFamily: "var(--font-body)", fontSize: "12px", color: "var(--text-tertiary)" }}>
+                      You can log it after the class happens
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* Close */}
+              <button
+                onClick={() => setActiveSlot(null)}
+                className="w-full py-2.5 text-center text-sm font-semibold transition-all"
+                style={{ color: "var(--text-tertiary)", fontFamily: "var(--font-body)" }}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
