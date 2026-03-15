@@ -282,8 +282,20 @@ export async function POST(request: Request) {
       },
     });
 
-    if (teacherConflicts.length >= 2) {
-      const existing = teacherConflicts.map((c) =>
+    // Split conflicts by school
+    const otherSchoolConflicts = teacherConflicts.filter((c) => c.schoolId !== user.schoolId);
+    const sameSchoolConflicts = teacherConflicts.filter((c) => c.schoolId === user.schoolId);
+
+    // Cross-school conflict: hard block, no override
+    if (otherSchoolConflicts.length > 0) {
+      return NextResponse.json(
+        { error: "Unable to double book." },
+        { status: 409 }
+      );
+    }
+
+    if (sameSchoolConflicts.length >= 2) {
+      const existing = sameSchoolConflicts.map((c) =>
         `${c.assignment.subject.name} (${c.assignment.class.name}) at ${c.startTime}-${c.endTime}`
       ).join("; ");
       return NextResponse.json(
@@ -295,12 +307,12 @@ export async function POST(request: Request) {
     }
 
     const forceDoubleBook = body.forceDoubleBook === true;
-    if (teacherConflicts.length === 1 && !forceDoubleBook) {
-      const conflict = teacherConflicts[0].assignment;
+    if (sameSchoolConflicts.length === 1 && !forceDoubleBook) {
+      const conflict = sameSchoolConflicts[0].assignment;
       return NextResponse.json(
         {
           warning: true,
-          error: `This teacher is already teaching ${conflict.subject.name} in ${conflict.class.name} on ${DAYS[parseInt(dayOfWeek) - 1] || `Day ${dayOfWeek}`} at ${teacherConflicts[0].startTime}-${teacherConflicts[0].endTime}. If you proceed, this will create a joint class — ${conflict.class.name} and ${assignment.class.name} will share this teacher at the same time.`,
+          error: `This teacher is already teaching ${conflict.subject.name} in ${conflict.class.name} on ${DAYS[parseInt(dayOfWeek) - 1] || `Day ${dayOfWeek}`} at ${sameSchoolConflicts[0].startTime}-${sameSchoolConflicts[0].endTime}. If you proceed, this will create a joint class — ${conflict.class.name} and ${assignment.class.name} will share this teacher at the same time.`,
         },
         { status: 409 }
       );
