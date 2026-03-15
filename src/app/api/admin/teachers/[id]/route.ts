@@ -19,7 +19,7 @@ export async function GET(
         where: { id: params.id },
         include: {
           assignments: {
-            where: { schoolId: user.schoolId },
+            where: { schoolId: user.schoolId ?? undefined },
             include: {
               class: { select: { id: true, name: true, level: true } },
               subject: { select: { id: true, name: true, code: true } },
