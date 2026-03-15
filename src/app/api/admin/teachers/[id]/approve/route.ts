@@ -30,9 +30,16 @@ export async function POST(
       );
     }
 
-    // Verify the teacher exists and belongs to this school
+    // Verify the teacher exists and belongs to this school (direct or via TeacherSchool)
     const teacher = await db.user.findFirst({
-      where: { id: teacherId, role: "TEACHER", schoolId: user.schoolId },
+      where: {
+        id: teacherId,
+        role: "TEACHER",
+        OR: [
+          { schoolId: user.schoolId },
+          { teacherSchools: { some: { schoolId: user.schoolId!, status: { in: ["PENDING", "ACTIVE"] } } } },
+        ],
+      },
       select: { id: true, firstName: true, lastName: true, isVerified: true },
     });
 

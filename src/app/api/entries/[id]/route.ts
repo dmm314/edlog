@@ -20,7 +20,7 @@ export async function GET(
     const entry = await db.logbookEntry.findUnique({
       where: { id: params.id },
       include: {
-        class: true,
+        class: { include: { school: { select: { regionId: true } } } },
         topics: { include: { subject: true } },
         teacher: {
           select: {
@@ -63,7 +63,7 @@ export async function GET(
         where: {
           userId: user.id,
           isActive: true,
-          schoolId: entry.teacher.schoolId || user.schoolId || undefined,
+          schoolId: entry.class.schoolId || user.schoolId || undefined,
         },
       });
 
@@ -86,10 +86,10 @@ export async function GET(
         return NextResponse.json({ error: "Forbidden" }, { status: 403 });
       }
     }
-    if (user.role === "SCHOOL_ADMIN" && entry.teacher.schoolId !== user.schoolId) {
+    if (user.role === "SCHOOL_ADMIN" && entry.class.schoolId !== user.schoolId) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
-    if (user.role === "REGIONAL_ADMIN" && entry.teacher.school?.regionId !== user.regionId) {
+    if (user.role === "REGIONAL_ADMIN" && entry.class.school?.regionId !== user.regionId) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 

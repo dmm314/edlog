@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getSessionUser } from "@/lib/auth";
 import { getStartOfMonth } from "@/lib/utils";
+import { Prisma } from "@prisma/client";
 
 export async function GET() {
   try {
@@ -40,17 +41,20 @@ export async function GET() {
       db.user.count({
         where: {
           role: "TEACHER",
-          school: { regionId: user.regionId },
+          OR: [
+            { school: { regionId: user.regionId } },
+            { teacherSchools: { some: { school: { regionId: user.regionId }, status: "ACTIVE" } } },
+          ],
         },
       }),
       db.logbookEntry.count({
         where: {
-          teacher: { school: { regionId: user.regionId } },
+          class: { school: { regionId: user.regionId } },
         },
       }),
       db.logbookEntry.count({
         where: {
-          teacher: { school: { regionId: user.regionId } },
+          class: { school: { regionId: user.regionId } },
           date: { gte: startOfMonth },
         },
       }),
@@ -68,39 +72,53 @@ export async function GET() {
     // Get school rankings with teacher and entry counts
     const schools = await db.school.findMany({
       where: { regionId: user.regionId },
-      include: {
-        _count: {
-          select: {
-            teachers: { where: { role: "TEACHER" } },
-          },
-        },
-        teachers: {
-          where: { role: "TEACHER" },
-          select: {
-            _count: {
-              select: { entries: true },
-            },
-            entries: {
-              where: { date: { gte: startOfMonth } },
-              select: { id: true },
-            },
-          },
-        },
-      },
+      select: { id: true, name: true, code: true },
       orderBy: { name: "asc" },
     });
 
+    const schoolIds = schools.map((s) => s.id);
+
+    // Count teachers per school via TeacherSchool (includes both direct + invited)
+    const teacherSchoolCounts = await db.teacherSchool.groupBy({
+      by: ["schoolId"],
+      where: { schoolId: { in: schoolIds }, status: "ACTIVE" },
+      _count: { teacherId: true },
+    });
+    const teacherCountBySchool = new Map(
+      teacherSchoolCounts.map((r) => [r.schoolId, r._count.teacherId])
+    );
+
+    // Count total + monthly entries per school via class.schoolId (skip if no schools)
+    const entryCountBySchool = new Map<string, number>();
+    const monthlyEntryBySchool = new Map<string, number>();
+
+    if (schoolIds.length > 0) {
+      const idList = Prisma.join(schoolIds.map((id) => Prisma.sql`${id}`));
+
+      const entryCountRows = await db.$queryRaw<{ school_id: string; cnt: bigint }[]>(
+        Prisma.sql`SELECT c."schoolId" as school_id, COUNT(le.id) as cnt
+         FROM "LogbookEntry" le
+         JOIN "Class" c ON c.id = le."classId"
+         WHERE c."schoolId" IN (${idList})
+         GROUP BY c."schoolId"`
+      );
+      for (const r of entryCountRows) entryCountBySchool.set(r.school_id, Number(r.cnt));
+
+      const monthlyEntryRows = await db.$queryRaw<{ school_id: string; cnt: bigint }[]>(
+        Prisma.sql`SELECT c."schoolId" as school_id, COUNT(le.id) as cnt
+         FROM "LogbookEntry" le
+         JOIN "Class" c ON c.id = le."classId"
+         WHERE c."schoolId" IN (${idList}) AND le.date >= ${startOfMonth}
+         GROUP BY c."schoolId"`
+      );
+      for (const r of monthlyEntryRows) monthlyEntryBySchool.set(r.school_id, Number(r.cnt));
+    }
+
     const schoolRankings = schools
       .map((school) => {
-        const teacherCount = school._count.teachers;
-        const entryCount = school.teachers.reduce(
-          (sum, t) => sum + t._count.entries,
-          0
-        );
-        const monthlyEntries = school.teachers.reduce(
-          (sum, t) => sum + t.entries.length,
-          0
-        );
+        const teacherCount = teacherCountBySchool.get(school.id) ?? 0;
+        const entryCount = entryCountBySchool.get(school.id) ?? 0;
+        const monthlyEntries = monthlyEntryBySchool.get(school.id) ?? 0;
         const schoolCompliance =
           teacherCount > 0
             ? Math.round(
@@ -135,7 +153,7 @@ export async function GET() {
       }).catch(() => []),
       db.logbookEntry.findMany({
         where: {
-          teacher: { school: { regionId: user.regionId } },
+          class: { school: { regionId: user.regionId } },
           moduleName: { not: null },
         },
         select: { moduleName: true },

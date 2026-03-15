@@ -17,7 +17,7 @@ export async function POST(
       where: { id: params.id },
       include: {
         class: { select: { name: true, level: true, schoolId: true } },
-        teacher: { select: { firstName: true, lastName: true, schoolId: true } },
+        teacher: { select: { firstName: true, lastName: true } },
         assignment: { include: { subject: { select: { name: true } } } },
         topics: { include: { subject: { select: { name: true } } } },
       },
@@ -27,8 +27,8 @@ export async function POST(
       return NextResponse.json({ error: "Entry not found" }, { status: 404 });
     }
 
-    // Ensure admin belongs to this school
-    if (entry.teacher.schoolId !== user.schoolId) {
+    // Ensure admin belongs to this school (scoped by class, not teacher primary school)
+    if (entry.class.schoolId !== user.schoolId) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
