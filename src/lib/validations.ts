@@ -91,6 +91,29 @@ export const createEntrySchema = z.object({
     return true;
   },
   { message: "You must select a period before submitting", path: ["period"] }
+).refine(
+  (data) => {
+    // Module required for submitted non-classDidNotHold entries
+    if (data.status === "DRAFT" || data.classDidNotHold) return true;
+    if (data.status === "SUBMITTED") {
+      return !!(data.moduleName && data.moduleName.trim().length > 0);
+    }
+    return true;
+  },
+  { message: "Select which module this lesson covers before submitting", path: ["moduleName"] }
+).refine(
+  (data) => {
+    // At least one topic required for submitted non-classDidNotHold entries
+    if (data.status === "DRAFT" || data.classDidNotHold) return true;
+    if (data.status === "SUBMITTED") {
+      const hasTopicIds = !!(data.topicIds && data.topicIds.length > 0);
+      const hasTopicId = !!data.topicId;
+      const hasTopicText = !!(data.topicText && data.topicText.trim().length > 0);
+      return hasTopicIds || hasTopicId || hasTopicText;
+    }
+    return true;
+  },
+  { message: "Select or type at least one topic before submitting", path: ["topicText"] }
 );
 
 export const updateEntrySchema = z.object({

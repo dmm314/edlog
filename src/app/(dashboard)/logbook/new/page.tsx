@@ -605,8 +605,18 @@ export default function NewEntryPage() {
   const isWeekend = date ? getDayOfWeek(date) > 5 : false;
   const hasPeriodSelected = selectedSlotIds.length > 0 || period !== "";
   const isFormValid = date && classId && subjectId &&
-    (classDidNotHold || selectedTopicIds.length > 0 || topicText.trim().length > 0) &&
+    (classDidNotHold || (moduleName && (selectedTopicIds.length > 0 || topicText.trim().length > 0))) &&
     !isWeekend && hasPeriodSelected;
+
+  function validateBeforeSubmit(): string | null {
+    if (!classId) return "Select a class";
+    if (!hasPeriodSelected) return "Select a period";
+    if (!classDidNotHold) {
+      if (!moduleName) return "Select a module — which chapter or unit did you teach?";
+      if (selectedTopicIds.length === 0 && !topicText?.trim()) return "Select or type at least one topic";
+    }
+    return null;
+  }
   const isDraftValid = date && classId && subjectId;
   const hasMultiSlots = selectedSlotIds.length > 1;
   const hasMultiClass = additionalClassIds.length > 0;
@@ -632,6 +642,13 @@ export default function NewEntryPage() {
     if (asDraft ? !isDraftValid : !isFormValid) return;
     if (submitting || savingDraft) return;
     setError("");
+    if (!asDraft) {
+      const validationError = validateBeforeSubmit();
+      if (validationError) {
+        setError(validationError);
+        return;
+      }
+    }
     if (asDraft) setSavingDraft(true);
     else setSubmitting(true);
 

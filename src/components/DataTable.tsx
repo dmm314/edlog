@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
-import { Search, X, SearchX, Download, ArrowUpDown, ArrowUp, ArrowDown, ChevronLeft, ChevronRight, AlertCircle, RefreshCw } from "lucide-react";
+import { Search, X, SearchX, Download, ArrowUpDown, ArrowUp, ArrowDown, ChevronLeft, ChevronRight, AlertCircle, RefreshCw, Columns3 } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { HelpHint } from "@/components/HelpHint";
 import { useDataTable, type DataTablePagination } from "@/hooks/useDataTable";
@@ -22,6 +22,7 @@ export interface ColumnDef<T = Record<string, unknown>> {
   width?: string;
   align?: "left" | "center" | "right";
   hideOnMobile?: boolean;
+  defaultHidden?: boolean;
 }
 
 export interface DataTableProps<T = Record<string, unknown>> {
@@ -103,6 +104,43 @@ export function DataTable<T = Record<string, unknown>>({
   // Debounced search
   const [searchInput, setSearchInput] = useState(searchParams.get("search") || "");
   const debounceRef = useRef<ReturnType<typeof setTimeout>>();
+
+  // Column visibility
+  const [visibleColumns, setVisibleColumns] = useState<Set<string>>(() => {
+    const defaults = new Set(columns.filter((c) => !c.defaultHidden).map((c) => c.key));
+    if (typeof window === "undefined") return defaults;
+    try {
+      const stored = localStorage.getItem(`dt-cols-${title}`);
+      if (stored) return new Set(JSON.parse(stored) as string[]);
+    } catch { /* ignore */ }
+    return defaults;
+  });
+  const [showColumnToggle, setShowColumnToggle] = useState(false);
+  const columnToggleRef = useRef<HTMLDivElement>(null);
+
+  function toggleColumn(key: string) {
+    setVisibleColumns((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      try { localStorage.setItem(`dt-cols-${title}`, JSON.stringify([...next])); } catch { /* ignore */ }
+      return next;
+    });
+  }
+
+  // Close column dropdown on outside click
+  useEffect(() => {
+    if (!showColumnToggle) return;
+    function handler(e: MouseEvent) {
+      if (columnToggleRef.current && !columnToggleRef.current.contains(e.target as Node)) {
+        setShowColumnToggle(false);
+      }
+    }
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [showColumnToggle]);
+
+  const displayColumns = columns.filter((c) => visibleColumns.has(c.key));
 
   // Build endpoint with pageSize
   const endpointWithLimit = endpoint + (endpoint.includes("?") ? "&" : "?") + `limit=${pageSize}`;
@@ -353,17 +391,75 @@ export function DataTable<T = Record<string, unknown>>({
               </p>
             )}
           </div>
-          {exportable && (
-            <button
-              onClick={handleExport}
-              disabled={exporting || loading}
-              className="btn-ghost"
-              style={{ padding: "8px 16px", fontSize: 14, display: "inline-flex", alignItems: "center", gap: 8, flexShrink: 0 }}
-            >
-              <Download size={16} />
-              {exporting ? "Exporting..." : "Export CSV"}
-            </button>
-          )}
+          <div style={{ display: "flex", gap: 8, alignItems: "center", flexShrink: 0 }}>
+            {/* Column toggle */}
+            <div ref={columnToggleRef} style={{ position: "relative" }}>
+              <button
+                onClick={() => setShowColumnToggle((v) => !v)}
+                className="btn-ghost"
+                style={{ padding: "8px 14px", fontSize: 14, display: "inline-flex", alignItems: "center", gap: 6 }}
+              >
+                <Columns3 size={16} />
+                Columns
+              </button>
+              {showColumnToggle && (
+                <div
+                  style={{
+                    position: "absolute",
+                    right: 0,
+                    top: "calc(100% + 4px)",
+                    zIndex: 50,
+                    background: "var(--bg-elevated)",
+                    border: "1px solid var(--border-primary)",
+                    borderRadius: 12,
+                    padding: "8px 4px",
+                    boxShadow: "var(--shadow-elevated, 0 8px 32px rgba(0,0,0,0.12))",
+                    minWidth: 200,
+                    maxHeight: 280,
+                    overflowY: "auto",
+                  }}
+                >
+                  {columns.map((col) => (
+                    <label
+                      key={col.key}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 8,
+                        padding: "6px 12px",
+                        cursor: "pointer",
+                        borderRadius: 8,
+                        fontSize: 14,
+                        color: "var(--text-secondary)",
+                      }}
+                      onMouseEnter={(e) => { (e.currentTarget as HTMLLabelElement).style.background = "var(--bg-tertiary)"; }}
+                      onMouseLeave={(e) => { (e.currentTarget as HTMLLabelElement).style.background = "transparent"; }}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={visibleColumns.has(col.key)}
+                        onChange={() => toggleColumn(col.key)}
+                        style={{ accentColor: "var(--accent)" }}
+                      />
+                      {col.label}
+                    </label>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {exportable && (
+              <button
+                onClick={handleExport}
+                disabled={exporting || loading}
+                className="btn-ghost"
+                style={{ padding: "8px 16px", fontSize: 14, display: "inline-flex", alignItems: "center", gap: 8 }}
+              >
+                <Download size={16} />
+                {exporting ? "Exporting..." : "Export CSV"}
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
@@ -509,7 +605,7 @@ export function DataTable<T = Record<string, unknown>>({
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
                 <tr>
-                  {columns.map((col) => (
+                  {displayColumns.map((col) => (
                     <th
                       key={col.key}
                       style={{
@@ -534,7 +630,7 @@ export function DataTable<T = Record<string, unknown>>({
               <tbody>
                 {Array.from({ length: 8 }).map((_, i) => (
                   <tr key={i}>
-                    {columns.map((col) => (
+                    {displayColumns.map((col) => (
                       <td key={col.key} style={{ padding: "12px 16px" }}>
                         <div className="skeleton" style={{ height: 16, width: col.width || "80%", borderRadius: 6 }} />
                       </td>
@@ -576,7 +672,7 @@ export function DataTable<T = Record<string, unknown>>({
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
                 <tr>
-                  {columns.map((col, colIndex) => {
+                  {displayColumns.map((col, colIndex) => {
                     const isActive = currentSort === col.key;
                     const align = col.align || (col.type === "number" ? "right" : "left");
 
@@ -640,7 +736,7 @@ export function DataTable<T = Record<string, unknown>>({
                           rowIndex % 2 === 0 ? "var(--bg-elevated)" : "var(--bg-secondary)";
                       }}
                     >
-                      {columns.map((col, colIndex) => {
+                      {displayColumns.map((col, colIndex) => {
                         const align = col.align || (col.type === "number" ? "right" : "left");
 
                         return (
