@@ -153,12 +153,16 @@ export async function GET() {
       );
     }
 
-    // Batch-fetch this week's entry counts per teacher
+    // Batch-fetch this week's entry counts per teacher, scoped to this school's classes
     const teacherIds = result.map((r) => r.id);
     if (teacherIds.length > 0) {
       const weeklyGroups = await db.logbookEntry.groupBy({
         by: ["teacherId"],
-        where: { teacherId: { in: teacherIds }, date: { gte: startOfWeek } },
+        where: {
+          teacherId: { in: teacherIds },
+          date: { gte: startOfWeek },
+          class: { schoolId: user.schoolId! },
+        },
         _count: { _all: true },
       });
       const weeklyMap = new Map(weeklyGroups.map((g) => [g.teacherId, g._count._all]));

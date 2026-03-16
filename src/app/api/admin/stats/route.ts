@@ -18,35 +18,17 @@ export async function GET() {
     const startOfWeek = getStartOfWeek();
     const startOfMonth = getStartOfMonth();
 
-    // Try TeacherSchool-based counts, fall back to direct schoolId
-    let totalTeachers = 0;
-    let pendingTeachers = 0;
-
-    try {
-      [totalTeachers, pendingTeachers] = await Promise.all([
-        db.teacherSchool.count({
-          where: { schoolId: user.schoolId!, status: "ACTIVE" },
-        }),
-        db.teacherSchool.count({
-          where: { schoolId: user.schoolId!, status: "PENDING" },
-        }),
-      ]);
-      // If TeacherSchool returns 0, also check direct schoolId
-      if (totalTeachers === 0) {
-        const directCount = await db.user.count({
-          where: { schoolId: user.schoolId, role: "TEACHER" },
-        });
-        totalTeachers = Math.max(totalTeachers, directCount);
-      }
-    } catch {
-      // TeacherSchool table doesn't exist — use direct count
-      totalTeachers = await db.user.count({
-        where: { schoolId: user.schoolId, role: "TEACHER" },
-      });
-      pendingTeachers = 0;
-    }
+    const teacherAtSchool = {
+      role: "TEACHER" as const,
+      OR: [
+        { schoolId: user.schoolId },
+        { teacherSchools: { some: { schoolId: user.schoolId!, status: "ACTIVE" } } },
+      ],
+    };
 
     const [
+      totalTeachers,
+      pendingTeachers,
       verifiedTeachers,
       totalEntries,
       entriesThisMonth,
@@ -54,30 +36,17 @@ export async function GET() {
       verifiedEntries,
       flaggedEntries,
     ] = await Promise.all([
-      db.user.count({
-        where: {
-          isVerified: true,
-          role: "TEACHER",
-          OR: [
-            { schoolId: user.schoolId },
-            { teacherSchools: { some: { schoolId: user.schoolId!, status: "ACTIVE" } } },
-          ],
-        },
-      }),
+      db.user.count({ where: teacherAtSchool }),
+      db.teacherSchool.count({ where: { schoolId: user.schoolId!, status: "PENDING" } }).catch(() => 0),
+      db.user.count({ where: { ...teacherAtSchool, isVerified: true } }),
       db.logbookEntry.count({
         where: { class: { schoolId: user.schoolId } },
       }),
       db.logbookEntry.count({
-        where: {
-          class: { schoolId: user.schoolId },
-          date: { gte: startOfMonth },
-        },
+        where: { class: { schoolId: user.schoolId }, date: { gte: startOfMonth } },
       }),
       db.logbookEntry.count({
-        where: {
-          class: { schoolId: user.schoolId },
-          date: { gte: startOfWeek },
-        },
+        where: { class: { schoolId: user.schoolId }, date: { gte: startOfWeek } },
       }),
       db.logbookEntry.count({
         where: { class: { schoolId: user.schoolId }, status: "VERIFIED" },
@@ -133,7 +102,7 @@ export async function GET() {
       where: { schoolId: user.schoolId },
     });
     const todayDow = new Date().getDay(); // 0=Sun … 6=Sat
-    const daysElapsed = todayDow >= 1 && todayDow <= 5 ? todayDow : todayDow === 6 ? 5 : 0;
+    const daysElapsed = Math.min(todayDow === 0 ? 5 : todayDow, 5);
     const expectedThisWeek = totalSlotsPerWeek > 0
       ? Math.round(totalSlotsPerWeek * (daysElapsed / 5))
       : totalTeachers * 4;
