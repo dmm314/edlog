@@ -64,10 +64,14 @@ interface TimetableSlotInfo {
   startTime: string;
   endTime: string;
   dayOfWeek: number;
-  class: { id: string; name: string };
   assignment: {
     id: string;
-    subject: { id: string; name: string };
+    classId: string;
+    className: string;
+    subjectId: string;
+    subjectName: string;
+    divisionId?: string | null;
+    divisionName?: string | null;
   };
 }
 
@@ -887,10 +891,10 @@ export default function LogbookPage() {
                       <div className="flex items-start justify-between">
                         <div className="flex-1 min-w-0">
                           <p className="text-[15px] font-bold text-[var(--text-primary)] leading-snug">
-                            {slot.assignment.subject.name}
+                            {slot.assignment.subjectName}
                           </p>
                           <p className="text-[13px] text-[var(--text-tertiary)] mt-0.5">
-                            {slot.class.name}{isFilled && moduleName ? ` \u00B7 ${moduleName}` : ""}
+                            {slot.assignment.className}{isFilled && moduleName ? ` \u00B7 ${moduleName}` : ""}
                           </p>
                         </div>
 
@@ -905,7 +909,7 @@ export default function LogbookPage() {
                           </div>
                         ) : hasEnded ? (
                           <Link
-                            href={`/logbook/new?slotId=${slot.id}&period=${slot.periodNumber}&date=${todayStr}&assignmentId=${slot.assignment.id}&classId=${slot.class.id}`}
+                            href={`/logbook/new?slotId=${slot.id}&period=${slot.periodNumber}&date=${todayStr}&assignmentId=${slot.assignment.id}&classId=${slot.assignment.classId}`}
                             className="flex items-center gap-1.5 rounded-[10px] px-3.5 py-1.5 text-xs font-bold text-white active:scale-95 transition-transform flex-shrink-0"
                             style={{
                               background: "linear-gradient(135deg, var(--accent), var(--accent-hover))",
