@@ -123,7 +123,7 @@ export function DataTable<T = Record<string, unknown>>({
       const next = new Set(prev);
       if (next.has(key)) next.delete(key);
       else next.add(key);
-      try { localStorage.setItem(`dt-cols-${title}`, JSON.stringify([...next])); } catch { /* ignore */ }
+      try { localStorage.setItem(`dt-cols-${title}`, JSON.stringify(Array.from(next))); } catch { /* ignore */ }
       return next;
     });
   }
