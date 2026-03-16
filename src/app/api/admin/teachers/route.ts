@@ -135,10 +135,13 @@ export async function GET() {
       useTeacherSchool = false;
     }
 
-    // Fallback: query by direct schoolId (works even without TeacherSchool table)
+    // Fallback: TeacherSchool table unavailable — direct schoolId members only
     if (!useTeacherSchool) {
       const teachers = await db.user.findMany({
-        where: { schoolId: user.schoolId, role: "TEACHER" },
+        where: {
+          role: "TEACHER",
+          schoolId: user.schoolId,
+        },
         include: teacherInclude,
         orderBy: { lastName: "asc" },
       });

@@ -123,26 +123,18 @@ export async function POST(request: NextRequest) {
     if (body.teacherId) {
       const { teacherId } = body;
 
-      // Verify teacher belongs to this school
-      let teacher = null;
-      try {
-        teacher = await db.user.findFirst({
-          where: {
-            id: teacherId,
-            role: "TEACHER",
-            OR: [
-              { schoolId: user.schoolId },
-              { teacherSchools: { some: { schoolId: user.schoolId!, status: "ACTIVE" } } },
-            ],
-          },
-          select: { id: true, firstName: true, lastName: true, email: true, teacherCode: true },
-        });
-      } catch {
-        teacher = await db.user.findFirst({
-          where: { id: teacherId, schoolId: user.schoolId, role: "TEACHER" },
-          select: { id: true, firstName: true, lastName: true, email: true, teacherCode: true },
-        });
-      }
+      // Verify teacher belongs to this school (direct or invited)
+      const teacher = await db.user.findFirst({
+        where: {
+          id: teacherId,
+          role: "TEACHER",
+          OR: [
+            { schoolId: user.schoolId },
+            { teacherSchools: { some: { schoolId: user.schoolId!, status: "ACTIVE" } } },
+          ],
+        },
+        select: { id: true, firstName: true, lastName: true, email: true, teacherCode: true },
+      });
 
       if (!teacher) {
         return NextResponse.json({ error: "Teacher not found in your school" }, { status: 404 });
