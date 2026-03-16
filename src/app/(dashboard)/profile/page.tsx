@@ -12,7 +12,6 @@ import {
   ChevronRight,
   ChevronDown,
   LogOut,
-  CalendarCheck,
   Phone,
   User,
   Calendar,
@@ -30,6 +29,10 @@ import {
   HelpCircle,
   Eye,
   EyeOff,
+  GraduationCap,
+  BookOpen,
+  Flame,
+  TrendingUp,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -137,17 +140,17 @@ function getInitialsBg(role: string) {
 function getBannerGradient(role: string) {
   switch (role) {
     case "TEACHER":
-      return "linear-gradient(135deg, #292524, #44403C, #57534E)";
+      return "linear-gradient(135deg, #1c1917 0%, #292524 50%, #44403c 100%)";
     case "SCHOOL_ADMIN":
-      return "linear-gradient(135deg, #1e293b, #334155, #475569)";
+      return "linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%)";
     case "REGIONAL_ADMIN":
-      return "linear-gradient(135deg, #0f172a, #1e293b, #1e3a5f)";
+      return "linear-gradient(135deg, #0c1628 0%, #0f172a 50%, #1e3a5f 100%)";
     default:
       return "linear-gradient(135deg, var(--header-from), var(--header-via), var(--header-to))";
   }
 }
 
-// ── Skeleton ─────────────────────────────────────────────
+// ── Sub-components ────────────────────────────────────────
 
 function SkeletonBanner() {
   return (
@@ -164,10 +167,7 @@ function SkeletonBanner() {
 
 function SkeletonCard() {
   return (
-    <div
-      className="rounded-2xl p-4 animate-pulse"
-      style={{ backgroundColor: "var(--bg-elevated)", border: "1px solid var(--border-primary)" }}
-    >
+    <div className="rounded-2xl p-4 animate-pulse" style={{ backgroundColor: "var(--bg-elevated)", border: "1px solid var(--border-primary)" }}>
       <div className="h-3 rounded w-24 mb-3" style={{ backgroundColor: "var(--skeleton-base)" }} />
       <div className="space-y-2.5">
         <div className="h-3 rounded w-full" style={{ backgroundColor: "var(--skeleton-base)" }} />
@@ -177,8 +177,47 @@ function SkeletonCard() {
   );
 }
 
-// ── Section Card ─────────────────────────────────────────
+// Info row — icon + stacked label / value (replaces all flat label: value pairs)
+function InfoRow({
+  icon,
+  label,
+  value,
+  missingText,
+  mono = false,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value?: string | null;
+  missingText?: string;
+  mono?: boolean;
+}) {
+  const isEmpty = !value;
+  return (
+    <div className="flex items-center gap-3 py-2.5">
+      <div
+        className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
+        style={{ background: "var(--bg-tertiary)" }}
+      >
+        <span className="flex" style={{ color: "var(--text-tertiary)" }}>{icon}</span>
+      </div>
+      <div className="min-w-0 flex-1">
+        <p className="text-[11px] font-medium" style={{ color: "var(--text-tertiary)" }}>{label}</p>
+        <p
+          className={`text-sm font-semibold mt-0.5 ${mono ? "font-mono tracking-wider" : ""}`}
+          style={{
+            color: isEmpty
+              ? (missingText ? "var(--accent-text)" : "var(--text-quaternary)")
+              : "var(--text-primary)",
+          }}
+        >
+          {isEmpty ? (missingText || "—") : value}
+        </p>
+      </div>
+    </div>
+  );
+}
 
+// Section card — header (always visible) + collapsible body
 function SectionCard({
   title,
   children,
@@ -186,6 +225,7 @@ function SectionCard({
   expanded,
   onToggle,
   rightBadge,
+  noPadding,
 }: {
   title: string;
   children: React.ReactNode;
@@ -193,23 +233,23 @@ function SectionCard({
   expanded?: boolean;
   onToggle?: () => void;
   rightBadge?: React.ReactNode;
+  noPadding?: boolean;
 }) {
-  const cardStyle = {
-    backgroundColor: "var(--bg-elevated)",
-    border: "1px solid var(--border-primary)",
-  };
-
   return (
-    <div className="rounded-2xl transition-colors" style={cardStyle}>
+    <div
+      className="rounded-2xl overflow-hidden"
+      style={{ backgroundColor: "var(--bg-elevated)", border: "1px solid var(--border-primary)" }}
+    >
       {expandable ? (
         <button
           type="button"
           onClick={onToggle}
-          className="w-full flex items-center justify-between px-4 py-3 cursor-pointer"
+          className="w-full flex items-center justify-between px-4 py-3.5 transition-colors active:opacity-70"
+          style={{ color: "var(--text-primary)" }}
         >
           <span
-            className="text-xs font-semibold uppercase tracking-[0.04em]"
-            style={{ color: "var(--text-tertiary)", fontFamily: "var(--font-body)" }}
+            className="text-[12px] font-semibold uppercase tracking-[0.05em]"
+            style={{ color: "var(--text-tertiary)" }}
           >
             {title}
           </span>
@@ -225,58 +265,117 @@ function SectionCard({
           </span>
         </button>
       ) : (
-        <div className="px-4 pt-3">
+        <div className="px-4 pt-3.5 pb-1">
           <span
-            className="text-xs font-semibold uppercase tracking-[0.04em]"
-            style={{ color: "var(--text-tertiary)", fontFamily: "var(--font-body)" }}
+            className="text-[12px] font-semibold uppercase tracking-[0.05em]"
+            style={{ color: "var(--text-tertiary)" }}
           >
             {title}
           </span>
         </div>
       )}
 
+      {/* Animated body */}
       <div
         className="overflow-hidden transition-all duration-300 ease-out"
-        style={{
-          maxHeight: expandable ? (expanded ? 600 : 0) : undefined,
-          opacity: expandable ? (expanded ? 1 : 0) : undefined,
-        }}
+        style={
+          expandable
+            ? { maxHeight: expanded ? 1200 : 0, opacity: expanded ? 1 : 0 }
+            : {}
+        }
       >
-        <div className="px-4 pb-4">{children}</div>
+        <div className={noPadding ? "" : "px-4 pb-4"}>{children}</div>
       </div>
 
-      {!expandable && <div className="px-4 pb-4">{children}</div>}
+      {!expandable && <div className={noPadding ? "" : "px-4 pb-4"}>{children}</div>}
     </div>
   );
 }
 
-// ── Quick Link Row ───────────────────────────────────────
-
-function QuickLinkRow({ href, icon, label }: { href: string; icon: React.ReactNode; label: string }) {
+// Quick link row with icon in rounded square
+function QuickLinkRow({
+  href,
+  icon,
+  label,
+  iconBg,
+}: {
+  href: string;
+  icon: React.ReactNode;
+  label: string;
+  iconBg?: string;
+}) {
   return (
     <Link
       href={href}
-      className="flex items-center justify-between py-2.5 group transition-colors rounded-lg -mx-1 px-1"
+      className="flex items-center gap-3 py-2.5 group transition-colors"
       style={{ color: "var(--text-primary)" }}
     >
-      <div className="flex items-center gap-3">
-        <span style={{ color: "var(--text-tertiary)" }}>{icon}</span>
-        <span className="text-sm font-medium">{label}</span>
+      <div
+        className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
+        style={{ background: iconBg || "var(--bg-tertiary)" }}
+      >
+        <span className="flex" style={{ color: iconBg ? "white" : "var(--text-tertiary)" }}>{icon}</span>
       </div>
+      <span className="text-sm font-medium flex-1">{label}</span>
       <ChevronRight
         className="w-4 h-4 group-hover:translate-x-0.5 transition-transform"
-        style={{ color: "var(--text-tertiary)" }}
+        style={{ color: "var(--text-quaternary)" }}
       />
     </Link>
   );
 }
 
-// ── Main Component ───────────────────────────────────────
+// Inline edit form save/cancel row
+function EditActions({
+  onCancel,
+  onSave,
+  saving,
+  error,
+}: {
+  onCancel: () => void;
+  onSave: () => void;
+  saving: boolean;
+  error: string;
+}) {
+  return (
+    <div className="pt-2 space-y-2">
+      {error && (
+        <div
+          className="text-xs rounded-xl px-3 py-2"
+          style={{ background: "var(--accent-light)", color: "var(--accent-text)", border: "1px solid var(--accent)" }}
+        >
+          {error}
+        </div>
+      )}
+      <div className="flex items-center gap-2">
+        <button
+          onClick={onCancel}
+          className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-xl transition-colors"
+          style={{ color: "var(--text-secondary)", background: "var(--bg-tertiary)" }}
+        >
+          <X className="w-3.5 h-3.5" /> Cancel
+        </button>
+        <button
+          onClick={onSave}
+          disabled={saving}
+          className="flex items-center gap-1.5 text-xs font-semibold px-4 py-1.5 rounded-xl transition-colors"
+          style={{ backgroundColor: "var(--accent)", color: "white" }}
+        >
+          <Save className="w-3.5 h-3.5" />
+          {saving ? "Saving…" : "Save changes"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ── Main Component ────────────────────────────────────────
 
 export default function ProfilePage() {
   const { data: session } = useSession();
   const router = useRouter();
   const { isCoordinator, coordinatorTitle, activeMode, switchMode, hasTeachingAssignments } = useCoordinatorMode();
+
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -287,10 +386,7 @@ export default function ProfilePage() {
     return localStorage.getItem("edlog-hints-dismissed") !== "true";
   });
 
-  // Expanded sections
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
-
-  // Edit states
   const [editingSection, setEditingSection] = useState<string | null>(null);
   const [editPhone, setEditPhone] = useState("");
   const [editDob, setEditDob] = useState("");
@@ -319,11 +415,8 @@ export default function ProfilePage() {
           setEditPrincipalName(data.school?.principalName || "");
           setEditPrincipalPhone(data.school?.principalPhone || "");
         }
-      } catch {
-        // silently fail
-      } finally {
-        setLoading(false);
-      }
+      } catch { /* silently fail */ }
+      finally { setLoading(false); }
     }
     fetchProfile();
   }, []);
@@ -333,7 +426,6 @@ export default function ProfilePage() {
     setSaveError("");
     try {
       const body: Record<string, unknown> = { phone: editPhone || null };
-
       if (role === "SCHOOL_ADMIN") {
         body.principalName = editPrincipalName || null;
         body.principalPhone = editPrincipalPhone || null;
@@ -341,51 +433,38 @@ export default function ProfilePage() {
         body.dateOfBirth = editDob || null;
         body.gender = editGender || null;
       }
-
       const res = await fetch("/api/profile", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
-
       if (res.ok) {
         const updated = await res.json();
         setProfile((prev) => {
           if (!prev) return prev;
-          const newProfile = {
-            ...prev,
-            phone: updated.phone,
-            dateOfBirth: updated.dateOfBirth,
-            gender: updated.gender,
-          };
+          const next = { ...prev, phone: updated.phone, dateOfBirth: updated.dateOfBirth, gender: updated.gender };
           if (updated.school && prev.school) {
-            newProfile.school = {
+            next.school = {
               ...prev.school,
               principalName: updated.school.principalName ?? prev.school.principalName,
               principalPhone: updated.school.principalPhone ?? prev.school.principalPhone,
             };
           }
-          return newProfile;
+          return next;
         });
         setEditingSection(null);
       } else {
         const data = await res.json().catch(() => ({}));
-        setSaveError(data.error || "Failed to save profile");
+        setSaveError(data.error || "Failed to save");
       }
-    } catch {
-      setSaveError("Network error. Please try again.");
-    } finally {
-      setSaving(false);
-    }
+    } catch { setSaveError("Network error. Please try again."); }
+    finally { setSaving(false); }
   }
 
   async function handlePhotoUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 2 * 1024 * 1024) {
-      alert("Photo must be under 2MB");
-      return;
-    }
+    if (file.size > 2 * 1024 * 1024) { alert("Photo must be under 2MB"); return; }
     const reader = new FileReader();
     reader.onloadend = async () => {
       const base64 = reader.result as string;
@@ -399,9 +478,7 @@ export default function ProfilePage() {
           const updated = await res.json();
           setProfile((prev) => (prev ? { ...prev, photoUrl: updated.photoUrl } : prev));
         }
-      } catch {
-        // silently fail
-      }
+      } catch { /* silently fail */ }
     };
     reader.readAsDataURL(file);
   }
@@ -418,17 +495,13 @@ export default function ProfilePage() {
           if (!prev) return prev;
           return {
             ...prev,
-            teacherSchools: prev.teacherSchools?.map((ts) =>
-              ts.id === membershipId
-                ? { ...ts, status: action === "accept" ? "ACTIVE" : "REMOVED" }
-                : ts
-            ).filter((ts) => ts.status !== "REMOVED"),
+            teacherSchools: prev.teacherSchools
+              ?.map((ts) => ts.id === membershipId ? { ...ts, status: action === "accept" ? "ACTIVE" : "REMOVED" } : ts)
+              .filter((ts) => ts.status !== "REMOVED"),
           };
         });
       }
-    } catch {
-      // silently fail
-    }
+    } catch { /* silently fail */ }
   }
 
   if (!user) return null;
@@ -443,52 +516,50 @@ export default function ProfilePage() {
 
   const pendingInvitations = profile?.teacherSchools?.filter((ts) => ts.status === "PENDING") || [];
 
-  // Build assignment summary
-  const assignmentSummary = (() => {
-    if (!profile?.assignments || profile.assignments.length === 0) return null;
-    const grouped: Record<string, string[]> = {};
-    for (const a of profile.assignments) {
-      const subj = a.subject.name + (a.division ? ` (${a.division.name})` : "");
-      if (!grouped[subj]) grouped[subj] = [];
-      grouped[subj].push(a.class.name);
-    }
-    return Object.entries(grouped)
-      .map(([subj, classes]) => `${subj} — ${classes.join(", ")}`)
-      .join(" | ");
-  })();
+  // Build assignment summary (grouped by subject)
+  const assignmentGroups: Record<string, string[]> = {};
+  for (const a of profile?.assignments || []) {
+    const subj = a.subject.name + (a.division ? ` (${a.division.name})` : "");
+    if (!assignmentGroups[subj]) assignmentGroups[subj] = [];
+    assignmentGroups[subj].push(a.class.name);
+  }
 
   return (
-    <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
-      {/* ═══ COVER BANNER + AVATAR HEADER ═══ */}
-      {loading ? (
-        <SkeletonBanner />
-      ) : (
+    <div className="min-h-screen pb-28" style={{ backgroundColor: "var(--bg-secondary)" }}>
+
+      {/* ══ BANNER + AVATAR ══ */}
+      {loading ? <SkeletonBanner /> : (
         <div className="animate-fade-in">
           {/* Banner */}
           <div
             className="w-full relative overflow-hidden"
             style={{ height: 140, background: getBannerGradient(role) }}
           >
+            {/* Subtle dot-grid texture */}
             <div
-              className="absolute inset-0 opacity-[0.03]"
+              className="absolute inset-0 opacity-[0.04]"
               style={{
-                backgroundImage: "radial-gradient(circle at 2px 2px, white 1px, transparent 0)",
-                backgroundSize: "24px 24px",
+                backgroundImage: "radial-gradient(circle at 1px 1px, white 1px, transparent 0)",
+                backgroundSize: "20px 20px",
               }}
+            />
+            {/* Soft vignette */}
+            <div
+              className="absolute inset-x-0 bottom-0 h-16"
+              style={{ background: "linear-gradient(to bottom, transparent, rgba(0,0,0,0.25))" }}
             />
           </div>
 
-          {/* Avatar + Identity */}
+          {/* Avatar + identity block */}
           <div className="max-w-lg mx-auto px-5 -mt-11 flex flex-col items-center">
-            {/* Photo */}
             <div className="relative">
               {profile?.photoUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={profile.photoUrl}
-                  alt="Profile"
+                  alt="Profile photo"
                   className="w-[88px] h-[88px] rounded-full object-cover"
-                  style={{ border: "4px solid var(--bg-primary)", boxShadow: "0 4px 12px rgba(0,0,0,0.12)" }}
+                  style={{ border: "4px solid var(--bg-primary)", boxShadow: "0 4px 16px rgba(0,0,0,0.18)" }}
                 />
               ) : (
                 <div
@@ -496,7 +567,8 @@ export default function ProfilePage() {
                   style={{
                     backgroundColor: getInitialsBg(role),
                     border: "4px solid var(--bg-primary)",
-                    boxShadow: "0 4px 12px rgba(0,0,0,0.12)",
+                    boxShadow: "0 4px 16px rgba(0,0,0,0.18)",
+                    fontFamily: "var(--font-display)",
                   }}
                 >
                   {initials.toUpperCase()}
@@ -504,30 +576,25 @@ export default function ProfilePage() {
               )}
               <button
                 onClick={() => fileInputRef.current?.click()}
-                className="absolute bottom-0 right-0 w-8 h-8 rounded-full flex items-center justify-center shadow-lg"
+                className="absolute bottom-0.5 right-0.5 w-7 h-7 rounded-full flex items-center justify-center shadow-lg transition-transform active:scale-90"
                 style={{ backgroundColor: "var(--accent)", color: "white" }}
+                title="Change photo"
               >
-                <Camera className="w-4 h-4" />
+                <Camera className="w-3.5 h-3.5" />
               </button>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                onChange={handlePhotoUpload}
-                className="hidden"
-              />
+              <input ref={fileInputRef} type="file" accept="image/*" onChange={handlePhotoUpload} className="hidden" />
             </div>
 
-            {/* Name + Role Pill */}
-            <div className="flex items-center gap-2 mt-3">
+            {/* Name + role pill */}
+            <div className="flex items-center gap-2 mt-3 flex-wrap justify-center">
               <h1
-                className="font-display text-[22px] font-bold"
-                style={{ color: "var(--text-primary)" }}
+                className="font-bold text-[22px] leading-tight"
+                style={{ color: "var(--text-primary)", fontFamily: "var(--font-display)" }}
               >
                 {displayName}
               </h1>
               <span
-                className="text-[11px] font-semibold px-2.5 py-0.5 rounded-[10px]"
+                className="text-[11px] font-semibold px-2.5 py-1 rounded-full"
                 style={{ backgroundColor: "var(--accent-light)", color: "var(--accent-text)" }}
               >
                 {getRoleBadgeLabel(role)}
@@ -535,342 +602,236 @@ export default function ProfilePage() {
             </div>
 
             {/* Email */}
-            <p
-              className="text-[13px] mt-1"
-              style={{ color: "var(--text-tertiary)", fontFamily: "var(--font-body)" }}
-            >
+            <p className="text-[13px] mt-1" style={{ color: "var(--text-tertiary)" }}>
               {profile?.email}
             </p>
+
+            {/* Verification badge */}
+            {profile?.isVerified ? (
+              <span className="flex items-center gap-1 text-[11px] font-semibold mt-1.5" style={{ color: "#10b981" }}>
+                <CheckCircle className="w-3 h-3" /> Verified
+              </span>
+            ) : role === "TEACHER" ? (
+              <span className="flex items-center gap-1 text-[11px] font-medium mt-1.5" style={{ color: "var(--text-quaternary)" }}>
+                <XCircle className="w-3 h-3" /> Awaiting verification
+              </span>
+            ) : null}
           </div>
         </div>
       )}
 
-      {/* ═══ CONTENT ═══ */}
-      <div className="px-5 mt-5 max-w-lg mx-auto flex flex-col gap-2.5">
+      {/* ══ CONTENT ══ */}
+      <div className="px-4 mt-5 max-w-lg mx-auto flex flex-col gap-2.5">
 
-        {/* ═══ MODE SWITCHER (dual-role teacher+coordinator) ═══ */}
-        {isCoordinator && hasTeachingAssignments && (
+        {/* ── Mode switcher (dual-role teachers) ── */}
+        {isCoordinator && hasTeachingAssignments && !loading && (
           <div
             className="rounded-2xl p-3 animate-fade-slide-in"
             style={{
-              backgroundColor: activeMode === "coordinator"
-                ? "rgba(109,40,217,0.06)"
-                : "var(--bg-elevated)",
-              border: `1px solid ${activeMode === "coordinator" ? "rgba(124,58,237,0.2)" : "var(--border-primary)"}`,
+              backgroundColor: activeMode === "coordinator" ? "rgba(109,40,217,0.06)" : "var(--bg-elevated)",
+              border: `1px solid ${activeMode === "coordinator" ? "rgba(124,58,237,0.22)" : "var(--border-primary)"}`,
             }}
           >
             <p className="text-[10px] font-bold uppercase tracking-widest mb-2" style={{ color: "var(--text-tertiary)" }}>
               Switch portal
             </p>
             <div className="flex gap-1.5">
-              <button
-                onClick={() => switchMode("teacher")}
-                className="flex-1 py-2.5 rounded-xl text-center text-sm font-semibold transition-all"
-                style={{
-                  background: activeMode === "teacher" ? "var(--accent)" : "var(--bg-tertiary)",
-                  color: activeMode === "teacher" ? "white" : "var(--text-tertiary)",
-                  boxShadow: activeMode === "teacher" ? "0 2px 8px rgba(245,158,11,0.35)" : "none",
-                }}
-              >
-                Teacher
-              </button>
-              <button
-                onClick={() => switchMode("coordinator")}
-                className="flex-1 py-2.5 rounded-xl text-center text-sm font-semibold transition-all"
-                style={{
-                  background: activeMode === "coordinator" ? "#7C3AED" : "var(--bg-tertiary)",
-                  color: activeMode === "coordinator" ? "white" : "var(--text-tertiary)",
-                  boxShadow: activeMode === "coordinator" ? "0 2px 8px rgba(124,58,237,0.35)" : "none",
-                }}
-              >
-                {coordinatorTitle || "Coordinator"}
-              </button>
+              {[
+                { mode: "teacher" as const, label: "Teacher" },
+                { mode: "coordinator" as const, label: coordinatorTitle || "Coordinator" },
+              ].map(({ mode, label }) => (
+                <button
+                  key={mode}
+                  onClick={() => switchMode(mode)}
+                  className="flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all"
+                  style={{
+                    background: activeMode === mode
+                      ? mode === "coordinator" ? "#7C3AED" : "var(--accent)"
+                      : "var(--bg-tertiary)",
+                    color: activeMode === mode ? "white" : "var(--text-tertiary)",
+                    boxShadow: activeMode === mode
+                      ? mode === "coordinator" ? "0 2px 8px rgba(124,58,237,0.35)" : "0 2px 8px rgba(245,158,11,0.35)"
+                      : "none",
+                  }}
+                >
+                  {label}
+                </button>
+              ))}
             </div>
           </div>
         )}
 
-        {/* ═══ QUICK STATS BAR ═══ */}
-        {loading ? (
-          <SkeletonCard />
-        ) : (
+        {/* ── Quick Stats Bar ── */}
+        {loading ? <SkeletonCard /> : (
           <>
+            {/* Teacher stats */}
             {role === "TEACHER" && profile?.teacherStats && (
               <div
-                className="rounded-2xl p-3 animate-fade-slide-in"
+                className="rounded-2xl overflow-hidden animate-fade-slide-in"
                 style={{ backgroundColor: "var(--bg-elevated)", border: "1px solid var(--border-primary)" }}
               >
-                <div className="grid grid-cols-4 gap-1">
-                  <div className="text-center py-2">
-                    <span className="font-mono text-xl font-bold block" style={{ color: "var(--text-primary)" }}>
-                      {profile.teacherStats.totalEntries}
-                    </span>
-                    <span className="text-[10px] uppercase font-medium" style={{ color: "var(--text-tertiary)" }}>
-                      entries
-                    </span>
-                  </div>
-                  <div
-                    className="text-center py-2 rounded-xl"
-                    style={{ backgroundColor: "rgba(245, 158, 11, 0.06)" }}
-                  >
-                    <span className="font-mono text-xl font-bold block" style={{ color: "var(--accent-text)" }}>
-                      {profile.teacherStats.streak}
-                    </span>
-                    <span className="text-[10px] uppercase font-medium" style={{ color: "var(--text-tertiary)" }}>
-                      streak
-                    </span>
-                  </div>
-                  <div className="text-center py-2">
-                    <span className="font-mono text-xl font-bold block" style={{ color: "var(--text-primary)" }}>
-                      {profile.teacherStats.syllabusCoverage}%
-                    </span>
-                    <span className="text-[10px] uppercase font-medium" style={{ color: "var(--text-tertiary)" }}>
-                      syllabus
-                    </span>
-                  </div>
-                  <div className="text-center py-2">
-                    <span className="font-mono text-xl font-bold block truncate px-1" style={{ color: "var(--text-primary)", fontSize: profile.teacherStats.topSubject && profile.teacherStats.topSubject.length > 6 ? 14 : undefined }}>
-                      {profile.teacherStats.topSubject || "—"}
-                    </span>
-                    <span className="text-[10px] uppercase font-medium" style={{ color: "var(--text-tertiary)" }}>
-                      top subj
-                    </span>
-                  </div>
+                <div className="flex">
+                  {[
+                    {
+                      value: profile.teacherStats.totalEntries,
+                      label: "entries",
+                      icon: <BookOpen className="w-3 h-3" />,
+                      tint: false,
+                    },
+                    {
+                      value: profile.teacherStats.streak,
+                      label: "streak",
+                      icon: <Flame className="w-3 h-3" />,
+                      tint: true,
+                    },
+                    {
+                      value: `${profile.teacherStats.syllabusCoverage}%`,
+                      label: "syllabus",
+                      icon: <TrendingUp className="w-3 h-3" />,
+                      tint: false,
+                    },
+                    {
+                      value: profile.teacherStats.topSubject || "—",
+                      label: "top subj",
+                      icon: <GraduationCap className="w-3 h-3" />,
+                      tint: false,
+                      small: profile.teacherStats.topSubject ? profile.teacherStats.topSubject.length > 7 : false,
+                    },
+                  ].map((cell, i) => (
+                    <div
+                      key={cell.label}
+                      className="flex-1 flex flex-col items-center justify-center py-3.5 px-1 text-center"
+                      style={{
+                        borderLeft: i > 0 ? "1px solid var(--border-secondary)" : "none",
+                        background: cell.tint ? "rgba(245,158,11,0.05)" : "transparent",
+                      }}
+                    >
+                      <span
+                        className="font-mono font-bold block tabular-nums leading-none"
+                        style={{
+                          color: cell.tint ? "var(--accent-text)" : "var(--text-primary)",
+                          fontSize: cell.small ? 13 : 20,
+                        }}
+                      >
+                        {cell.value}
+                      </span>
+                      <span
+                        className="flex items-center gap-0.5 mt-1.5 font-medium uppercase"
+                        style={{ color: "var(--text-tertiary)", fontSize: 9, letterSpacing: "0.06em" }}
+                      >
+                        <span style={{ color: cell.tint ? "var(--accent-text)" : "var(--text-quaternary)" }}>
+                          {cell.icon}
+                        </span>
+                        {cell.label}
+                      </span>
+                    </div>
+                  ))}
                 </div>
               </div>
             )}
 
+            {/* School admin stats */}
             {role === "SCHOOL_ADMIN" && profile?.schoolStats && (
               <div
-                className="rounded-2xl p-3 animate-fade-slide-in"
+                className="rounded-2xl overflow-hidden animate-fade-slide-in"
                 style={{ backgroundColor: "var(--bg-elevated)", border: "1px solid var(--border-primary)" }}
               >
-                <div className="grid grid-cols-3 gap-1">
-                  <div className="text-center py-2">
-                    <span className="font-mono text-xl font-bold block" style={{ color: "var(--text-primary)" }}>
-                      {profile.schoolStats.totalTeachers}
-                    </span>
-                    <span className="text-[10px] uppercase font-medium" style={{ color: "var(--text-tertiary)" }}>
-                      teachers
-                    </span>
-                  </div>
-                  <div className="text-center py-2">
-                    <span className="font-mono text-xl font-bold block" style={{ color: "var(--text-primary)" }}>
-                      {profile.schoolStats.entriesThisMonth}
-                    </span>
-                    <span className="text-[10px] uppercase font-medium" style={{ color: "var(--text-tertiary)" }}>
-                      entries/mo
-                    </span>
-                  </div>
-                  <div className="text-center py-2">
-                    <span className="font-mono text-xl font-bold block" style={{ color: "var(--text-primary)" }}>
-                      {profile.schoolStats.complianceRate}%
-                    </span>
-                    <span className="text-[10px] uppercase font-medium" style={{ color: "var(--text-tertiary)" }}>
-                      compliance
-                    </span>
-                  </div>
+                <div className="flex">
+                  {[
+                    { value: profile.schoolStats.totalTeachers, label: "teachers" },
+                    { value: profile.schoolStats.entriesThisMonth, label: "entries/mo" },
+                    { value: `${profile.schoolStats.complianceRate}%`, label: "compliance" },
+                  ].map((cell, i) => (
+                    <div
+                      key={cell.label}
+                      className="flex-1 flex flex-col items-center justify-center py-3.5 px-1 text-center"
+                      style={{ borderLeft: i > 0 ? "1px solid var(--border-secondary)" : "none" }}
+                    >
+                      <span className="font-mono text-xl font-bold block tabular-nums leading-none" style={{ color: "var(--text-primary)" }}>
+                        {cell.value}
+                      </span>
+                      <span className="mt-1.5 font-medium uppercase" style={{ color: "var(--text-tertiary)", fontSize: 9, letterSpacing: "0.06em" }}>
+                        {cell.label}
+                      </span>
+                    </div>
+                  ))}
                 </div>
               </div>
             )}
 
+            {/* Regional admin stats */}
             {role === "REGIONAL_ADMIN" && profile?.regionStats && (
               <div
-                className="rounded-2xl p-3 animate-fade-slide-in"
+                className="rounded-2xl overflow-hidden animate-fade-slide-in"
                 style={{ backgroundColor: "var(--bg-elevated)", border: "1px solid var(--border-primary)" }}
               >
-                <div className="grid grid-cols-3 gap-1">
-                  <div className="text-center py-2">
-                    <span className="font-mono text-xl font-bold block" style={{ color: "var(--text-primary)" }}>
-                      {profile.regionStats.totalSchools}
-                    </span>
-                    <span className="text-[10px] uppercase font-medium" style={{ color: "var(--text-tertiary)" }}>
-                      schools
-                    </span>
-                  </div>
-                  <div className="text-center py-2">
-                    <span className="font-mono text-xl font-bold block" style={{ color: "var(--text-primary)" }}>
-                      {profile.regionStats.totalTeachers}
-                    </span>
-                    <span className="text-[10px] uppercase font-medium" style={{ color: "var(--text-tertiary)" }}>
-                      teachers
-                    </span>
-                  </div>
-                  <div className="text-center py-2">
-                    <span className="font-mono text-xl font-bold block" style={{ color: "var(--text-primary)" }}>
-                      {profile.regionStats.complianceRate}%
-                    </span>
-                    <span className="text-[10px] uppercase font-medium" style={{ color: "var(--text-tertiary)" }}>
-                      avg compliance
-                    </span>
-                  </div>
+                <div className="flex">
+                  {[
+                    { value: profile.regionStats.totalSchools, label: "schools" },
+                    { value: profile.regionStats.totalTeachers, label: "teachers" },
+                    { value: `${profile.regionStats.complianceRate}%`, label: "avg compliance" },
+                  ].map((cell, i) => (
+                    <div
+                      key={cell.label}
+                      className="flex-1 flex flex-col items-center justify-center py-3.5 px-1 text-center"
+                      style={{ borderLeft: i > 0 ? "1px solid var(--border-secondary)" : "none" }}
+                    >
+                      <span className="font-mono text-xl font-bold block tabular-nums leading-none" style={{ color: "var(--text-primary)" }}>
+                        {cell.value}
+                      </span>
+                      <span className="mt-1.5 font-medium uppercase" style={{ color: "var(--text-tertiary)", fontSize: 9, letterSpacing: "0.06em" }}>
+                        {cell.label}
+                      </span>
+                    </div>
+                  ))}
                 </div>
               </div>
             )}
           </>
         )}
 
-        {/* ═══ TEACHER SECTIONS ═══ */}
+        {/* ══ TEACHER SECTIONS ══ */}
         {role === "TEACHER" && !loading && (
           <>
-            {/* Personal Info — expandable */}
-            <SectionCard
-              title="Personal Info"
-              expandable
-              expanded={expandedSections.personalInfo}
-              onToggle={() => toggleSection("personalInfo")}
-            >
-              {editingSection === "personalInfo" ? (
-                <div className="space-y-3">
-                  {saveError && (
-                    <div className="text-xs rounded-lg px-3 py-2" style={{ backgroundColor: "var(--accent-light)", color: "var(--accent-text)", border: "1px solid var(--accent)" }}>
-                      {saveError}
-                    </div>
-                  )}
-                  <div className="space-y-2.5">
-                    <div>
-                      <label className="text-[11px] font-medium block mb-1" style={{ color: "var(--text-tertiary)" }}>Phone</label>
-                      <input
-                        type="tel"
-                        value={editPhone}
-                        onChange={(e) => setEditPhone(e.target.value)}
-                        className="input-field py-2 px-3 text-sm w-full"
-                        placeholder="+237 6XX XXX XXX"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-[11px] font-medium block mb-1" style={{ color: "var(--text-tertiary)" }}>Gender</label>
-                      <select
-                        value={editGender}
-                        onChange={(e) => setEditGender(e.target.value)}
-                        className="input-field py-2 px-3 text-sm w-full"
-                      >
-                        <option value="">Select</option>
-                        <option value="MALE">Male</option>
-                        <option value="FEMALE">Female</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="text-[11px] font-medium block mb-1" style={{ color: "var(--text-tertiary)" }}>Date of Birth</label>
-                      <input
-                        type="date"
-                        value={editDob}
-                        onChange={(e) => setEditDob(e.target.value)}
-                        max={new Date().toISOString().split("T")[0]}
-                        className="input-field py-2 px-3 text-sm w-full"
-                      />
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2 pt-1">
-                    <button
-                      onClick={() => setEditingSection(null)}
-                      className="flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-lg"
-                      style={{ color: "var(--text-secondary)" }}
-                    >
-                      <X className="w-3.5 h-3.5" /> Cancel
-                    </button>
-                    <button
-                      onClick={handleSaveProfile}
-                      disabled={saving}
-                      className="flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-lg"
-                      style={{ backgroundColor: "var(--accent)", color: "white" }}
-                    >
-                      <Save className="w-3.5 h-3.5" /> {saving ? "Saving..." : "Save"}
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  {/* Preview row */}
-                  <div className="flex items-center gap-4 text-[13px] flex-wrap" style={{ color: "var(--text-secondary)" }}>
-                    <span className="flex items-center gap-1.5">
-                      <User className="w-3.5 h-3.5" style={{ color: "var(--text-tertiary)" }} />
-                      {profile?.gender === "MALE" ? "Male" : profile?.gender === "FEMALE" ? "Female" : "—"}
-                    </span>
-                    <span className="flex items-center gap-1.5">
-                      <Phone className="w-3.5 h-3.5" style={{ color: "var(--text-tertiary)" }} />
-                      {profile?.phone || (
-                        <span style={{ color: "var(--accent-text)" }}>Add your phone number</span>
-                      )}
-                    </span>
-                    <span className="flex items-center gap-1.5">
-                      <Calendar className="w-3.5 h-3.5" style={{ color: "var(--text-tertiary)" }} />
-                      {profile?.createdAt ? formatDate(profile.createdAt) : "—"}
-                    </span>
-                  </div>
-                  {/* Full details */}
-                  <div className="pt-2 space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span style={{ color: "var(--text-tertiary)" }}>Full Name</span>
-                      <span className="font-medium" style={{ color: "var(--text-primary)" }}>{displayName}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span style={{ color: "var(--text-tertiary)" }}>Date of Birth</span>
-                      <span className="font-medium" style={{ color: "var(--text-primary)" }}>
-                        {profile?.dateOfBirth ? formatDate(profile.dateOfBirth) : "—"}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span style={{ color: "var(--text-tertiary)" }}>Verification</span>
-                      <span className="flex items-center gap-1 font-medium">
-                        {profile?.isVerified ? (
-                          <>
-                            <CheckCircle className="w-3.5 h-3.5" style={{ color: "#10b981" }} />
-                            <span style={{ color: "#10b981" }}>Verified</span>
-                          </>
-                        ) : (
-                          <>
-                            <XCircle className="w-3.5 h-3.5" style={{ color: "var(--accent)" }} />
-                            <span style={{ color: "var(--accent-text)" }}>Pending</span>
-                          </>
-                        )}
-                      </span>
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => setEditingSection("personalInfo")}
-                    className="flex items-center gap-1 text-xs font-semibold mt-2"
-                    style={{ color: "var(--accent-text)" }}
-                  >
-                    <Edit3 className="w-3.5 h-3.5" /> Edit
-                  </button>
-                </div>
-              )}
-            </SectionCard>
-
-            {/* Teacher ID Badge */}
+            {/* Teacher ID badge */}
             {profile?.teacherCode && (
               <div
                 className="rounded-2xl overflow-hidden animate-fade-slide-in"
                 style={{ border: "1px solid var(--border-primary)" }}
               >
                 <div
-                  className="px-4 py-3"
+                  className="relative px-4 py-4"
                   style={{
-                    background: "linear-gradient(135deg, var(--accent-light), rgba(245, 158, 11, 0.04))",
+                    background: "linear-gradient(135deg, var(--bg-elevated) 0%, rgba(245,158,11,0.06) 100%)",
                   }}
                 >
-                  <span
-                    className="text-xs font-semibold uppercase tracking-[0.04em] block mb-2"
-                    style={{ color: "var(--text-tertiary)" }}
-                  >
-                    Teacher ID
-                  </span>
-                  <div className="flex items-center justify-between">
-                    <span
-                      className="font-mono text-2xl font-bold tracking-wider"
-                      style={{ color: "var(--text-primary)" }}
-                    >
-                      {profile.teacherCode}
-                    </span>
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <p
+                        className="text-[10px] font-bold uppercase tracking-[0.08em] mb-1"
+                        style={{ color: "var(--text-tertiary)" }}
+                      >
+                        Teacher ID
+                      </p>
+                      <p
+                        className="font-mono font-bold tracking-[0.12em] mt-1"
+                        style={{ color: "var(--text-primary)", fontSize: 26, lineHeight: 1 }}
+                      >
+                        {profile.teacherCode}
+                      </p>
+                      <p className="text-[11px] mt-2" style={{ color: "var(--text-tertiary)" }}>
+                        Share this code with your school admin
+                      </p>
+                    </div>
                     <button
                       onClick={() => {
                         navigator.clipboard.writeText(profile.teacherCode!);
                         setCopiedTC(true);
                         setTimeout(() => setCopiedTC(false), 2000);
                       }}
-                      className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors"
+                      className="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl transition-all mt-0.5 flex-shrink-0"
                       style={{
-                        backgroundColor: copiedTC ? "rgba(16, 185, 129, 0.1)" : "var(--bg-elevated)",
+                        backgroundColor: copiedTC ? "rgba(16,185,129,0.12)" : "var(--bg-elevated)",
                         color: copiedTC ? "#10b981" : "var(--text-secondary)",
                         border: "1px solid var(--border-primary)",
                       }}
@@ -883,6 +844,93 @@ export default function ProfilePage() {
               </div>
             )}
 
+            {/* Personal Info */}
+            <SectionCard
+              title="Personal info"
+              expandable
+              expanded={expandedSections.personalInfo}
+              onToggle={() => toggleSection("personalInfo")}
+            >
+              {editingSection === "personalInfo" ? (
+                <div className="space-y-3 pt-1">
+                  <div className="space-y-2.5">
+                    <div>
+                      <label className="text-[11px] font-medium block mb-1.5" style={{ color: "var(--text-tertiary)" }}>Phone number</label>
+                      <input type="tel" value={editPhone} onChange={(e) => setEditPhone(e.target.value)} className="input-field py-2 px-3 text-sm w-full" placeholder="+237 6XX XXX XXX" />
+                    </div>
+                    <div>
+                      <label className="text-[11px] font-medium block mb-1.5" style={{ color: "var(--text-tertiary)" }}>Gender</label>
+                      <select value={editGender} onChange={(e) => setEditGender(e.target.value)} className="input-field py-2 px-3 text-sm w-full">
+                        <option value="">Select gender</option>
+                        <option value="MALE">Male</option>
+                        <option value="FEMALE">Female</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-[11px] font-medium block mb-1.5" style={{ color: "var(--text-tertiary)" }}>Date of birth</label>
+                      <input type="date" value={editDob} onChange={(e) => setEditDob(e.target.value)} max={new Date().toISOString().split("T")[0]} className="input-field py-2 px-3 text-sm w-full" />
+                    </div>
+                  </div>
+                  <EditActions
+                    onCancel={() => setEditingSection(null)}
+                    onSave={handleSaveProfile}
+                    saving={saving}
+                    error={saveError}
+                  />
+                </div>
+              ) : (
+                <div className="pt-1">
+                  <div
+                    style={{
+                      borderTop: "1px solid var(--border-secondary)",
+                    }}
+                  >
+                    <InfoRow
+                      icon={<User className="w-3.5 h-3.5" />}
+                      label="Full name"
+                      value={displayName}
+                    />
+                    <div style={{ borderTop: "1px solid var(--border-secondary)" }}>
+                      <InfoRow
+                        icon={<Phone className="w-3.5 h-3.5" />}
+                        label="Phone"
+                        value={profile?.phone}
+                        missingText="Add your phone number"
+                      />
+                    </div>
+                    <div style={{ borderTop: "1px solid var(--border-secondary)" }}>
+                      <InfoRow
+                        icon={<User className="w-3.5 h-3.5" />}
+                        label="Gender"
+                        value={profile?.gender === "MALE" ? "Male" : profile?.gender === "FEMALE" ? "Female" : null}
+                      />
+                    </div>
+                    <div style={{ borderTop: "1px solid var(--border-secondary)" }}>
+                      <InfoRow
+                        icon={<Calendar className="w-3.5 h-3.5" />}
+                        label="Date of birth"
+                        value={profile?.dateOfBirth ? formatDate(profile.dateOfBirth) : null}
+                      />
+                    </div>
+                    <div style={{ borderTop: "1px solid var(--border-secondary)" }}>
+                      <InfoRow
+                        icon={<Calendar className="w-3.5 h-3.5" />}
+                        label="Member since"
+                        value={profile?.createdAt ? formatDate(profile.createdAt) : null}
+                      />
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setEditingSection("personalInfo")}
+                    className="flex items-center gap-1.5 text-xs font-semibold mt-3 px-3 py-1.5 rounded-xl transition-colors"
+                    style={{ color: "var(--accent-text)", background: "var(--accent-light)" }}
+                  >
+                    <Edit3 className="w-3.5 h-3.5" /> Edit info
+                  </button>
+                </div>
+              )}
+            </SectionCard>
+
             {/* My Schools */}
             <SectionCard
               title="My Schools"
@@ -892,65 +940,64 @@ export default function ProfilePage() {
               rightBadge={
                 pendingInvitations.length > 0 ? (
                   <span
-                    className="text-[10px] font-semibold px-2 py-0.5 rounded-full"
+                    className="text-[10px] font-bold px-2 py-0.5 rounded-full"
                     style={{ backgroundColor: "var(--accent-light)", color: "var(--accent-text)" }}
                   >
-                    {pendingInvitations.length} new invitation{pendingInvitations.length > 1 ? "s" : ""}
+                    {pendingInvitations.length} pending
                   </span>
                 ) : null
               }
             >
-              {profile?.teacherSchools && profile.teacherSchools.length > 0 ? (
-                <div className="space-y-2">
-                  {profile.teacherSchools.map((ts) => (
-                    <div key={ts.id} className="flex items-center justify-between">
-                      <div className="flex items-center gap-2 min-w-0">
-                        <span
-                          className="w-2 h-2 rounded-full flex-shrink-0"
-                          style={{
-                            backgroundColor: ts.status === "ACTIVE" ? "#10b981" : "var(--accent)",
-                          }}
-                        />
-                        <span className="text-sm font-medium truncate" style={{ color: "var(--text-primary)" }}>
-                          {ts.school.name}
-                        </span>
-                        {ts.isPrimary && (
-                          <span
-                            className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full flex-shrink-0"
-                            style={{ backgroundColor: "var(--accent-light)", color: "var(--accent-text)" }}
-                          >
-                            Primary
-                          </span>
+              <div className="pt-1">
+                {profile?.teacherSchools && profile.teacherSchools.length > 0 ? (
+                  <div className="space-y-1">
+                    {profile.teacherSchools.map((ts, i) => (
+                      <div
+                        key={ts.id}
+                        className="flex items-center justify-between py-2.5"
+                        style={{ borderTop: i > 0 ? "1px solid var(--border-secondary)" : "none" }}
+                      >
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div
+                            className="w-2 h-2 rounded-full flex-shrink-0"
+                            style={{ backgroundColor: ts.status === "ACTIVE" ? "#10b981" : "var(--accent)" }}
+                          />
+                          <div className="min-w-0">
+                            <p className="text-sm font-semibold truncate" style={{ color: "var(--text-primary)" }}>
+                              {ts.school.name}
+                            </p>
+                            <p className="text-[11px] font-medium mt-0.5" style={{ color: ts.status === "PENDING" ? "var(--accent-text)" : "var(--text-tertiary)" }}>
+                              {ts.isPrimary ? "Primary school" : ts.status === "PENDING" ? "Invitation pending" : "Invited school"} · {ts.school.code}
+                            </p>
+                          </div>
+                        </div>
+                        {ts.status === "PENDING" && (
+                          <div className="flex items-center gap-1 flex-shrink-0 ml-2">
+                            <button
+                              onClick={() => handleInvitation(ts.id, "accept")}
+                              className="p-1.5 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1"
+                              style={{ background: "rgba(16,185,129,0.1)", color: "#10b981" }}
+                              title="Accept"
+                            >
+                              <Check className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              onClick={() => handleInvitation(ts.id, "decline")}
+                              className="p-1.5 rounded-lg transition-colors"
+                              style={{ background: "rgba(239,68,68,0.08)", color: "#ef4444" }}
+                              title="Decline"
+                            >
+                              <X className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
                         )}
                       </div>
-                      {ts.status === "PENDING" && (
-                        <div className="flex items-center gap-1 flex-shrink-0">
-                          <button
-                            onClick={() => handleInvitation(ts.id, "accept")}
-                            className="p-1 rounded-md transition-colors"
-                            style={{ color: "#10b981" }}
-                            title="Accept"
-                          >
-                            <Check className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => handleInvitation(ts.id, "decline")}
-                            className="p-1 rounded-md transition-colors"
-                            style={{ color: "#ef4444" }}
-                            title="Decline"
-                          >
-                            <X className="w-4 h-4" />
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-xs" style={{ color: "var(--text-tertiary)" }}>
-                  No school memberships yet.
-                </p>
-              )}
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm py-2" style={{ color: "var(--text-tertiary)" }}>No school memberships yet.</p>
+                )}
+              </div>
             </SectionCard>
 
             {/* My Assignments */}
@@ -961,31 +1008,42 @@ export default function ProfilePage() {
                 expanded={expandedSections.assignments}
                 onToggle={() => toggleSection("assignments")}
               >
-                {expandedSections.assignments ? (
-                  <div className="space-y-1.5">
-                    {profile.assignments.map((a) => (
-                      <div key={a.id} className="flex items-center text-[13px]">
-                        <span className="font-semibold" style={{ color: "var(--text-primary)" }}>
-                          {a.subject.name}{a.division ? ` (${a.division.name})` : ""}
-                        </span>
-                        <span className="mx-2" style={{ color: "var(--text-quaternary)" }}>—</span>
-                        <span style={{ color: "var(--text-secondary)" }}>
-                          {a.class.name} ({a.class.level})
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-[13px] line-clamp-2" style={{ color: "var(--text-secondary)" }}>
-                    {assignmentSummary}
-                  </p>
-                )}
+                <div className="pt-1">
+                  {expandedSections.assignments ? (
+                    <div>
+                      {Object.entries(assignmentGroups).map(([subj, classes], i) => (
+                        <div
+                          key={subj}
+                          className="py-2.5"
+                          style={{ borderTop: i > 0 ? "1px solid var(--border-secondary)" : "none" }}
+                        >
+                          <p className="text-[13px] font-semibold" style={{ color: "var(--text-primary)" }}>{subj}</p>
+                          <div className="flex flex-wrap gap-1 mt-1.5">
+                            {classes.map((cls) => (
+                              <span
+                                key={cls}
+                                className="text-[11px] font-medium px-2 py-0.5 rounded-full"
+                                style={{ background: "var(--bg-tertiary)", color: "var(--text-secondary)" }}
+                              >
+                                {cls}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-[13px] py-1 line-clamp-2" style={{ color: "var(--text-secondary)" }}>
+                      {Object.entries(assignmentGroups).map(([s, c]) => `${s} — ${c.join(", ")}`).join(" · ")}
+                    </p>
+                  )}
+                </div>
               </SectionCard>
             )}
           </>
         )}
 
-        {/* ═══ SCHOOL ADMIN SECTIONS ═══ */}
+        {/* ══ SCHOOL ADMIN SECTIONS ══ */}
         {role === "SCHOOL_ADMIN" && !loading && (
           <>
             {/* School Profile */}
@@ -997,127 +1055,66 @@ export default function ProfilePage() {
                 onToggle={() => toggleSection("schoolProfile")}
               >
                 {editingSection === "schoolProfile" ? (
-                  <div className="space-y-3">
-                    {saveError && (
-                      <div className="text-xs rounded-lg px-3 py-2" style={{ backgroundColor: "var(--accent-light)", color: "var(--accent-text)", border: "1px solid var(--accent)" }}>
-                        {saveError}
-                      </div>
-                    )}
-                    <div className="space-y-2 text-sm">
-                      <div className="flex justify-between">
-                        <span style={{ color: "var(--text-tertiary)" }}>School Name</span>
-                        <span className="font-medium" style={{ color: "var(--text-primary)" }}>{profile.school.name}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span style={{ color: "var(--text-tertiary)" }}>Code</span>
-                        <span className="font-mono font-medium" style={{ color: "var(--text-primary)" }}>{profile.school.code}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span style={{ color: "var(--text-tertiary)" }}>Type</span>
-                        <span className="font-medium" style={{ color: "var(--text-primary)" }}>{profile.school.schoolType || "—"}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span style={{ color: "var(--text-tertiary)" }}>Region</span>
-                        <span className="font-medium" style={{ color: "var(--text-primary)" }}>{profile.school.region?.name || "—"}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span style={{ color: "var(--text-tertiary)" }}>Division</span>
-                        <span className="font-medium" style={{ color: "var(--text-primary)" }}>{profile.school.division?.name || "—"}</span>
-                      </div>
-                    </div>
-                    <div className="space-y-2.5 pt-1">
+                  <div className="space-y-3 pt-1">
+                    <div className="space-y-2.5">
                       <div>
-                        <label className="text-[11px] font-medium block mb-1" style={{ color: "var(--text-tertiary)" }}>Principal Name</label>
-                        <input
-                          type="text"
-                          value={editPrincipalName}
-                          onChange={(e) => setEditPrincipalName(e.target.value)}
-                          className="input-field py-2 px-3 text-sm w-full"
-                          placeholder="Principal name"
-                        />
+                        <label className="text-[11px] font-medium block mb-1.5" style={{ color: "var(--text-tertiary)" }}>Principal name</label>
+                        <input type="text" value={editPrincipalName} onChange={(e) => setEditPrincipalName(e.target.value)} className="input-field py-2 px-3 text-sm w-full" placeholder="Principal full name" />
                       </div>
                       <div>
-                        <label className="text-[11px] font-medium block mb-1" style={{ color: "var(--text-tertiary)" }}>Principal Phone</label>
-                        <input
-                          type="tel"
-                          value={editPrincipalPhone}
-                          onChange={(e) => setEditPrincipalPhone(e.target.value)}
-                          className="input-field py-2 px-3 text-sm w-full"
-                          placeholder="+237 6XX XXX XXX"
-                        />
+                        <label className="text-[11px] font-medium block mb-1.5" style={{ color: "var(--text-tertiary)" }}>Principal phone</label>
+                        <input type="tel" value={editPrincipalPhone} onChange={(e) => setEditPrincipalPhone(e.target.value)} className="input-field py-2 px-3 text-sm w-full" placeholder="+237 6XX XXX XXX" />
                       </div>
                     </div>
-                    <div className="flex items-center gap-2 pt-1">
-                      <button
-                        onClick={() => setEditingSection(null)}
-                        className="flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-lg"
-                        style={{ color: "var(--text-secondary)" }}
-                      >
-                        <X className="w-3.5 h-3.5" /> Cancel
-                      </button>
-                      <button
-                        onClick={handleSaveProfile}
-                        disabled={saving}
-                        className="flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-lg"
-                        style={{ backgroundColor: "var(--accent)", color: "white" }}
-                      >
-                        <Save className="w-3.5 h-3.5" /> {saving ? "Saving..." : "Save"}
-                      </button>
-                    </div>
+                    <EditActions onCancel={() => setEditingSection(null)} onSave={handleSaveProfile} saving={saving} error={saveError} />
                   </div>
                 ) : (
-                  <div className="space-y-2">
-                    {/* Preview: name, code, region, status */}
-                    <div className="flex items-center gap-3 flex-wrap text-[13px]" style={{ color: "var(--text-secondary)" }}>
-                      <span className="font-semibold" style={{ color: "var(--text-primary)" }}>{profile.school.name}</span>
-                      <span className="font-mono text-xs" style={{ color: "var(--text-tertiary)" }}>{profile.school.code}</span>
-                      {profile.school.region && (
-                        <span className="flex items-center gap-1">
-                          <MapPin className="w-3 h-3" style={{ color: "var(--text-tertiary)" }} />
-                          {profile.school.region.name}
-                        </span>
-                      )}
-                      <span
-                        className="text-[10px] font-semibold px-2 py-0.5 rounded-full"
-                        style={{
-                          backgroundColor: profile.school.status === "ACTIVE" ? "rgba(16, 185, 129, 0.1)" : "var(--accent-light)",
-                          color: profile.school.status === "ACTIVE" ? "#10b981" : "var(--accent-text)",
-                        }}
-                      >
-                        {profile.school.status}
-                      </span>
+                  <div className="pt-1">
+                    <div style={{ borderTop: "1px solid var(--border-secondary)" }}>
+                      <InfoRow icon={<Building2 className="w-3.5 h-3.5" />} label="School name" value={profile.school.name} />
                     </div>
-                    {/* Expanded details */}
-                    <div className="pt-2 space-y-2 text-sm">
-                      <div className="flex justify-between">
-                        <span style={{ color: "var(--text-tertiary)" }}>Type</span>
-                        <span className="font-medium" style={{ color: "var(--text-primary)" }}>{profile.school.schoolType || "—"}</span>
+                    <div style={{ borderTop: "1px solid var(--border-secondary)" }}>
+                      <InfoRow icon={<Key className="w-3.5 h-3.5" />} label="School code" value={profile.school.code} mono />
+                    </div>
+                    <div style={{ borderTop: "1px solid var(--border-secondary)" }}>
+                      <InfoRow icon={<Layers className="w-3.5 h-3.5" />} label="Type" value={profile.school.schoolType} />
+                    </div>
+                    <div style={{ borderTop: "1px solid var(--border-secondary)" }}>
+                      <InfoRow icon={<MapPin className="w-3.5 h-3.5" />} label="Region" value={profile.school.region?.name} />
+                    </div>
+                    <div style={{ borderTop: "1px solid var(--border-secondary)" }}>
+                      <InfoRow icon={<MapPin className="w-3.5 h-3.5" />} label="Division" value={profile.school.division?.name} />
+                    </div>
+                    <div style={{ borderTop: "1px solid var(--border-secondary)" }}>
+                      <InfoRow icon={<User className="w-3.5 h-3.5" />} label="Principal" value={profile.school.principalName} missingText="Add principal name" />
+                    </div>
+                    <div style={{ borderTop: "1px solid var(--border-secondary)" }}>
+                      <InfoRow icon={<Phone className="w-3.5 h-3.5" />} label="Principal phone" value={profile.school.principalPhone} missingText="Add principal phone" />
+                    </div>
+                    {profile.school.foundingDate && (
+                      <div style={{ borderTop: "1px solid var(--border-secondary)" }}>
+                        <InfoRow icon={<Calendar className="w-3.5 h-3.5" />} label="Founded" value={formatDate(profile.school.foundingDate)} />
                       </div>
-                      <div className="flex justify-between">
-                        <span style={{ color: "var(--text-tertiary)" }}>Division</span>
-                        <span className="font-medium" style={{ color: "var(--text-primary)" }}>{profile.school.division?.name || "—"}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span style={{ color: "var(--text-tertiary)" }}>Principal</span>
-                        <span className="font-medium" style={{ color: "var(--text-primary)" }}>{profile.school.principalName || "—"}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span style={{ color: "var(--text-tertiary)" }}>Principal Phone</span>
-                        <span className="font-medium" style={{ color: "var(--text-primary)" }}>{profile.school.principalPhone || "—"}</span>
-                      </div>
-                      {profile.school.foundingDate && (
-                        <div className="flex justify-between">
-                          <span style={{ color: "var(--text-tertiary)" }}>Founded</span>
-                          <span className="font-medium" style={{ color: "var(--text-primary)" }}>{formatDate(profile.school.foundingDate)}</span>
+                    )}
+                    <div style={{ borderTop: "1px solid var(--border-secondary)" }}>
+                      <div className="flex items-center gap-3 py-2.5">
+                        <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: "var(--bg-tertiary)" }}>
+                          <CheckCircle className="w-3.5 h-3.5" style={{ color: "var(--text-tertiary)" }} />
                         </div>
-                      )}
+                        <div>
+                          <p className="text-[11px] font-medium" style={{ color: "var(--text-tertiary)" }}>Status</p>
+                          <p className="text-sm font-semibold mt-0.5" style={{ color: profile.school.status === "ACTIVE" ? "#10b981" : "var(--accent-text)" }}>
+                            {profile.school.status}
+                          </p>
+                        </div>
+                      </div>
                     </div>
                     <button
                       onClick={() => setEditingSection("schoolProfile")}
-                      className="flex items-center gap-1 text-xs font-semibold mt-2"
-                      style={{ color: "var(--accent-text)" }}
+                      className="flex items-center gap-1.5 text-xs font-semibold mt-2 px-3 py-1.5 rounded-xl transition-colors"
+                      style={{ color: "var(--accent-text)", background: "var(--accent-light)" }}
                     >
-                      <Edit3 className="w-3.5 h-3.5" /> Edit
+                      <Edit3 className="w-3.5 h-3.5" /> Edit school info
                     </button>
                   </div>
                 )}
@@ -1129,78 +1126,42 @@ export default function ProfilePage() {
               className="rounded-2xl px-4 py-3 animate-fade-slide-in"
               style={{ backgroundColor: "var(--bg-elevated)", border: "1px solid var(--border-primary)" }}
             >
-              <span
-                className="text-xs font-semibold uppercase tracking-[0.04em] block mb-1"
-                style={{ color: "var(--text-tertiary)" }}
-              >
-                Quick Links
-              </span>
+              <p className="text-[12px] font-semibold uppercase tracking-[0.05em] mb-1" style={{ color: "var(--text-tertiary)" }}>Quick links</p>
               <QuickLinkRow href="/admin/teachers" icon={<Users className="w-4 h-4" />} label="Manage Teachers" />
               <QuickLinkRow href="/admin/reports/teachers" icon={<BarChart3 className="w-4 h-4" />} label="Reports" />
               <QuickLinkRow href="/admin/announcements" icon={<Megaphone className="w-4 h-4" />} label="Send Announcement" />
-              <QuickLinkRow href="/admin/timetable" icon={<CalendarCheck className="w-4 h-4" />} label="Timetable" />
+              <QuickLinkRow href="/admin/timetable" icon={<Calendar className="w-4 h-4" />} label="Timetable" />
             </div>
 
             {/* Personal Info */}
             <SectionCard
-              title="Personal Info"
+              title="Personal info"
               expandable
               expanded={expandedSections.adminPersonal}
               onToggle={() => toggleSection("adminPersonal")}
             >
               {editingSection === "adminPersonal" ? (
-                <div className="space-y-3">
-                  {saveError && (
-                    <div className="text-xs rounded-lg px-3 py-2" style={{ backgroundColor: "var(--accent-light)", color: "var(--accent-text)", border: "1px solid var(--accent)" }}>
-                      {saveError}
-                    </div>
-                  )}
+                <div className="space-y-3 pt-1">
                   <div>
-                    <label className="text-[11px] font-medium block mb-1" style={{ color: "var(--text-tertiary)" }}>Phone</label>
-                    <input
-                      type="tel"
-                      value={editPhone}
-                      onChange={(e) => setEditPhone(e.target.value)}
-                      className="input-field py-2 px-3 text-sm w-full"
-                      placeholder="+237 6XX XXX XXX"
-                    />
+                    <label className="text-[11px] font-medium block mb-1.5" style={{ color: "var(--text-tertiary)" }}>Phone number</label>
+                    <input type="tel" value={editPhone} onChange={(e) => setEditPhone(e.target.value)} className="input-field py-2 px-3 text-sm w-full" placeholder="+237 6XX XXX XXX" />
                   </div>
-                  <div className="flex items-center gap-2 pt-1">
-                    <button
-                      onClick={() => setEditingSection(null)}
-                      className="flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-lg"
-                      style={{ color: "var(--text-secondary)" }}
-                    >
-                      <X className="w-3.5 h-3.5" /> Cancel
-                    </button>
-                    <button
-                      onClick={handleSaveProfile}
-                      disabled={saving}
-                      className="flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-lg"
-                      style={{ backgroundColor: "var(--accent)", color: "white" }}
-                    >
-                      <Save className="w-3.5 h-3.5" /> {saving ? "Saving..." : "Save"}
-                    </button>
-                  </div>
+                  <EditActions onCancel={() => setEditingSection(null)} onSave={handleSaveProfile} saving={saving} error={saveError} />
                 </div>
               ) : (
-                <div className="space-y-2">
-                  <div className="flex items-center gap-4 text-[13px] flex-wrap" style={{ color: "var(--text-secondary)" }}>
-                    <span>{displayName}</span>
-                    <span>{profile?.email}</span>
-                    <span className="flex items-center gap-1.5">
-                      <Phone className="w-3.5 h-3.5" style={{ color: "var(--text-tertiary)" }} />
-                      {profile?.phone || (
-                        <span style={{ color: "var(--accent-text)" }}>Add phone</span>
-                      )}
-                    </span>
+                <div className="pt-1">
+                  <div style={{ borderTop: "1px solid var(--border-secondary)" }}>
+                    <InfoRow icon={<User className="w-3.5 h-3.5" />} label="Full name" value={displayName} />
+                  </div>
+                  <div style={{ borderTop: "1px solid var(--border-secondary)" }}>
+                    <InfoRow icon={<Phone className="w-3.5 h-3.5" />} label="Phone" value={profile?.phone} missingText="Add your phone number" />
                   </div>
                   <button
                     onClick={() => setEditingSection("adminPersonal")}
-                    className="flex items-center gap-1 text-xs font-semibold mt-1"
-                    style={{ color: "var(--accent-text)" }}
+                    className="flex items-center gap-1.5 text-xs font-semibold mt-3 px-3 py-1.5 rounded-xl"
+                    style={{ color: "var(--accent-text)", background: "var(--accent-light)" }}
                   >
-                    <Edit3 className="w-3.5 h-3.5" /> Edit
+                    <Edit3 className="w-3.5 h-3.5" /> Edit info
                   </button>
                 </div>
               )}
@@ -1208,7 +1169,7 @@ export default function ProfilePage() {
           </>
         )}
 
-        {/* ═══ REGIONAL ADMIN SECTIONS ═══ */}
+        {/* ══ REGIONAL ADMIN SECTIONS ══ */}
         {role === "REGIONAL_ADMIN" && !loading && (
           <>
             {/* Region Overview */}
@@ -1219,31 +1180,23 @@ export default function ProfilePage() {
                 expanded={expandedSections.regionOverview}
                 onToggle={() => toggleSection("regionOverview")}
               >
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span style={{ color: "var(--text-tertiary)" }}>Region</span>
-                    <span className="font-semibold" style={{ color: "var(--text-primary)" }}>{profile.regionAdmin.name}</span>
+                <div className="pt-1">
+                  <div style={{ borderTop: "1px solid var(--border-secondary)" }}>
+                    <InfoRow icon={<MapPin className="w-3.5 h-3.5" />} label="Region" value={profile.regionAdmin.name} />
                   </div>
-                  <div className="flex justify-between">
-                    <span style={{ color: "var(--text-tertiary)" }}>Code</span>
-                    <span className="font-mono font-medium" style={{ color: "var(--text-primary)" }}>{profile.regionAdmin.code}</span>
+                  <div style={{ borderTop: "1px solid var(--border-secondary)" }}>
+                    <InfoRow icon={<Key className="w-3.5 h-3.5" />} label="Code" value={profile.regionAdmin.code} mono />
                   </div>
-                  <div className="flex justify-between">
-                    <span style={{ color: "var(--text-tertiary)" }}>Capital</span>
-                    <span className="flex items-center gap-1 font-medium" style={{ color: "var(--text-primary)" }}>
-                      <MapPin className="w-3 h-3" style={{ color: "var(--text-tertiary)" }} />
-                      {profile.regionAdmin.capital}
-                    </span>
+                  <div style={{ borderTop: "1px solid var(--border-secondary)" }}>
+                    <InfoRow icon={<MapPin className="w-3.5 h-3.5" />} label="Capital" value={profile.regionAdmin.capital} />
                   </div>
                   {profile.regionStats && (
                     <>
-                      <div className="flex justify-between">
-                        <span style={{ color: "var(--text-tertiary)" }}>Schools</span>
-                        <span className="font-mono font-medium" style={{ color: "var(--text-primary)" }}>{profile.regionStats.totalSchools}</span>
+                      <div style={{ borderTop: "1px solid var(--border-secondary)" }}>
+                        <InfoRow icon={<Building2 className="w-3.5 h-3.5" />} label="Schools" value={String(profile.regionStats.totalSchools)} />
                       </div>
-                      <div className="flex justify-between">
-                        <span style={{ color: "var(--text-tertiary)" }}>Teachers</span>
-                        <span className="font-mono font-medium" style={{ color: "var(--text-primary)" }}>{profile.regionStats.totalTeachers}</span>
+                      <div style={{ borderTop: "1px solid var(--border-secondary)" }}>
+                        <InfoRow icon={<Users className="w-3.5 h-3.5" />} label="Teachers" value={String(profile.regionStats.totalTeachers)} />
                       </div>
                     </>
                   )}
@@ -1256,12 +1209,7 @@ export default function ProfilePage() {
               className="rounded-2xl px-4 py-3 animate-fade-slide-in"
               style={{ backgroundColor: "var(--bg-elevated)", border: "1px solid var(--border-primary)" }}
             >
-              <span
-                className="text-xs font-semibold uppercase tracking-[0.04em] block mb-1"
-                style={{ color: "var(--text-tertiary)" }}
-              >
-                Quick Links
-              </span>
+              <p className="text-[12px] font-semibold uppercase tracking-[0.05em] mb-1" style={{ color: "var(--text-tertiary)" }}>Quick links</p>
               <QuickLinkRow href="/regional/schools" icon={<Building2 className="w-4 h-4" />} label="Schools" />
               <QuickLinkRow href="/regional/reports/schools" icon={<BarChart3 className="w-4 h-4" />} label="Reports" />
               <QuickLinkRow href="/regional/reports/coverage" icon={<Layers className="w-4 h-4" />} label="Curriculum Coverage" />
@@ -1271,94 +1219,54 @@ export default function ProfilePage() {
 
             {/* Personal Info */}
             <SectionCard
-              title="Personal Info"
+              title="Personal info"
               expandable
               expanded={expandedSections.regionalPersonal}
               onToggle={() => toggleSection("regionalPersonal")}
             >
               {editingSection === "regionalPersonal" ? (
-                <div className="space-y-3">
-                  {saveError && (
-                    <div className="text-xs rounded-lg px-3 py-2" style={{ backgroundColor: "var(--accent-light)", color: "var(--accent-text)", border: "1px solid var(--accent)" }}>
-                      {saveError}
-                    </div>
-                  )}
+                <div className="space-y-3 pt-1">
                   <div className="space-y-2.5">
                     <div>
-                      <label className="text-[11px] font-medium block mb-1" style={{ color: "var(--text-tertiary)" }}>Phone</label>
-                      <input
-                        type="tel"
-                        value={editPhone}
-                        onChange={(e) => setEditPhone(e.target.value)}
-                        className="input-field py-2 px-3 text-sm w-full"
-                        placeholder="+237 6XX XXX XXX"
-                      />
+                      <label className="text-[11px] font-medium block mb-1.5" style={{ color: "var(--text-tertiary)" }}>Phone number</label>
+                      <input type="tel" value={editPhone} onChange={(e) => setEditPhone(e.target.value)} className="input-field py-2 px-3 text-sm w-full" placeholder="+237 6XX XXX XXX" />
                     </div>
                     <div>
-                      <label className="text-[11px] font-medium block mb-1" style={{ color: "var(--text-tertiary)" }}>Gender</label>
-                      <select
-                        value={editGender}
-                        onChange={(e) => setEditGender(e.target.value)}
-                        className="input-field py-2 px-3 text-sm w-full"
-                      >
-                        <option value="">Select</option>
+                      <label className="text-[11px] font-medium block mb-1.5" style={{ color: "var(--text-tertiary)" }}>Gender</label>
+                      <select value={editGender} onChange={(e) => setEditGender(e.target.value)} className="input-field py-2 px-3 text-sm w-full">
+                        <option value="">Select gender</option>
                         <option value="MALE">Male</option>
                         <option value="FEMALE">Female</option>
                       </select>
                     </div>
                     <div>
-                      <label className="text-[11px] font-medium block mb-1" style={{ color: "var(--text-tertiary)" }}>Date of Birth</label>
-                      <input
-                        type="date"
-                        value={editDob}
-                        onChange={(e) => setEditDob(e.target.value)}
-                        max={new Date().toISOString().split("T")[0]}
-                        className="input-field py-2 px-3 text-sm w-full"
-                      />
+                      <label className="text-[11px] font-medium block mb-1.5" style={{ color: "var(--text-tertiary)" }}>Date of birth</label>
+                      <input type="date" value={editDob} onChange={(e) => setEditDob(e.target.value)} max={new Date().toISOString().split("T")[0]} className="input-field py-2 px-3 text-sm w-full" />
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 pt-1">
-                    <button
-                      onClick={() => setEditingSection(null)}
-                      className="flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-lg"
-                      style={{ color: "var(--text-secondary)" }}
-                    >
-                      <X className="w-3.5 h-3.5" /> Cancel
-                    </button>
-                    <button
-                      onClick={handleSaveProfile}
-                      disabled={saving}
-                      className="flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-lg"
-                      style={{ backgroundColor: "var(--accent)", color: "white" }}
-                    >
-                      <Save className="w-3.5 h-3.5" /> {saving ? "Saving..." : "Save"}
-                    </button>
-                  </div>
+                  <EditActions onCancel={() => setEditingSection(null)} onSave={handleSaveProfile} saving={saving} error={saveError} />
                 </div>
               ) : (
-                <div className="space-y-2">
-                  <div className="flex items-center gap-4 text-[13px] flex-wrap" style={{ color: "var(--text-secondary)" }}>
-                    <span className="flex items-center gap-1.5">
-                      <User className="w-3.5 h-3.5" style={{ color: "var(--text-tertiary)" }} />
-                      {profile?.gender === "MALE" ? "Male" : profile?.gender === "FEMALE" ? "Female" : "—"}
-                    </span>
-                    <span className="flex items-center gap-1.5">
-                      <Phone className="w-3.5 h-3.5" style={{ color: "var(--text-tertiary)" }} />
-                      {profile?.phone || (
-                        <span style={{ color: "var(--accent-text)" }}>Add phone</span>
-                      )}
-                    </span>
-                    <span className="flex items-center gap-1.5">
-                      <Calendar className="w-3.5 h-3.5" style={{ color: "var(--text-tertiary)" }} />
-                      {profile?.createdAt ? formatDate(profile.createdAt) : "—"}
-                    </span>
+                <div className="pt-1">
+                  <div style={{ borderTop: "1px solid var(--border-secondary)" }}>
+                    <InfoRow icon={<User className="w-3.5 h-3.5" />} label="Full name" value={displayName} />
+                  </div>
+                  <div style={{ borderTop: "1px solid var(--border-secondary)" }}>
+                    <InfoRow icon={<Phone className="w-3.5 h-3.5" />} label="Phone" value={profile?.phone} missingText="Add your phone number" />
+                  </div>
+                  <div style={{ borderTop: "1px solid var(--border-secondary)" }}>
+                    <InfoRow
+                      icon={<User className="w-3.5 h-3.5" />}
+                      label="Gender"
+                      value={profile?.gender === "MALE" ? "Male" : profile?.gender === "FEMALE" ? "Female" : null}
+                    />
                   </div>
                   <button
                     onClick={() => setEditingSection("regionalPersonal")}
-                    className="flex items-center gap-1 text-xs font-semibold mt-1"
-                    style={{ color: "var(--accent-text)" }}
+                    className="flex items-center gap-1.5 text-xs font-semibold mt-3 px-3 py-1.5 rounded-xl"
+                    style={{ color: "var(--accent-text)", background: "var(--accent-light)" }}
                   >
-                    <Edit3 className="w-3.5 h-3.5" /> Edit
+                    <Edit3 className="w-3.5 h-3.5" /> Edit info
                   </button>
                 </div>
               )}
@@ -1366,145 +1274,100 @@ export default function ProfilePage() {
           </>
         )}
 
-        {/* ═══ APPEARANCE (all roles) ═══ */}
+        {/* ══ SETTINGS GROUP ══ */}
         {!loading && (
-          <Link
-            href="/appearance"
-            className="flex items-center justify-between rounded-2xl px-4 py-3.5 transition-colors"
-            style={{
-              backgroundColor: "var(--bg-elevated)",
-              border: "1px solid var(--border-primary)",
-            }}
+          <div
+            className="rounded-2xl px-4 py-3 animate-fade-slide-in"
+            style={{ backgroundColor: "var(--bg-elevated)", border: "1px solid var(--border-primary)" }}
           >
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-1" style={{ color: "var(--text-tertiary)" }}>
-                <Sun className="w-4 h-4" />
-                <span style={{ color: "var(--text-quaternary)" }}>/</span>
-                <Moon className="w-4 h-4" />
+            <p className="text-[12px] font-semibold uppercase tracking-[0.05em] mb-1" style={{ color: "var(--text-tertiary)" }}>Settings</p>
+
+            {/* Appearance */}
+            <Link
+              href="/appearance"
+              className="flex items-center gap-3 py-2.5 group transition-colors"
+              style={{ color: "var(--text-primary)" }}
+            >
+              <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "var(--bg-tertiary)" }}>
+                <span className="flex items-center gap-0.5" style={{ color: "var(--text-tertiary)" }}>
+                  <Sun className="w-3 h-3" />
+                  <Moon className="w-3 h-3" />
+                </span>
               </div>
-              <span className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>Appearance</span>
-            </div>
-            <ChevronRight className="w-4 h-4" style={{ color: "var(--text-tertiary)" }} />
-          </Link>
-        )}
+              <span className="text-sm font-medium flex-1">Appearance</span>
+              <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" style={{ color: "var(--text-quaternary)" }} />
+            </Link>
 
-        {/* ═══ REPLAY TOUR ═══ */}
-        {!loading && (
-          <button
-            onClick={() => {
-              const role = (profile?.role || "TEACHER").toLowerCase();
-              const tourKey =
-                role === "school_admin" ? "admin"
-                : role === "regional_admin" ? "regional"
-                : isCoordinator ? "coordinator"
-                : "teacher";
-              localStorage.removeItem(`edlog-tour-${tourKey}`);
-              router.push(
-                role === "school_admin" ? "/admin"
-                : role === "regional_admin" ? "/regional"
-                : isCoordinator ? "/coordinator"
-                : "/logbook"
-              );
-            }}
-            className="w-full flex items-center gap-3 rounded-2xl px-4 py-3.5 text-left transition-colors"
-            style={{
-              backgroundColor: "var(--bg-elevated)",
-              border: "1px solid var(--border-primary)",
-            }}
-          >
-            <div
-              className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
-              style={{ background: "var(--accent-light)" }}
-            >
-              <HelpCircle className="w-5 h-5" style={{ color: "var(--accent-text)" }} />
-            </div>
-            <div>
-              <p style={{ fontFamily: "var(--font-body)", fontSize: "14px", fontWeight: 600, color: "var(--text-primary)" }}>
-                Replay App Tour
-              </p>
-              <p style={{ fontFamily: "var(--font-body)", fontSize: "12px", color: "var(--text-tertiary)" }}>
-                See the guided walkthrough again
-              </p>
-            </div>
-          </button>
-        )}
-
-        {/* ═══ HELP HINTS TOGGLE ═══ */}
-        {!loading && (
-          hintsVisible ? (
-            <button
-              onClick={() => {
-                localStorage.setItem("edlog-hints-dismissed", "true");
-                setHintsVisible(false);
-              }}
-              className="w-full flex items-center gap-3 rounded-2xl px-4 py-3.5 text-left transition-colors"
-              style={{
-                backgroundColor: "var(--bg-elevated)",
-                border: "1px solid var(--border-primary)",
-              }}
-            >
-              <div
-                className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
-                style={{ background: "var(--bg-tertiary)" }}
+            {/* Replay Tour */}
+            <div style={{ borderTop: "1px solid var(--border-secondary)" }}>
+              <button
+                onClick={() => {
+                  const r = (profile?.role || "TEACHER").toLowerCase();
+                  const key = r === "school_admin" ? "admin" : r === "regional_admin" ? "regional" : isCoordinator ? "coordinator" : "teacher";
+                  localStorage.removeItem(`edlog-tour-${key}`);
+                  router.push(r === "school_admin" ? "/admin" : r === "regional_admin" ? "/regional" : isCoordinator ? "/coordinator" : "/logbook");
+                }}
+                className="w-full flex items-center gap-3 py-2.5 transition-colors text-left"
               >
-                <EyeOff className="w-5 h-5" style={{ color: "var(--text-tertiary)" }} />
-              </div>
-              <div>
-                <p style={{ fontFamily: "var(--font-body)", fontSize: "14px", fontWeight: 600, color: "var(--text-primary)" }}>
-                  Hide Help Hints
-                </p>
-                <p style={{ fontFamily: "var(--font-body)", fontSize: "12px", color: "var(--text-tertiary)" }}>
-                  Remove the &quot;!&quot; indicators from buttons and cards
-                </p>
-              </div>
-            </button>
-          ) : (
-            <button
-              onClick={() => {
-                localStorage.removeItem("edlog-hints-dismissed");
-                setHintsVisible(true);
-              }}
-              className="w-full flex items-center gap-3 rounded-2xl px-4 py-3.5 text-left transition-colors"
-              style={{
-                backgroundColor: "var(--bg-elevated)",
-                border: "1px solid var(--border-primary)",
-              }}
-            >
-              <div
-                className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
-                style={{ background: "var(--accent-light)" }}
+                <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "var(--bg-tertiary)" }}>
+                  <HelpCircle className="w-4 h-4" style={{ color: "var(--text-tertiary)" }} />
+                </div>
+                <div className="flex-1 text-left">
+                  <p className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>Replay app tour</p>
+                  <p className="text-[11px] mt-0.5" style={{ color: "var(--text-tertiary)" }}>See the guided walkthrough again</p>
+                </div>
+                <ChevronRight className="w-4 h-4" style={{ color: "var(--text-quaternary)" }} />
+              </button>
+            </div>
+
+            {/* Help Hints toggle */}
+            <div style={{ borderTop: "1px solid var(--border-secondary)" }}>
+              <button
+                onClick={() => {
+                  if (hintsVisible) {
+                    localStorage.setItem("edlog-hints-dismissed", "true");
+                    setHintsVisible(false);
+                  } else {
+                    localStorage.removeItem("edlog-hints-dismissed");
+                    setHintsVisible(true);
+                  }
+                }}
+                className="w-full flex items-center gap-3 py-2.5 transition-colors text-left"
               >
-                <Eye className="w-5 h-5" style={{ color: "var(--accent-text)" }} />
-              </div>
-              <div>
-                <p style={{ fontFamily: "var(--font-body)", fontSize: "14px", fontWeight: 600, color: "var(--text-primary)" }}>
-                  Show Help Hints
-                </p>
-                <p style={{ fontFamily: "var(--font-body)", fontSize: "12px", color: "var(--text-tertiary)" }}>
-                  Re-enable the &quot;!&quot; helper indicators
-                </p>
-              </div>
-            </button>
-          )
+                <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "var(--bg-tertiary)" }}>
+                  {hintsVisible
+                    ? <EyeOff className="w-4 h-4" style={{ color: "var(--text-tertiary)" }} />
+                    : <Eye className="w-4 h-4" style={{ color: "var(--text-tertiary)" }} />
+                  }
+                </div>
+                <div className="flex-1 text-left">
+                  <p className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>
+                    {hintsVisible ? "Hide help hints" : "Show help hints"}
+                  </p>
+                  <p className="text-[11px] mt-0.5" style={{ color: "var(--text-tertiary)" }}>
+                    {hintsVisible ? "Remove the "!" indicators" : "Re-enable helper indicators"}
+                  </p>
+                </div>
+                <div
+                  className="w-10 h-5.5 rounded-full flex-shrink-0 flex items-center transition-all"
+                  style={{
+                    background: hintsVisible ? "var(--accent)" : "var(--bg-tertiary)",
+                    padding: "2px",
+                    width: 36,
+                    height: 20,
+                  }}
+                >
+                  <div
+                    className="w-4 h-4 rounded-full bg-white shadow-sm transition-transform"
+                    style={{ transform: hintsVisible ? "translateX(16px)" : "translateX(0px)" }}
+                  />
+                </div>
+              </button>
+            </div>
+          </div>
         )}
 
-        {/* ═══ SIGN OUT ═══ */}
-        {!loading && (
-          <button
-            onClick={() => signOut({ callbackUrl: "/login" })}
-            className="w-full flex items-center justify-center gap-2 rounded-2xl px-4 py-3.5 text-sm font-semibold transition-colors"
-            style={{
-              backgroundColor: "var(--bg-elevated)",
-              border: "1px solid var(--border-primary)",
-              color: "#ef4444",
-            }}
-          >
-            <LogOut className="w-4 h-4" />
-            Sign Out
-          </button>
-        )}
-
-        {/* Skeleton cards while loading */}
+        {/* ── Skeleton cards ── */}
         {loading && (
           <>
             <SkeletonCard />
@@ -1512,6 +1375,23 @@ export default function ProfilePage() {
             <SkeletonCard />
           </>
         )}
+
+        {/* ══ SIGN OUT ══ */}
+        {!loading && (
+          <button
+            onClick={() => signOut({ callbackUrl: "/login" })}
+            className="w-full flex items-center justify-center gap-2 rounded-2xl px-4 py-3.5 text-sm font-semibold transition-colors"
+            style={{
+              backgroundColor: "rgba(239,68,68,0.06)",
+              border: "1px solid rgba(239,68,68,0.15)",
+              color: "#ef4444",
+            }}
+          >
+            <LogOut className="w-4 h-4" />
+            Sign out
+          </button>
+        )}
+
       </div>
     </div>
   );
