@@ -608,12 +608,12 @@ export default function NewEntryPage() {
     (classDidNotHold || (moduleName && (selectedTopicIds.length > 0 || topicText.trim().length > 0))) &&
     !isWeekend && hasPeriodSelected;
 
-  function validateBeforeSubmit(): string | null {
-    if (!classId) return "Select a class";
-    if (!hasPeriodSelected) return "Select a period";
+  function validateBeforeSubmit(): { error: string; targetStep: number; fieldId: string } | null {
+    if (!classId) return { error: "Select a class", targetStep: 0, fieldId: "class-select-field" };
+    if (!hasPeriodSelected) return { error: "Select a period", targetStep: 0, fieldId: "period-select-field" };
     if (!classDidNotHold) {
-      if (!moduleName) return "Select a module — which chapter or unit did you teach?";
-      if (selectedTopicIds.length === 0 && !topicText?.trim()) return "Select or type at least one topic";
+      if (!moduleName) return { error: "Select a module — which chapter or unit did you teach?", targetStep: 0, fieldId: "module-list-section" };
+      if (selectedTopicIds.length === 0 && !topicText?.trim()) return { error: "Select or type at least one topic", targetStep: 1, fieldId: "topic-input-field" };
     }
     return null;
   }
@@ -632,6 +632,24 @@ export default function NewEntryPage() {
     });
   }, [date, selectedSlotsData]);
 
+  const completenessScore = useMemo(() => {
+    if (classDidNotHold && hasPeriodSelected && classId) return 100;
+    const checks = [
+      !!date,
+      !!classId,
+      hasPeriodSelected,
+      !!moduleName,
+      selectedTopicIds.length > 0 || !!topicText.trim(),
+      !!notes.trim(),
+      Object.keys(selectedObjectives).length > 0,
+      !!studentAttendance,
+      !!engagementLevel,
+      !!familyOfSituation,
+      !!signatureData,
+    ];
+    return Math.round((checks.filter(Boolean).length / checks.length) * 100);
+  }, [classDidNotHold, date, classId, hasPeriodSelected, moduleName, selectedTopicIds, topicText, notes, selectedObjectives, studentAttendance, engagementLevel, familyOfSituation, signatureData]);
+
   const contextClassName = assignedClasses.find((c) => c.id === classId)?.name || "";
   const contextSubjectName = subjectsForClass.find((s) => s.assignmentId === assignmentId || s.id === subjectId)?.name || "";
   const contextSlot = selectedSlotsData[0];
@@ -643,9 +661,14 @@ export default function NewEntryPage() {
     if (submitting || savingDraft) return;
     setError("");
     if (!asDraft) {
-      const validationError = validateBeforeSubmit();
-      if (validationError) {
-        setError(validationError);
+      const validationResult = validateBeforeSubmit();
+      if (validationResult) {
+        setError(validationResult.error);
+        const needsStepChange = validationResult.targetStep !== step;
+        if (needsStepChange) setStep(validationResult.targetStep);
+        setTimeout(() => {
+          document.getElementById(validationResult.fieldId)?.scrollIntoView({ behavior: "smooth", block: "center" });
+        }, needsStepChange ? 150 : 50);
         return;
       }
     }
@@ -1368,7 +1391,7 @@ export default function NewEntryPage() {
                 {selectedSlotIds.length === 0 && !loadingSlots && (
                   <div>
                     <label className="label-field">Period <span style={{ color: "var(--warning)" }}>*</span></label>
-                    <select value={period} onChange={(e) => setPeriod(e.target.value)} className="input-field" required>
+                    <select id="period-select-field" value={period} onChange={(e) => setPeriod(e.target.value)} className="input-field" required>
                       <option value="">Select period</option>
                       {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((p) => (
                         <option key={p} value={p} disabled={filledPeriods.has(p)}>Period {p}{filledPeriods.has(p) ? " (filled)" : ""}</option>
@@ -1380,7 +1403,7 @@ export default function NewEntryPage() {
                 {selectedSlotIds.length === 0 && (
                   <div>
                     <label className="label-field">Class <span style={{ color: "var(--warning)" }}>*</span></label>
-                    <select value={classId} onChange={(e) => handleClassChange(e.target.value)} className="input-field" required>
+                    <select id="class-select-field" value={classId} onChange={(e) => handleClassChange(e.target.value)} className="input-field" required>
                       <option value="">Select class</option>
                       {assignedClasses.map((c) => (<option key={c.id} value={c.id}>{c.name}</option>))}
                     </select>
@@ -1443,7 +1466,7 @@ export default function NewEntryPage() {
                 )}
 
                 {subjectId && !classDidNotHold && modules.length > 0 && (
-                  <div>
+                  <div id="module-list-section">
                     <div className="flex items-center gap-2 mb-3">
                       <p className="text-[13px] text-[var(--text-tertiary)]">Select the module you taught:</p>
                       <HelpHint text="Select the module (unit/chapter) your lesson was part of. Topics will auto-populate based on this." position="right" createdAt={userCreatedAt} />
@@ -1506,7 +1529,7 @@ export default function NewEntryPage() {
                 </p>
 
                 <div className="border overflow-hidden" style={{ borderColor: "var(--border-primary)", background: "var(--bg-elevated)", borderRadius: "16px" }}>
-                  <input value={topicText} onChange={(e) => setTopicText(e.target.value.slice(0, 300))}
+                  <input id="topic-input-field" value={topicText} onChange={(e) => setTopicText(e.target.value.slice(0, 300))}
                     placeholder="e.g. Laws of reflection, image formation..."
                     className="w-full px-4 py-3.5 border-none outline-none text-[15px] bg-transparent"
                     style={{ color: "var(--text-primary)" }} maxLength={300} />
@@ -2176,6 +2199,34 @@ export default function NewEntryPage() {
                     </div>
                   </div>
                 )}
+
+                {/* ── Entry Completeness Score ── */}
+                <div className="rounded-2xl px-4 py-3" style={{ background: "var(--bg-elevated)", border: "1px solid var(--border-primary)" }}>
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-xs font-semibold text-[var(--text-secondary)]">Entry completeness</span>
+                    <span className="text-xs font-bold tabular-nums" style={{ color: completenessScore >= 80 ? "var(--success)" : completenessScore >= 50 ? "var(--accent-text)" : "var(--warning)" }}>
+                      {completenessScore}%
+                    </span>
+                  </div>
+                  <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "var(--bg-tertiary)" }}>
+                    <div className="h-full rounded-full transition-all duration-500"
+                      style={{
+                        width: `${completenessScore}%`,
+                        background: completenessScore >= 80 ? "var(--success)" : completenessScore >= 50 ? "var(--accent)" : "var(--warning)",
+                      }}
+                    />
+                  </div>
+                  {completenessScore < 80 && (
+                    <p className="text-[11px] mt-1.5" style={{ color: "var(--text-tertiary)" }}>
+                      {[
+                        !notes.trim() && "notes",
+                        !engagementLevel && "engagement",
+                        !studentAttendance && "attendance",
+                        !familyOfSituation && "family of situation",
+                      ].filter(Boolean).slice(0, 3).join(" · ")}
+                    </p>
+                  )}
+                </div>
 
                 <button type="submit" disabled={!isFormValid || submitting || savingDraft || selectedPeriodNotEnded}
                   className="w-full font-bold text-base text-white flex items-center justify-center gap-2 transition-all active:scale-[0.97] disabled:opacity-50"
