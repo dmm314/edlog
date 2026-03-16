@@ -82,8 +82,9 @@ export default function AdminDashboardPage() {
         }
 
         if (coordsRes.ok) {
-          const coords = await coordsRes.json();
-          setCoordinators(Array.isArray(coords) ? coords : []);
+          const coordsData = await coordsRes.json();
+          const coords = Array.isArray(coordsData) ? coordsData : (coordsData.coordinators || []);
+          setCoordinators(coords);
         }
         // Fetch createdAt for HelpHints
         try {

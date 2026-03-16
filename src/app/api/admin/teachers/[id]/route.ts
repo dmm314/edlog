@@ -14,7 +14,7 @@ export async function GET(
     }
 
     // Check teacher belongs to this school (direct schoolId OR via TeacherSchool membership)
-    const [teacher, membership] = await Promise.all([
+    const [teacher, membership, schoolEntryCount] = await Promise.all([
       db.user.findUnique({
         where: { id: params.id },
         include: {
@@ -35,7 +35,6 @@ export async function GET(
               topics: { select: { name: true, subject: { select: { name: true } } } },
             },
           },
-          _count: { select: { entries: true } },
         },
       }),
       db.teacherSchool.findFirst({
@@ -43,6 +42,13 @@ export async function GET(
           teacherId: params.id,
           schoolId: user.schoolId ?? undefined,
           status: { in: ["PENDING", "ACTIVE"] },
+        },
+      }),
+      // Count entries scoped to THIS school only (not cross-school total)
+      db.logbookEntry.count({
+        where: {
+          teacherId: params.id,
+          class: { schoolId: user.schoolId ?? undefined },
         },
       }),
     ]);
@@ -67,7 +73,7 @@ export async function GET(
       photoUrl: (teacher as Record<string, unknown>).photoUrl as string | null,
       isVerified: teacher.isVerified,
       createdAt: teacher.createdAt.toISOString(),
-      totalEntries: teacher._count.entries,
+      totalEntries: schoolEntryCount,
       assignments: teacher.assignments.map((a) => ({
         id: a.id,
         className: a.class.name,

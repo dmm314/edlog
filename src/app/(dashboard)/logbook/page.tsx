@@ -112,6 +112,17 @@ function getCurrentPeriodIndex(slots: TimetableSlotInfo[]): number {
   return slots.length;
 }
 
+// Normalize any slot API response shape (plain array or { slots/data: [...] })
+function normalizeSlots(data: unknown): TimetableSlotInfo[] {
+  if (Array.isArray(data)) return data as TimetableSlotInfo[];
+  if (data && typeof data === "object") {
+    const obj = data as Record<string, unknown>;
+    if (Array.isArray(obj.slots)) return obj.slots as TimetableSlotInfo[];
+    if (Array.isArray(obj.data)) return obj.data as TimetableSlotInfo[];
+  }
+  return [];
+}
+
 export default function LogbookPage() {
   const { isCoordinator: isCoordinatorCtx, coordinatorTitle: coordinatorTitleCtx, switchMode } = useCoordinatorMode();
   const [entries, setEntries] = useState<EntryWithRelations[]>([]);
@@ -166,12 +177,12 @@ export default function LogbookPage() {
 
         if (results[1]?.ok) {
           const allSlotsData = await results[1].json();
-          setAllSlots(allSlotsData);
+          setAllSlots(normalizeSlots(allSlotsData));
         }
 
         if (results[2]?.ok) {
           const slotsData = await results[2].json();
-          setTodaySlots(slotsData.slots || []);
+          setTodaySlots(normalizeSlots(slotsData));
         }
 
         // Check if teacher is an HOD
