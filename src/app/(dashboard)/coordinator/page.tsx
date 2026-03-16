@@ -341,64 +341,51 @@ export default function CoordinatorDashboardPage() {
                 </div>
                 <div className="divide-y" style={{ borderColor: "rgba(22,163,74,0.15)" }}>
                   {liveSlots.map((slot) => (
-                    <div key={slot.id} className="px-4 py-3 flex items-start gap-3">
+                    <div key={slot.id} className="px-4 py-3.5 flex items-center gap-3">
+                      {/* Avatar */}
+                      {slot.teacherPhotoUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={slot.teacherPhotoUrl} alt={slot.teacher}
+                          className="w-9 h-9 rounded-xl object-cover flex-shrink-0"
+                          style={{ border: "1px solid rgba(22,163,74,0.25)" }} />
+                      ) : (
+                        <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 text-[11px] font-black text-white"
+                          style={{ background: "#16A34A" }}>
+                          {slot.teacher.split(" ").map((n) => n[0]).slice(0, 2).join("")}
+                        </div>
+                      )}
+
+                      {/* Sentence description */}
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-start justify-between gap-2">
-                          <div className="min-w-0">
-                            <p className="text-sm font-bold leading-snug" style={{ color: "var(--text-primary)" }}>
-                              {slot.subject}
-                              <span className="font-medium ml-1.5" style={{ color: "var(--text-secondary)" }}>
-                                — {slot.className}
-                              </span>
-                            </p>
-                            <p className="text-xs mt-0.5" style={{ color: "var(--text-secondary)" }}>
-                              {fmtTime(slot.startTime)} – {fmtTime(slot.endTime)} · {slot.periodLabel}
-                            </p>
-                          </div>
-                        </div>
-                        {/* Teacher contact row */}
-                        <div className="flex items-center justify-between mt-2 pt-2"
-                          style={{ borderTop: "1px solid rgba(22,163,74,0.15)" }}>
-                          <div className="flex items-center gap-2 min-w-0">
-                            {slot.teacherPhotoUrl ? (
-                              // eslint-disable-next-line @next/next/no-img-element
-                              <img src={slot.teacherPhotoUrl} alt={slot.teacher}
-                                className="w-7 h-7 rounded-lg object-cover flex-shrink-0"
-                                style={{ border: "1px solid rgba(22,163,74,0.2)" }} />
-                            ) : (
-                              <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 text-[10px] font-black text-white"
-                                style={{ background: "#16A34A" }}>
-                                {slot.teacher.split(" ").map((n) => n[0]).slice(0, 2).join("")}
-                              </div>
-                            )}
-                            <div className="min-w-0">
-                              <p className="text-xs font-semibold truncate" style={{ color: "var(--text-primary)" }}>
-                                {slot.teacher}
-                              </p>
-                              {slot.teacherEmail && (
-                                <p className="text-[10px] truncate" style={{ color: "var(--text-secondary)" }}>
-                                  {slot.teacherEmail}
-                                </p>
-                              )}
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-1.5 flex-shrink-0">
-                            {slot.teacherPhone && (
-                              <a href={`tel:${slot.teacherPhone}`}
-                                className="flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1.5 rounded-lg transition-colors"
-                                style={{ background: "rgba(22,163,74,0.15)", color: "var(--text-primary)" }}>
-                                <Phone className="w-3 h-3" />
-                                Call
-                              </a>
-                            )}
-                            <a href={`mailto:${slot.teacherEmail}`}
-                              className="flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1.5 rounded-lg transition-colors"
-                              style={{ background: "rgba(22,163,74,0.15)", color: "var(--text-primary)" }}>
-                              <Mail className="w-3 h-3" />
-                              Email
-                            </a>
-                          </div>
-                        </div>
+                        <p className="text-sm font-semibold leading-snug" style={{ color: "var(--text-primary)" }}>
+                          In{" "}
+                          <span className="font-bold">{slot.className}</span>
+                          {", "}
+                          <span className="font-bold">{slot.teacher}</span>
+                          {" is teaching "}
+                          <span className="font-bold">{slot.subject}</span>
+                        </p>
+                        <p className="text-xs mt-0.5" style={{ color: "var(--text-secondary)" }}>
+                          {slot.periodLabel} · {fmtTime(slot.startTime)}–{fmtTime(slot.endTime)} · in session
+                        </p>
+                      </div>
+
+                      {/* Contact buttons */}
+                      <div className="flex items-center gap-1.5 flex-shrink-0">
+                        {slot.teacherPhone && (
+                          <a href={`tel:${slot.teacherPhone}`}
+                            className="flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1.5 rounded-lg transition-colors"
+                            style={{ background: "rgba(22,163,74,0.15)", color: "var(--text-primary)" }}>
+                            <Phone className="w-3 h-3" />
+                            Call
+                          </a>
+                        )}
+                        <a href={`mailto:${slot.teacherEmail}`}
+                          className="flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1.5 rounded-lg transition-colors"
+                          style={{ background: "rgba(22,163,74,0.15)", color: "var(--text-primary)" }}>
+                          <Mail className="w-3 h-3" />
+                          Email
+                        </a>
                       </div>
                     </div>
                   ))}
@@ -417,12 +404,16 @@ export default function CoordinatorDashboardPage() {
                 <div className="divide-y" style={{ borderColor: "var(--border-secondary)" }}>
                   {nextSlots.map((slot) => (
                     <div key={slot.id} className="px-4 py-3">
-                      <p className="text-sm font-bold text-[var(--text-primary)]">
-                        {slot.subject}
-                        <span className="font-medium text-[var(--text-secondary)] ml-1.5">— {slot.className}</span>
+                      <p className="text-sm font-semibold leading-snug" style={{ color: "var(--text-primary)" }}>
+                        In{" "}
+                        <span className="font-bold">{slot.className}</span>
+                        {", "}
+                        <span className="font-bold">{slot.teacher}</span>
+                        {" will be teaching "}
+                        <span className="font-bold">{slot.subject}</span>
                       </p>
                       <p className="text-xs text-[var(--text-tertiary)] mt-0.5">
-                        {slot.teacher} · {slot.periodLabel}
+                        {slot.periodLabel} · starts {fmtTime(slot.startTime)}
                       </p>
                     </div>
                   ))}
