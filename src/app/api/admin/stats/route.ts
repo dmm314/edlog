@@ -128,9 +128,17 @@ export async function GET() {
       console.warn("Entry stats query failed:", (e as Error).message);
     }
 
-    const expectedPerTeacher = 20;
-    const complianceRate = totalTeachers > 0
-      ? Math.round((entriesThisMonth / (totalTeachers * expectedPerTeacher)) * 100)
+    // Pro-rata compliance: actual timetable slots × (days elapsed this week / 5)
+    const totalSlotsPerWeek = await db.timetableSlot.count({
+      where: { schoolId: user.schoolId },
+    });
+    const todayDow = new Date().getDay(); // 0=Sun … 6=Sat
+    const daysElapsed = todayDow >= 1 && todayDow <= 5 ? todayDow : todayDow === 6 ? 5 : 0;
+    const expectedThisWeek = totalSlotsPerWeek > 0
+      ? Math.round(totalSlotsPerWeek * (daysElapsed / 5))
+      : totalTeachers * 4;
+    const complianceRate = expectedThisWeek > 0
+      ? Math.round((entriesThisWeek / expectedThisWeek) * 100)
       : 0;
 
     return NextResponse.json({

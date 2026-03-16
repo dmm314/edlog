@@ -119,6 +119,8 @@ export interface TeacherWithStats {
   membershipId: string | null;
   createdAt: string;
   entryCount: number;
+  entriesThisWeek: number;
+  periodsPerWeek: number;
   lastEntry: string | null;
   subjects: string[];
   classes: string[];

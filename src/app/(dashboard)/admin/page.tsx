@@ -107,10 +107,10 @@ export default function AdminDashboardPage() {
   const topTeachers = teachers
     .filter((t) => t.membershipStatus === "ACTIVE")
     .sort((a, b) => {
-      const aExpected = Math.max(a.subjects.length * 5, 5);
-      const bExpected = Math.max(b.subjects.length * 5, 5);
-      const aRate = a.entryCount / aExpected;
-      const bRate = b.entryCount / bExpected;
+      const aExpected = a.periodsPerWeek || Math.max(a.subjects.length * 3, 5);
+      const bExpected = b.periodsPerWeek || Math.max(b.subjects.length * 3, 5);
+      const aRate = a.entriesThisWeek / aExpected;
+      const bRate = b.entriesThisWeek / bExpected;
       return aRate - bRate;
     })
     .slice(0, 6);
@@ -449,13 +449,13 @@ export default function AdminDashboardPage() {
             <div className="space-y-1">
               {topTeachers.map((t) => {
                 const name = `${t.firstName} ${t.lastName}`;
-                const expectedPerWeek = Math.max(t.subjects.length * 5, 5);
+                const expectedPerWeek = t.periodsPerWeek || Math.max(t.subjects.length * 3, 5);
                 return (
                   <TeacherActivityRow
                     key={t.id}
                     name={name}
                     initials={`${t.firstName[0]}${t.lastName[0]}`}
-                    entriesLogged={t.entryCount}
+                    entriesLogged={t.entriesThisWeek}
                     entriesExpected={expectedPerWeek}
                   />
                 );

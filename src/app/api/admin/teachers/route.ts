@@ -2,15 +2,18 @@ export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getSessionUser } from "@/lib/auth";
+import { getStartOfWeek } from "@/lib/utils";
 
 function buildTeacherResult(
   t: Record<string, unknown>,
   status: "PENDING" | "ACTIVE",
-  membershipId: string | null
+  membershipId: string | null,
+  entriesThisWeek = 0
 ) {
   const assignments = (t.assignments as Array<{
     subject: { name: string };
     class: { name: string };
+    _count?: { timetableSlots: number };
   }>) || [];
 
   const subjectClassMap = new Map<string, Set<string>>();
@@ -27,6 +30,7 @@ function buildTeacherResult(
 
   const entries = (t.entries as Array<{ date: Date }>) || [];
   const count = (t._count as { entries: number }) || { entries: 0 };
+  const periodsPerWeek = assignments.reduce((sum, a) => sum + (a._count?.timetableSlots ?? 0), 0);
 
   return {
     id: t.id as string,
@@ -41,6 +45,8 @@ function buildTeacherResult(
     membershipId,
     createdAt: (t.createdAt as Date).toISOString(),
     entryCount: count.entries,
+    entriesThisWeek,
+    periodsPerWeek,
     lastEntry: entries[0]?.date?.toISOString() ?? null,
     subjects: Array.from(new Set(assignments.map((a) => a.subject.name))),
     classes: Array.from(new Set(assignments.map((a) => a.class.name))),
@@ -59,6 +65,8 @@ export async function GET() {
       return NextResponse.json({ error: "No school assigned" }, { status: 400 });
     }
 
+    const startOfWeek = getStartOfWeek();
+
     const teacherInclude = {
       entries: {
         orderBy: { date: "desc" as const },
@@ -71,6 +79,7 @@ export async function GET() {
         include: {
           class: { select: { name: true } },
           subject: { select: { name: true } },
+          _count: { select: { timetableSlots: true } },
         },
       },
     };
@@ -142,6 +151,18 @@ export async function GET() {
           null
         )
       );
+    }
+
+    // Batch-fetch this week's entry counts per teacher
+    const teacherIds = result.map((r) => r.id);
+    if (teacherIds.length > 0) {
+      const weeklyGroups = await db.logbookEntry.groupBy({
+        by: ["teacherId"],
+        where: { teacherId: { in: teacherIds }, date: { gte: startOfWeek } },
+        _count: { _all: true },
+      });
+      const weeklyMap = new Map(weeklyGroups.map((g) => [g.teacherId, g._count._all]));
+      result = result.map((r) => ({ ...r, entriesThisWeek: weeklyMap.get(r.id) ?? 0 }));
     }
 
     return NextResponse.json(result);
