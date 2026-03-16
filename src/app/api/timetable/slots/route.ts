@@ -70,12 +70,15 @@ export async function GET(request: NextRequest) {
         .filter((s) => s.slotId !== slot.id)
         .map((s) => s.className);
 
+      const periodNumber = parseInt(slot.periodLabel.replace(/\D/g, "")) || 0;
+
       return {
         id: slot.id,
         dayOfWeek: slot.dayOfWeek,
         startTime: slot.startTime,
         endTime: slot.endTime,
         periodLabel: slot.periodLabel,
+        periodNumber,
         schoolId: slot.school.id,
         schoolName: slot.school.name,
         schoolCode: slot.school.code,
