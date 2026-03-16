@@ -62,28 +62,24 @@ function fmtTime(t: string): string {
   return `${h % 12 || 12}:${m.toString().padStart(2, "0")} ${h >= 12 ? "PM" : "AM"}`;
 }
 
-function getActiveLiveSlots(slots: TimetableSlot[]): TimetableSlot[] {
+type SlotStatus = "live" | "upcoming" | "done";
+
+function getSlotStatus(slot: TimetableSlot): SlotStatus {
   const now = new Date();
-  const dow = now.getDay();
   const nowMins = now.getHours() * 60 + now.getMinutes();
-  return slots.filter((s) => {
-    if (s.dayOfWeek !== dow) return false;
-    return nowMins >= parseTimeMins(s.startTime) && nowMins < parseTimeMins(s.endTime);
-  });
+  const start = parseTimeMins(slot.startTime);
+  const end = parseTimeMins(slot.endTime);
+  if (nowMins >= start && nowMins < end) return "live";
+  if (nowMins < start) return "upcoming";
+  return "done";
 }
 
-function getNextSlots(slots: TimetableSlot[]): TimetableSlot[] {
-  const now = new Date();
-  const dow = now.getDay();
+function getTodaySlots(slots: TimetableSlot[]): TimetableSlot[] {
+  const dow = new Date().getDay();
   if (dow < 1 || dow > 5) return [];
-  const nowMins = now.getHours() * 60 + now.getMinutes();
-  const upcoming = slots
-    .filter((s) => s.dayOfWeek === dow && parseTimeMins(s.startTime) > nowMins)
+  return slots
+    .filter((s) => s.dayOfWeek === dow)
     .sort((a, b) => parseTimeMins(a.startTime) - parseTimeMins(b.startTime));
-  if (upcoming.length === 0) return [];
-  const nextTime = parseTimeMins(upcoming[0].startTime);
-  // Return all slots starting at the same "next" time
-  return upcoming.filter((s) => parseTimeMins(s.startTime) === nextTime);
 }
 
 interface Stats {
@@ -215,8 +211,8 @@ export default function CoordinatorDashboardPage() {
 
   const levelSummary = coordinator?.levels?.join(", ") || "";
   const pendingCount = stats?.pendingVerification ?? 0;
-  const liveSlots = getActiveLiveSlots(timetableSlots);
-  const nextSlots = liveSlots.length === 0 ? getNextSlots(timetableSlots) : [];
+  const todaySlots = getTodaySlots(timetableSlots);
+  const liveCount = todaySlots.filter((s) => getSlotStatus(s) === "live").length;
 
   if (loading) {
     return (
@@ -325,101 +321,91 @@ export default function CoordinatorDashboardPage() {
           </div>
         )}
 
-        {/* ── LIVE NOW / NEXT UP ── */}
-        {(liveSlots.length > 0 || nextSlots.length > 0) && (
-          <div className="animate-slide-up animation-delay-100">
-            {liveSlots.length > 0 ? (
-              <div className="rounded-2xl overflow-hidden border"
-                style={{ background: "rgba(22,163,74,0.07)", borderColor: "rgba(22,163,74,0.25)" }}>
-                {/* Section header */}
-                <div className="px-4 pt-3.5 pb-2.5 flex items-center gap-2"
-                  style={{ borderBottom: "1px solid rgba(22,163,74,0.2)" }}>
-                  <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                  <p className="text-xs font-bold uppercase tracking-widest" style={{ color: "var(--text-secondary)" }}>
-                    Live Now · {liveSlots.length} class{liveSlots.length !== 1 ? "es" : ""} in progress
-                  </p>
-                </div>
-                <div className="divide-y" style={{ borderColor: "rgba(22,163,74,0.15)" }}>
-                  {liveSlots.map((slot) => (
-                    <div key={slot.id} className="px-4 py-3.5 flex items-center gap-3">
-                      {/* Avatar */}
-                      {slot.teacherPhotoUrl ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={slot.teacherPhotoUrl} alt={slot.teacher}
-                          className="w-9 h-9 rounded-xl object-cover flex-shrink-0"
-                          style={{ border: "1px solid rgba(22,163,74,0.25)" }} />
-                      ) : (
-                        <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 text-[11px] font-black text-white"
-                          style={{ background: "#16A34A" }}>
+        {/* ── TODAY'S SCHEDULE ── always visible on weekdays when slots exist */}
+        {todaySlots.length > 0 && (
+          <div className="animate-slide-up animation-delay-100 rounded-2xl overflow-hidden border"
+            style={{ background: "var(--bg-elevated)", borderColor: liveCount > 0 ? "rgba(22,163,74,0.35)" : "var(--border-primary)" }}>
+            {/* Header */}
+            <div className="px-4 pt-3.5 pb-2.5 flex items-center gap-2"
+              style={{ borderBottom: `1px solid ${liveCount > 0 ? "rgba(22,163,74,0.2)" : "var(--border-secondary)"}` }}>
+              {liveCount > 0
+                ? <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse flex-shrink-0" />
+                : <Clock className="w-3.5 h-3.5 flex-shrink-0" style={{ color: "var(--text-tertiary)" }} />}
+              <p className="text-xs font-bold uppercase tracking-widest flex-1" style={{ color: "var(--text-tertiary)" }}>
+                {levelSummary} — Today&apos;s Classes
+              </p>
+              {liveCount > 0 && (
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full"
+                  style={{ background: "rgba(22,163,74,0.15)", color: "#16A34A" }}>
+                  {liveCount} in session
+                </span>
+              )}
+            </div>
+
+            {/* Slot rows */}
+            <div className="divide-y" style={{ borderColor: "var(--border-secondary)" }}>
+              {todaySlots.map((slot) => {
+                const status = getSlotStatus(slot);
+                const isLive = status === "live";
+                const isDone = status === "done";
+                return (
+                  <div key={slot.id}
+                    className="px-4 py-3 flex items-center gap-3"
+                    style={{ opacity: isDone ? 0.5 : 1 }}>
+                    {/* Avatar */}
+                    {slot.teacherPhotoUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={slot.teacherPhotoUrl} alt={slot.teacher}
+                        className="w-8 h-8 rounded-xl object-cover flex-shrink-0" />
+                    ) : (
+                      <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 text-[10px] font-black text-white"
+                        style={{ background: isLive ? "#16A34A" : isDone ? "var(--bg-tertiary)" : "var(--accent)" }}>
+                        <span style={{ color: isDone ? "var(--text-tertiary)" : "white" }}>
                           {slot.teacher.split(" ").map((n) => n[0]).slice(0, 2).join("")}
-                        </div>
-                      )}
-
-                      {/* Sentence description */}
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold leading-snug" style={{ color: "var(--text-primary)" }}>
-                          In{" "}
-                          <span className="font-bold">{slot.className}</span>
-                          {", "}
-                          <span className="font-bold">{slot.teacher}</span>
-                          {" is teaching "}
-                          <span className="font-bold">{slot.subject}</span>
-                        </p>
-                        <p className="text-xs mt-0.5" style={{ color: "var(--text-secondary)" }}>
-                          {slot.periodLabel} · {fmtTime(slot.startTime)}–{fmtTime(slot.endTime)} · in session
-                        </p>
+                        </span>
                       </div>
+                    )}
 
-                      {/* Contact buttons */}
+                    {/* Description */}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold leading-snug" style={{ color: "var(--text-primary)" }}>
+                        In{" "}
+                        <span className="font-bold">{slot.className}</span>
+                        {", "}
+                        <span className="font-bold">{slot.teacher}</span>
+                        {isLive ? " is teaching " : isDone ? " taught " : " will be teaching "}
+                        <span className="font-bold">{slot.subject}</span>
+                      </p>
+                      <p className="text-xs mt-0.5" style={{ color: "var(--text-secondary)" }}>
+                        {slot.periodLabel} · {fmtTime(slot.startTime)}–{fmtTime(slot.endTime)}
+                        {isLive && <span className="ml-1.5 font-semibold" style={{ color: "#16A34A" }}>· in session</span>}
+                        {!isLive && !isDone && <span className="ml-1.5" style={{ color: "var(--text-tertiary)" }}>· upcoming</span>}
+                      </p>
+                    </div>
+
+                    {/* Contact — only for live slots */}
+                    {isLive && (
                       <div className="flex items-center gap-1.5 flex-shrink-0">
                         {slot.teacherPhone && (
                           <a href={`tel:${slot.teacherPhone}`}
-                            className="flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1.5 rounded-lg transition-colors"
+                            className="flex items-center gap-1 text-[11px] font-semibold px-2 py-1.5 rounded-lg"
                             style={{ background: "rgba(22,163,74,0.15)", color: "var(--text-primary)" }}>
                             <Phone className="w-3 h-3" />
                             Call
                           </a>
                         )}
                         <a href={`mailto:${slot.teacherEmail}`}
-                          className="flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1.5 rounded-lg transition-colors"
+                          className="flex items-center gap-1 text-[11px] font-semibold px-2 py-1.5 rounded-lg"
                           style={{ background: "rgba(22,163,74,0.15)", color: "var(--text-primary)" }}>
                           <Mail className="w-3 h-3" />
                           Email
                         </a>
                       </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ) : nextSlots.length > 0 ? (
-              <div className="rounded-2xl overflow-hidden border"
-                style={{ background: "var(--bg-elevated)", borderColor: "var(--border-primary)" }}>
-                <div className="px-4 pt-3.5 pb-2.5 flex items-center gap-2"
-                  style={{ borderBottom: "1px solid var(--border-secondary)" }}>
-                  <Clock className="w-3.5 h-3.5" style={{ color: "var(--accent)" }} />
-                  <p className="text-xs font-bold uppercase tracking-widest" style={{ color: "var(--text-tertiary)" }}>
-                    Next Up · {fmtTime(nextSlots[0].startTime)}
-                  </p>
-                </div>
-                <div className="divide-y" style={{ borderColor: "var(--border-secondary)" }}>
-                  {nextSlots.map((slot) => (
-                    <div key={slot.id} className="px-4 py-3">
-                      <p className="text-sm font-semibold leading-snug" style={{ color: "var(--text-primary)" }}>
-                        In{" "}
-                        <span className="font-bold">{slot.className}</span>
-                        {", "}
-                        <span className="font-bold">{slot.teacher}</span>
-                        {" will be teaching "}
-                        <span className="font-bold">{slot.subject}</span>
-                      </p>
-                      <p className="text-xs text-[var(--text-tertiary)] mt-0.5">
-                        {slot.periodLabel} · starts {fmtTime(slot.startTime)}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ) : null}
+                    )}
+                  </div>
+                );
+              })}
+            </div>
           </div>
         )}
 
