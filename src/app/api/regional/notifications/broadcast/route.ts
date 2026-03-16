@@ -19,12 +19,10 @@ export async function GET(_request: NextRequest) {
       db.user.count({
         where: {
           role: "TEACHER",
-          teacherSchools: {
-            some: {
-              school: { regionId: user.regionId },
-              status: "ACTIVE",
-            },
-          },
+          OR: [
+            { school: { regionId: user.regionId } },
+            { teacherSchools: { some: { school: { regionId: user.regionId }, status: "ACTIVE" } } },
+          ],
         },
       }),
       db.school.count({
@@ -104,12 +102,10 @@ export async function POST(request: NextRequest) {
         where: {
           id: teacherId,
           role: "TEACHER",
-          teacherSchools: {
-            some: {
-              school: { regionId: user.regionId },
-              status: "ACTIVE",
-            },
-          },
+          OR: [
+            { school: { regionId: user.regionId } },
+            { teacherSchools: { some: { school: { regionId: user.regionId }, status: "ACTIVE" } } },
+          ],
         },
       });
       if (!teacher) {
@@ -148,12 +144,10 @@ export async function POST(request: NextRequest) {
       const teachers = await db.user.findMany({
         where: {
           role: "TEACHER",
-          teacherSchools: {
-            some: {
-              schoolId: schoolId,
-              status: "ACTIVE",
-            },
-          },
+          OR: [
+            { schoolId: schoolId },
+            { teacherSchools: { some: { schoolId: schoolId, status: "ACTIVE" } } },
+          ],
         },
         select: { id: true },
       });
@@ -182,12 +176,10 @@ export async function POST(request: NextRequest) {
     const teachers = await db.user.findMany({
       where: {
         role: "TEACHER",
-        teacherSchools: {
-          some: {
-            school: { regionId: user.regionId },
-            status: "ACTIVE",
-          },
-        },
+        OR: [
+          { school: { regionId: user.regionId } },
+          { teacherSchools: { some: { school: { regionId: user.regionId }, status: "ACTIVE" } } },
+        ],
       },
       select: { id: true },
     });
