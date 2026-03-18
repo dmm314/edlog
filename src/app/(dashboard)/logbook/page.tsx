@@ -21,6 +21,8 @@ import { StreakBadge } from "@/components/StreakBadge";
 import { WeeklyProgress } from "@/components/WeeklyProgress";
 import { OnboardingTour } from "@/components/OnboardingTour";
 import { HelpHint } from "@/components/HelpHint";
+import { QuickActionsRow } from "@/components/dashboard/QuickActionsRow";
+import { TeacherFeed } from "@/components/dashboard/TeacherFeed";
 import { TEACHER_TOUR } from "@/lib/tour-steps";
 import type { EntryWithRelations } from "@/types";
 import { useCoordinatorMode } from "@/contexts/CoordinatorModeContext";
@@ -787,6 +789,12 @@ export default function LogbookPage() {
           </Link>
         )}
 
+         {/* ── Stories-style Quick Actions ───────────────────────────── */}
+        <QuickActionsRow />
+
+        {/* ── Entry Feed ──────────────────────────────────────────────── */}
+        <TeacherFeed entries={entries} loading={loading} />
+        
         {/* ── Today's Schedule ─────────────────────────────────────── */}
         {isWeekday && sortedTodaySlots.length > 0 && (
           <div data-tour="today-schedule" className="animate-slide-up">
