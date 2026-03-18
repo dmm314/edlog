@@ -1,5 +1,6 @@
 export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
+import { Prisma, TeacherSchoolStatus } from "@prisma/client";
 import { db } from "@/lib/db";
 import { getSessionUser } from "@/lib/auth";
 import { getStartOfWeek } from "@/lib/utils";
@@ -13,7 +14,7 @@ function buildTeacherResult(
   const assignments = (t.assignments as Array<{
     subject: { name: string };
     class: { name: string };
-    _count?: { timetableSlots: number };
+    periods?: Array<{ id: string }> ;
   }>) || [];
 
   const subjectClassMap = new Map<string, Set<string>>();
@@ -30,7 +31,7 @@ function buildTeacherResult(
 
   const entries = (t.entries as Array<{ date: Date }>) || [];
   const count = (t._count as { entries: number }) || { entries: 0 };
-  const periodsPerWeek = assignments.reduce((sum, a) => sum + (a._count?.timetableSlots ?? 0), 0);
+  const periodsPerWeek = assignments.reduce((sum, a) => sum + (a.periods?.length ?? 0), 0);
 
   return {
     id: t.id as string,
@@ -67,9 +68,9 @@ export async function GET() {
 
     const startOfWeek = getStartOfWeek();
 
-    const teacherInclude = {
+    const teacherInclude = Prisma.validator<Prisma.UserInclude>()({
       entries: {
-        orderBy: { date: "desc" as const },
+        orderBy: { date: "desc" },
         take: 1,
         select: { date: true },
       },
@@ -79,10 +80,10 @@ export async function GET() {
         include: {
           class: { select: { name: true } },
           subject: { select: { name: true } },
-          _count: { select: { timetableSlots: true } },
+          periods: { select: { id: true } },
         },
       },
-    };
+    });
 
     // Try to use TeacherSchool table first (new multi-school system)
     let useTeacherSchool = true;
@@ -92,7 +93,7 @@ export async function GET() {
       const memberships = await db.teacherSchool.findMany({
         where: {
           schoolId: user.schoolId,
-          status: { in: ["PENDING", "ACTIVE"] },
+          status: { in: [TeacherSchoolStatus.PENDING, TeacherSchoolStatus.ACTIVE] },
         },
         include: { teacher: { include: teacherInclude } },
         orderBy: { createdAt: "desc" },
