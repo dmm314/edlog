@@ -3,17 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  BarChart3,
-  Calendar,
-  ClipboardList,
-  Globe,
-  Home,
-  Plus,
-  Shield,
-  User,
-  Users,
-} from "lucide-react";
+import { Home, Plus, User, Shield, Globe, BarChart3, Calendar, Users, ClipboardList, Bell } from "lucide-react";
 import type { PortalMode } from "@/contexts/CoordinatorModeContext";
 import { cn } from "@/lib/utils";
 
@@ -63,10 +53,10 @@ function getNavTabs(role: string, isCoordinator?: boolean, activeMode?: PortalMo
   }
 
   return [
-    { href: "/logbook", label: "Feed", icon: Home, dataTour: "nav-home" },
-    { href: "/logbook/new", label: "Compose", icon: Plus, highlight: true, dataTour: "nav-new-entry" },
+    { href: "/logbook", label: "Home", icon: Home, dataTour: "nav-home" },
     { href: "/timetable", label: "Timetable", icon: Calendar, dataTour: "nav-timetable" },
-    { href: "/history", label: "History", icon: ClipboardList, dataTour: "nav-history" },
+    { href: "/logbook/new", label: "New Entry", icon: Plus, highlight: true, dataTour: "nav-new-entry" },
+    { href: "/messages", label: "Notices", icon: Bell, dataTour: "nav-notices" },
     { href: "/profile", label: "Profile", icon: User, dataTour: "nav-profile" },
   ];
 }
@@ -76,9 +66,9 @@ function BottomNav({ role, isCoordinator, activeMode }: BottomNavProps) {
   const tabs = getNavTabs(role, isCoordinator, activeMode);
 
   return (
-    <nav className="pointer-events-none fixed inset-x-0 bottom-0 z-50 px-3 pb-[calc(12px+env(safe-area-inset-bottom))]">
-      <div className="pointer-events-auto mx-auto max-w-mobile rounded-[28px] border border-[var(--nav-border)] bg-[var(--nav-bg)] px-2 py-2 shadow-nav backdrop-blur-2xl">
-        <div className="grid grid-cols-5 items-end gap-1">
+    <nav className="bottom-nav fixed bottom-0 left-0 z-50 w-full pb-[env(safe-area-inset-bottom)]">
+      <div className="mx-auto max-w-[480px] px-3 pb-2">
+        <div className={`glass-nav grid h-[72px] items-center rounded-[24px] border border-white/50 px-2 shadow-lifted backdrop-blur-xl ${tabs.length === 4 ? "grid-cols-4" : "grid-cols-5"}`}>
           {tabs.map((tab) => {
             const prefix = tab.activePrefix || tab.href;
             const isActive = pathname === prefix || pathname.startsWith(`${prefix}/`);
@@ -89,15 +79,12 @@ function BottomNav({ role, isCoordinator, activeMode }: BottomNavProps) {
                 <Link
                   key={tab.href}
                   href={tab.href}
+                  className="flex flex-col items-center gap-1"
                   aria-label={tab.label}
                   data-tour={tab.dataTour}
-                  className="flex flex-col items-center gap-1 pb-0.5"
                 >
-                  <span className="flex h-14 w-14 items-center justify-center rounded-full bg-dynamic-accent text-white shadow-float transition-transform duration-300 ease-out active:scale-95 motion-safe:animate-nav-bob">
-                    <Icon className="h-6 w-6" strokeWidth={2.5} />
-                  </span>
-                  <span className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-[var(--nav-text-active)]">
-                    {tab.label}
+                  <span className="inline-flex min-h-11 min-w-[86px] items-center justify-center gap-1 rounded-full bg-gradient-to-r from-[#1877F2] to-[#0866FF] px-3 text-xs font-semibold text-white shadow-accent active:scale-95">
+                    <Plus className="h-4 w-4" /> New
                   </span>
                 </Link>
               );
@@ -107,6 +94,7 @@ function BottomNav({ role, isCoordinator, activeMode }: BottomNavProps) {
               <Link
                 key={tab.href}
                 href={tab.href}
+                className={`flex min-h-11 flex-col items-center justify-center rounded-xl text-[10px] font-medium transition ${isActive ? "text-[#0866FF]" : "text-content-tertiary"}`}
                 aria-label={tab.label}
                 data-tour={tab.dataTour}
                 className={cn(
@@ -114,15 +102,8 @@ function BottomNav({ role, isCoordinator, activeMode }: BottomNavProps) {
                   isActive && "bg-[hsl(var(--accent-soft))] shadow-card",
                 )}
               >
-                <span
-                  className={cn(
-                    "flex h-9 w-9 items-center justify-center rounded-full transition-all duration-300",
-                    isActive ? "scale-105 bg-[hsl(var(--accent-glow)/0.18)] text-[var(--nav-text-active)] shadow-accent" : "text-[var(--nav-text)] group-hover:text-[var(--nav-text-active)]",
-                  )}
-                >
-                  <Icon className="h-4.5 w-4.5" strokeWidth={isActive ? 2.5 : 2.2} />
-                </span>
-                <span className={cn("text-[10px] font-bold tracking-[0.04em]", isActive ? "text-[var(--nav-text-active)]" : "text-[var(--nav-text)]")}>{tab.label}</span>
+                <Icon className={`mb-1 h-[18px] w-[18px] ${isActive ? "drop-shadow-[0_0_8px_rgba(8,102,255,0.35)]" : ""}`} />
+                <span>{tab.label}</span>
               </Link>
             );
           })}

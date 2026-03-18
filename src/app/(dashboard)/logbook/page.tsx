@@ -15,9 +15,14 @@ import {
   Waves,
 } from "lucide-react";
 import { NotificationBell } from "@/components/NotificationBell";
-import { DynamicEntryCard } from "@/components/DynamicEntryCard";
-import { QuickActionsRow } from "@/components/QuickActionsRow";
-import { Skeleton } from "@/components/ui/Skeleton";
+import { StreakBadge } from "@/components/StreakBadge";
+import { WeeklyProgress } from "@/components/WeeklyProgress";
+import { OnboardingTour } from "@/components/OnboardingTour";
+import { HelpHint } from "@/components/HelpHint";
+import { QuickActionsRow } from "@/components/dashboard/QuickActionsRow";
+import { TeacherFeed } from "@/components/dashboard/TeacherFeed";
+import { TEACHER_TOUR } from "@/lib/tour-steps";
+import type { EntryWithRelations } from "@/types";
 import { useCoordinatorMode } from "@/contexts/CoordinatorModeContext";
 import type { EntryWithRelations } from "@/types";
 import { cn } from "@/lib/utils";
@@ -100,13 +105,15 @@ function getStreak(entries: EntryWithRelations[]) {
   return streak;
 }
 
-function getCurrentSlotIndex(slots: TimetableSlotInfo[], now: Date) {
+function getCurrentSlotIndex(slots: TimetableSlotInfo[]) {
+  const now = new Date();
   const minutesNow = now.getHours() * 60 + now.getMinutes();
   return slots.findIndex((slot) => minutesNow >= parseMinutes(slot.startTime) && minutesNow < parseMinutes(slot.endTime));
 }
 
-function getEntryMatch(entry: EntryWithRelations, slot: TimetableSlotInfo, today: Date) {
+function getEntryMatch(entry: EntryWithRelations, slot: TimetableSlotInfo) {
   const entryDate = new Date(entry.date);
+  const today = new Date();
   return (
     entryDate.toDateString() === today.toDateString() &&
     entry.class.id === slot.assignment.classId &&
@@ -143,7 +150,6 @@ function getWeeklyBars(slots: TimetableSlotInfo[], entries: EntryWithRelations[]
 
 export default function LogbookPage() {
   const { isCoordinator, activeMode, switchMode } = useCoordinatorMode();
-  const [now, setNow] = useState(() => new Date());
   const [entries, setEntries] = useState<EntryWithRelations[]>([]);
   const [todaySlots, setTodaySlots] = useState<TimetableSlotInfo[]>([]);
   const [allSlots, setAllSlots] = useState<TimetableSlotInfo[]>([]);
@@ -154,13 +160,9 @@ export default function LogbookPage() {
   const [gender, setGender] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const dayOfWeek = now.getDay();
+  const today = useMemo(() => new Date(), []);
+  const dayOfWeek = today.getDay();
   const isWeekday = dayOfWeek >= 1 && dayOfWeek <= 5;
-
-  useEffect(() => {
-    const tick = window.setInterval(() => setNow(new Date()), 60000);
-    return () => window.clearInterval(tick);
-  }, []);
 
   useEffect(() => {
     let active = true;
@@ -239,13 +241,13 @@ export default function LogbookPage() {
   );
   const coverageTarget = Math.max(assignments.length * 10, 10);
   const syllabusCoverage = Math.min(100, Math.round((uniqueTopics / coverageTarget) * 100));
-  const currentSlotIndex = getCurrentSlotIndex(todaySlots, now);
-  const pendingCount = Math.max(todaySlots.length - todaySlots.filter((slot) => entries.some((entry) => getEntryMatch(entry, slot, now))).length, 0);
+  const currentSlotIndex = getCurrentSlotIndex(todaySlots);
+  const pendingCount = Math.max(todaySlots.length - todaySlots.filter((slot) => entries.some((entry) => getEntryMatch(entry, slot))).length, 0);
   const weeklyBars = useMemo(() => getWeeklyBars(allSlots, entries), [allSlots, entries]);
   const nextClass = useMemo(() => {
-    const minutesNow = now.getHours() * 60 + now.getMinutes();
+    const minutesNow = today.getHours() * 60 + today.getMinutes();
     return todaySlots.find((slot) => parseMinutes(slot.startTime) > minutesNow);
-  }, [now, todaySlots]);
+  }, [today, todaySlots]);
   const upcomingLabel = nextClass
     ? `${nextClass.assignment.subjectName} • ${nextClass.startTime}`
     : null;
@@ -345,7 +347,7 @@ export default function LogbookPage() {
       <section className="section-card space-y-4">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-content-tertiary">Today — {now.toLocaleDateString("en-GB", { weekday: "long" })}</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-content-tertiary">Today — {today.toLocaleDateString("en-GB", { weekday: "long" })}</p>
             <h2 className="text-lg font-bold text-content-primary">Tap the live class first</h2>
           </div>
           <span className="rounded-full bg-[hsl(var(--accent-soft))] px-3 py-1.5 font-mono text-[11px] font-bold text-[hsl(var(--accent-text))]">
@@ -369,23 +371,48 @@ export default function LogbookPage() {
                   </div>
                 </div>
               </div>
-            ))
-          ) : todaySlots.length === 0 ? (
-            <div className="card bg-dynamic-noise p-5 text-center">
-              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[hsl(var(--accent-soft))] text-[hsl(var(--accent-text))] shadow-accent">
-                <Waves className="h-6 w-6" />
-              </div>
-              <h3 className="mt-4 text-lg font-bold text-content-primary">No classes in this slot</h3>
-              <p className="mt-2 text-sm text-content-secondary">
-                Use the quiet window to prepare, catch up, or open your full timetable.
-              </p>
-              <Link href="/timetable" className="btn-secondary mt-4 w-full">
-                View timetable
-              </Link>
+              <span className="text-sm font-semibold" style={{ color: "#92400E" }}>
+                You have {unreadAnnouncements} new announcement{unreadAnnouncements > 1 ? "s" : ""}
+              </span>
+            </div>
+            <ChevronRight className="w-4 h-4 text-amber-400" />
+          </Link>
+        )}
+
+         {/* ── Stories-style Quick Actions ───────────────────────────── */}
+        <QuickActionsRow />
+
+        {/* ── Entry Feed ──────────────────────────────────────────────── */}
+        <TeacherFeed entries={entries} loading={loading} />
+        
+        {/* ── Today's Schedule ─────────────────────────────────────── */}
+        {isWeekday && sortedTodaySlots.length > 0 && (
+          <div data-tour="today-schedule" className="animate-slide-up">
+            {/* Section header */}
+            <div className="flex items-center justify-between mb-3 px-1">
+              <h2
+                style={{
+                  fontFamily: "var(--font-body)",
+                  fontSize: "14px",
+                  fontWeight: 700,
+                  color: "var(--text-primary)",
+                }}
+              >
+                Today — {DAY_NAMES[dayOfWeek]}
+              </h2>
+              <span
+                className="tabular-nums"
+                style={{
+                  fontSize: "12px",
+                  color: "var(--text-tertiary)",
+                }}
+              >
+                {todayFilledCount}/{sortedTodaySlots.length} logged
+              </span>
             </div>
           ) : (
             todaySlots.map((slot, index) => {
-              const matchedEntry = entries.find((entry) => getEntryMatch(entry, slot, now));
+              const matchedEntry = entries.find((entry) => getEntryMatch(entry, slot));
               const isLogged = Boolean(matchedEntry);
               const isCurrent = index === currentSlotIndex;
               const isUpcoming = index > currentSlotIndex || currentSlotIndex === -1;
