@@ -1,10 +1,9 @@
 export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
-import { Prisma, TeacherSchoolStatus } from "@prisma/client";
+import { TeacherSchoolStatus } from "@prisma/client";
 import { db } from "@/lib/db";
 import { getSessionUser } from "@/lib/auth";
 import { getStartOfWeek, getStartOfMonth, getWeekNumber } from "@/lib/utils";
-import { TeacherSchoolStatus } from "@prisma/client";
 
 export async function GET() {
   try {
@@ -21,19 +20,19 @@ export async function GET() {
     const startOfMonth = getStartOfMonth();
 
     const teacherAtSchool = {
-  role: "TEACHER" as const,
-  OR: [
-    { schoolId: user.schoolId! },
-    { 
-      teacherSchools: { 
-        some: { 
-          schoolId: user.schoolId!, 
-          status: TeacherSchoolStatus.ACTIVE  // or whichever status you intended
-        } 
-      } 
-    }
-  ]
-};
+      role: "TEACHER" as const,
+      OR: [
+        { schoolId: user.schoolId! },
+        {
+          teacherSchools: {
+            some: {
+              schoolId: user.schoolId!,
+              status: TeacherSchoolStatus.ACTIVE,
+            },
+          },
+        },
+      ],
+    };
 
     const [
       totalTeachers,
