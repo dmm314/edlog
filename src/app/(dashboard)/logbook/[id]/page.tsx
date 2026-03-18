@@ -109,7 +109,7 @@ function RemarkRoleBadge({ authorRole, remarkType }: { authorRole: string; remar
   const config: Record<string, { bg: string; text: string; border: string; label: string }> = {
     self_reflection: { bg: "bg-emerald-50", text: "text-emerald-700", border: "border-emerald-200", label: "Teacher" },
     hod_review: { bg: "bg-amber-50", text: "text-amber-700", border: "border-amber-200", label: "HOD" },
-    admin_verification: { bg: "bg-blue-50", text: "text-blue-700", border: "border-blue-200", label: "Admin" },
+    admin_observation: { bg: "bg-blue-50", text: "text-blue-700", border: "border-blue-200", label: "Admin" },
     coordinator_review: { bg: "bg-purple-50", text: "text-purple-700", border: "border-purple-200", label: "VP Review" },
     inspector_note: { bg: "bg-purple-50", text: "text-purple-700", border: "border-purple-200", label: "Inspector" },
   };
@@ -125,7 +125,7 @@ function RemarkColorBar({ remarkType }: { remarkType: string }) {
   const colors: Record<string, string> = {
     self_reflection: "bg-emerald-500",
     hod_review: "bg-amber-500",
-    admin_verification: "bg-blue-500",
+    admin_observation: "bg-blue-500",
     coordinator_review: "bg-purple-500",
     inspector_note: "bg-purple-500",
   };

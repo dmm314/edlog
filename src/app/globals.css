@@ -235,7 +235,8 @@
 
 @layer components {
   .page-shell {
-    @apply mx-auto w-full max-w-mobile px-4 pb-28 pt-5;
+    @apply mx-auto w-full px-4 pb-28 pt-5 sm:px-5 lg:px-6;
+    max-width: 76rem;
   }
 
   .page-header {
@@ -555,6 +556,7 @@
   .mobile-safe-bottom {
     padding-bottom: calc(1rem + env(safe-area-inset-bottom));
   }
+}
 
 @layer utilities {
   .text-balance {

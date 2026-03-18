@@ -87,14 +87,6 @@ export default function AdminEntriesPage() {
   const [remarkText, setRemarkText] = useState("");
   const [remarkSubmitting, setRemarkSubmitting] = useState(false);
 
-  // Fallback verify/flag modal (only when no VPs)
-  const [verifyModal, setVerifyModal] = useState<{
-    entryId: string;
-    action: "VERIFIED" | "FLAGGED";
-  } | null>(null);
-  const [verifyRemarkText, setVerifyRemarkText] = useState("");
-  const [verifySubmitting, setVerifySubmitting] = useState(false);
-
   // Notify VP state
   const [notifyingId, setNotifyingId] = useState<string | null>(null);
   const [notifyResult, setNotifyResult] = useState<Record<string, "sent" | "no-vp">>({});
@@ -115,8 +107,9 @@ export default function AdminEntriesPage() {
       try {
         const res = await fetch("/api/admin/coordinators");
         if (res.ok) {
-          const coordinators = await res.json();
-          setHasVPs(Array.isArray(coordinators) && coordinators.some((c: { isActive: boolean }) => c.isActive));
+          const coordinatorsData = await res.json();
+          const coordinators = Array.isArray(coordinatorsData) ? coordinatorsData : (coordinatorsData.coordinators || []);
+          setHasVPs(coordinators.some((c: { isActive: boolean }) => c.isActive));
         } else {
           setHasVPs(false);
         }
@@ -196,40 +189,6 @@ export default function AdminEntriesPage() {
       setRemarkSubmitting(false);
       setRemarkModal(null);
       setRemarkText("");
-    }
-  }
-
-  async function submitVerifyFallback(skipRemark = false) {
-    if (!verifyModal) return;
-    const { entryId, action } = verifyModal;
-    if (action === "FLAGGED" && !verifyRemarkText.trim() && !skipRemark) return;
-
-    setVerifySubmitting(true);
-    try {
-      if (verifyRemarkText.trim()) {
-        await fetch(`/api/entries/${entryId}/remarks`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ content: verifyRemarkText.trim() }),
-        });
-      }
-      const res = await fetch(`/api/entries/${entryId}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: action }),
-      });
-      if (res.ok) {
-        const updated = await res.json();
-        setEntries((prev) =>
-          prev.map((e) => (e.id === entryId ? { ...e, status: updated.status } : e))
-        );
-      }
-    } catch {
-      // silently fail
-    } finally {
-      setVerifySubmitting(false);
-      setVerifyModal(null);
-      setVerifyRemarkText("");
     }
   }
 
@@ -372,7 +331,7 @@ export default function AdminEntriesPage() {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[rgba(245,158,11,0.08)] via-transparent to-transparent" />
         <div className="absolute top-0 right-0 w-64 h-64 bg-[var(--accent)]/[0.07] rounded-full -translate-y-1/3 translate-x-1/4 blur-3xl" />
 
-        <div className="max-w-lg mx-auto relative">
+        <div className="mx-auto w-full max-w-6xl relative">
           <Link
             href="/admin"
             className="inline-flex items-center gap-1.5 text-white/60 hover:text-white text-sm mb-4 transition-colors"
@@ -392,7 +351,7 @@ export default function AdminEntriesPage() {
         </div>
       </div>
 
-      <div className="px-5 mt-4 max-w-lg mx-auto space-y-4">
+      <div className="mx-auto mt-4 w-full max-w-6xl px-5 space-y-4">
         {/* Error message */}
         {error && (
           <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-4 py-3 font-medium">
@@ -400,7 +359,28 @@ export default function AdminEntriesPage() {
           </div>
         )}
 
-        {/* No VPs fallback banner */}
+        {/* Verification policy banner */}
+        <div className="flex flex-wrap items-start gap-3 rounded-2xl px-4 py-3 text-sm" style={{
+          background: "rgba(79,70,229,0.06)",
+          border: "1px solid rgba(79,70,229,0.14)"
+        }}>
+          <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0 text-indigo-600" />
+          <div className="min-w-0 flex-1">
+            <p style={{ color: "#3730A3" }}>
+              Entry verification is managed by Level Coordinators (VPs). Contact the VP for this level if there&apos;s an issue.
+            </p>
+            {hasVPs === false ? (
+              <p className="mt-1" style={{ color: "#5B21B6" }}>
+                No active VP is assigned yet for this school. Set up coordinators so entries can move through review properly.
+              </p>
+            ) : null}
+          </div>
+          <Link href="/admin/coordinators" className="text-sm font-semibold underline" style={{ color: "#4338CA" }}>
+            Manage VPs
+          </Link>
+        </div>
+
+        {/* No VPs setup banner */}
         {hasVPs === false && (
           <div className="flex items-start gap-3 px-4 py-3 rounded-xl text-sm" style={{
             background: "rgba(245,158,11,0.08)",
@@ -408,9 +388,9 @@ export default function AdminEntriesPage() {
           }}>
             <AlertTriangle className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
             <p style={{ color: "#92400E" }}>
-              You&apos;re verifying directly because no VPs have been assigned.{" "}
+              Entries will stay pending until a VP is assigned.{" "}
               <Link href="/admin/coordinators" className="font-semibold underline">Set up VPs</Link>{" "}
-              for better workflow.
+              to activate level-based review.
             </p>
           </div>
         )}
@@ -715,7 +695,7 @@ export default function AdminEntriesPage() {
                               className="flex items-center justify-center gap-1.5 text-sm font-semibold rounded-xl px-3 py-2.5 transition-all border border-[var(--border-primary)] bg-[var(--bg-elevated)] text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)] active:scale-[0.98]"
                             >
                               <PenTool className="w-4 h-4" />
-                              Remark
+                              Observe
                             </button>
 
                             {/* With VPs: Notify VP button */}
@@ -745,34 +725,15 @@ export default function AdminEntriesPage() {
                               )
                             )}
 
-                            {/* Without VPs: fallback verify/flag */}
+                            {/* Without VPs: prompt admin to assign a coordinator */}
                             {hasVPs === false && (
-                              <>
-                                <button
-                                  onClick={() => { setVerifyModal({ entryId: entry.id, action: "VERIFIED" }); setVerifyRemarkText(""); }}
-                                  disabled={entry.status === "VERIFIED"}
-                                  className={`flex-1 flex items-center justify-center gap-1.5 text-sm font-semibold rounded-xl px-3 py-2.5 transition-all ${
-                                    entry.status === "VERIFIED"
-                                      ? "bg-emerald-50 text-emerald-700 border border-emerald-100 cursor-default"
-                                      : "bg-[var(--accent)] text-white shadow-sm hover:shadow-md active:scale-[0.98]"
-                                  }`}
-                                >
-                                  <Check className="w-4 h-4" />
-                                  {entry.status === "VERIFIED" ? "Verified" : "Verify"}
-                                </button>
-                                <button
-                                  onClick={() => { setVerifyModal({ entryId: entry.id, action: "FLAGGED" }); setVerifyRemarkText(""); }}
-                                  disabled={entry.status === "FLAGGED"}
-                                  className={`flex-1 flex items-center justify-center gap-1.5 text-sm font-semibold rounded-xl px-3 py-2.5 transition-all border ${
-                                    entry.status === "FLAGGED"
-                                      ? "bg-red-50 text-red-700 border-red-100 cursor-default"
-                                      : "bg-[var(--bg-elevated)] text-[var(--text-secondary)] border-[var(--border-primary)] hover:bg-red-50 hover:text-red-600 hover:border-red-200 active:scale-[0.98]"
-                                  }`}
-                                >
-                                  <Flag className="w-4 h-4" />
-                                  {entry.status === "FLAGGED" ? "Flagged" : "Flag"}
-                                </button>
-                              </>
+                              <Link
+                                href="/admin/coordinators"
+                                className="flex-1 flex items-center justify-center gap-1.5 text-sm font-semibold rounded-xl px-3 py-2.5 transition-all border border-indigo-200 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 active:scale-[0.98]"
+                              >
+                                <Users className="w-4 h-4" />
+                                Assign VP
+                              </Link>
                             )}
                           </div>
                         </div>
@@ -811,13 +772,13 @@ export default function AdminEntriesPage() {
         <div className="fixed inset-0 bg-black/50 z-50 flex items-end justify-center sm:items-center">
           <div className="bg-[var(--bg-elevated)] rounded-t-2xl sm:rounded-2xl w-full max-w-md p-5 space-y-4 animate-slide-up shadow-elevated">
             <div>
-              <h3 className="text-base font-bold text-[var(--text-primary)]">Add Admin Remark</h3>
+              <h3 className="text-base font-bold text-[var(--text-primary)]">Add Admin Observation</h3>
               <p className="text-xs text-[var(--text-tertiary)] mt-1">
                 Your remark is visible to the teacher and their VP. It does not change the entry status.
               </p>
             </div>
             <div>
-              <label className="label-field">Remark <span className="text-red-500">*</span></label>
+              <label className="label-field">Observation <span className="text-red-500">*</span></label>
               <textarea
                 value={remarkText}
                 onChange={(e) => setRemarkText(e.target.value)}
@@ -840,94 +801,13 @@ export default function AdminEntriesPage() {
                 className="flex-1 py-2.5 text-sm font-semibold text-white rounded-xl bg-[var(--accent)] hover:bg-[var(--accent-hover)] shadow-sm transition-all disabled:opacity-50 flex items-center justify-center gap-1.5"
               >
                 {remarkSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
-                Save Remark
+                Save Observation
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Fallback Verify/Flag Modal (only when no VPs) */}
-      {verifyModal && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-end justify-center sm:items-center">
-          <div className="bg-[var(--bg-elevated)] rounded-t-2xl sm:rounded-2xl w-full max-w-md p-5 space-y-4 animate-slide-up shadow-elevated">
-            <h3 className="text-base font-bold text-[var(--text-primary)]">
-              {verifyModal.action === "VERIFIED" ? "Verify Entry" : "Flag Entry"}
-            </h3>
-
-            {verifyModal.action === "VERIFIED" ? (
-              <>
-                <div>
-                  <label className="label-field">Add a note (optional)</label>
-                  <textarea
-                    value={verifyRemarkText}
-                    onChange={(e) => setVerifyRemarkText(e.target.value)}
-                    placeholder="Good work, well documented"
-                    maxLength={1000}
-                    rows={2}
-                    className="input-field resize-none"
-                  />
-                </div>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => setVerifyModal(null)}
-                    className="flex-1 py-2.5 text-sm font-semibold text-[var(--text-tertiary)] rounded-xl border border-[var(--border-primary)] hover:bg-[var(--bg-tertiary)] transition-all"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={() => submitVerifyFallback(true)}
-                    disabled={verifySubmitting}
-                    className="py-2.5 px-4 text-sm font-semibold text-[var(--text-secondary)] rounded-xl border border-[var(--border-primary)] hover:bg-[var(--bg-tertiary)] transition-all"
-                  >
-                    Verify without note
-                  </button>
-                  <button
-                    onClick={() => submitVerifyFallback(false)}
-                    disabled={verifySubmitting || !verifyRemarkText.trim()}
-                    className="flex-1 py-2.5 text-sm font-semibold text-white rounded-xl bg-emerald-600 hover:bg-emerald-700 shadow-sm transition-all disabled:opacity-50 flex items-center justify-center gap-1.5"
-                  >
-                    {verifySubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
-                    Verify with note
-                  </button>
-                </div>
-              </>
-            ) : (
-              <>
-                <div>
-                  <label className="label-field">
-                    Why are you flagging this entry? <span className="text-red-500">*</span>
-                  </label>
-                  <textarea
-                    value={verifyRemarkText}
-                    onChange={(e) => setVerifyRemarkText(e.target.value)}
-                    placeholder="e.g., Topic doesn't match the module, incomplete objectives..."
-                    maxLength={1000}
-                    rows={2}
-                    className="input-field resize-none"
-                  />
-                </div>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => setVerifyModal(null)}
-                    className="flex-1 py-2.5 text-sm font-semibold text-[var(--text-tertiary)] rounded-xl border border-[var(--border-primary)] hover:bg-[var(--bg-tertiary)] transition-all"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={() => submitVerifyFallback(false)}
-                    disabled={verifySubmitting || !verifyRemarkText.trim()}
-                    className="flex-1 py-2.5 text-sm font-semibold text-white rounded-xl bg-red-600 hover:bg-red-700 shadow-sm transition-all disabled:opacity-50 flex items-center justify-center gap-1.5"
-                  >
-                    {verifySubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Flag className="w-4 h-4" />}
-                    Flag Entry
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-      )}
     </div>
   );
 }

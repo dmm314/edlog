@@ -29,36 +29,21 @@ interface SchoolInfo {
   region: string;
 }
 
-interface PendingEntry {
-  id: string;
-  teacher: { firstName: string; lastName: string };
-  topics: { subject?: { name: string } }[];
-  class: { name: string };
-  assignment?: { subject: { name: string } } | null;
-  createdAt: string;
-  date: string;
-  status: string;
-}
-
 export default function AdminDashboardPage() {
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [school, setSchool] = useState<SchoolInfo | null>(null);
   const [teachers, setTeachers] = useState<TeacherWithStats[]>([]);
-  const [pendingEntries, setPendingEntries] = useState<PendingEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [coordinators, setCoordinators] = useState<{ id: string; title: string; levels: string[]; isActive: boolean; user: { firstName: string; lastName: string } }[]>([]);
   const [userCreatedAt, setUserCreatedAt] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     async function fetchAll() {
       try {
-        const [statsRes, schoolRes, teachersRes, entriesRes, coordsRes] = await Promise.all([
+        const [statsRes, schoolRes, teachersRes] = await Promise.all([
           fetch("/api/admin/stats"),
           fetch("/api/admin/school"),
           fetch("/api/admin/teachers"),
-          fetch("/api/admin/entries?status=SUBMITTED&limit=5"),
-          fetch("/api/admin/coordinators"),
         ]);
 
         if (statsRes.ok) {
@@ -74,17 +59,6 @@ export default function AdminDashboardPage() {
         if (teachersRes.ok) {
           const t = await teachersRes.json();
           setTeachers(Array.isArray(t) ? t : []);
-        }
-
-        if (entriesRes.ok) {
-          const data = await entriesRes.json();
-          setPendingEntries(data.entries || []);
-        }
-
-        if (coordsRes.ok) {
-          const coordsData = await coordsRes.json();
-          const coords = Array.isArray(coordsData) ? coordsData : (coordsData.coordinators || []);
-          setCoordinators(coords);
         }
         // Fetch createdAt for HelpHints
         try {
@@ -123,7 +97,7 @@ export default function AdminDashboardPage() {
         <div className="px-5 pt-10 pb-8 rounded-b-[2rem]" style={{
           background: "linear-gradient(135deg, #0F172A 0%, #1E293B 50%, #334155 100%)",
         }}>
-          <div className="max-w-lg mx-auto relative">
+          <div className="mx-auto w-full max-w-6xl relative">
             <div className="skeleton h-4 w-24 !bg-white/10 mb-2" />
             <div className="skeleton h-7 w-44 !bg-white/15 mb-5" />
             <div className="flex gap-2">
@@ -136,7 +110,7 @@ export default function AdminDashboardPage() {
             </div>
           </div>
         </div>
-        <div className="px-5 mt-4 max-w-lg mx-auto space-y-4 desktop-content">
+        <div className="mx-auto mt-4 w-full max-w-6xl px-5 space-y-4 desktop-content">
           <div className="grid grid-cols-2 gap-3">
             {[1, 2, 3, 4].map((i) => (
               <div key={i} className="card p-4">
@@ -164,6 +138,12 @@ export default function AdminDashboardPage() {
   }
 
   const complianceRate = stats?.complianceRate ?? 0;
+  const entriesThisMonth = stats?.entriesThisMonth ?? 0;
+  const verifiedThisMonth = stats?.verifiedEntriesThisMonth ?? 0;
+  const flaggedThisMonth = stats?.flaggedEntriesThisMonth ?? 0;
+  const pendingThisMonth = stats?.pendingEntriesThisMonth ?? 0;
+  const verificationRate = entriesThisMonth > 0 ? Math.round((verifiedThisMonth / entriesThisMonth) * 100) : 0;
+  const vpBreakdown = stats?.vpBreakdown ?? [];
 
   return (
     <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-primary)" }}>
@@ -184,7 +164,7 @@ export default function AdminDashboardPage() {
           }}
         />
 
-        <div className="max-w-lg mx-auto relative">
+        <div className="mx-auto w-full max-w-6xl relative">
           {/* Top row: label + notification */}
           <div data-tour="admin-welcome" className="flex items-start justify-between animate-fade-in">
             <div>
@@ -249,7 +229,7 @@ export default function AdminDashboardPage() {
         </div>
       </div>
 
-      <div className="px-5 mt-4 max-w-lg mx-auto space-y-4 desktop-content">
+      <div className="mx-auto mt-4 w-full max-w-6xl px-5 space-y-4 desktop-content">
         {/* Error */}
         {error && (
           <div className="animate-slide-down bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-4 py-3 flex items-center gap-2 font-medium"
@@ -478,41 +458,63 @@ export default function AdminDashboardPage() {
             </Link>
           </div>
 
-          {/* Summary stats */}
-          <div className="grid grid-cols-3 gap-2 mb-4">
+          <div className="grid grid-cols-2 gap-2 mb-4 lg:grid-cols-4">
             {[
-              { label: "Pending", value: pendingEntries.length, color: "#3B82F6", bg: "#EFF6FF" },
-              { label: "Verified", value: stats?.verifiedEntries ?? 0, color: "#16A34A", bg: "#F0FDF4" },
-              { label: "Flagged", value: stats?.flaggedEntries ?? 0, color: "#DC2626", bg: "#FEF2F2" },
+              { label: "This month", value: entriesThisMonth, color: "#0F172A", bg: "#F8FAFC", hint: "All entries submitted this month." },
+              { label: "Verified by VPs", value: `${verifiedThisMonth} (${verificationRate}%)`, color: "#16A34A", bg: "#F0FDF4", hint: "Entries already reviewed by level coordinators." },
+              { label: "Pending review", value: pendingThisMonth, color: "#2563EB", bg: "#EFF6FF", hint: "Entries still waiting for VP review." },
+              { label: "Flagged", value: flaggedThisMonth, color: "#DC2626", bg: "#FEF2F2", hint: "Entries VPs returned for correction." },
             ].map((s) => (
-              <div key={s.label} className="rounded-xl p-3 text-center" style={{ background: s.bg }}>
+              <div key={s.label} className="rounded-xl p-3" style={{ background: s.bg }}>
                 <p className="text-lg font-bold tabular-nums" style={{ color: s.color }}>{s.value}</p>
-                <p className="text-[10px] font-semibold mt-0.5" style={{ color: s.color, opacity: 0.7 }}>{s.label}</p>
+                <p className="text-[10px] font-semibold mt-0.5 uppercase tracking-[0.16em]" style={{ color: s.color, opacity: 0.7 }}>{s.label}</p>
+                <p className="mt-1 text-[11px]" style={{ color: "var(--text-tertiary)" }}>{s.hint}</p>
               </div>
             ))}
           </div>
 
           {/* Per-VP breakdown */}
-          {coordinators.filter((c) => c.isActive).length > 0 ? (
-            <div className="space-y-2" style={{ borderTop: "1px solid var(--border-secondary)", paddingTop: "12px" }}>
+          {vpBreakdown.length > 0 ? (
+            <div className="space-y-3" style={{ borderTop: "1px solid var(--border-secondary)", paddingTop: "12px" }}>
               <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--text-tertiary)" }}>
                 Level Coordinators (VPs)
               </p>
-              {coordinators.filter((c) => c.isActive).map((coord) => (
-                <div key={coord.id} className="flex items-center justify-between">
-                  <div className="min-w-0 flex-1">
-                    <p className="text-xs font-semibold" style={{ color: "var(--text-primary)" }}>
-                      {coord.user.firstName} {coord.user.lastName}
-                    </p>
-                    <p className="text-[10px]" style={{ color: "var(--text-tertiary)" }}>
-                      {coord.title} · {coord.levels.join(", ")}
-                    </p>
+              {vpBreakdown.map((coord) => {
+                const coordRate = coord.entriesThisMonth > 0
+                  ? Math.round((coord.verifiedEntriesThisMonth / coord.entriesThisMonth) * 100)
+                  : 0;
+
+                return (
+                  <div key={coord.id} className="rounded-2xl border p-3" style={{ borderColor: "var(--border-secondary)", background: "var(--bg-primary)" }}>
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>
+                          {coord.name}
+                        </p>
+                        <p className="text-[11px]" style={{ color: "var(--text-tertiary)" }}>
+                          {coord.title} · {coord.levels.join(", ")}
+                        </p>
+                      </div>
+                      <span className="rounded-full px-2 py-0.5 text-[10px] font-semibold" style={{ background: "#E0E7FF", color: "#4338CA" }}>
+                        {coordRate}% reviewed
+                      </span>
+                    </div>
+
+                    <div className="mt-3 grid grid-cols-3 gap-2">
+                      {[
+                        { label: "Verified", value: coord.verifiedEntriesThisMonth, color: "#15803D", bg: "#F0FDF4" },
+                        { label: "Pending", value: coord.pendingEntriesThisMonth, color: "#2563EB", bg: "#EFF6FF" },
+                        { label: "Flagged", value: coord.flaggedEntriesThisMonth, color: "#B91C1C", bg: "#FEF2F2" },
+                      ].map((item) => (
+                        <div key={item.label} className="rounded-xl px-3 py-2 text-center" style={{ background: item.bg }}>
+                          <p className="text-sm font-bold tabular-nums" style={{ color: item.color }}>{item.value}</p>
+                          <p className="text-[10px] font-semibold" style={{ color: item.color, opacity: 0.75 }}>{item.label}</p>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full ml-2" style={{ background: "#DCFCE7", color: "#15803D" }}>
-                    Active
-                  </span>
-                </div>
-              ))}
+                );
+              })}
             </div>
           ) : (
             <div className="rounded-xl p-3 text-center" style={{ background: "rgba(245,158,11,0.06)", border: "1px solid rgba(245,158,11,0.15)" }}>
