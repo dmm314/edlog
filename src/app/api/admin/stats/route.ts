@@ -43,6 +43,10 @@ export async function GET() {
       entriesThisWeek,
       verifiedEntries,
       flaggedEntries,
+      verifiedEntriesThisMonth,
+      flaggedEntriesThisMonth,
+      pendingEntriesThisMonth,
+      activeCoordinators,
     ] = await Promise.all([
       db.user.count({ where: teacherAtSchool }),
       db.teacherSchool.count({ where: { schoolId: user.schoolId!, status: TeacherSchoolStatus.PENDING } }).catch(() => 0),
@@ -61,6 +65,27 @@ export async function GET() {
       }),
       db.logbookEntry.count({
         where: { class: { schoolId: user.schoolId }, status: "FLAGGED" },
+      }),
+      db.logbookEntry.count({
+        where: { class: { schoolId: user.schoolId }, date: { gte: startOfMonth }, status: "VERIFIED" },
+      }),
+      db.logbookEntry.count({
+        where: { class: { schoolId: user.schoolId }, date: { gte: startOfMonth }, status: "FLAGGED" },
+      }),
+      db.logbookEntry.count({
+        where: { class: { schoolId: user.schoolId }, date: { gte: startOfMonth }, status: "SUBMITTED" },
+      }),
+      db.levelCoordinator.findMany({
+        where: { schoolId: user.schoolId, isActive: true },
+        include: {
+          user: {
+            select: {
+              firstName: true,
+              lastName: true,
+            },
+          },
+        },
+        orderBy: { createdAt: "asc" },
       }),
     ]);
 
@@ -117,6 +142,40 @@ export async function GET() {
     const complianceRate = expectedThisWeek > 0
       ? Math.round((entriesThisWeek / expectedThisWeek) * 100)
       : 0;
+    const vpBreakdown = await Promise.all(
+      activeCoordinators.map(async (coordinator) => {
+        const monthlyWhere = {
+          class: {
+            schoolId: user.schoolId!,
+            level: { in: coordinator.levels },
+          },
+          date: { gte: startOfMonth },
+        };
+
+        const [
+          coordinatorEntriesThisMonth,
+          coordinatorVerifiedThisMonth,
+          coordinatorFlaggedThisMonth,
+          coordinatorPendingThisMonth,
+        ] = await Promise.all([
+          db.logbookEntry.count({ where: monthlyWhere }),
+          db.logbookEntry.count({ where: { ...monthlyWhere, status: "VERIFIED" } }),
+          db.logbookEntry.count({ where: { ...monthlyWhere, status: "FLAGGED" } }),
+          db.logbookEntry.count({ where: { ...monthlyWhere, status: "SUBMITTED" } }),
+        ]);
+
+        return {
+          id: coordinator.id,
+          title: coordinator.title,
+          levels: coordinator.levels,
+          name: `${coordinator.user.firstName} ${coordinator.user.lastName}`,
+          entriesThisMonth: coordinatorEntriesThisMonth,
+          verifiedEntriesThisMonth: coordinatorVerifiedThisMonth,
+          pendingEntriesThisMonth: coordinatorPendingThisMonth,
+          flaggedEntriesThisMonth: coordinatorFlaggedThisMonth,
+        };
+      }),
+    );
 
     return NextResponse.json({
       totalTeachers,
@@ -128,6 +187,10 @@ export async function GET() {
       entriesThisWeek,
       verifiedEntries,
       flaggedEntries,
+      verifiedEntriesThisMonth,
+      flaggedEntriesThisMonth,
+      pendingEntriesThisMonth,
+      vpBreakdown,
       complianceRate: Math.min(complianceRate, 100),
       entriesBySubject,
       entriesByWeek,

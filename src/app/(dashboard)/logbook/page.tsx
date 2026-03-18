@@ -5,8 +5,10 @@ import Link from "next/link";
 import {
   ArrowUpRight,
   BookOpen,
+  Calendar,
   CheckCircle2,
   ChevronRight,
+  ClipboardList,
   Clock3,
   Flame,
   Layers3,
@@ -55,7 +57,37 @@ interface StoryNotice {
   isRead: boolean;
 }
 
+interface NextClassInfo {
+  type: "prep-soon" | "up-next" | "rest-long";
+  message: string;
+  detail?: string;
+  hint?: string;
+}
+
 const weekdayShort = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const weekdayLong = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
+const WEEKEND_MESSAGES = [
+  "You've earned this rest. Recharge and come back strong.",
+  "Teaching is a marathon, not a sprint. Rest up.",
+  "Take this time to do something you love outside the classroom.",
+  "Your students are lucky to have you. Now go enjoy your weekend.",
+  "A well-rested teacher is a great teacher. See you Monday.",
+];
+
+const FREE_DAY_MESSAGES = [
+  "Use this time to prepare, mark, or simply breathe.",
+  "A day to catch up on planning or just enjoy some quiet.",
+  "No rush today. The classroom will be there tomorrow.",
+  "Great teachers prepare on days like this. Or rest. Both are valid.",
+];
+
+const ALL_CAUGHT_UP_MESSAGES = [
+  "Every class logged. Your students' progress is being recorded.",
+  "All done! Consistency like this is what makes great teachers.",
+  "100% logged today. That's the standard.",
+  "Another day of complete records. Your future self will thank you.",
+];
 
 function parseMinutes(value: string) {
   const [hours, minutes] = value.split(":").map(Number);
@@ -71,6 +103,13 @@ function startOfDay(value: Date) {
 function differenceInDays(a: Date, b: Date) {
   const ms = startOfDay(a).getTime() - startOfDay(b).getTime();
   return Math.round(ms / 86400000);
+}
+
+function getRotatingMessage(messages: string[]) {
+  const now = new Date();
+  const yearStart = new Date(now.getFullYear(), 0, 0);
+  const dayOfYear = Math.floor((startOfDay(now).getTime() - yearStart.getTime()) / 86400000);
+  return messages[dayOfYear % messages.length];
 }
 
 function getStreak(entries: EntryWithRelations[]) {
@@ -105,11 +144,10 @@ function getCurrentSlotIndex(slots: TimetableSlotInfo[]) {
   return slots.findIndex((slot) => minutesNow >= parseMinutes(slot.startTime) && minutesNow < parseMinutes(slot.endTime));
 }
 
-function getEntryMatch(entry: EntryWithRelations, slot: TimetableSlotInfo) {
+function getEntryMatch(entry: EntryWithRelations, slot: TimetableSlotInfo, referenceDate = new Date()) {
   const entryDate = new Date(entry.date);
-  const today = new Date();
   return (
-    entryDate.toDateString() === today.toDateString() &&
+    entryDate.toDateString() === referenceDate.toDateString() &&
     entry.class.id === slot.assignment.classId &&
     ((entry.assignment?.subject.id && entry.assignment.subject.id === slot.assignment.subjectId) ||
       entry.topics?.some((topic) => topic.subject?.id === slot.assignment.subjectId) ||
@@ -140,6 +178,62 @@ function getWeeklyBars(slots: TimetableSlotInfo[], entries: EntryWithRelations[]
       isToday: startOfDay(date).getTime() === startOfDay(new Date()).getTime(),
     };
   });
+}
+
+function getNextScheduledClassInfo(slots: TimetableSlotInfo[], now: Date): NextClassInfo | null {
+  if (!slots.length) return null;
+
+  const currentDay = now.getDay();
+  const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+  const candidates = slots
+    .map((slot) => {
+      let daysAway = (slot.dayOfWeek - currentDay + 7) % 7;
+      const slotMinutes = parseMinutes(slot.startTime);
+      if (daysAway === 0 && slotMinutes <= currentMinutes) {
+        daysAway = 7;
+      }
+
+      return {
+        slot,
+        daysAway,
+        minutesAway: daysAway * 1440 + (slotMinutes - currentMinutes),
+      };
+    })
+    .sort((a, b) => a.minutesAway - b.minutesAway);
+
+  const nextCandidate = candidates[0];
+  if (!nextCandidate) return null;
+
+  const { slot, daysAway, minutesAway } = nextCandidate;
+  const detail = `${slot.assignment.subjectName} • ${slot.assignment.className} • ${weekdayLong[slot.dayOfWeek]} at ${slot.startTime}`;
+
+  if (daysAway === 0 && minutesAway <= 120) {
+    return {
+      type: "prep-soon",
+      message: `${slot.assignment.subjectName} starts soon`,
+      detail,
+      hint: "A quick glance at your notes now will make the lesson feel effortless.",
+    };
+  }
+
+  if (daysAway === 0) {
+    return {
+      type: "up-next",
+      message: "Another class is lined up for later today.",
+      detail,
+      hint: "Take a breather, then step back in with the calm of a prepared teacher.",
+    };
+  }
+
+  return {
+    type: daysAway >= 2 ? "rest-long" : "up-next",
+    message: daysAway === 1 ? "Done for today!" : "No more classes until later in the week.",
+    detail,
+    hint: daysAway === 1
+      ? "Rest well — tomorrow brings another room full of learners."
+      : "A little breathing room now can become your best planning time.",
+  };
 }
 
 export default function LogbookPage() {
@@ -237,16 +331,18 @@ export default function LogbookPage() {
   const syllabusCoverage = Math.min(100, Math.round((uniqueTopics / coverageTarget) * 100));
   const currentSlotIndex = getCurrentSlotIndex(todaySlots);
   const pendingCount = Math.max(todaySlots.length - todaySlots.filter((slot) => entries.some((entry) => getEntryMatch(entry, slot))).length, 0);
+  const todayLoggedCount = todaySlots.length - pendingCount;
   const weeklyBars = useMemo(() => getWeeklyBars(allSlots, entries), [allSlots, entries]);
   const nextClass = useMemo(() => {
     const minutesNow = today.getHours() * 60 + today.getMinutes();
     return todaySlots.find((slot) => parseMinutes(slot.startTime) > minutesNow);
   }, [today, todaySlots]);
   const feedEntries = entries.slice(0, 6);
+  const allClassesDone = !loading && isWeekday && todaySlots.length > 0 && pendingCount === 0;
 
   return (
-    <div className="page-shell space-y-4 pt-4">
-      <section className="page-header overflow-hidden rounded-[32px] px-5 pb-6 pt-5 text-white shadow-float">
+    <div className="page-shell space-y-4 pt-4 lg:space-y-5">
+      <section className="page-header overflow-hidden rounded-[32px] px-5 pb-6 pt-5 text-white shadow-float lg:px-6 lg:pb-7">
         <div className="relative z-10 space-y-5">
           <div className="flex items-start justify-between gap-3">
             <div className="space-y-2">
@@ -259,8 +355,8 @@ export default function LogbookPage() {
             <NotificationBell />
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div className="glass-panel rounded-[24px] p-4">
+          <div className="grid gap-3 sm:grid-cols-2 lg:gap-4">
+            <div className="glass-panel rounded-[24px] p-4 lg:p-5">
               <div className="flex items-start gap-3">
                 <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-dynamic-accent text-white shadow-accent motion-safe:animate-spring-bounce">
                   <Flame className="h-5 w-5" />
@@ -272,7 +368,7 @@ export default function LogbookPage() {
               </div>
             </div>
 
-            <div className="rounded-[24px] border border-white/10 bg-white/6 p-4 backdrop-blur-sm">
+            <div className="rounded-[24px] border border-white/10 bg-white/6 p-4 backdrop-blur-sm lg:p-5">
               <div className="flex items-start gap-3">
                 <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/10 text-white/90">
                   <Layers3 className="h-5 w-5" />
@@ -320,7 +416,7 @@ export default function LogbookPage() {
               <Link
                 key={notice.id}
                 href="/notifications"
-                className={cn("story-pill min-w-[190px]", !notice.isRead && "motion-safe:animate-live-pulse")}
+                className={cn("story-pill min-w-[190px] lg:min-w-0", !notice.isRead && "motion-safe:animate-live-pulse")}
                 style={{ animationDelay: `${index * 120}ms` }}
               >
                 <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,hsl(var(--accent)),hsl(var(--accent-strong)))] text-white shadow-accent">
@@ -346,7 +442,7 @@ export default function LogbookPage() {
             <h2 className="text-lg font-bold text-content-primary">Tap the live class first</h2>
           </div>
           <span className="rounded-full bg-[hsl(var(--accent-soft))] px-3 py-1.5 font-mono text-[11px] font-bold text-[hsl(var(--accent-text))]">
-            {todaySlots.length - pendingCount}/{todaySlots.length || 0} logged
+            {todayLoggedCount}/{todaySlots.length || 0} logged
           </span>
         </div>
 
@@ -449,7 +545,7 @@ export default function LogbookPage() {
           </span>
         </div>
 
-        <div className="grid grid-cols-5 gap-2">
+        <div className="grid grid-cols-5 gap-2 lg:gap-3">
           {weeklyBars.map((bar, index) => (
             <div key={bar.key} className="flex flex-col items-center gap-2">
               <div className="flex h-28 w-full items-end rounded-[18px] bg-[hsl(var(--surface-secondary))] p-2">
@@ -475,20 +571,60 @@ export default function LogbookPage() {
         </div>
       </section>
 
-      {nextClass ? (
-        <section className="card overflow-hidden p-4">
-          <div className="absolute inset-y-4 left-0 w-1 rounded-full bg-dynamic-accent" />
-          <div className="pl-3">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-content-tertiary">Next class</p>
-            <div className="mt-2 flex items-center justify-between gap-3">
-              <div>
-                <h3 className="text-base font-bold text-content-primary">{nextClass.assignment.subjectName}</h3>
-                <p className="text-sm text-content-secondary">{nextClass.assignment.className}</p>
-              </div>
-              <div className="text-right">
-                <p className="font-mono text-sm font-bold text-[hsl(var(--accent-text))]">{nextClass.startTime}</p>
-                <p className="text-xs text-content-tertiary">Starts later today</p>
-              </div>
+      {nextClassInfo ? (
+        <section
+          className="card p-5"
+          style={
+            nextClassInfo.type === "prep-soon"
+              ? {
+                  background: "linear-gradient(135deg, rgba(245,158,11,0.06), rgba(251,191,36,0.03))",
+                  border: "1px solid rgba(245,158,11,0.12)",
+                }
+              : {
+                  background: "linear-gradient(135deg, rgba(99,102,241,0.04), rgba(129,140,248,0.02))",
+                  border: "1px solid rgba(99,102,241,0.08)",
+                }
+          }
+        >
+          <div className="flex items-start gap-4">
+            <div className="text-3xl">{nextClassInfo.type === "prep-soon" ? "⏰" : nextClassInfo.type === "rest-long" ? "🌙" : "🕐"}</div>
+            <div>
+              <h3
+                style={{
+                  fontFamily: "var(--font-body)",
+                  fontSize: "16px",
+                  fontWeight: 700,
+                  color: "var(--text-primary)",
+                }}
+              >
+                {nextClassInfo.message}
+              </h3>
+              {nextClassInfo.detail && (
+                <p
+                  style={{
+                    fontFamily: "var(--font-body)",
+                    fontSize: "13px",
+                    color: "var(--text-tertiary)",
+                    marginTop: "3px",
+                  }}
+                >
+                  {nextClassInfo.type === "rest-long" ? `Next up: ${nextClassInfo.detail}` : nextClassInfo.detail}
+                </p>
+              )}
+              {nextClassInfo.hint && (
+                <p
+                  style={{
+                    fontFamily: "var(--font-body)",
+                    fontSize: "13px",
+                    color: nextClassInfo.type === "prep-soon" ? "var(--accent-text)" : "var(--text-tertiary)",
+                    fontWeight: nextClassInfo.type === "prep-soon" ? 600 : 400,
+                    marginTop: "4px",
+                    fontStyle: nextClassInfo.type === "prep-soon" ? "normal" : "italic",
+                  }}
+                >
+                  {nextClassInfo.hint}
+                </p>
+              )}
             </div>
           </div>
         </section>
@@ -506,17 +642,17 @@ export default function LogbookPage() {
           </Link>
         </div>
 
-        <div className="feed-grid">
+        <div className="feed-grid lg:grid-cols-2 xl:grid-cols-3">
           {feedEntries.length > 0 ? (
             feedEntries.map((entry, index) => <DynamicEntryCard key={entry.id} entry={entry} priority={index === 0 ? "live" : "default"} />)
           ) : (
-            <div className="card bg-dynamic-noise p-5 text-center">
+            <div className="card bg-dynamic-noise p-5 text-center lg:col-span-full">
               <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[hsl(var(--accent-soft))] text-[hsl(var(--accent-text))] shadow-accent">
                 <BookOpen className="h-6 w-6" />
               </div>
               <h3 className="mt-4 text-lg font-bold text-content-primary">Your feed will come alive here</h3>
               <p className="mt-2 text-sm text-content-secondary">Create the first entry and Edlog starts building your live teaching record.</p>
-              <Link href="/logbook/new" className="btn-primary mt-4 w-full">
+              <Link href="/logbook/new" className="btn-primary mt-4 w-full lg:w-auto">
                 Create first entry
               </Link>
             </div>
