@@ -20,12 +20,19 @@ export async function GET() {
     const startOfMonth = getStartOfMonth();
 
     const teacherAtSchool = {
-      role: "TEACHER" as const,
-      OR: [
-        { schoolId: user.schoolId },
-        { teacherSchools: { some: { schoolId: user.schoolId!, status: "ACTIVE" } } },
-      ],
-    };
+  role: "TEACHER" as const,
+  OR: [
+    { schoolId: user.schoolId! },
+    { 
+      teacherSchools: { 
+        some: { 
+          schoolId: user.schoolId!, 
+          status: TeacherSchoolStatus.ACTIVE  // or whichever status you intended
+        } 
+      } 
+    }
+  ]
+};
 
     const [
       totalTeachers,
