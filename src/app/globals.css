@@ -17,23 +17,23 @@
   /* ── LIGHT THEME — "Warm Paper" ───────────────────────────────── */
   :root,
   .light {
-    --bg-primary: #FAFAF9;
-    --bg-secondary: #F5F5F4;
-    --bg-tertiary: #E7E5E4;
+    --bg-primary: #F0F2F5;
+    --bg-secondary: #FFFFFF;
+    --bg-tertiary: #E4E6EB;
     --bg-elevated: #FFFFFF;
     --bg-inset: #F5F5F4;
     --text-primary: #1C1917;
     --text-secondary: #57534E;
     --text-tertiary: #A8A29E;
     --text-quaternary: #D6D3D1;
-    --border-primary: #E7E5E4;
-    --border-secondary: #F5F5F4;
-    --border-subtle: #F5F5F4;
-    --accent: #F59E0B;
-    --accent-hover: #D97706;
-    --accent-light: rgba(245, 158, 11, 0.08);
-    --accent-text: #D97706;
-    --accent-muted: rgba(245, 158, 11, 0.12);
+    --border-primary: #DDE1E7;
+    --border-secondary: #E8EBF0;
+    --border-subtle: #EFF2F6;
+    --accent: #0866FF;
+    --accent-hover: #1877F2;
+    --accent-light: rgba(8, 102, 255, 0.12);
+    --accent-text: #0866FF;
+    --accent-muted: rgba(8, 102, 255, 0.16);
     --header-from: #1B1512;
     --header-via: #2D2420;
     --header-to: #3D322C;
@@ -44,13 +44,13 @@
     --shadow-card: 0 1px 3px 0 rgba(28, 25, 23, 0.04);
     --shadow-card-hover: 0 4px 12px -4px rgba(28, 25, 23, 0.08);
     --shadow-elevated: 0 8px 24px -4px rgba(28, 25, 23, 0.1);
-    --nav-bg: rgba(255, 255, 255, 0.95);
-    --nav-border: #E7E5E4;
+    --nav-bg: rgba(255, 255, 255, 0.78);
+    --nav-border: rgba(221, 225, 231, 0.9);
     --nav-text: #A8A29E;
-    --nav-text-active: #D97706;
+    --nav-text-active: #0866FF;
     --input-bg: #FFFFFF;
     --input-border: #E7E5E4;
-    --input-focus-ring: rgba(245, 158, 11, 0.25);
+    --input-focus-ring: rgba(8, 102, 255, 0.25);
     --skeleton-base: #F5F5F4;
     --skeleton-highlight: rgba(255, 255, 255, 0.6);
     --transition-micro: 80ms;
@@ -79,10 +79,10 @@
     --border-primary: #44403C;
     --border-secondary: #292524;
     --border-subtle: #3D3330;
-    --accent: #FBBF24;
-    --accent-hover: #F59E0B;
+    --accent: #60A5FA;
+    --accent-hover: #3B82F6;
     --accent-light: rgba(251, 191, 36, 0.1);
-    --accent-text: #FBBF24;
+    --accent-text: #93C5FD;
     --accent-muted: rgba(251, 191, 36, 0.12);
     --header-from: #1C1917;
     --header-via: #292524;
@@ -1113,5 +1113,27 @@
   /* Full width table */
   .data-table-scroll {
     overflow-x: visible;
+  }
+}
+
+
+@layer components {
+  .glass-nav {
+    background: color-mix(in srgb, var(--nav-bg) 86%, white 14%);
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .vibrant-mode {
+    --accent: #1877F2;
+    --accent-hover: #0866FF;
+    --accent-light: rgba(24, 119, 242, 0.16);
   }
 }
