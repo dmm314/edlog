@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Home, Plus, User, Shield, Globe, BarChart3, Calendar, Users, ClipboardList, Bell } from "lucide-react";
 import type { PortalMode } from "@/contexts/CoordinatorModeContext";
+import { cn } from "@/lib/utils";
 
 interface BottomNavProps {
   role: string;
@@ -41,7 +42,6 @@ function getNavTabs(role: string, isCoordinator?: boolean, activeMode?: PortalMo
     ];
   }
 
-  // COORDINATOR mode (only when user is coordinator AND mode is coordinator)
   if (isCoordinator && activeMode === "coordinator") {
     return [
       { href: "/coordinator", label: "Dashboard", icon: Shield, activePrefix: "/coordinator", dataTour: "nav-coordinator-dashboard" },
@@ -52,7 +52,6 @@ function getNavTabs(role: string, isCoordinator?: boolean, activeMode?: PortalMo
     ];
   }
 
-  // TEACHER mode (default — even if user is a coordinator)
   return [
     { href: "/logbook", label: "Home", icon: Home, dataTour: "nav-home" },
     { href: "/timetable", label: "Timetable", icon: Calendar, dataTour: "nav-timetable" },
@@ -98,6 +97,10 @@ function BottomNav({ role, isCoordinator, activeMode }: BottomNavProps) {
                 className={`flex min-h-11 flex-col items-center justify-center rounded-xl text-[10px] font-medium transition ${isActive ? "text-[#0866FF]" : "text-content-tertiary"}`}
                 aria-label={tab.label}
                 data-tour={tab.dataTour}
+                className={cn(
+                  "group flex min-h-[60px] flex-col items-center justify-center gap-1 rounded-2xl px-2 py-2 transition-all duration-300 ease-out active:scale-95",
+                  isActive && "bg-[hsl(var(--accent-soft))] shadow-card",
+                )}
               >
                 <Icon className={`mb-1 h-[18px] w-[18px] ${isActive ? "drop-shadow-[0_0_8px_rgba(8,102,255,0.35)]" : ""}`} />
                 <span>{tab.label}</span>

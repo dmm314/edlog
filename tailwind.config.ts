@@ -24,30 +24,36 @@ const config: Config = {
           50: "#EFF6FF",
         },
         surface: {
-          primary: "var(--bg-primary)",
-          secondary: "var(--bg-secondary)",
-          tertiary: "var(--bg-tertiary)",
-          elevated: "var(--bg-elevated)",
-          inset: "var(--bg-inset)",
+          canvas: "hsl(var(--surface-canvas) / <alpha-value>)",
+          primary: "hsl(var(--surface-primary) / <alpha-value>)",
+          secondary: "hsl(var(--surface-secondary) / <alpha-value>)",
+          tertiary: "hsl(var(--surface-tertiary) / <alpha-value>)",
+          elevated: "hsl(var(--surface-elevated) / <alpha-value>)",
+          float: "hsl(var(--surface-float) / <alpha-value>)",
         },
         content: {
-          primary: "var(--text-primary)",
-          secondary: "var(--text-secondary)",
-          tertiary: "var(--text-tertiary)",
-          quaternary: "var(--text-quaternary)",
+          primary: "hsl(var(--text-primary) / <alpha-value>)",
+          secondary: "hsl(var(--text-secondary) / <alpha-value>)",
+          tertiary: "hsl(var(--text-tertiary) / <alpha-value>)",
+          inverse: "hsl(var(--text-inverse) / <alpha-value>)",
         },
-        "border-theme": {
-          DEFAULT: "var(--border-primary)",
-          secondary: "var(--border-secondary)",
-          subtle: "var(--border-subtle)",
+        border: {
+          DEFAULT: "hsl(var(--border-primary) / <alpha-value>)",
+          muted: "hsl(var(--border-muted) / <alpha-value>)",
+          strong: "hsl(var(--border-strong) / <alpha-value>)",
         },
         accent: {
-          DEFAULT: "var(--accent)",
-          hover: "var(--accent-hover)",
-          light: "var(--accent-light)",
-          text: "var(--accent-text)",
-          muted: "var(--accent-muted)",
-          warm: "var(--accent-warm)",
+          DEFAULT: "hsl(var(--accent) / <alpha-value>)",
+          soft: "hsl(var(--accent-soft) / <alpha-value>)",
+          strong: "hsl(var(--accent-strong) / <alpha-value>)",
+          text: "hsl(var(--accent-text) / <alpha-value>)",
+          glow: "hsl(var(--accent-glow) / <alpha-value>)",
+        },
+        status: {
+          success: "hsl(var(--success) / <alpha-value>)",
+          warning: "hsl(var(--warning) / <alpha-value>)",
+          danger: "hsl(var(--danger) / <alpha-value>)",
+          info: "hsl(var(--info) / <alpha-value>)",
         },
       },
       fontFamily: {
@@ -59,10 +65,10 @@ const config: Config = {
         xs: ["0.6875rem", { lineHeight: "1rem" }],
         sm: ["0.8125rem", { lineHeight: "1.25rem" }],
         base: ["0.9375rem", { lineHeight: "1.5rem" }],
-        lg: ["1.125rem", { lineHeight: "1.75rem" }],
-        xl: ["1.375rem", { lineHeight: "1.75rem" }],
-        "2xl": ["1.625rem", { lineHeight: "2rem" }],
-        "3xl": ["2rem", { lineHeight: "2.25rem" }],
+        lg: ["1.0625rem", { lineHeight: "1.625rem" }],
+        xl: ["1.375rem", { lineHeight: "1.8rem" }],
+        "2xl": ["1.75rem", { lineHeight: "2.1rem" }],
+        "3xl": ["2.25rem", { lineHeight: "2.5rem" }],
       },
       borderRadius: {
         sm: "10px",
@@ -85,25 +91,21 @@ const config: Config = {
         "glow-error": "0 0 0 3px rgb(239 68 68 / 0.15)",
       },
       keyframes: {
-        "slide-down": {
-          "0%": { opacity: "0", transform: "translateY(-10px)" },
-          "100%": { opacity: "1", transform: "translateY(0)" },
-        },
         "slide-up": {
-          "0%": { opacity: "0", transform: "translateY(8px)" },
-          "100%": { opacity: "1", transform: "translateY(0)" },
+          "0%": { opacity: "0", transform: "translateY(16px) scale(0.985)" },
+          "100%": { opacity: "1", transform: "translateY(0) scale(1)" },
         },
         "fade-in": {
           "0%": { opacity: "0" },
           "100%": { opacity: "1" },
         },
         "scale-in": {
-          "0%": { opacity: "0", transform: "scale(0.95)" },
+          "0%": { opacity: "0", transform: "scale(0.94)" },
           "100%": { opacity: "1", transform: "scale(1)" },
         },
         shimmer: {
-          "0%": { backgroundPosition: "-200% 0" },
-          "100%": { backgroundPosition: "200% 0" },
+          "0%": { backgroundPosition: "200% 0" },
+          "100%": { backgroundPosition: "-200% 0" },
         },
         float: {
           "0%, 100%": { transform: "translateY(0)" },
@@ -115,15 +117,21 @@ const config: Config = {
           "70%": { transform: "scale(0.95)" },
           "100%": { opacity: "1", transform: "scale(1)" },
         },
-        "count-up": {
-          "0%": { opacity: "0", transform: "translateY(8px)" },
-          "100%": { opacity: "1", transform: "translateY(0)" },
+        "live-pulse": {
+          "0%, 100%": { transform: "scale(1)", boxShadow: "0 0 0 0 hsl(var(--accent-glow) / 0.18)" },
+          "50%": { transform: "scale(1.02)", boxShadow: "0 0 0 10px hsl(var(--accent-glow) / 0)" },
         },
-        "spring-bounce": {
-          "0%": { transform: "scale(0.8)", opacity: "0" },
-          "50%": { transform: "scale(1.1)" },
-          "75%": { transform: "scale(0.95)" },
-          "100%": { transform: "scale(1)", opacity: "1" },
+        ripple: {
+          "0%": { transform: "translate(-50%, -50%) scale(0.2)", opacity: "0.45" },
+          "100%": { transform: "translate(-50%, -50%) scale(1)", opacity: "0" },
+        },
+        "live-update": {
+          "0%, 100%": { opacity: "0.7", transform: "translateY(0)" },
+          "50%": { opacity: "1", transform: "translateY(-1px)" },
+        },
+        "nav-bob": {
+          "0%, 100%": { transform: "translateY(0) scale(1)" },
+          "50%": { transform: "translateY(-3px) scale(1.04)" },
         },
       },
       animation: {
@@ -141,4 +149,5 @@ const config: Config = {
   },
   plugins: [],
 };
+
 export default config;
