@@ -12,17 +12,11 @@ import {
   Layers3,
   PenLine,
   Sparkles,
-  Waves,
 } from "lucide-react";
 import { NotificationBell } from "@/components/NotificationBell";
-import { StreakBadge } from "@/components/StreakBadge";
-import { WeeklyProgress } from "@/components/WeeklyProgress";
-import { OnboardingTour } from "@/components/OnboardingTour";
-import { HelpHint } from "@/components/HelpHint";
 import { QuickActionsRow } from "@/components/dashboard/QuickActionsRow";
-import { TeacherFeed } from "@/components/dashboard/TeacherFeed";
-import { TEACHER_TOUR } from "@/lib/tour-steps";
-import type { EntryWithRelations } from "@/types";
+import { DynamicEntryCard } from "@/components/DynamicEntryCard";
+import { Skeleton } from "@/components/ui/Skeleton";
 import { useCoordinatorMode } from "@/contexts/CoordinatorModeContext";
 import type { EntryWithRelations } from "@/types";
 import { cn } from "@/lib/utils";
@@ -248,9 +242,6 @@ export default function LogbookPage() {
     const minutesNow = today.getHours() * 60 + today.getMinutes();
     return todaySlots.find((slot) => parseMinutes(slot.startTime) > minutesNow);
   }, [today, todaySlots]);
-  const upcomingLabel = nextClass
-    ? `${nextClass.assignment.subjectName} • ${nextClass.startTime}`
-    : null;
   const feedEntries = entries.slice(0, 6);
 
   return (
@@ -260,9 +251,7 @@ export default function LogbookPage() {
           <div className="flex items-start justify-between gap-3">
             <div className="space-y-2">
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/70">{greeting}</p>
-              <h1 className="font-display text-[2rem] leading-[1.05] text-white">
-                {displayName || "Teacher"}
-              </h1>
+              <h1 className="font-display text-[2rem] leading-[1.05] text-white">{displayName || "Teacher"}</h1>
               <p className="max-w-[16rem] text-sm text-white/76">
                 Your log feed is tuned for fast taps, live context, and clean follow-through.
               </p>
@@ -309,7 +298,7 @@ export default function LogbookPage() {
         </div>
       </section>
 
-      <QuickActionsRow pendingCount={pendingCount} upcomingLabel={upcomingLabel} />
+      <QuickActionsRow />
 
       <section className="space-y-3">
         <div className="flex items-center justify-between">
@@ -324,7 +313,10 @@ export default function LogbookPage() {
 
         <div className="-mx-4 overflow-x-auto px-4 pb-1">
           <div className="flex gap-3 pr-2">
-            {(notices.length ? notices : [{ id: "fallback", title: "You are clear", message: "No new notices right now.", createdAt: new Date().toISOString(), isRead: true }]).map((notice, index) => (
+            {(notices.length
+              ? notices
+              : [{ id: "fallback", title: "You are clear", message: "No new notices right now.", createdAt: new Date().toISOString(), isRead: true }]
+            ).map((notice, index) => (
               <Link
                 key={notice.id}
                 href="/notifications"
@@ -338,6 +330,7 @@ export default function LogbookPage() {
                   <span className="block truncate text-sm font-bold text-content-primary">{notice.title}</span>
                   <span className="mt-1 block line-clamp-2 text-xs text-content-secondary">{notice.message}</span>
                 </span>
+                <ChevronRight className="h-4 w-4 text-content-tertiary" />
               </Link>
             ))}
           </div>
@@ -347,7 +340,9 @@ export default function LogbookPage() {
       <section className="section-card space-y-4">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-content-tertiary">Today — {today.toLocaleDateString("en-GB", { weekday: "long" })}</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-content-tertiary">
+              Today — {today.toLocaleDateString("en-GB", { weekday: "long" })}
+            </p>
             <h2 className="text-lg font-bold text-content-primary">Tap the live class first</h2>
           </div>
           <span className="rounded-full bg-[hsl(var(--accent-soft))] px-3 py-1.5 font-mono text-[11px] font-bold text-[hsl(var(--accent-text))]">
@@ -371,61 +366,19 @@ export default function LogbookPage() {
                   </div>
                 </div>
               </div>
-              <span className="text-sm font-semibold" style={{ color: "#92400E" }}>
-                You have {unreadAnnouncements} new announcement{unreadAnnouncements > 1 ? "s" : ""}
-              </span>
-            </div>
-            <ChevronRight className="w-4 h-4 text-amber-400" />
-          </Link>
-        )}
-
-         {/* ── Stories-style Quick Actions ───────────────────────────── */}
-        <QuickActionsRow />
-
-        {/* ── Entry Feed ──────────────────────────────────────────────── */}
-        <TeacherFeed entries={entries} loading={loading} />
-        
-        {/* ── Today's Schedule ─────────────────────────────────────── */}
-        {isWeekday && sortedTodaySlots.length > 0 && (
-          <div data-tour="today-schedule" className="animate-slide-up">
-            {/* Section header */}
-            <div className="flex items-center justify-between mb-3 px-1">
-              <h2
-                style={{
-                  fontFamily: "var(--font-body)",
-                  fontSize: "14px",
-                  fontWeight: 700,
-                  color: "var(--text-primary)",
-                }}
-              >
-                Today — {DAY_NAMES[dayOfWeek]}
-              </h2>
-              <span
-                className="tabular-nums"
-                style={{
-                  fontSize: "12px",
-                  color: "var(--text-tertiary)",
-                }}
-              >
-                {todayFilledCount}/{sortedTodaySlots.length} logged
-              </span>
-            </div>
-          ) : (
+            ))
+          ) : isWeekday && todaySlots.length > 0 ? (
             todaySlots.map((slot, index) => {
               const matchedEntry = entries.find((entry) => getEntryMatch(entry, slot));
               const isLogged = Boolean(matchedEntry);
               const isCurrent = index === currentSlotIndex;
-              const isUpcoming = index > currentSlotIndex || currentSlotIndex === -1;
+              const isUpcoming = currentSlotIndex === -1 || index > currentSlotIndex;
               const logHref = `/logbook/new?slotId=${slot.id}&assignmentId=${slot.assignment.id}`;
 
               return (
                 <article
                   key={slot.id}
-                  className={cn(
-                    "card p-4 transition-all duration-300",
-                    isCurrent && "live-card scale-[1.01]",
-                    isLogged && "opacity-70",
-                  )}
+                  className={cn("card p-4 transition-all duration-300", isCurrent && "live-card scale-[1.01]", isLogged && "opacity-70")}
                   style={{ animationDelay: `${index * 80}ms` }}
                 >
                   <div className="flex gap-4">
@@ -438,10 +391,7 @@ export default function LogbookPage() {
                       <div className="flex items-start justify-between gap-3">
                         <div>
                           <h3 className="text-sm font-bold text-content-primary">{slot.assignment.subjectName}</h3>
-                          <p className="mt-1 text-sm text-content-secondary">
-                            {slot.assignment.className}
-                            {matchedEntry?.moduleName ? ` • ${matchedEntry.moduleName}` : ""}
-                          </p>
+                          <p className="mt-1 text-sm text-content-secondary">{slot.assignment.className}</p>
                         </div>
 
                         {isLogged ? (
@@ -454,7 +404,12 @@ export default function LogbookPage() {
                             Log
                           </Link>
                         ) : (
-                          <span className={cn("flex h-10 w-10 items-center justify-center rounded-2xl border border-dashed", isUpcoming ? "border-[hsl(var(--border-strong))] text-content-tertiary" : "border-[hsl(var(--border-primary))] text-content-tertiary")}> 
+                          <span
+                            className={cn(
+                              "flex h-10 w-10 items-center justify-center rounded-2xl border border-dashed",
+                              isUpcoming ? "border-[hsl(var(--border-strong))] text-content-tertiary" : "border-[hsl(var(--border-primary))] text-content-tertiary",
+                            )}
+                          >
                             <Clock3 className="h-4 w-4" />
                           </span>
                         )}
@@ -471,6 +426,14 @@ export default function LogbookPage() {
                 </article>
               );
             })
+          ) : (
+            <div className="card bg-dynamic-noise p-5 text-center">
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[hsl(var(--accent-soft))] text-[hsl(var(--accent-text))] shadow-accent">
+                <Clock3 className="h-6 w-6" />
+              </div>
+              <h3 className="mt-4 text-lg font-bold text-content-primary">No classes queued for today</h3>
+              <p className="mt-2 text-sm text-content-secondary">Your timetable will show live periods here as soon as they are scheduled.</p>
+            </div>
           )}
         </div>
       </section>
@@ -493,7 +456,11 @@ export default function LogbookPage() {
                 <div
                   className={cn(
                     "w-full rounded-[12px] transition-all duration-700 ease-[var(--ease-spring)]",
-                    bar.ratio === 100 ? "bg-[linear-gradient(180deg,hsl(var(--success)),color-mix(in_srgb,hsl(var(--success))_68%,white))]" : bar.ratio > 0 ? "bg-dynamic-accent" : "bg-[hsl(var(--surface-tertiary))]",
+                    bar.ratio === 100
+                      ? "bg-[linear-gradient(180deg,hsl(var(--success)),color-mix(in_srgb,hsl(var(--success))_68%,white))]"
+                      : bar.ratio > 0
+                        ? "bg-dynamic-accent"
+                        : "bg-[hsl(var(--surface-tertiary))]",
                     bar.isToday && "shadow-accent",
                   )}
                   style={{ height: `${Math.max(bar.ratio, 12)}%`, transitionDelay: `${index * 100}ms` }}
@@ -541,13 +508,7 @@ export default function LogbookPage() {
 
         <div className="feed-grid">
           {feedEntries.length > 0 ? (
-            feedEntries.map((entry, index) => (
-              <DynamicEntryCard
-                key={entry.id}
-                entry={entry}
-                priority={index === 0 ? "live" : "default"}
-              />
-            ))
+            feedEntries.map((entry, index) => <DynamicEntryCard key={entry.id} entry={entry} priority={index === 0 ? "live" : "default"} />)
           ) : (
             <div className="card bg-dynamic-noise p-5 text-center">
               <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[hsl(var(--accent-soft))] text-[hsl(var(--accent-text))] shadow-accent">
