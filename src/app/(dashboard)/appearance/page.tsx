@@ -3,6 +3,7 @@
 import { useTheme, Theme } from "@/components/ThemeProvider";
 import { ArrowLeft, Check, Sun, Moon } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 interface ThemeOption {
   id: Theme;
@@ -275,6 +276,26 @@ function ThemePreviewCard({
 export default function AppearancePage() {
   const { theme, setTheme } = useTheme();
   const router = useRouter();
+  const [vibrantMode, setVibrantMode] = useState(false);
+
+  useEffect(() => {
+    const enabled = typeof window !== "undefined" && localStorage.getItem("edlog-vibrant-mode") === "true";
+    setVibrantMode(enabled);
+    if (enabled) document.documentElement.classList.add("vibrant-mode");
+  }, []);
+
+  const toggleVibrantMode = () => {
+    setVibrantMode((prev) => {
+      const next = !prev;
+      if (next) {
+        document.documentElement.classList.add("vibrant-mode");
+      } else {
+        document.documentElement.classList.remove("vibrant-mode");
+      }
+      localStorage.setItem("edlog-vibrant-mode", String(next));
+      return next;
+    });
+  };
 
   return (
     <div
@@ -338,6 +359,23 @@ export default function AppearancePage() {
           </div>
         </div>
 
+
+        <div className="mt-4 card p-4 animate-slide-up animation-delay-150">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <p className="text-sm font-semibold text-content-primary">Vibrant Mode</p>
+              <p className="text-xs text-content-tertiary">Boosts blue accent for high sunlight readability.</p>
+            </div>
+            <button
+              type="button"
+              onClick={toggleVibrantMode}
+              className={`relative inline-flex h-7 w-12 items-center rounded-full transition ${vibrantMode ? "bg-[#0866FF]" : "bg-surface-tertiary"}`}
+            >
+              <span className={`inline-block h-5 w-5 transform rounded-full bg-white transition ${vibrantMode ? "translate-x-6" : "translate-x-1"}`} />
+            </button>
+          </div>
+        </div>
+        
         {/* Info note */}
         <div
           className="mt-4 card p-4 animate-slide-up animation-delay-150"
