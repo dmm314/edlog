@@ -1,5 +1,6 @@
 export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
+import { Prisma, TeacherSchoolStatus } from "@prisma/client";
 import { db } from "@/lib/db";
 import { getSessionUser } from "@/lib/auth";
 import { getStartOfWeek, getStartOfMonth, getWeekNumber } from "@/lib/utils";
@@ -18,11 +19,11 @@ export async function GET() {
     const startOfWeek = getStartOfWeek();
     const startOfMonth = getStartOfMonth();
 
-    const teacherAtSchool = {
-      role: "TEACHER" as const,
+    const teacherAtSchool: Prisma.UserWhereInput = {
+      role: "TEACHER",
       OR: [
         { schoolId: user.schoolId },
-        { teacherSchools: { some: { schoolId: user.schoolId!, status: "ACTIVE" } } },
+        { teacherSchools: { some: { schoolId: user.schoolId, status: TeacherSchoolStatus.ACTIVE } } },
       ],
     };
 
@@ -37,7 +38,7 @@ export async function GET() {
       flaggedEntries,
     ] = await Promise.all([
       db.user.count({ where: teacherAtSchool }),
-      db.teacherSchool.count({ where: { schoolId: user.schoolId!, status: "PENDING" } }).catch(() => 0),
+      db.teacherSchool.count({ where: { schoolId: user.schoolId, status: TeacherSchoolStatus.PENDING } }).catch(() => 0),
       db.user.count({ where: { ...teacherAtSchool, isVerified: true } }),
       db.logbookEntry.count({
         where: { class: { schoolId: user.schoolId } },
