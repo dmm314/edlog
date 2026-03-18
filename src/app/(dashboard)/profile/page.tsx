@@ -1345,7 +1345,7 @@ export default function ProfilePage() {
                     {hintsVisible ? "Hide help hints" : "Show help hints"}
                   </p>
                   <p className="text-[11px] mt-0.5" style={{ color: "var(--text-tertiary)" }}>
-                    {hintsVisible ? "Remove the "!" indicators" : "Re-enable helper indicators"}
+                    {hintsVisible ? "Remove the '!' indicators" : "Re-enable helper indicators"}
                   </p>
                 </div>
                 <div
