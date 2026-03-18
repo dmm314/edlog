@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Plus, Clock, User, Shield, Globe, BarChart3, Calendar, Users, ClipboardList } from "lucide-react";
+import { Home, Plus, User, Shield, Globe, BarChart3, Calendar, Users, ClipboardList, Bell } from "lucide-react";
 import type { PortalMode } from "@/contexts/CoordinatorModeContext";
 
 interface BottomNavProps {
@@ -55,9 +55,9 @@ function getNavTabs(role: string, isCoordinator?: boolean, activeMode?: PortalMo
   // TEACHER mode (default — even if user is a coordinator)
   return [
     { href: "/logbook", label: "Home", icon: Home, dataTour: "nav-home" },
-    { href: "/logbook/new", label: "New Entry", icon: Plus, highlight: true, dataTour: "nav-new-entry" },
     { href: "/timetable", label: "Timetable", icon: Calendar, dataTour: "nav-timetable" },
-    { href: "/history", label: "History", icon: Clock, dataTour: "nav-history" },
+    { href: "/logbook/new", label: "New Entry", icon: Plus, highlight: true, dataTour: "nav-new-entry" },
+    { href: "/messages", label: "Notices", icon: Bell, dataTour: "nav-notices" },
     { href: "/profile", label: "Profile", icon: User, dataTour: "nav-profile" },
   ];
 }
@@ -67,67 +67,44 @@ function BottomNav({ role, isCoordinator, activeMode }: BottomNavProps) {
   const tabs = getNavTabs(role, isCoordinator, activeMode);
 
   return (
-    <nav
-      className="fixed bottom-0 left-0 w-full z-50 backdrop-blur-xl pb-[env(safe-area-inset-bottom)] bottom-nav"
-      style={{ backgroundColor: "var(--nav-bg)", borderTop: "1px solid var(--nav-border)" }}
-    >
-      <div className="flex items-end justify-around h-16 max-w-lg mx-auto">
-        {tabs.map((tab) => {
-          const prefix = tab.activePrefix || tab.href;
-          const isActive = pathname === prefix || pathname.startsWith(prefix + "/");
-          const Icon = tab.icon;
+    <nav className="bottom-nav fixed bottom-0 left-0 z-50 w-full pb-[env(safe-area-inset-bottom)]">
+      <div className="mx-auto max-w-[480px] px-3 pb-2">
+        <div className={`glass-nav grid h-[72px] items-center rounded-[24px] border border-white/50 px-2 shadow-lifted backdrop-blur-xl ${tabs.length === 4 ? "grid-cols-4" : "grid-cols-5"}`}>
+          {tabs.map((tab) => {
+            const prefix = tab.activePrefix || tab.href;
+            const isActive = pathname === prefix || pathname.startsWith(`${prefix}/`);
+            const Icon = tab.icon;
 
-          if (tab.highlight) {
+            if (tab.highlight) {
+              return (
+                <Link
+                  key={tab.href}
+                  href={tab.href}
+                  className="flex flex-col items-center gap-1"
+                  aria-label={tab.label}
+                  data-tour={tab.dataTour}
+                >
+                  <span className="inline-flex min-h-11 min-w-[86px] items-center justify-center gap-1 rounded-full bg-gradient-to-r from-[#1877F2] to-[#0866FF] px-3 text-xs font-semibold text-white shadow-accent active:scale-95">
+                    <Plus className="h-4 w-4" /> New
+                  </span>
+                </Link>
+              );
+            }
+
             return (
               <Link
                 key={tab.href}
                 href={tab.href}
-                className="flex flex-col items-center gap-0.5"
+                className={`flex min-h-11 flex-col items-center justify-center rounded-xl text-[10px] font-medium transition ${isActive ? "text-[#0866FF]" : "text-content-tertiary"}`}
                 aria-label={tab.label}
-                style={{ marginTop: "-12px" }}
                 data-tour={tab.dataTour}
               >
-                <div
-                  className="flex items-center justify-center rounded-full active:scale-95 transition-transform"
-                  style={{
-                    width: "48px",
-                    height: "48px",
-                    background: "linear-gradient(135deg, var(--accent), var(--accent-hover))",
-                    boxShadow: "0 4px 16px -4px rgba(245, 158, 11, 0.5)",
-                    transitionDuration: "var(--transition-micro)",
-                  }}
-                >
-                  <Plus className="text-white" style={{ width: "22px", height: "22px" }} strokeWidth={2.5} />
-                </div>
-                <span
-                  className="font-bold"
-                  style={{ fontSize: "10px", color: "var(--accent-text)" }}
-                >
-                  {tab.label}
-                </span>
+                <Icon className={`mb-1 h-[18px] w-[18px] ${isActive ? "drop-shadow-[0_0_8px_rgba(8,102,255,0.35)]" : ""}`} />
+                <span>{tab.label}</span>
               </Link>
             );
-          }
-
-          return (
-            <Link
-              key={tab.href}
-              href={tab.href}
-              className="flex flex-col items-center gap-0.5 px-3 py-1 transition-colors"
-              style={{ color: isActive ? "var(--nav-text-active)" : "var(--nav-text)" }}
-              aria-label={tab.label}
-              data-tour={tab.dataTour}
-            >
-              <Icon style={{ width: "20px", height: "20px" }} />
-              <span
-                className={isActive ? "font-bold" : "font-medium"}
-                style={{ fontSize: "10px" }}
-              >
-                {tab.label}
-              </span>
-            </Link>
-          );
-        })}
+          })}
+        </div>
       </div>
     </nav>
   );
