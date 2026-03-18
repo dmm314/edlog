@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState, useEffect } from "react";
 import {
   X, Calendar, Layers, BookOpen, Monitor, Smartphone,
@@ -376,10 +377,13 @@ export function EntryDetailModal({
                 {entry.signatureData && (
                   <div className="mt-2">
                     <p style={{ fontSize: 11, color: "var(--text-tertiary)", marginBottom: 4 }}>Signature</p>
-                    <img
+                    <Image
                       src={entry.signatureData}
                       alt="Verification signature"
-                      style={{ maxHeight: 60, border: "1px solid var(--border-primary)", borderRadius: 8, background: "white", padding: 4 }}
+                      width={240}
+                      height={60}
+                      unoptimized
+                      style={{ maxHeight: 60, width: "auto", border: "1px solid var(--border-primary)", borderRadius: 8, background: "white", padding: 4 }}
                     />
                   </div>
                 )}
