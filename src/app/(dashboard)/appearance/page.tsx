@@ -276,7 +276,7 @@ function ThemePreviewCard({
 export default function AppearancePage() {
   const { theme, setTheme } = useTheme();
   const router = useRouter();
-  const [vibrantMode, setVibrantMode] = useState(false);
+   const [vibrantMode, setVibrantMode] = useState(false);
 
   useEffect(() => {
     const enabled = typeof window !== "undefined" && localStorage.getItem("edlog-vibrant-mode") === "true";
