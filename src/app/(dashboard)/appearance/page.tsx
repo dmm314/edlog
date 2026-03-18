@@ -3,7 +3,7 @@
 import { useTheme, type DynamicIntensity, type Theme } from "@/components/ThemeProvider";
 import { ArrowLeft, Check, Moon, Sparkles, Sun, Waves } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { cn } from "@/lib/utils";
+import { useEffect, useState } from "react";
 
 interface ThemeOption {
   id: Theme;
@@ -146,6 +146,26 @@ function ThemePreviewCard({
 export default function AppearancePage() {
   const { theme, setTheme, intensity, setIntensity } = useTheme();
   const router = useRouter();
+   const [vibrantMode, setVibrantMode] = useState(false);
+
+  useEffect(() => {
+    const enabled = typeof window !== "undefined" && localStorage.getItem("edlog-vibrant-mode") === "true";
+    setVibrantMode(enabled);
+    if (enabled) document.documentElement.classList.add("vibrant-mode");
+  }, []);
+
+  const toggleVibrantMode = () => {
+    setVibrantMode((prev) => {
+      const next = !prev;
+      if (next) {
+        document.documentElement.classList.add("vibrant-mode");
+      } else {
+        document.documentElement.classList.remove("vibrant-mode");
+      }
+      localStorage.setItem("edlog-vibrant-mode", String(next));
+      return next;
+    });
+  };
 
   return (
     <div className="page-shell space-y-4 pt-4">
@@ -181,15 +201,37 @@ export default function AppearancePage() {
           </span>
         </div>
 
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          {themeOptions.map((option) => (
-            <ThemePreviewCard
-              key={option.id}
-              option={option}
-              isActive={theme === option.id}
-              onSelect={() => setTheme(option.id)}
-            />
-          ))}
+
+        <div className="mt-4 card p-4 animate-slide-up animation-delay-150">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <p className="text-sm font-semibold text-content-primary">Vibrant Mode</p>
+              <p className="text-xs text-content-tertiary">Boosts blue accent for high sunlight readability.</p>
+            </div>
+            <button
+              type="button"
+              onClick={toggleVibrantMode}
+              className={`relative inline-flex h-7 w-12 items-center rounded-full transition ${vibrantMode ? "bg-[#0866FF]" : "bg-surface-tertiary"}`}
+            >
+              <span className={`inline-block h-5 w-5 transform rounded-full bg-white transition ${vibrantMode ? "translate-x-6" : "translate-x-1"}`} />
+            </button>
+          </div>
+        </div>
+        
+        {/* Info note */}
+        <div
+          className="mt-4 card p-4 animate-slide-up animation-delay-150"
+        >
+          <p
+            className="text-[12px] leading-relaxed"
+            style={{ color: "var(--text-tertiary)" }}
+          >
+            <span className="font-semibold" style={{ color: "var(--text-secondary)" }}>
+              Tip:
+            </span>{" "}
+            Your theme preference is saved automatically and will persist
+            across sessions.
+          </p>
         </div>
       </section>
 

@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getSessionUser } from "@/lib/auth";
 import { getStartOfWeek, getStartOfMonth, getWeekNumber } from "@/lib/utils";
+import { TeacherSchoolStatus } from "@prisma/client";
 
 export async function GET() {
   try {
@@ -19,12 +20,19 @@ export async function GET() {
     const startOfMonth = getStartOfMonth();
 
     const teacherAtSchool = {
-      role: "TEACHER" as const,
-      OR: [
-        { schoolId: user.schoolId },
-        { teacherSchools: { some: { schoolId: user.schoolId!, status: "ACTIVE" } } },
-      ],
-    };
+  role: "TEACHER" as const,
+  OR: [
+    { schoolId: user.schoolId! },
+    { 
+      teacherSchools: { 
+        some: { 
+          schoolId: user.schoolId!, 
+          status: TeacherSchoolStatus.ACTIVE  // or whichever status you intended
+        } 
+      } 
+    }
+  ]
+};
 
     const [
       totalTeachers,
@@ -37,7 +45,7 @@ export async function GET() {
       flaggedEntries,
     ] = await Promise.all([
       db.user.count({ where: teacherAtSchool }),
-      db.teacherSchool.count({ where: { schoolId: user.schoolId!, status: "PENDING" } }).catch(() => 0),
+      db.teacherSchool.count({ where: { schoolId: user.schoolId!, status: TeacherSchoolStatus.PENDING } }).catch(() => 0),
       db.user.count({ where: { ...teacherAtSchool, isVerified: true } }),
       db.logbookEntry.count({
         where: { class: { schoolId: user.schoolId } },

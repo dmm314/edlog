@@ -15,9 +15,14 @@ import {
   Waves,
 } from "lucide-react";
 import { NotificationBell } from "@/components/NotificationBell";
-import { DynamicEntryCard } from "@/components/DynamicEntryCard";
-import { QuickActionsRow } from "@/components/QuickActionsRow";
-import { Skeleton } from "@/components/ui/Skeleton";
+import { StreakBadge } from "@/components/StreakBadge";
+import { WeeklyProgress } from "@/components/WeeklyProgress";
+import { OnboardingTour } from "@/components/OnboardingTour";
+import { HelpHint } from "@/components/HelpHint";
+import { QuickActionsRow } from "@/components/dashboard/QuickActionsRow";
+import { TeacherFeed } from "@/components/dashboard/TeacherFeed";
+import { TEACHER_TOUR } from "@/lib/tour-steps";
+import type { EntryWithRelations } from "@/types";
 import { useCoordinatorMode } from "@/contexts/CoordinatorModeContext";
 import type { EntryWithRelations } from "@/types";
 import { cn } from "@/lib/utils";
@@ -366,19 +371,44 @@ export default function LogbookPage() {
                   </div>
                 </div>
               </div>
-            ))
-          ) : todaySlots.length === 0 ? (
-            <div className="card bg-dynamic-noise p-5 text-center">
-              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[hsl(var(--accent-soft))] text-[hsl(var(--accent-text))] shadow-accent">
-                <Waves className="h-6 w-6" />
-              </div>
-              <h3 className="mt-4 text-lg font-bold text-content-primary">No classes in this slot</h3>
-              <p className="mt-2 text-sm text-content-secondary">
-                Use the quiet window to prepare, catch up, or open your full timetable.
-              </p>
-              <Link href="/timetable" className="btn-secondary mt-4 w-full">
-                View timetable
-              </Link>
+              <span className="text-sm font-semibold" style={{ color: "#92400E" }}>
+                You have {unreadAnnouncements} new announcement{unreadAnnouncements > 1 ? "s" : ""}
+              </span>
+            </div>
+            <ChevronRight className="w-4 h-4 text-amber-400" />
+          </Link>
+        )}
+
+         {/* ── Stories-style Quick Actions ───────────────────────────── */}
+        <QuickActionsRow />
+
+        {/* ── Entry Feed ──────────────────────────────────────────────── */}
+        <TeacherFeed entries={entries} loading={loading} />
+        
+        {/* ── Today's Schedule ─────────────────────────────────────── */}
+        {isWeekday && sortedTodaySlots.length > 0 && (
+          <div data-tour="today-schedule" className="animate-slide-up">
+            {/* Section header */}
+            <div className="flex items-center justify-between mb-3 px-1">
+              <h2
+                style={{
+                  fontFamily: "var(--font-body)",
+                  fontSize: "14px",
+                  fontWeight: 700,
+                  color: "var(--text-primary)",
+                }}
+              >
+                Today — {DAY_NAMES[dayOfWeek]}
+              </h2>
+              <span
+                className="tabular-nums"
+                style={{
+                  fontSize: "12px",
+                  color: "var(--text-tertiary)",
+                }}
+              >
+                {todayFilledCount}/{sortedTodaySlots.length} logged
+              </span>
             </div>
           ) : (
             todaySlots.map((slot, index) => {

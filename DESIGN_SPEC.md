@@ -1,334 +1,287 @@
-# EDLOG DESIGN SPEC v4.0 — DYNAMIC ALIVE SYSTEM
-
-## 1. Mission
-
-Edlog is a mobile-first digital teaching logbook for Cameroonian schools. The frontend must now feel **alive, adaptive, and rewarding** while staying serious, fast, and instantly understandable for teachers working on low-end Android phones.
-
-This version replaces the old warm-paper / amber-heavy system with a **single dynamic blue-cyan accent family** that shifts subtly by context. The product should feel closer to the responsiveness and energy of Facebook Feed, Instagram Feed, and Reels-era interaction design — but with classroom-grade focus, not entertainment noise.
-
-### Core product outcomes
-- Teachers should know the **one next action** within one second of opening the app.
-- Every screen should feel **responsive to touch**: lift, pulse, ripple, shimmer, confirm.
-- Information density should be high, but the accent system should stay **cohesive** and never become multicolored.
-- The experience should feel **premium on modern devices** and still remain **30-second fast on Tecno Spark-class phones**.
-
----
-
-## 2. Design Philosophy
-
-### 2.1 Dynamic, not decorative
-The new system is not about adding random color or motion. It is about making the interface feel context-aware:
-- the same accent family shifts slightly by theme and state,
-- surfaces adapt fluidly,
-- priority items lift visually,
-- live tasks pulse gently,
-- feedback happens immediately.
-
-### 2.2 One hue family at a time
-The product uses **one primary accent family** built from Meta blue / cyan energy.
-- Base anchor: `#0866FF`
-- Allowed contextual hue drift: approximately `±15°`
-- Shifts happen through CSS variables and HSL tokens, not hardcoded random colors.
-- Semantic states may tint cards and chips, but the interface must still read as a **single-hue ecosystem**.
-
-### 2.3 Quiet seriousness with addictive responsiveness
-Edlog is not a toy. It serves teachers, heads of department, school admins, and regional teams. The UI should combine:
-- WhatsApp-like familiarity,
-- Linear-like fluid motion,
-- Facebook-like density and feed rhythm,
-- Instagram/Reels-like touch delight.
-
-The product must feel **alive**, but never loud.
-
----
-
-## 3. Color System
-
-## 3.1 Accent system
-All accent behavior is controlled via HSL variables.
-
-### Base accent
-- Base hue anchor: `216°`
-- Base color reference: `#0866FF`
-- Dynamic variants are derived from:
-  - theme (`light` / `dark`)
-  - intensity (`calm` / `vibrant`)
-  - status shift (`draft`, `submitted`, `verified`, `flagged`)
-  - live context (`current period`, `active nav`, `composer open`, etc.)
-
-### Rules
-- Never introduce a second unrelated brand hue.
-- Never use old amber surfaces or cream paper backgrounds.
-- Accent glow, border emphasis, and soft fills all derive from the accent variables.
-- Use `color-mix()` with accent variables for borders, shadows, and frosted surfaces.
-
-## 3.2 Surface system
-Surfaces are adaptive neutrals, not paper and not cold enterprise gray.
-
-### Light mode intent
-- crisp white cards,
-- airy blue-tinted neutrals,
-- subtle luminosity,
-- slight accent infusion in elevated layers.
-
-### Dark mode intent
-- deep navy-charcoal surfaces,
-- floating cards,
-- clearer accent glows,
-- OLED-friendly contrast without harsh blue-gray fatigue.
-
-### Surface hierarchy
-1. `surface-canvas` — app background
-2. `surface-primary` — sections / large blocks
-3. `surface-secondary` — muted containers / controls
-4. `surface-elevated` — cards and active sheets
-5. `surface-float` — nav, overlays, composer states
-
-## 3.3 Text system
-- `text-primary` for titles and key data
-- `text-secondary` for descriptions and supporting labels
-- `text-tertiary` for metadata and timestamps
-- `text-inverse` for content placed on accent or header surfaces
-
-Text must remain readable under both intensity modes.
-
-## 3.4 Semantic states
-Semantic colors support status messaging, but should not overpower the single accent family.
-- Success: verification / completion
-- Warning: late / pending / caution
-- Danger: flagged / failed / destructive
-- Info: same family as primary accent
-
-These states should mostly appear in:
-- chips,
-- icons,
-- micro-status indicators,
-- confirmation patterns.
-
----
-
-## 4. Typography
-
-Three fonts remain mandatory.
-
-| Font | Role | Usage |
-|---|---|---|
-| Fraunces | Identity / display | Hero names, dashboard titles, reward moments |
-| DM Sans | Primary UI text | Body copy, controls, nav, forms, cards |
-| JetBrains Mono | Time and data | Timetable times, counters, status values, percentages |
-
-### Rules
-- Fraunces only for display moments, never dense UI labels.
-- DM Sans is the default system voice.
-- JetBrains Mono is for timing, numbers, and compact metadata.
-
----
-
-## 5. Layout Principles
-
-### Mobile-first shell
-- Max width on mobile content: `480px`
-- Minimum touch targets: `44px`
-- Bottom nav always reachable with one thumb
-- Primary action should stay close to the bottom half of the screen whenever possible
-
-### One action per screen
-Every screen needs a clear priority action.
-Examples:
-- Dashboard: log the current period
-- Composer: continue to next step or submit
-- Timetable: tap a slot
-- Notices: open what is new
-- Profile: update a setting
-
-### Density with clarity
-The system should support high information density without looking crowded.
-Use:
-- strong grouping,
-- adaptive chips,
-- micro-headings,
-- mono timestamps,
-- subtle separators,
-- animated hierarchy instead of extra colors.
-
----
-
-## 6. Motion System
-
-Motion is a product feature. It should reinforce recency, status, priority, and success.
-
-## 6.1 Approved motion types
-- **Lift:** cards rise slightly on hover/tap/focus
-- **Pulse:** active or live actions breathe subtly
-- **Ripple:** double-tap / touch feedback on cards and timetable slots
-- **Spring bounce:** celebratory confirmation, active composer moments, hero metric reveal
-- **Shimmer:** loading skeletons and placeholder surfaces
-- **Live update:** timestamps and current-state indicators subtly animate
-
-## 6.2 Motion rules
-- Prefer animating `transform`, `opacity`, and lightweight shadow changes.
-- Respect `prefers-reduced-motion` globally.
-- Do not animate layout-critical properties like width/height when avoidable.
-- Motion should finish quickly and feel responsive under 60fps constraints.
-
-## 6.3 Intensity modes
-The system includes a **Dynamic Intensity** preference:
-- `calm` — softer glow and reduced visual energy
-- `vibrant` — stronger accent presence and more pronounced live-feel
-
-Intensity affects:
-- accent saturation,
-- accent glow,
-- pulse strength,
-- overall perceived liveliness.
-
----
-
-## 7. Screen Direction
-
-## 7.1 Teacher dashboard / feed
-The teacher dashboard is now a **live feed command center**.
-
-### Required sections
-1. Dynamic hero header
-2. Quick actions row
-3. Stories-style notices strip
-4. Today’s schedule with live period emphasis
-5. Weekly progress bars
-6. Context card for next class
-7. Recent entry feed
-
-### Behavioral rules
-- Current period card gets strongest emphasis.
-- Logged cards look completed but remain visible.
-- Notices should feel recent and horizontally thumbable.
-- Entry cards should support double-tap ripple reactions.
-
-## 7.2 Entry composer
-The entry form should feel like a dynamic composer, not a bureaucratic sheet.
-
-### Required experience goals
-- Expand with spring-based transitions
-- Strong use of auto-filled timetable context
-- Subtle pulse for suggestion moments
-- Skeletons / shimmer for topic loading
-- Focus state should always make the current next action obvious
-
-## 7.3 Timetable
-- Slot cards must feel tappable and immediate.
-- Current or upcoming periods should carry light accent energy.
-- Tapping a slot should ripple and confirm the touch.
-
-## 7.4 Notices
-- Notices should behave like a stories rail:
-  - horizontally scrollable,
-  - strong first-glance titles,
-  - unread items pulse subtly,
-  - new items should feel fresh without feeling playful.
-
-## 7.5 Bottom navigation
-- Fixed, frosted, rounded container
-- Active item glows and scales slightly
-- Composer action is a floating hero control
-- Thumb ergonomics are non-negotiable
-
-## 7.6 Profile / Admin / Regional views
-All supporting dashboards should inherit the same system:
-- adaptive surfaces,
-- dynamic cards,
-- single-hue cohesion,
-- soft feed-like spacing,
-- animated counters and loading states,
-- stronger hierarchy for the main action.
-
----
-
-## 8. Component Guidance
-
-## 8.1 Dynamic entry card
-Must include:
-- status-adaptive accent shift,
-- elevated surface,
-- top-edge accent beam,
-- mono timestamp,
-- double-tap ripple,
-- responsive micro-actions,
-- visible but restrained metadata.
-
-## 8.2 Quick actions row
-Must include:
-- horizontal scroll on small screens,
-- one primary pulsing action,
-- fast captions,
-- obvious next-step framing.
-
-## 8.3 Skeletons and loading
-Loading should feel intentional, never dead.
-Use:
-- shimmer,
-- soft accent tint,
-- rounded surfaces,
-- staged reveal.
-
-## 8.4 Focus states
-Focus states should be visible and modern:
-- accent ring,
-- soft glow,
-- no harsh browser-default outlines.
-
----
-
-## 9. Technical Implementation Rules
-
-- Use CSS custom properties in `globals.css` as the source of truth.
-- Use Tailwind only as a consumer of tokens, not as a place for static theme decisions.
-- Prefer pure CSS for context-aware accent shifts where possible.
-- Use `next/image` and lazy-loading patterns for media when relevant.
-- Maintain mobile-first constraints and low-end Android performance.
-- Avoid heavyweight animation libraries unless strictly necessary.
-
-### Performance requirements
-- All key interactions must feel immediate on constrained devices.
-- Motion must degrade gracefully under reduced-motion or low-power conditions.
-- Avoid multi-layer blur overload on list-heavy screens.
-- Keep shadows and glows efficient and restrained.
-
----
-
-## 10. Anti-Patterns (Forbidden)
-
-The following are now explicitly disallowed:
-- old warm paper / cream backgrounds,
-- amber-led primary branding,
-- static accent hex values scattered across components,
-- multi-hue rainbow chips and cards,
-- flat cards with no motion hierarchy,
-- oversized hero blocks that bury the main action,
-- decorative animation with no informational purpose,
-- tiny tap targets,
-- desktop-first spacing on mobile.
-
----
-
-## 11. Product References
-
-This redesign should feel informed by:
-- **Facebook Feed (2026):** dense but readable cards, responsive touch hierarchy, clear live surfaces
-- **Facebook Reels UI:** fluid motion, quick reward loops, thumb-first engagement
-- **Instagram Feed:** card polish, subtle interaction reward, fast visual scanning
-- **Linear:** disciplined motion, frosted depth, premium restraint
-- **WhatsApp:** immediacy, familiarity, very low cognitive load
-
-The output should be unmistakably Edlog, but benchmark at that level of confidence and responsiveness.
-
----
-
-## 12. Success Criteria
-
-The redesign is successful when:
-- a teacher instantly sees what to do next,
-- the app feels faster than paper, not more complicated than paper,
-- every important tap produces satisfying confirmation,
-- the UI feels modern and alive without feeling childish,
-- the system stays visually cohesive across teacher, admin, and regional experiences,
-- the product feels worthy of daily use across schools in Cameroon.
+# EDLOG DESIGN SPECIFICATION — v3.0 (Production)
+
+## DESIGN PHILOSOPHY
+
+Edlog is infrastructure. It should feel like opening a well-made notebook —
+not like using an app. The design must communicate: "This was built by people 
+who take education seriously."
+
+**Reference products:** Facebook (density + clarity), Linear (craft + speed), 
+Notion (clean information hierarchy), WhatsApp (familiar to every Cameroonian 
+teacher on a Tecno Spark).
+
+**Anti-references:** Generic admin dashboards, Material Design templates, 
+anything that screams "built by a developer, not a designer."
+
+### The Three Rules
+
+1. **Information first.** Every pixel shows data the user needs. No 
+   decorative gradients that don't communicate hierarchy. No icons that 
+   don't mean something. No cards that exist because cards are trendy.
+
+2. **One action per screen.** A teacher's dashboard has one job: show 
+   what to log next. An admin's dashboard has one job: show what needs 
+   attention. A report table has one job: answer questions about data.
+
+3. **Silence is design.** Empty space is intentional. Muted colors are 
+   intentional. The absence of a feature is a feature. The app should 
+   feel quiet — like a library, not a carnival.
+
+
+## COLOR SYSTEM
+
+### The Palette
+
+The palette is built from stone — warm neutrals that feel like paper and ink.
+Amber is the only accent, used sparingly for actions and highlights.
+
+**Light mode — "Warm Paper"**
+
+| Token | Value | Usage |
+|-------|-------|-------|
+| --bg-primary | #FAFAF9 | Page background — warm off-white, never pure white |
+| --bg-secondary | #F5F5F4 | Section backgrounds, insets |
+| --bg-tertiary | #E7E5E4 | Borders as backgrounds, disabled states |
+| --bg-elevated | #FFFFFF | Cards — pure white floats on warm cream |
+| --text-primary | #1C1917 | Headlines, important labels |
+| --text-secondary | #57534E | Body text, descriptions |
+| --text-tertiary | #A8A29E | Captions, timestamps, meta |
+| --text-quaternary | #D6D3D1 | Placeholders, disabled text |
+| --accent | #F59E0B | Primary actions — buttons, links, FABs |
+| --accent-hover | #D97706 | Hover state for accent |
+| --accent-light | rgba(245,158,11,0.08) | Tinted backgrounds for accent elements |
+| --accent-text | #D97706 | Text in accent color |
+
+**Dark mode — "Deep OLED"**
+
+| Token | Value | Usage |
+|-------|-------|-------|
+| --bg-primary | #0C0A09 | True near-black — OLED friendly |
+| --bg-secondary | #1C1917 | Section backgrounds |
+| --bg-tertiary | #292524 | Elevated insets |
+| --bg-elevated | #1C1917 | Cards float one step above primary |
+| --text-primary | #FAFAF9 | Headlines |
+| --text-secondary | #A8A29E | Body |
+| --text-tertiary | #78716C | Captions |
+| --accent | #FBBF24 | Bright amber pops against the void |
+
+### Color Rules
+
+1. **Never use blue, purple, or green as surface colors.** These are 
+   reserved for semantic status indicators only.
+2. **Status colors use the same hue in both modes:** green = verified, 
+   amber = pending, red = flagged. Use `rgba(color, 0.1)` backgrounds 
+   that work on both light and dark surfaces.
+3. **Role gradients for headers only** — not for cards or backgrounds:
+   - Teacher: warm stone (#1B1512 → #3D322C)
+   - School Admin: cool slate (#0F172A → #334155)
+   - VP/Coordinator: purple (#4C1D95 → #7C3AED)
+   - Regional: deep navy (#0C1222 → #1A2744)
+4. **No decorative color.** If a color doesn't communicate information 
+   (status, role, action), it shouldn't exist.
+
+
+## TYPOGRAPHY
+
+Three fonts. No more.
+
+| Font | Usage | Weight range |
+|------|-------|-------------|
+| Fraunces | Display — dashboard titles, hero headings | 600–800 |
+| DM Sans | Body — everything else: labels, paragraphs, buttons, nav | 400–700 |
+| JetBrains Mono | Data — numbers, codes, timestamps, table cells | 400–600 |
+
+### Type scale
+
+| Size | Usage |
+|------|-------|
+| 24–28px | Dashboard greeting, page titles (Fraunces) |
+| 18–20px | Section headings (DM Sans 700) |
+| 14–16px | Body text, card content (DM Sans 400–500) |
+| 12–13px | Labels, captions, meta (DM Sans 500–600) |
+| 10–11px | Timestamps, badges, fine print (DM Sans/JetBrains 500) |
+
+### Type rules
+
+1. UPPERCASE is reserved for: section labels (10px, tracking 0.1em), 
+   badge text, and tab labels. Never for body text or headings.
+2. Line height: headings 1.2, body 1.5, captions 1.4.
+3. Letter spacing: headings -0.02em, body 0, uppercase +0.08em.
+
+
+## LAYOUT
+
+### Mobile-first grid
+
+- Max content width: 480px (phone), 720px (tablet), 1200px (desktop)
+- Horizontal padding: 20px (phone), 32px (tablet), 40px (desktop)
+- Card spacing: 8px between cards, 16px between sections
+- Card radius: 16px
+- Card padding: 16px (compact), 20px (standard), 24px (spacious)
+
+### Desktop layout (admin, coordinator, regional)
+
+On screens ≥1024px, show a persistent left sidebar (240px) with navigation.
+The main content area uses the remaining width. This is already implemented
+via SideNav — ensure it's used consistently.
+
+### Bottom navigation (mobile)
+
+5 tabs maximum per role. Each tab: icon (20px) + label (10px bold).
+Active tab: accent color. Inactive: tertiary text.
+Background: frosted glass (--nav-bg with backdrop-blur).
+
+### Information density
+
+**Facebook principle:** Show MORE data in LESS space. Don't waste vertical 
+space on giant padding or decorative elements. A teacher should see their 
+entire day without scrolling. An admin should see 6+ teacher rows without 
+scrolling. A report table should show 15+ rows on desktop.
+
+Compact mode for data-dense views:
+- Table row height: 44px (touch target minimum)
+- Card padding: 12–16px
+- Section gap: 8px
+- Font size in tables: 13px body, 11px meta
+
+
+## INTERACTION PATTERNS
+
+### Entry form — the most important screen
+
+The entry form should feel like filling out a paper logbook — fast, 
+familiar, minimal typing. Target: complete entry in 30 seconds.
+
+**Flow:**
+1. Tap timetable cell (or New Entry FAB)
+2. Date, class, subject, period auto-fill from timetable
+3. Module dropdown → select
+4. Topic checkboxes → tap
+5. Submit
+
+**Optional fields** (collapsed by default):
+- Attendance, engagement, objectives, family of situation, integration 
+  activity, bilingual activity, lesson mode, assignment tracking, notes, 
+  signature
+
+**Collapsed section:** "More details ▾" — one line, tappable. Expands to 
+show all optional fields. Remembers expansion state in localStorage.
+
+### Report tables — the second most important screen
+
+Report tables are where admins and inspectors spend 80% of their time.
+They must be fast, filterable, and exportable.
+
+**DataTable contract:**
+- Search bar (full-text across key fields)
+- Filter chips (dropdowns for categorical fields)
+- Column sorting (tap header to sort)
+- Column visibility toggle ("Columns" button)
+- Pagination (cursor-based, 25 per page)
+- CSV export (all data, all columns, proper formatting)
+- Row click → entry detail panel
+
+### Verification flow — the third most important
+
+VP opens coordinator dashboard → sees bold/unread entries → taps one → 
+reads the full entry → types remark → enters name (auto-suggested) → 
+draws signature (optional) → taps "Verify" → entry turns green, teacher 
+gets notified.
+
+This should feel like signing a physical logbook: read, annotate, sign, 
+done. No extra steps.
+
+
+## COMPONENT LIBRARY
+
+### Cards
+```css
+.card {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-primary);
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: var(--shadow-card);
+}
+```
+
+No nested cards. No cards inside cards. One level of elevation only.
+
+### Status badges
+```css
+.badge-verified { background: rgba(16,185,129,0.1); color: #059669; }
+.badge-submitted { background: rgba(245,158,11,0.1); color: #D97706; }
+.badge-flagged { background: rgba(239,68,68,0.1); color: #DC2626; }
+.badge-draft { background: rgba(168,162,158,0.1); color: #78716C; }
+```
+
+Always pill-shaped (border-radius: 999px), 10–11px font, 600 weight.
+
+### Form inputs
+```css
+.input-field {
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-size: 16px; /* prevents iOS zoom */
+  font-family: var(--font-body);
+  color: var(--text-primary);
+  transition: border-color 150ms ease;
+}
+.input-field:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--input-focus-ring);
+}
+```
+
+### Empty states
+
+Use emoji (not icons) for personality. Keep text to 2 lines max.
+Background: subtle gradient tint matching the context.
+Always offer a next action ("Log entry", "View timetable", "Catch up").
+
+### Loading states
+
+Skeleton screens that match the layout being loaded. Use 
+var(--skeleton-base) with a subtle shimmer animation.
+Never show a spinner in the middle of the page — always skeletons.
+
+### Buttons
+
+Primary: amber gradient, white text, 14px radius, 48px height.
+Secondary: --bg-tertiary background, --text-secondary text.
+Ghost: no background, --text-tertiary, appears on hover/tap.
+Destructive: red-500/10 background, red-600 text.
+
+Only ONE primary button per screen. Everything else is secondary or ghost.
+
+
+## DARK MODE RULES
+
+1. Every element uses CSS variables. No hardcoded hex values in components.
+2. Semantic colors (green/amber/red) use `rgba(color, 0.1)` backgrounds 
+   that work on both surfaces.
+3. Gradient headers use `var(--header-from/via/to)` — different in light 
+   vs dark.
+4. Cards in dark mode: --bg-elevated (#1C1917) on --bg-primary (#0C0A09). 
+   The contrast is subtle — cards float, they don't pop.
+5. Text hierarchy in dark mode: primary = near-white, secondary = warm 
+   gray, tertiary = stone. Never cold blue-grays.
+6. Borders: --border-primary (#44403C in dark). Visible but quiet.
+7. Shadows: stronger in dark mode (deeper blacks) to maintain elevation.
+8. Quick-action cards: use `rgba(iconColor, 0.08)` gradients, not 
+   hardcoded pastel hex values.
+
+
+## RESPONSIVE BEHAVIOR
+
+| Breakpoint | Layout | Navigation | Tables |
+|-----------|--------|-----------|--------|
+| < 640px | Single column, full-width cards | Bottom nav (5 tabs) | Stacked cards or horizontal scroll |
+| 640–1024px | Wider cards, 2-column where appropriate | Bottom nav | Scrollable table |
+| > 1024px | Sidebar + main content area | Side nav (persistent) | Full table with all columns |
+
+Tables on mobile: show 3–4 core columns, hide the rest. The "Columns" 
+toggle lets users add columns back. Or use a card-per-row layout for 
+mobile with expandable detail.
