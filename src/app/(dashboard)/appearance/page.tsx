@@ -1,8 +1,9 @@
 "use client";
 
-import { useTheme, Theme } from "@/components/ThemeProvider";
-import { ArrowLeft, Check, Sun, Moon } from "lucide-react";
+import { useTheme, type DynamicIntensity, type Theme } from "@/components/ThemeProvider";
+import { ArrowLeft, Check, Moon, Sparkles, Sun, Waves } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { cn } from "@/lib/utils";
 
 interface ThemeOption {
   id: Theme;
@@ -12,50 +13,69 @@ interface ThemeOption {
   preview: {
     bg: string;
     card: string;
-    header: string;
+    glow: string;
     text: string;
     textMuted: string;
     accent: string;
+    accentSoft: string;
     border: string;
-    navBg: string;
-    navDot: string;
   };
+}
+
+interface IntensityOption {
+  id: DynamicIntensity;
+  label: string;
+  description: string;
+  icon: React.ElementType;
 }
 
 const themeOptions: ThemeOption[] = [
   {
     id: "light",
     name: "Light",
-    description: "Clean and bright for daytime use",
+    description: "Bright, adaptive surfaces for daytime speed.",
     icon: Sun,
     preview: {
-      bg: "#f8fafc",
-      card: "#ffffff",
-      header: "linear-gradient(135deg, #0f172a, #1e293b, #334155)",
-      text: "#0f172a",
-      textMuted: "#94a3b8",
-      accent: "#4f46e5",
-      border: "#e2e8f0",
-      navBg: "#ffffff",
-      navDot: "#4f46e5",
+      bg: "linear-gradient(180deg, #f7fbff, #e9f1fb)",
+      card: "rgba(255,255,255,0.92)",
+      glow: "rgba(8, 102, 255, 0.18)",
+      text: "#122033",
+      textMuted: "#5f728d",
+      accent: "#0866ff",
+      accentSoft: "#dce9ff",
+      border: "rgba(8, 102, 255, 0.16)",
     },
   },
   {
     id: "dark",
     name: "Dark",
-    description: "Easy on the eyes in low light",
+    description: "Immersive contrast without losing calm.",
     icon: Moon,
     preview: {
-      bg: "#18181b",
-      card: "#27272a",
-      header: "linear-gradient(135deg, #09090b, #18181b, #27272a)",
-      text: "#fafafa",
-      textMuted: "#71717a",
-      accent: "#818cf8",
-      border: "#3f3f46",
-      navBg: "#18181b",
-      navDot: "#818cf8",
+      bg: "linear-gradient(180deg, #08111f, #111b2d)",
+      card: "rgba(16, 24, 39, 0.94)",
+      glow: "rgba(61, 177, 255, 0.24)",
+      text: "#f7fbff",
+      textMuted: "#9fb3cb",
+      accent: "#3db1ff",
+      accentSoft: "rgba(61, 177, 255, 0.16)",
+      border: "rgba(61, 177, 255, 0.18)",
     },
+  },
+];
+
+const intensityOptions: IntensityOption[] = [
+  {
+    id: "calm",
+    label: "Calm",
+    description: "Less glow, softer motion, same clarity.",
+    icon: Waves,
+  },
+  {
+    id: "vibrant",
+    label: "Vibrant",
+    description: "Full dynamic pulse for the live-feed feel.",
+    icon: Sparkles,
   },
 ];
 
@@ -71,201 +91,52 @@ function ThemePreviewCard({
   const Icon = option.icon;
 
   return (
-    <button
-      onClick={onSelect}
-      className="w-full text-left transition-all duration-300 ease-out group"
-    >
+    <button type="button" onClick={onSelect} className="w-full text-left">
       <div
-        className="relative rounded-2xl overflow-hidden transition-all duration-300"
-        style={{
-          border: isActive
-            ? `2.5px solid var(--accent)`
-            : `2.5px solid var(--border-primary)`,
-          boxShadow: isActive
-            ? `0 0 0 3px var(--accent-light), var(--shadow-elevated)`
-            : "var(--shadow-card)",
-          transform: isActive ? "scale(1)" : undefined,
-        }}
+        className={cn(
+          "card overflow-hidden p-0 transition-all duration-300",
+          isActive && "shadow-float",
+        )}
+        style={{ borderColor: isActive ? option.preview.border : undefined }}
       >
-        {/* Mini phone preview */}
-        <div
-          className="relative overflow-hidden"
-          style={{
-            backgroundColor: option.preview.bg,
-            padding: "0",
-          }}
-        >
-          {/* Mini header */}
-          <div
-            style={{
-              background: option.preview.header,
-              padding: "14px 16px 24px",
-            }}
-          >
-            <div className="flex items-center gap-2">
-              <div
-                className="w-8 h-8 rounded-full"
-                style={{
-                  backgroundColor: "rgba(255,255,255,0.15)",
-                }}
-              />
-              <div className="flex-1">
-                <div
-                  className="h-2.5 rounded-full w-20"
-                  style={{ backgroundColor: "rgba(255,255,255,0.7)" }}
-                />
-                <div
-                  className="h-2 rounded-full w-14 mt-1.5"
-                  style={{ backgroundColor: "rgba(255,255,255,0.3)" }}
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Mini content area */}
-          <div style={{ padding: "12px 16px 8px", marginTop: "-12px" }}>
-            {/* Card 1 */}
-            <div
-              className="rounded-lg p-3 mb-2.5"
-              style={{
-                backgroundColor: option.preview.card,
-                border: `1px solid ${option.preview.border}`,
-              }}
-            >
-              <div className="flex items-center gap-2 mb-2">
-                <div
-                  className="w-5 h-5 rounded-full"
-                  style={{ backgroundColor: option.preview.accent, opacity: 0.2 }}
-                />
-                <div
-                  className="h-2 rounded-full w-16"
-                  style={{ backgroundColor: option.preview.text, opacity: 0.7 }}
-                />
-              </div>
-              <div
-                className="h-2 rounded-full w-full mb-1.5"
-                style={{ backgroundColor: option.preview.textMuted, opacity: 0.3 }}
-              />
-              <div
-                className="h-2 rounded-full w-3/4"
-                style={{ backgroundColor: option.preview.textMuted, opacity: 0.2 }}
-              />
-            </div>
-
-            {/* Card 2 */}
-            <div
-              className="rounded-lg p-3 mb-2.5"
-              style={{
-                backgroundColor: option.preview.card,
-                border: `1px solid ${option.preview.border}`,
-              }}
-            >
-              <div className="flex items-center gap-2 mb-2">
-                <div
-                  className="w-5 h-5 rounded-full"
-                  style={{ backgroundColor: option.preview.accent }}
-                />
-                <div className="flex-1">
-                  <div
-                    className="h-2 rounded-full w-20"
-                    style={{ backgroundColor: option.preview.text, opacity: 0.7 }}
-                  />
+        <div className="p-4" style={{ background: option.preview.bg }}>
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-[11px] font-bold uppercase tracking-[0.18em]" style={{ color: option.preview.textMuted }}>
+                Dynamic alive
+              </p>
+              <div className="mt-2 flex items-center gap-2">
+                <span
+                  className="flex h-9 w-9 items-center justify-center rounded-2xl"
+                  style={{ background: option.preview.accentSoft, color: option.preview.accent }}
+                >
+                  <Icon className="h-4 w-4" />
+                </span>
+                <div>
+                  <p className="text-sm font-bold" style={{ color: option.preview.text }}>{option.name}</p>
+                  <p className="text-[11px]" style={{ color: option.preview.textMuted }}>{option.description}</p>
                 </div>
               </div>
-              <div
-                className="h-8 rounded-md w-full"
-                style={{ backgroundColor: option.preview.accent, opacity: 0.12 }}
-              />
+            </div>
+            {isActive ? (
+              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/90 text-[#0866ff] shadow-accent">
+                <Check className="h-4 w-4" />
+              </span>
+            ) : null}
+          </div>
+
+          <div className="mt-4 grid gap-2">
+            <div className="rounded-[20px] border p-3" style={{ background: option.preview.card, borderColor: option.preview.border, boxShadow: `0 18px 40px -30px ${option.preview.glow}` }}>
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="h-2.5 w-20 rounded-full" style={{ background: option.preview.text, opacity: 0.9 }} />
+                  <div className="mt-2 h-2 w-28 rounded-full" style={{ background: option.preview.textMuted, opacity: 0.55 }} />
+                </div>
+                <div className="h-10 w-10 rounded-2xl" style={{ background: option.preview.accentSoft }} />
+              </div>
+              <div className="mt-3 h-16 rounded-[18px]" style={{ background: `linear-gradient(135deg, ${option.preview.accentSoft}, ${option.preview.glow})` }} />
             </div>
           </div>
-
-          {/* Mini bottom nav */}
-          <div
-            className="flex items-center justify-around py-2.5 px-4"
-            style={{
-              backgroundColor: option.preview.navBg,
-              borderTop: `1px solid ${option.preview.border}`,
-            }}
-          >
-            {[0, 1, 2, 3].map((i) => (
-              <div key={i} className="flex flex-col items-center gap-1">
-                <div
-                  className="w-4 h-4 rounded-full"
-                  style={{
-                    backgroundColor:
-                      i === 0 ? option.preview.navDot : option.preview.textMuted,
-                    opacity: i === 0 ? 1 : 0.3,
-                  }}
-                />
-                <div
-                  className="h-1 rounded-full w-6"
-                  style={{
-                    backgroundColor:
-                      i === 0 ? option.preview.navDot : option.preview.textMuted,
-                    opacity: i === 0 ? 0.7 : 0.2,
-                  }}
-                />
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Selection indicator */}
-        {isActive && (
-          <div
-            className="absolute top-3 right-3 w-6 h-6 rounded-full flex items-center justify-center animate-scale-in"
-            style={{
-              backgroundColor: "var(--accent)",
-              boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
-            }}
-          >
-            <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />
-          </div>
-        )}
-      </div>
-
-      {/* Label area */}
-      <div className="mt-3 flex items-center gap-2.5 px-1">
-        {/* Radio indicator */}
-        <div
-          className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 transition-all duration-200"
-          style={{
-            border: isActive
-              ? `2px solid var(--accent)`
-              : `2px solid var(--text-quaternary)`,
-          }}
-        >
-          {isActive && (
-            <div
-              className="w-2.5 h-2.5 rounded-full animate-scale-in"
-              style={{ backgroundColor: "var(--accent)" }}
-            />
-          )}
-        </div>
-
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-1.5">
-            <Icon
-              className="w-3.5 h-3.5 flex-shrink-0"
-              style={{
-                color: isActive ? "var(--accent-text)" : "var(--text-tertiary)",
-              }}
-            />
-            <p
-              className="text-sm font-semibold truncate"
-              style={{
-                color: isActive ? "var(--text-primary)" : "var(--text-secondary)",
-              }}
-            >
-              {option.name}
-            </p>
-          </div>
-          <p
-            className="text-[11px] mt-0.5 truncate"
-            style={{ color: "var(--text-tertiary)" }}
-          >
-            {option.description}
-          </p>
         </div>
       </div>
     </button>
@@ -273,87 +144,100 @@ function ThemePreviewCard({
 }
 
 export default function AppearancePage() {
-  const { theme, setTheme } = useTheme();
+  const { theme, setTheme, intensity, setIntensity } = useTheme();
   const router = useRouter();
 
   return (
-    <div
-      className="min-h-screen pb-24"
-      style={{ backgroundColor: "var(--bg-secondary)" }}
-    >
-      {/* Header */}
-      <div className="page-header px-5 pt-10 pb-6 rounded-b-2xl">
-        <div className="relative z-10 max-w-lg mx-auto">
+    <div className="page-shell space-y-4 pt-4">
+      <section className="page-header overflow-hidden rounded-[32px] px-5 pb-6 pt-5 text-white">
+        <div className="relative z-10 space-y-4">
           <button
+            type="button"
             onClick={() => router.back()}
-            className="flex items-center gap-1.5 text-sm mb-4 transition-opacity hover:opacity-80"
-            style={{ color: "var(--header-text-muted)" }}
+            className="inline-flex min-h-[44px] items-center gap-2 rounded-2xl border border-white/10 bg-white/8 px-3 text-sm font-semibold text-white/84 transition hover:bg-white/12"
           >
-            <ArrowLeft className="w-4 h-4" />
+            <ArrowLeft className="h-4 w-4" />
             Back
           </button>
-          <h1
-            className="text-xl font-bold"
-            style={{ color: "var(--header-text)" }}
-          >
-            Display & Appearance
-          </h1>
-          <p
-            className="text-sm mt-1"
-            style={{ color: "var(--header-text-muted)" }}
-          >
-            Choose how Edlog looks to you
-          </p>
-        </div>
-      </div>
 
-      <div className="px-5 -mt-4 max-w-lg mx-auto">
-        {/* Theme Selection Card */}
-        <div className="card p-5 animate-slide-up">
-          <div className="flex items-center gap-2 mb-1">
-            <h2
-              className="text-xs font-bold uppercase tracking-widest"
-              style={{ color: "var(--text-tertiary)" }}
-            >
-              Theme
-            </h2>
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-white/70">Display & motion</p>
+            <h1 className="mt-2 font-display text-3xl font-semibold text-white">Dynamic intensity</h1>
+            <p className="mt-2 max-w-sm text-sm text-white/76">
+              Tune the adaptive blue-cyan energy so Edlog feels alive without ever getting noisy.
+            </p>
           </div>
-          <p
-            className="text-[13px] mb-5"
-            style={{ color: "var(--text-secondary)" }}
-          >
-            Select your preferred appearance. Changes apply instantly.
-          </p>
+        </div>
+      </section>
 
-          {/* Theme grid */}
-          <div className="grid grid-cols-2 gap-3">
-            {themeOptions.map((option) => (
-              <ThemePreviewCard
+      <section className="section-card animate-slide-up">
+        <div className="mb-4 flex items-center justify-between gap-3">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-content-tertiary">Theme</p>
+            <h2 className="text-lg font-bold text-content-primary">Choose your surface mode</h2>
+          </div>
+          <span className="rounded-full bg-[hsl(var(--accent-soft))] px-3 py-1 text-[11px] font-bold uppercase tracking-[0.16em] text-[hsl(var(--accent-text))]">
+            Live preview
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          {themeOptions.map((option) => (
+            <ThemePreviewCard
+              key={option.id}
+              option={option}
+              isActive={theme === option.id}
+              onSelect={() => setTheme(option.id)}
+            />
+          ))}
+        </div>
+      </section>
+
+      <section className="section-card animate-slide-up" style={{ animationDelay: "100ms" }}>
+        <div className="mb-4">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-content-tertiary">Motion profile</p>
+          <h2 className="text-lg font-bold text-content-primary">Dynamic intensity</h2>
+          <p className="mt-1 text-sm text-content-secondary">Calm keeps things focused. Vibrant leans into the live-feed pulse.</p>
+        </div>
+
+        <div className="grid gap-3">
+          {intensityOptions.map((option) => {
+            const Icon = option.icon;
+            const active = intensity === option.id;
+            return (
+              <button
                 key={option.id}
-                option={option}
-                isActive={theme === option.id}
-                onSelect={() => setTheme(option.id)}
-              />
-            ))}
-          </div>
+                type="button"
+                onClick={() => setIntensity(option.id)}
+                className={cn(
+                  "card flex items-center gap-4 p-4 text-left transition-all duration-300",
+                  active && "live-card shadow-float",
+                )}
+              >
+                <span className={cn("flex h-12 w-12 items-center justify-center rounded-2xl", active ? "bg-[linear-gradient(135deg,hsl(var(--accent-soft)),hsl(var(--accent-glow)/0.24))] text-[hsl(var(--accent-text))]" : "bg-[hsl(var(--surface-secondary))] text-content-tertiary")}>
+                  <Icon className={cn("h-5 w-5", active && option.id === "vibrant" && "motion-safe:animate-live-pulse")} />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block text-sm font-bold text-content-primary">{option.label}</span>
+                  <span className="mt-1 block text-sm text-content-secondary">{option.description}</span>
+                </span>
+                <span className={cn("flex h-6 w-6 items-center justify-center rounded-full border", active ? "border-[hsl(var(--accent))] bg-[hsl(var(--accent-soft))] text-[hsl(var(--accent-text))]" : "border-[hsl(var(--border-primary))] text-transparent")}>
+                  <Check className="h-3.5 w-3.5" />
+                </span>
+              </button>
+            );
+          })}
         </div>
+      </section>
 
-        {/* Info note */}
-        <div
-          className="mt-4 card p-4 animate-slide-up animation-delay-150"
-        >
-          <p
-            className="text-[12px] leading-relaxed"
-            style={{ color: "var(--text-tertiary)" }}
-          >
-            <span className="font-semibold" style={{ color: "var(--text-secondary)" }}>
-              Tip:
-            </span>{" "}
-            Your theme preference is saved automatically and will persist
-            across sessions.
-          </p>
-        </div>
-      </div>
+      <section className="section-card animate-slide-up" style={{ animationDelay: "180ms" }}>
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-content-tertiary">Why this matters</p>
+        <ul className="mt-3 space-y-3 text-sm text-content-secondary">
+          <li>• The accent stays in one blue-cyan family, then subtly shifts with light, dark, status, and context.</li>
+          <li>• Motion respects reduced-motion automatically, so older devices keep the same clarity without jank.</li>
+          <li>• Your choice saves instantly on-device and carries across every dashboard screen.</li>
+        </ul>
+      </section>
     </div>
   );
 }

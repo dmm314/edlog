@@ -44,7 +44,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
-  themeColor: "#1C1917",
+  themeColor: "#08111f",
 };
 
 export default function RootLayout({
@@ -58,7 +58,7 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/icon-192.png" />
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var t=localStorage.getItem('edlog-theme');if(t==='dark'||t==='night'){document.documentElement.classList.add('dark')}else if(!t&&window.matchMedia('(prefers-color-scheme:dark)').matches){document.documentElement.classList.add('dark')}}catch(e){}})()`,
+            __html: `(function(){try{var root=document.documentElement;var t=localStorage.getItem('edlog-theme');var intensity=localStorage.getItem('edlog-dynamic-intensity')==='calm'?'calm':'vibrant';root.dataset.intensity=intensity;if(t==='dark'||t==='night'){root.classList.add('dark')}else if(t==='light'){root.classList.add('light')}else if(window.matchMedia('(prefers-color-scheme:dark)').matches){root.classList.add('dark')}else{root.classList.add('light')}}catch(e){}})()`,
           }}
         />
       </head>
