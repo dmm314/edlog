@@ -1,61 +1,27 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
-  Plus,
+  ArrowUpRight,
   BookOpen,
-  Calendar,
-  CheckCircle,
-  Pen,
-  ChevronDown,
-  ChevronUp,
-  Shield,
-  Clock,
-  Megaphone,
+  CheckCircle2,
   ChevronRight,
-  ClipboardList,
+  Clock3,
+  Flame,
+  Layers3,
+  PenLine,
+  Sparkles,
+  Waves,
 } from "lucide-react";
 import { NotificationBell } from "@/components/NotificationBell";
-import { StreakBadge } from "@/components/StreakBadge";
-import { WeeklyProgress } from "@/components/WeeklyProgress";
-import { OnboardingTour } from "@/components/OnboardingTour";
-import { HelpHint } from "@/components/HelpHint";
-import { TEACHER_TOUR } from "@/lib/tour-steps";
-import type { EntryWithRelations } from "@/types";
+import { DynamicEntryCard } from "@/components/DynamicEntryCard";
+import { QuickActionsRow } from "@/components/QuickActionsRow";
+import { Skeleton } from "@/components/ui/Skeleton";
 import { useCoordinatorMode } from "@/contexts/CoordinatorModeContext";
-import { getTimeGreeting, getDisplayName } from "@/lib/greeting";
-
-const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-
-const WEEKEND_MESSAGES = [
-  "You've earned this rest. Recharge and come back strong.",
-  "Teaching is a marathon, not a sprint. Rest up.",
-  "Take this time to do something you love outside the classroom.",
-  "Your students are lucky to have you. Now go enjoy your weekend.",
-  "A well-rested teacher is a great teacher. See you Monday.",
-];
-
-const FREE_DAY_MESSAGES = [
-  "Use this time to prepare, mark, or simply breathe.",
-  "A day to catch up on planning or just enjoy some quiet.",
-  "No rush today. The classroom will be there tomorrow.",
-  "Great teachers prepare on days like this. Or rest. Both are valid.",
-];
-
-const ALL_CAUGHT_UP_MESSAGES = [
-  "Every class logged. Your students' progress is being recorded.",
-  "All done! Consistency like this is what makes great teachers.",
-  "100% logged today. That's the standard.",
-  "Another day of complete records. Your future self will thank you.",
-];
-
-function getRotatingMessage(messages: string[]): string {
-  const dayOfYear = Math.floor(
-    (Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 86400000
-  );
-  return messages[dayOfYear % messages.length];
-}
+import type { EntryWithRelations } from "@/types";
+import { cn } from "@/lib/utils";
+import { getDisplayName, getTimeGreeting } from "@/lib/greeting";
 
 interface TimetableSlotInfo {
   id: string;
@@ -68,1269 +34,504 @@ interface TimetableSlotInfo {
     id: string;
     classId: string;
     className: string;
+    classLevel?: string;
     subjectId: string;
     subjectName: string;
-    divisionId?: string | null;
-    divisionName?: string | null;
   };
 }
 
-interface AllSlotInfo {
+interface AssignmentSummary {
   id: string;
-  dayOfWeek: number;
-  startTime: string;
-  endTime: string;
-  periodLabel: string;
-  schoolName?: string;
-  assignment: {
-    id: string;
-    classId: string;
-    className: string;
-    subjectId: string;
-    subjectName: string;
-  };
+  class: { id: string; name: string; level: string };
+  subject: { id: string; name: string; code: string };
+  entryCount: number;
+  timetableSlots: Array<{ id: string; day: number; period: string; time: string }>;
 }
 
-function isEditable(entry: EntryWithRelations): boolean {
-  const oneHour = 60 * 60 * 1000;
-  return Date.now() - new Date(entry.createdAt).getTime() < oneHour;
+interface StoryNotice {
+  id: string;
+  title: string;
+  message: string;
+  createdAt: string;
+  isRead: boolean;
 }
 
-function getCurrentPeriodIndex(slots: TimetableSlotInfo[]): number {
+const weekdayShort = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+function parseMinutes(value: string) {
+  const [hours, minutes] = value.split(":").map(Number);
+  return hours * 60 + minutes;
+}
+
+function startOfDay(value: Date) {
+  const date = new Date(value);
+  date.setHours(0, 0, 0, 0);
+  return date;
+}
+
+function differenceInDays(a: Date, b: Date) {
+  const ms = startOfDay(a).getTime() - startOfDay(b).getTime();
+  return Math.round(ms / 86400000);
+}
+
+function getStreak(entries: EntryWithRelations[]) {
+  const uniqueDates = Array.from(new Set(entries.map((entry) => new Date(entry.date).toISOString().split("T")[0]))).sort().reverse();
+  if (!uniqueDates.length) return 0;
+
+  let streak = 0;
+  const cursor = startOfDay(new Date());
+  const todayKey = cursor.toISOString().split("T")[0];
+  if (uniqueDates[0] !== todayKey) {
+    const diff = differenceInDays(cursor, new Date(uniqueDates[0]));
+    if (diff > 1) return 0;
+    if (diff === 1) cursor.setDate(cursor.getDate() - 1);
+  }
+
+  for (const dateKey of uniqueDates) {
+    const currentKey = cursor.toISOString().split("T")[0];
+    if (dateKey === currentKey) {
+      streak += 1;
+      cursor.setDate(cursor.getDate() - 1);
+    } else {
+      break;
+    }
+  }
+
+  return streak;
+}
+
+function getCurrentSlotIndex(slots: TimetableSlotInfo[]) {
   const now = new Date();
-  const currentMinutes = now.getHours() * 60 + now.getMinutes();
-
-  for (let i = 0; i < slots.length; i++) {
-    const [startH, startM] = slots[i].startTime.split(":").map(Number);
-    const [endH, endM] = slots[i].endTime.split(":").map(Number);
-    const start = startH * 60 + startM;
-    const end = endH * 60 + endM;
-    if (currentMinutes >= start && currentMinutes < end) return i;
-  }
-
-  // If before all classes, return -1; if after, return slots.length
-  if (slots.length > 0) {
-    const [firstH, firstM] = slots[0].startTime.split(":").map(Number);
-    if (currentMinutes < firstH * 60 + firstM) return -1;
-  }
-  return slots.length;
+  const minutesNow = now.getHours() * 60 + now.getMinutes();
+  return slots.findIndex((slot) => minutesNow >= parseMinutes(slot.startTime) && minutesNow < parseMinutes(slot.endTime));
 }
 
-// Normalize any slot API response shape (plain array or { slots/data: [...] })
-function normalizeSlots<T>(data: unknown): T[] {
-  if (Array.isArray(data)) return data as T[];
-  if (data && typeof data === "object") {
-    const obj = data as Record<string, unknown>;
-    if (Array.isArray(obj.slots)) return obj.slots as T[];
-    if (Array.isArray(obj.data)) return obj.data as T[];
-  }
-  return [];
+function getEntryMatch(entry: EntryWithRelations, slot: TimetableSlotInfo) {
+  const entryDate = new Date(entry.date);
+  const today = new Date();
+  return (
+    entryDate.toDateString() === today.toDateString() &&
+    entry.class.id === slot.assignment.classId &&
+    ((entry.assignment?.subject.id && entry.assignment.subject.id === slot.assignment.subjectId) ||
+      entry.topics?.some((topic) => topic.subject?.id === slot.assignment.subjectId) ||
+      false) &&
+    (entry.period === slot.periodNumber || entry.timetableSlot?.id === slot.id)
+  );
+}
+
+function getWeeklyBars(slots: TimetableSlotInfo[], entries: EntryWithRelations[]) {
+  const monday = startOfDay(new Date());
+  monday.setDate(monday.getDate() - ((monday.getDay() + 6) % 7));
+
+  return Array.from({ length: 5 }, (_, index) => {
+    const date = new Date(monday);
+    date.setDate(monday.getDate() + index);
+    const dayOfWeek = index + 1;
+    const daySlots = slots.filter((slot) => slot.dayOfWeek === dayOfWeek);
+    const dayEntries = entries.filter((entry) => new Date(entry.date).toDateString() === date.toDateString());
+    const total = daySlots.length;
+    const logged = dayEntries.length;
+    const ratio = total === 0 ? 0 : Math.min(100, Math.round((logged / total) * 100));
+    return {
+      key: weekdayShort[date.getDay()],
+      logged,
+      total,
+      ratio,
+      date,
+      isToday: startOfDay(date).getTime() === startOfDay(new Date()).getTime(),
+    };
+  });
 }
 
 export default function LogbookPage() {
-  const { isCoordinator: isCoordinatorCtx, coordinatorTitle: coordinatorTitleCtx, switchMode } = useCoordinatorMode();
+  const { isCoordinator, activeMode, switchMode } = useCoordinatorMode();
   const [entries, setEntries] = useState<EntryWithRelations[]>([]);
   const [todaySlots, setTodaySlots] = useState<TimetableSlotInfo[]>([]);
-  const [allSlots, setAllSlots] = useState<AllSlotInfo[]>([]);
+  const [allSlots, setAllSlots] = useState<TimetableSlotInfo[]>([]);
+  const [assignments, setAssignments] = useState<AssignmentSummary[]>([]);
+  const [notices, setNotices] = useState<StoryNotice[]>([]);
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [gender, setGender] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isHOD, setIsHOD] = useState(false);
-  const [unfilledOpen, setUnfilledOpen] = useState(false);
-  const [hodSubjects, setHodSubjects] = useState<string[]>([]);
-  const [userFirstName, setUserFirstName] = useState("");
-  const [userLastName, setUserLastName] = useState("");
-  const [userGender, setUserGender] = useState<string | null>(null);
-  const [userCreatedAt, setUserCreatedAt] = useState<string | undefined>(undefined);
-  const [genderPromptDismissed, setGenderPromptDismissed] = useState(true); // default true to avoid flash
-  const [savingGender, setSavingGender] = useState(false);
-  const [unreadAnnouncements, setUnreadAnnouncements] = useState(0);
-  const [pendingAssessments, setPendingAssessments] = useState(0);
-  const [isCoordinator, setIsCoordinator] = useState(false);
-  const [coordinatorTitle, setCoordinatorTitle] = useState("");
-  const [coordinatorPendingCount, setCoordinatorPendingCount] = useState(0);
 
   const today = useMemo(() => new Date(), []);
   const dayOfWeek = today.getDay();
-  const todayStr = today.toISOString().split("T")[0];
   const isWeekday = dayOfWeek >= 1 && dayOfWeek <= 5;
 
   useEffect(() => {
-    async function fetchData() {
+    let active = true;
+
+    async function load() {
       try {
-        const thirtyDaysAgo = new Date();
-        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-        const params = new URLSearchParams({
-          from: thirtyDaysAgo.toISOString().split("T")[0],
-          limit: "50",
-        });
+        const from = new Date();
+        from.setDate(from.getDate() - 30);
+        const params = new URLSearchParams({ from: from.toISOString().split("T")[0], limit: "18" });
 
-        const promises: Promise<Response>[] = [
+        const responses = await Promise.all([
           fetch(`/api/entries?${params}`),
-          fetch(`/api/timetable/slots`),
-        ];
+          fetch("/api/timetable/slots"),
+          isWeekday ? fetch(`/api/timetable/slots?dayOfWeek=${dayOfWeek}`) : Promise.resolve(null),
+          fetch("/api/teacher/assignments"),
+          fetch("/api/notifications?unreadOnly=true"),
+          fetch("/api/auth/session"),
+          fetch("/api/profile"),
+        ]);
 
-        if (isWeekday) {
-          promises.push(fetch(`/api/timetable/slots?dayOfWeek=${dayOfWeek}`));
+        if (!active) return;
+
+        const [entriesRes, allSlotsRes, todaySlotsRes, assignmentsRes, noticesRes, sessionRes, profileRes] = responses;
+
+        if (entriesRes?.ok) {
+          const data = await entriesRes.json();
+          setEntries(data.entries ?? []);
         }
 
-        const results = await Promise.all(promises);
-
-        if (results[0].ok) {
-          const data = await results[0].json();
-          setEntries(data.entries);
+        if (allSlotsRes?.ok) {
+          const data = await allSlotsRes.json();
+          setAllSlots(Array.isArray(data) ? data : data.slots ?? []);
         }
 
-        if (results[1]?.ok) {
-          const allSlotsData = await results[1].json();
-          setAllSlots(normalizeSlots<AllSlotInfo>(allSlotsData));
+        if (todaySlotsRes && "ok" in todaySlotsRes && todaySlotsRes.ok) {
+          const data = await todaySlotsRes.json();
+          setTodaySlots(Array.isArray(data) ? data : data.slots ?? []);
         }
 
-        if (results[2]?.ok) {
-          const slotsData = await results[2].json();
-          setTodaySlots(normalizeSlots<TimetableSlotInfo>(slotsData));
+        if (assignmentsRes?.ok) {
+          setAssignments(await assignmentsRes.json());
         }
 
-        // Check if teacher is an HOD
-        try {
-          const hodRes = await fetch("/api/hod/stats");
-          if (hodRes.ok) {
-            const hodData = await hodRes.json();
-            setIsHOD(true);
-            setHodSubjects(hodData.hodSubjects.map((s: { name: string }) => s.name));
-          }
-        } catch {
-          // not an HOD
+        if (noticesRes?.ok) {
+          const data = await noticesRes.json();
+          setNotices(Array.isArray(data) ? data.slice(0, 6) : []);
         }
 
-        // Get user name + gender
-        try {
-          const sessionRes = await fetch("/api/auth/session");
-          if (sessionRes.ok) {
-            const sessionData = await sessionRes.json();
-            const u = sessionData?.user;
-            setUserFirstName(u?.firstName || "");
-            setUserLastName(u?.lastName || "");
-            if (u?.createdAt) setUserCreatedAt(u.createdAt as string);
-          }
-          // Fetch gender from profile (session may not have it yet until re-login)
-          const profileRes = await fetch("/api/profile");
-          if (profileRes.ok) {
-            const profileData = await profileRes.json();
-            const g = profileData.gender ?? null;
-            setUserGender(g);
-            // Show gender prompt if gender is null and not dismissed
-            const dismissed = typeof window !== "undefined"
-              ? localStorage.getItem("edlog-gender-prompt-dismissed") === "true"
-              : true;
-            setGenderPromptDismissed(dismissed || g !== null);
-          }
-        } catch {
-          // silently fail
+        if (sessionRes?.ok) {
+          const data = await sessionRes.json();
+          setFirstName(data?.user?.firstName ?? "");
+          setLastName(data?.user?.lastName ?? "");
         }
 
-        // Check for unread announcements
-        try {
-          const notiRes = await fetch("/api/notifications?unreadOnly=true");
-          if (notiRes.ok) {
-            const notifs = await notiRes.json();
-            const announcementCount = notifs.filter(
-              (n: { type: string }) =>
-                n.type === "SCHOOL_ANNOUNCEMENT" || n.type === "REGIONAL_ANNOUNCEMENT"
-            ).length;
-            setUnreadAnnouncements(announcementCount);
-          }
-        } catch {
-          // silently fail
+        if (profileRes?.ok) {
+          const data = await profileRes.json();
+          setGender(data?.gender ?? null);
         }
-
-        // Check for pending (uncorrected) assessments
-        try {
-          const assessRes = await fetch("/api/assessments?corrected=false&limit=1");
-          if (assessRes.ok) {
-            const assessData = await assessRes.json();
-            setPendingAssessments(assessData.total || 0);
-          }
-        } catch {
-          // silently fail
-        }
-
-        // Check if teacher is a Level Coordinator
-        try {
-          const coordRes = await fetch("/api/coordinator/dashboard");
-          if (coordRes.ok) {
-            const coordData = await coordRes.json();
-            setIsCoordinator(true);
-            setCoordinatorTitle(coordData.coordinator?.title || "Level Coordinator");
-            setCoordinatorPendingCount(coordData.stats?.pendingVerification || 0);
-          }
-        } catch {
-          // not a coordinator
-        }
-      } catch {
-        // silently fail
       } finally {
-        setLoading(false);
+        if (active) setLoading(false);
       }
     }
-    fetchData();
+
+    void load();
+    return () => {
+      active = false;
+    };
   }, [dayOfWeek, isWeekday]);
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const stats = useMemo(() => {
-    const todayEntries = entries.filter(
-      (e) => new Date(e.date).toISOString().split("T")[0] === todayStr
-    );
-
-    const startOfWeek = new Date(today);
-    const diff = today.getDay() === 0 ? -6 : 1 - today.getDay();
-    startOfWeek.setDate(today.getDate() + diff);
-    startOfWeek.setHours(0, 0, 0, 0);
-    const weekEntries = entries.filter((e) => new Date(e.date) >= startOfWeek);
-
-    const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-    const monthEntries = entries.filter((e) => new Date(e.date) >= startOfMonth);
-
-    const verified = entries.filter((e) => e.status === "VERIFIED").length;
-    const total = entries.length;
-
-    return {
-      today: todayEntries.length,
-      thisWeek: weekEntries.length,
-      thisMonth: monthEntries.length,
-      verifiedRate: total > 0 ? Math.round((verified / total) * 100) : 0,
-      recentEntries: entries.slice(0, 5),
-      editableEntries: entries.filter(isEditable),
-    };
-  }, [entries, todayStr, today]);
-
-  const sortedTodaySlots = useMemo(
-    () => [...todaySlots].sort((a, b) => a.periodNumber - b.periodNumber),
-    [todaySlots]
+  const displayName = getDisplayName(firstName, lastName, gender);
+  const greeting = getTimeGreeting();
+  const streak = useMemo(() => getStreak(entries), [entries]);
+  const uniqueTopics = useMemo(
+    () => new Set(entries.flatMap((entry) => entry.topics.map((topic) => `${topic.subject?.id ?? "x"}:${topic.name}`))).size,
+    [entries],
   );
-
-  const currentPeriodIndex = useMemo(
-    () => getCurrentPeriodIndex(sortedTodaySlots),
-    [sortedTodaySlots]
-  );
-
-  const todayFilledCount = useMemo(() => {
-    return sortedTodaySlots.filter((slot) =>
-      entries.some(
-        (e) =>
-          new Date(e.date).toISOString().split("T")[0] === todayStr &&
-          e.period === slot.periodNumber
-      )
-    ).length;
-  }, [sortedTodaySlots, entries, todayStr]);
-
-  const unfilledWeekSlots = useMemo(() => {
-    if (allSlots.length === 0) return [];
-
-    const now = new Date();
-    const currentDow = now.getDay();
-    const mondayOffset = currentDow === 0 ? -6 : 1 - currentDow;
-    const monday = new Date(now);
-    monday.setDate(now.getDate() + mondayOffset);
-    monday.setHours(0, 0, 0, 0);
-
-    const unfilled: { dayOfWeek: number; dayName: string; dateStr: string; slotLabel: string; className: string; subjectName: string }[] = [];
-    const DOW_NAMES = ["", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
-
-    for (let d = 0; d < 5; d++) {
-      const checkDate = new Date(monday);
-      checkDate.setDate(monday.getDate() + d);
-      if (checkDate > now) break;
-
-      const dow = d + 1;
-      const dateStr = checkDate.toISOString().split("T")[0];
-      const daySlots = allSlots.filter((s) => s.dayOfWeek === dow);
-
-      for (const slot of daySlots) {
-        const periodMatch = slot.periodLabel.match(/\d+/);
-        const periodNum = periodMatch ? parseInt(periodMatch[0]) : null;
-
-        const hasEntry = entries.some((e) => {
-          const entryDate = new Date(e.date).toISOString().split("T")[0];
-          if (entryDate !== dateStr) return false;
-          if (e.status === "DRAFT") return false;
-          if (periodNum !== null && e.period === periodNum) return true;
-          return false;
-        });
-
-        if (!hasEntry) {
-          unfilled.push({
-            dayOfWeek: dow,
-            dayName: DOW_NAMES[dow] || "",
-            dateStr,
-            slotLabel: slot.periodLabel,
-            className: slot.assignment.className,
-            subjectName: slot.assignment.subjectName,
-          });
-        }
-      }
-    }
-
-    return unfilled;
-  }, [allSlots, entries]);
-
-  const hasMultipleSchools = useMemo(() => {
-    const schools = new Set(allSlots.map((s) => s.schoolName).filter(Boolean));
-    return schools.size > 1;
-  }, [allSlots]);
-
-  // Streak: count consecutive days with entries (simplified — counts from today backward)
-  const streakDays = useMemo(() => {
-    let streak = 0;
-    const d = new Date();
-    for (let i = 0; i < 60; i++) {
-      const dateStr = d.toISOString().split("T")[0];
-      const dow = d.getDay();
-      // Skip weekends
-      if (dow === 0 || dow === 6) {
-        d.setDate(d.getDate() - 1);
-        continue;
-      }
-      const hasEntry = entries.some(
-        (e) => new Date(e.date).toISOString().split("T")[0] === dateStr
-      );
-      if (hasEntry) {
-        streak++;
-        d.setDate(d.getDate() - 1);
-      } else if (i === 0) {
-        // Today might not have entries yet — don't break streak
-        d.setDate(d.getDate() - 1);
-      } else {
-        break;
-      }
-    }
-    return streak;
-  }, [entries]);
-
-  // Weekly progress data for the bar chart
-  const weeklyProgressData = useMemo(() => {
-    const startOfWeek = new Date(today);
-    const diff = today.getDay() === 0 ? -6 : 1 - today.getDay();
-    startOfWeek.setDate(today.getDate() + diff);
-    startOfWeek.setHours(0, 0, 0, 0);
-
-    const days: { day: string; completed: number; total: number; isCurrent: boolean }[] = [];
-    let totalCompleted = 0;
-    let totalPeriods = 0;
-
-    for (let d = 0; d < 5; d++) {
-      const checkDate = new Date(startOfWeek);
-      checkDate.setDate(startOfWeek.getDate() + d);
-      const dateStr = checkDate.toISOString().split("T")[0];
-      const dow = d + 1;
-
-      const daySlots = allSlots.filter((s) => s.dayOfWeek === dow);
-      const dayEntries = entries.filter(
-        (e) =>
-          new Date(e.date).toISOString().split("T")[0] === dateStr &&
-          e.status !== "DRAFT"
-      );
-
-      const total = daySlots.length;
-      const completed = Math.min(dayEntries.length, total);
-      const isCurrent = dateStr === todayStr;
-
-      days.push({ day: ["Mon", "Tue", "Wed", "Thu", "Fri"][d], completed, total, isCurrent });
-      totalCompleted += completed;
-      totalPeriods += total;
-    }
-
-    return { days, totalCompleted, totalPeriods };
-  }, [allSlots, entries, today, todayStr]);
-
-  const nextClassInfo = useMemo(() => {
-    if (allSlots.length === 0) return null;
-
-    const now = new Date();
-    const currentHour = now.getHours();
-    const currentMin = now.getMinutes();
-    const currentDow = now.getDay();
-    const todayDow = currentDow === 0 ? 7 : currentDow;
-
-    const todaySlotsAll = allSlots
-      .filter((s) => s.dayOfWeek === todayDow)
-      .sort((a, b) => a.startTime.localeCompare(b.startTime));
-
-    const upcomingToday = todaySlotsAll.filter((s) => {
-      const [h, m] = s.startTime.split(":").map(Number);
-      return h * 60 + m > currentHour * 60 + currentMin;
-    });
-
-    if (upcomingToday.length > 0) {
-      const next = upcomingToday[0];
-      const [h, m] = next.startTime.split(":").map(Number);
-      const diffMins = (h * 60 + m) - (currentHour * 60 + currentMin);
-
-      if (diffMins <= 120) {
-        const hrs = Math.floor(diffMins / 60);
-        const mins = diffMins % 60;
-        const timeStr = hrs > 0 ? `${hrs}h ${mins}m` : `${mins} minutes`;
-        const schoolStr = hasMultipleSchools && next.schoolName ? ` at ${next.schoolName}` : "";
-        return {
-          type: "prep" as const,
-          message: `Your next class is in ${timeStr}!${schoolStr}`,
-          detail: `${next.assignment.subjectName} — ${next.assignment.className} at ${next.startTime}`,
-          hint: hasMultipleSchools && next.schoolName
-            ? `Head to ${next.schoolName} and ensure you are prepped!`
-            : "Time to recheck everything and ensure you are prepped for class!",
-        };
-      } else {
-        const hrs = Math.floor(diffMins / 60);
-        const mins = diffMins % 60;
-        const timeStr = hrs > 0 ? `${hrs}h ${mins}m` : `${mins} minutes`;
-        const schoolStr = hasMultipleSchools && next.schoolName ? ` at ${next.schoolName}` : "";
-        return {
-          type: "rest-short" as const,
-          message: `Next class in ${timeStr}${schoolStr}`,
-          detail: `${next.assignment.subjectName} — ${next.assignment.className} at ${next.startTime}`,
-          hint: "You have some time. Take a breather and prepare at your pace.",
-        };
-      }
-    }
-
-    const DAY_LABELS = ["", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
-    const teachingDays = new Set(allSlots.map((s) => s.dayOfWeek));
-
-    for (let offset = 1; offset <= 7; offset++) {
-      let checkDow = todayDow + offset;
-      if (checkDow > 7) checkDow -= 7;
-      if (teachingDays.has(checkDow)) {
-        const nextDaySlots = allSlots
-          .filter((s) => s.dayOfWeek === checkDow)
-          .sort((a, b) => a.startTime.localeCompare(b.startTime));
-        const firstSlot = nextDaySlots[0];
-
-        if (offset === 1) {
-          const schoolHint = hasMultipleSchools && firstSlot.schoolName ? ` at ${firstSlot.schoolName}` : "";
-          return {
-            type: "rest-short" as const,
-            message: `Done for today! Next class is tomorrow${schoolHint}`,
-            detail: `${firstSlot.assignment.subjectName} — ${firstSlot.assignment.className} at ${firstSlot.startTime}`,
-            hint: "Get some rest and come back refreshed!",
-          };
-        }
-
-        const schoolHint = hasMultipleSchools && firstSlot.schoolName ? ` at ${firstSlot.schoolName}` : "";
-        return {
-          type: "rest-long" as const,
-          message: `No more classes until ${DAY_LABELS[checkDow]}${schoolHint}`,
-          detail: `${firstSlot.assignment.subjectName} — ${firstSlot.assignment.className} at ${firstSlot.startTime}`,
-          hint: `That's ${offset} days away. Enjoy your well-deserved rest!`,
-        };
-      }
-    }
-
-    return null;
-  }, [allSlots, hasMultipleSchools]);
-
-  const allLoggedToday = useMemo(() => {
-    return sortedTodaySlots.length > 0 && todayFilledCount === sortedTodaySlots.length;
-  }, [sortedTodaySlots, todayFilledCount]);
-
-  async function handleSetGender(gender: "MALE" | "FEMALE") {
-    setSavingGender(true);
-    try {
-      const res = await fetch("/api/profile", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ gender }),
-      });
-      if (res.ok) {
-        setUserGender(gender);
-        setGenderPromptDismissed(true);
-      }
-    } catch { /* silently fail */ }
-    finally { setSavingGender(false); }
-  }
-
-  function dismissGenderPrompt() {
-    if (typeof window !== "undefined") {
-      localStorage.setItem("edlog-gender-prompt-dismissed", "true");
-    }
-    setGenderPromptDismissed(true);
-  }
-
-  if (loading) {
-    return (
-      <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-primary)" }}>
-        {/* Skeleton Header */}
-        <div
-          className="px-5 pt-12 pb-7"
-          style={{
-            background: "linear-gradient(135deg, var(--header-from), var(--header-via), var(--header-to))",
-          }}
-        >
-          <div className="max-w-lg mx-auto relative">
-            <div className="flex items-start justify-between mb-5">
-              <div>
-                <div className="skeleton h-3 w-24 !bg-white/[0.06] mb-2" />
-                <div className="skeleton h-7 w-40 !bg-white/10" />
-              </div>
-              <div className="skeleton h-10 w-10 rounded-[14px] !bg-white/[0.06]" />
-            </div>
-            <div className="flex" style={{ gap: "10px" }}>
-              <div className="flex-1 rounded-2xl p-3 bg-white/[0.04] border border-white/[0.06]">
-                <div className="flex items-center gap-2.5">
-                  <div className="skeleton h-9 w-9 rounded-xl !bg-white/[0.06]" />
-                  <div>
-                    <div className="skeleton h-5 w-16 !bg-white/[0.08] mb-1" />
-                    <div className="skeleton h-3 w-20 !bg-white/[0.04]" />
-                  </div>
-                </div>
-              </div>
-              <div className="w-20 rounded-2xl p-3 bg-white/[0.04] border border-white/[0.06] flex flex-col items-center justify-center">
-                <div className="skeleton h-6 w-12 !bg-white/[0.08] mb-1" />
-                <div className="skeleton h-2 w-14 !bg-white/[0.04]" />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Skeleton Content */}
-        <div className="px-4 mt-4 max-w-lg mx-auto space-y-3">
-          <div className="flex justify-between items-center mb-1">
-            <div className="skeleton h-4 w-32" />
-            <div className="skeleton h-3 w-16" />
-          </div>
-          {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="flex gap-3 items-stretch">
-              <div className="w-12 flex flex-col items-center pt-3">
-                <div className="skeleton h-3 w-8 mb-1" />
-                <div className="skeleton h-2 w-5" />
-              </div>
-              <div className="flex-1 card p-4">
-                <div className="flex justify-between">
-                  <div className="flex-1">
-                    <div className="skeleton h-4 w-24 mb-2" />
-                    <div className="skeleton h-3 w-32" />
-                  </div>
-                  <div className="skeleton h-7 w-7 rounded-xl" />
-                </div>
-              </div>
-            </div>
-          ))}
-          <div className="card p-5 mt-5">
-            <div className="flex justify-between mb-3">
-              <div className="skeleton h-4 w-20" />
-              <div className="skeleton h-3 w-24" />
-            </div>
-            <div className="flex gap-2 items-end h-12">
-              {[1, 2, 3, 4, 5].map((i) => (
-                <div key={i} className="flex-1">
-                  <div className="skeleton h-full rounded-lg" />
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // TODO: Calculate syllabus coverage as (unique topics logged / total topics in assigned subjects-levels) × 100
-  // Current APIs don't provide total topic counts per subject-level, so hardcoding "—" for now
-  const syllabusDisplay = "—";
+  const coverageTarget = Math.max(assignments.length * 10, 10);
+  const syllabusCoverage = Math.min(100, Math.round((uniqueTopics / coverageTarget) * 100));
+  const currentSlotIndex = getCurrentSlotIndex(todaySlots);
+  const pendingCount = Math.max(todaySlots.length - todaySlots.filter((slot) => entries.some((entry) => getEntryMatch(entry, slot))).length, 0);
+  const weeklyBars = useMemo(() => getWeeklyBars(allSlots, entries), [allSlots, entries]);
+  const nextClass = useMemo(() => {
+    const minutesNow = today.getHours() * 60 + today.getMinutes();
+    return todaySlots.find((slot) => parseMinutes(slot.startTime) > minutesNow);
+  }, [today, todaySlots]);
+  const upcomingLabel = nextClass
+    ? `${nextClass.assignment.subjectName} • ${nextClass.startTime}`
+    : null;
+  const feedEntries = entries.slice(0, 6);
 
   return (
-    <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-primary)" }}>
-      {/* ── Hero Header ─────────────────────────────────────────────── */}
-      <div
-        className="px-5 pt-12 pb-7"
-        style={{
-          background: "linear-gradient(135deg, var(--header-from), var(--header-via), var(--header-to))",
-        }}
-      >
-        <div className="max-w-lg mx-auto relative">
-          {/* Greeting + Bell */}
-          <div data-tour="welcome" className="flex items-start justify-between mb-5">
-            <div className="animate-fade-in">
-              <p
-                style={{
-                  fontFamily: "var(--font-body)",
-                  fontSize: "13px",
-                  color: "#a8a29e",
-                }}
-              >
-                {getTimeGreeting()}
-              </p>
-              <h1
-                style={{
-                  fontFamily: "var(--font-display)",
-                  fontSize: "26px",
-                  fontWeight: 700,
-                  color: "white",
-                  marginTop: "2px",
-                  lineHeight: 1.2,
-                }}
-              >
-                {userFirstName || userLastName
-                  ? getDisplayName(userFirstName, userLastName, userGender)
-                  : "My Logbook"}
+    <div className="page-shell space-y-4 pt-4">
+      <section className="page-header overflow-hidden rounded-[32px] px-5 pb-6 pt-5 text-white shadow-float">
+        <div className="relative z-10 space-y-5">
+          <div className="flex items-start justify-between gap-3">
+            <div className="space-y-2">
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/70">{greeting}</p>
+              <h1 className="font-display text-[2rem] leading-[1.05] text-white">
+                {displayName || "Teacher"}
               </h1>
+              <p className="max-w-[16rem] text-sm text-white/76">
+                Your log feed is tuned for fast taps, live context, and clean follow-through.
+              </p>
             </div>
             <NotificationBell />
           </div>
 
-          {/* Streak + Syllabus pods */}
-          <div className="flex animate-slide-up animation-delay-75" style={{ gap: "10px" }}>
-            <div data-tour="streak" className="flex-1 relative">
-              <HelpHint
-                text="Your consecutive logging days. Log every teaching day to keep your streak alive!"
-                position="bottom"
-                createdAt={userCreatedAt}
-                className="absolute -top-1 -right-1 z-10"
-              />
-              <StreakBadge days={streakDays} className="w-full" />
+          <div className="grid grid-cols-2 gap-3">
+            <div className="glass-panel rounded-[24px] p-4">
+              <div className="flex items-start gap-3">
+                <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-dynamic-accent text-white shadow-accent motion-safe:animate-spring-bounce">
+                  <Flame className="h-5 w-5" />
+                </span>
+                <div>
+                  <p className="text-xl font-black text-white">{streak > 0 ? `${streak} days` : "Start today"}</p>
+                  <p className="text-xs text-white/70">Logging streak</p>
+                </div>
+              </div>
             </div>
-            <div
-              className="flex flex-col items-center justify-center relative"
-              style={{
-                minWidth: "80px",
-                background: "rgba(255,255,255,0.04)",
-                border: "1px solid rgba(255,255,255,0.06)",
-                borderRadius: "16px",
-                padding: "12px 14px",
-              }}
+
+            <div className="rounded-[24px] border border-white/10 bg-white/6 p-4 backdrop-blur-sm">
+              <div className="flex items-start gap-3">
+                <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/10 text-white/90">
+                  <Layers3 className="h-5 w-5" />
+                </span>
+                <div>
+                  <p className="font-mono text-xl font-black text-white">{syllabusCoverage}%</p>
+                  <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-white/66">Syllabus coverage</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {isCoordinator && activeMode === "teacher" ? (
+            <button
+              type="button"
+              onClick={() => switchMode("coordinator")}
+              className="inline-flex min-h-[44px] items-center gap-2 rounded-2xl border border-white/12 bg-white/8 px-4 text-sm font-semibold text-white/84 transition hover:bg-white/12"
             >
-              <HelpHint
-                text="The percentage of your curriculum topics you've covered so far this term."
-                position="bottom"
-                createdAt={userCreatedAt}
-                className="absolute -top-1 -right-1 z-10"
-              />
-              <p
-                className="leading-none tabular-nums"
-                style={{
-                  fontFamily: "var(--font-body)",
-                  fontSize: "20px",
-                  fontWeight: 800,
-                  color: "white",
-                }}
+              Open coordinator mode
+              <ArrowUpRight className="h-4 w-4" />
+            </button>
+          ) : null}
+        </div>
+      </section>
+
+      <QuickActionsRow pendingCount={pendingCount} upcomingLabel={upcomingLabel} />
+
+      <section className="space-y-3">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-content-tertiary">Stories-style notices</p>
+            <h2 className="text-lg font-bold text-content-primary">What changed today</h2>
+          </div>
+          <Link href="/notifications" className="text-sm font-semibold text-[hsl(var(--accent-text))]">
+            View all
+          </Link>
+        </div>
+
+        <div className="-mx-4 overflow-x-auto px-4 pb-1">
+          <div className="flex gap-3 pr-2">
+            {(notices.length ? notices : [{ id: "fallback", title: "You are clear", message: "No new notices right now.", createdAt: new Date().toISOString(), isRead: true }]).map((notice, index) => (
+              <Link
+                key={notice.id}
+                href="/notifications"
+                className={cn("story-pill min-w-[190px]", !notice.isRead && "motion-safe:animate-live-pulse")}
+                style={{ animationDelay: `${index * 120}ms` }}
               >
-                {syllabusDisplay}
-              </p>
-              <p
-                className="mt-1"
-                style={{
-                  fontSize: "10px",
-                  color: "var(--text-tertiary)",
-                  textTransform: "uppercase",
-                  letterSpacing: "0.05em",
-                }}
-              >
-                SYLLABUS
-              </p>
-            </div>
+                <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,hsl(var(--accent)),hsl(var(--accent-strong)))] text-white shadow-accent">
+                  <Sparkles className="h-4.5 w-4.5" />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-sm font-bold text-content-primary">{notice.title}</span>
+                  <span className="mt-1 block line-clamp-2 text-xs text-content-secondary">{notice.message}</span>
+                </span>
+              </Link>
+            ))}
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* ── Main Content ──────────────────────────────────────────── */}
-      <div className="px-4 mt-4 max-w-lg mx-auto desktop-content" style={{ paddingBottom: "90px" }}>
-        {/* ── Gender Prompt (one-time) ─────────────────────────────── */}
-        {!genderPromptDismissed && (
-          <div className="mb-3 rounded-2xl border p-4 animate-slide-up"
-            style={{ background: "var(--bg-elevated)", borderColor: "var(--border-primary)" }}>
-            <div className="flex items-start justify-between gap-2 mb-3">
-              <div>
-                <p className="text-sm font-bold text-[var(--text-primary)]">Complete your profile</p>
-                <p className="text-xs text-[var(--text-tertiary)] mt-0.5">
-                  Set your gender so we can address you properly in the app.
-                </p>
-              </div>
-              <button onClick={dismissGenderPrompt} className="text-[var(--text-quaternary)] hover:text-[var(--text-tertiary)] p-1 flex-shrink-0">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-              </button>
-            </div>
-            <div className="flex gap-2">
-              <button onClick={() => handleSetGender("MALE")} disabled={savingGender}
-                className="flex-1 py-2 rounded-xl text-sm font-bold transition-all active:scale-95 disabled:opacity-50"
-                style={{ background: "#DBEAFE", color: "#1E40AF" }}>
-                Male
-              </button>
-              <button onClick={() => handleSetGender("FEMALE")} disabled={savingGender}
-                className="flex-1 py-2 rounded-xl text-sm font-bold transition-all active:scale-95 disabled:opacity-50"
-                style={{ background: "#FCE7F3", color: "#9D174D" }}>
-                Female
-              </button>
-              <button onClick={dismissGenderPrompt}
-                className="px-4 py-2 rounded-xl text-sm font-semibold transition-all active:scale-95"
-                style={{ background: "var(--bg-secondary)", color: "var(--text-tertiary)" }}>
-                Later
-              </button>
-            </div>
+      <section className="section-card space-y-4">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-content-tertiary">Today — {today.toLocaleDateString("en-GB", { weekday: "long" })}</p>
+            <h2 className="text-lg font-bold text-content-primary">Tap the live class first</h2>
           </div>
-        )}
+          <span className="rounded-full bg-[hsl(var(--accent-soft))] px-3 py-1.5 font-mono text-[11px] font-bold text-[hsl(var(--accent-text))]">
+            {todaySlots.length - pendingCount}/{todaySlots.length || 0} logged
+          </span>
+        </div>
 
-        {/* ── Unread Announcements Banner ─────────────────────────── */}
-        {unreadAnnouncements > 0 && (
-          <Link
-            href="/messages"
-            className="flex items-center justify-between p-3.5 mb-3 rounded-2xl border active:scale-[0.98] transition-all animate-slide-up"
-            style={{
-              background: "linear-gradient(135deg, #FFFBEB, #FEF3C7)",
-              border: "1px solid #FDE68A",
-            }}
-          >
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center">
-                <Megaphone className="w-4 h-4 text-amber-600" />
+        <div className="space-y-3">
+          {loading ? (
+            Array.from({ length: 3 }).map((_, index) => (
+              <div key={index} className="card p-4">
+                <div className="flex gap-3">
+                  <div className="w-14 space-y-2">
+                    <Skeleton className="h-3 w-12" />
+                    <Skeleton className="h-3 w-8" />
+                  </div>
+                  <div className="min-w-0 flex-1 space-y-2">
+                    <Skeleton className="h-4 w-36" />
+                    <Skeleton className="h-3 w-48" />
+                    <Skeleton className="h-10 w-full rounded-2xl" />
+                  </div>
+                </div>
               </div>
-              <span className="text-sm font-semibold" style={{ color: "#92400E" }}>
-                You have {unreadAnnouncements} new announcement{unreadAnnouncements > 1 ? "s" : ""}
-              </span>
+            ))
+          ) : todaySlots.length === 0 ? (
+            <div className="card bg-dynamic-noise p-5 text-center">
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[hsl(var(--accent-soft))] text-[hsl(var(--accent-text))] shadow-accent">
+                <Waves className="h-6 w-6" />
+              </div>
+              <h3 className="mt-4 text-lg font-bold text-content-primary">No classes in this slot</h3>
+              <p className="mt-2 text-sm text-content-secondary">
+                Use the quiet window to prepare, catch up, or open your full timetable.
+              </p>
+              <Link href="/timetable" className="btn-secondary mt-4 w-full">
+                View timetable
+              </Link>
             </div>
-            <ChevronRight className="w-4 h-4 text-amber-400" />
-          </Link>
-        )}
+          ) : (
+            todaySlots.map((slot, index) => {
+              const matchedEntry = entries.find((entry) => getEntryMatch(entry, slot));
+              const isLogged = Boolean(matchedEntry);
+              const isCurrent = index === currentSlotIndex;
+              const isUpcoming = index > currentSlotIndex || currentSlotIndex === -1;
+              const logHref = `/logbook/new?slotId=${slot.id}&assignmentId=${slot.assignment.id}`;
 
-        {/* ── Today's Schedule ─────────────────────────────────────── */}
-        {isWeekday && sortedTodaySlots.length > 0 && (
-          <div data-tour="today-schedule" className="animate-slide-up">
-            {/* Section header */}
-            <div className="flex items-center justify-between mb-3 px-1">
-              <h2
-                style={{
-                  fontFamily: "var(--font-body)",
-                  fontSize: "14px",
-                  fontWeight: 700,
-                  color: "var(--text-primary)",
-                }}
-              >
-                Today — {DAY_NAMES[dayOfWeek]}
-              </h2>
-              <span
-                className="tabular-nums"
-                style={{
-                  fontSize: "12px",
-                  color: "var(--text-tertiary)",
-                }}
-              >
-                {todayFilledCount}/{sortedTodaySlots.length} logged
-              </span>
-            </div>
-
-            {/* Period cards */}
-            <div className="flex flex-col gap-2">
-              {sortedTodaySlots.map((slot, i) => {
-                const matchingEntry = entries.find(
-                  (e) =>
-                    new Date(e.date).toISOString().split("T")[0] === todayStr &&
-                    e.period === slot.periodNumber
-                );
-                const isFilled = !!matchingEntry;
-                const isCurrent = i === currentPeriodIndex && !isFilled;
-                const moduleName = matchingEntry?.moduleName;
-
-                // Period time status for Log button behavior
-                const nowDate = new Date();
-                const currentMins = nowDate.getHours() * 60 + nowDate.getMinutes();
-                const [slotStartH, slotStartM] = slot.startTime.split(":").map(Number);
-                const [slotEndH, slotEndM] = slot.endTime.split(":").map(Number);
-                const slotStartMins = slotStartH * 60 + slotStartM;
-                const slotEndMins = slotEndH * 60 + slotEndM;
-                const hasEnded = currentMins >= slotEndMins;
-                const isInProgress = currentMins >= slotStartMins && currentMins < slotEndMins;
-                const minutesUntilEnd = slotEndMins - currentMins;
-
-                return (
-                  <div
-                    key={slot.id}
-                    className="flex gap-3 items-stretch"
-                    style={{
-                      opacity: 0,
-                      animation: "fadeSlideIn 400ms ease forwards",
-                      animationDelay: `${i * 80}ms`,
-                    }}
-                  >
-                    {/* Time column */}
-                    <div className="w-12 flex-shrink-0 flex flex-col items-center pt-3.5">
-                      <span
-                        className={`font-mono text-xs font-semibold ${
-                          isCurrent ? "text-[var(--accent-text)]" : "text-[var(--text-tertiary)]"
-                        }`}
-                      >
-                        {slot.startTime}
-                      </span>
-                      <span className="text-[10px] text-[var(--text-quaternary)]">
-                        P{slot.periodNumber}
-                      </span>
+              return (
+                <article
+                  key={slot.id}
+                  className={cn(
+                    "card p-4 transition-all duration-300",
+                    isCurrent && "live-card scale-[1.01]",
+                    isLogged && "opacity-70",
+                  )}
+                  style={{ animationDelay: `${index * 80}ms` }}
+                >
+                  <div className="flex gap-4">
+                    <div className="w-14 shrink-0 pt-1 text-left">
+                      <p className={cn("font-mono text-xs font-bold", isCurrent ? "text-[hsl(var(--accent-text))]" : "text-content-secondary")}>{slot.startTime}</p>
+                      <p className="mt-1 text-[11px] text-content-tertiary">{slot.periodLabel}</p>
                     </div>
 
-                    {/* Card */}
-                    <div
-                      className={`flex-1 rounded-2xl px-4 py-3.5 relative overflow-hidden transition-all duration-200 ${
-                        isCurrent
-                          ? "border-2 shadow-lg"
-                          : "border"
-                      }`}
-                      style={{
-                        background: "var(--bg-elevated)",
-                        borderColor: isCurrent
-                          ? "var(--accent)"
-                          : "var(--border-primary)",
-                        boxShadow: isCurrent
-                          ? "var(--shadow-accent)"
-                          : "var(--shadow-card)",
-                        opacity: isFilled ? 0.55 : 1,
-                      }}
-                    >
-                      {/* Amber top bar for current period */}
-                      {isCurrent && (
-                        <div
-                          className="absolute top-0 left-0 right-0 h-[3px]"
-                          style={{
-                            background: "linear-gradient(90deg, var(--accent), var(--accent-warm))",
-                          }}
-                        />
-                      )}
-
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1 min-w-0">
-                          <p className="text-[15px] font-bold text-[var(--text-primary)] leading-snug">
-                            {slot.assignment.subjectName}
-                          </p>
-                          <p className="text-[13px] text-[var(--text-tertiary)] mt-0.5">
-                            {slot.assignment.className}{isFilled && moduleName ? ` \u00B7 ${moduleName}` : ""}
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <h3 className="text-sm font-bold text-content-primary">{slot.assignment.subjectName}</h3>
+                          <p className="mt-1 text-sm text-content-secondary">
+                            {slot.assignment.className}
+                            {matchedEntry?.moduleName ? ` • ${matchedEntry.moduleName}` : ""}
                           </p>
                         </div>
 
-                        {isFilled ? (
-                          <div
-                            className="w-7 h-7 rounded-[10px] flex items-center justify-center flex-shrink-0"
-                            style={{
-                              background: "#DCFCE7",
-                            }}
-                          >
-                            <CheckCircle className="w-[18px] h-[18px]" style={{ color: "#16A34A" }} />
-                          </div>
-                        ) : hasEnded ? (
-                          <Link
-                            href={`/logbook/new?slotId=${slot.id}&period=${slot.periodNumber}&date=${todayStr}&assignmentId=${slot.assignment.id}&classId=${slot.assignment.classId}`}
-                            className="flex items-center gap-1.5 rounded-[10px] px-3.5 py-1.5 text-xs font-bold text-white active:scale-95 transition-transform flex-shrink-0"
-                            style={{
-                              background: "linear-gradient(135deg, var(--accent), var(--accent-hover))",
-                              boxShadow: "var(--shadow-accent)",
-                            }}
-                          >
-                            <Pen className="w-3.5 h-3.5" />
+                        {isLogged ? (
+                          <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[hsl(var(--success)/0.14)] text-[hsl(var(--success))]">
+                            <CheckCircle2 className="h-5 w-5" />
+                          </span>
+                        ) : isCurrent ? (
+                          <Link href={logHref} className="btn-primary px-4 py-2 text-sm shadow-accent">
+                            <PenLine className="h-4 w-4" />
                             Log
                           </Link>
-                        ) : isInProgress ? (
-                          <span
-                            className="flex items-center gap-1.5 rounded-[10px] px-3 py-1.5 text-[11px] font-semibold flex-shrink-0"
-                            style={{
-                              background: "var(--bg-tertiary)",
-                              color: "var(--text-tertiary)",
-                            }}
-                          >
-                            <Clock className="w-3 h-3" />
-                            {minutesUntilEnd}m
-                          </span>
                         ) : (
-                          <div
-                            className="w-7 h-7 rounded-[10px] flex-shrink-0"
-                            style={{
-                              background: "#F5F5F4",
-                              border: "2px dashed #D6D3D1",
-                            }}
-                          />
+                          <span className={cn("flex h-10 w-10 items-center justify-center rounded-2xl border border-dashed", isUpcoming ? "border-[hsl(var(--border-strong))] text-content-tertiary" : "border-[hsl(var(--border-primary))] text-content-tertiary")}> 
+                            <Clock3 className="h-4 w-4" />
+                          </span>
                         )}
+                      </div>
+
+                      <div className="mt-3 flex items-center justify-between gap-3 text-xs text-content-tertiary">
+                        <span className="font-mono">{slot.startTime}–{slot.endTime}</span>
+                        <span className="inline-flex items-center gap-1 rounded-full bg-[hsl(var(--surface-secondary))] px-2.5 py-1 font-semibold">
+                          {isLogged ? "Done" : isCurrent ? "Live now" : isUpcoming ? "Upcoming" : "Missed"}
+                        </span>
                       </div>
                     </div>
                   </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
+                </article>
+              );
+            })
+          )}
+        </div>
+      </section>
 
-        {/* All caught up celebration */}
-        {isWeekday && allLoggedToday && sortedTodaySlots.length > 0 && (
-          <div className="animate-scale-in mt-4 card p-6 text-center" style={{
-            background: "linear-gradient(135deg, rgba(16,163,74,0.06), rgba(74,222,128,0.03))",
-            border: "1px solid rgba(16,163,74,0.12)"
-          }}>
-            <div className="text-4xl mb-3">🎉</div>
-            <h3 style={{
-              fontFamily: "var(--font-display)",
-              fontSize: "20px",
-              fontWeight: 700,
-              color: "var(--text-primary)"
-            }}>
-              All caught up!
-            </h3>
-            <p style={{
-              fontFamily: "var(--font-body)",
-              fontSize: "14px",
-              color: "var(--text-tertiary)",
-              marginTop: "6px",
-              lineHeight: 1.6
-            }}>
-              {getRotatingMessage(ALL_CAUGHT_UP_MESSAGES)}
-            </p>
-            {streakDays > 0 && (
-              <p style={{
-                fontFamily: "var(--font-mono)",
-                fontSize: "13px",
-                color: "var(--accent-text)",
-                fontWeight: 600,
-                marginTop: "10px"
-              }}>
-                🔥 {streakDays}-day streak — keep it going!
-              </p>
-            )}
+      <section className="section-card space-y-4">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-content-tertiary">This week</p>
+            <h2 className="text-lg font-bold text-content-primary">Progress that fills up like a feed</h2>
           </div>
-        )}
+          <span className="font-mono text-xs font-bold text-[hsl(var(--accent-text))]">
+            {weeklyBars.reduce((sum, day) => sum + day.logged, 0)}/{weeklyBars.reduce((sum, day) => sum + day.total, 0)} periods
+          </span>
+        </div>
 
-        {/* Weekend card */}
-        {!isWeekday && (
-          <div className="animate-slide-up card p-6 text-center" style={{
-            background: "linear-gradient(135deg, rgba(245,158,11,0.04), rgba(251,191,36,0.02))",
-            border: "1px solid rgba(245,158,11,0.1)"
-          }}>
-            <div className="text-4xl mb-3">🌴</div>
-            <h3 style={{
-              fontFamily: "var(--font-display)",
-              fontSize: "20px",
-              fontWeight: 700,
-              color: "var(--text-primary)"
-            }}>
-              Happy Weekend!
-            </h3>
-            <p style={{
-              fontFamily: "var(--font-body)",
-              fontSize: "14px",
-              color: "var(--text-tertiary)",
-              marginTop: "6px",
-              lineHeight: 1.6
-            }}>
-              {dayOfWeek === 6
-                ? `It's Saturday — ${getRotatingMessage(WEEKEND_MESSAGES)}`
-                : `Enjoy your Sunday. ${getRotatingMessage(WEEKEND_MESSAGES)}`}
-            </p>
-            {unfilledWeekSlots.length > 0 && (
-              <Link href="/logbook/new"
-                className="inline-flex items-center gap-2 mt-4 px-4 py-2.5 rounded-xl text-sm font-semibold"
-                style={{
-                  background: "var(--accent-light)",
-                  color: "var(--accent-text)"
-                }}>
-                <ClipboardList className="w-4 h-4" />
-                Catch up on {unfilledWeekSlots.length} unfilled entries
-              </Link>
-            )}
-          </div>
-        )}
-
-        {/* Weekday — no classes scheduled */}
-        {isWeekday && sortedTodaySlots.length === 0 && (
-          <div className="animate-slide-up card p-6 text-center" style={{
-            background: "linear-gradient(135deg, rgba(16,163,74,0.04), rgba(74,222,128,0.02))",
-            border: "1px solid rgba(16,163,74,0.08)"
-          }}>
-            <div className="text-4xl mb-3">☕</div>
-            <h3 style={{
-              fontFamily: "var(--font-display)",
-              fontSize: "20px",
-              fontWeight: 700,
-              color: "var(--text-primary)"
-            }}>
-              Free day — no classes!
-            </h3>
-            <p style={{
-              fontFamily: "var(--font-body)",
-              fontSize: "14px",
-              color: "var(--text-tertiary)",
-              marginTop: "6px",
-              lineHeight: 1.6
-            }}>
-              {getRotatingMessage(FREE_DAY_MESSAGES)}
-            </p>
-            <div className="flex gap-3 justify-center mt-5">
-              <Link href="/timetable"
-                className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-semibold"
-                style={{ background: "var(--bg-tertiary)", color: "var(--text-secondary)" }}>
-                <Calendar className="w-4 h-4" />
-                View timetable
-              </Link>
-              {unfilledWeekSlots.length > 0 && (
-                <Link href="/logbook/new"
-                  className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-semibold"
-                  style={{ background: "var(--accent-light)", color: "var(--accent-text)" }}>
-                  <BookOpen className="w-4 h-4" />
-                  Catch up
-                </Link>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* ── Next Class Info ──────────────────────────────────────── */}
-        {nextClassInfo && nextClassInfo.type === "prep" && (
-          <div className="animate-slide-up animation-delay-75 mt-4 card p-5" style={{
-            background: "linear-gradient(135deg, rgba(245,158,11,0.06), rgba(251,191,36,0.03))",
-            border: "1px solid rgba(245,158,11,0.12)"
-          }}>
-            <div className="flex items-center gap-4">
-              <div className="text-3xl">⏰</div>
-              <div>
-                <h3 style={{
-                  fontFamily: "var(--font-body)",
-                  fontSize: "16px",
-                  fontWeight: 700,
-                  color: "var(--text-primary)"
-                }}>
-                  {nextClassInfo.message}
-                </h3>
-                <p style={{
-                  fontFamily: "var(--font-body)",
-                  fontSize: "13px",
-                  color: "var(--text-tertiary)",
-                  marginTop: "3px"
-                }}>
-                  {nextClassInfo.detail}
-                </p>
-                <p style={{
-                  fontFamily: "var(--font-body)",
-                  fontSize: "13px",
-                  color: "var(--accent-text)",
-                  fontWeight: 600,
-                  marginTop: "4px"
-                }}>
-                  {nextClassInfo.hint}
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
-        {nextClassInfo && nextClassInfo.type !== "prep" && (
-          <div className="animate-slide-up animation-delay-75 mt-4 card p-5" style={{
-            background: "linear-gradient(135deg, rgba(99,102,241,0.04), rgba(129,140,248,0.02))",
-            border: "1px solid rgba(99,102,241,0.08)"
-          }}>
-            <div className="flex items-center gap-4">
-              <div className="text-3xl">
-                {nextClassInfo.type === "rest-long" ? "🌙" : "🕐"}
-              </div>
-              <div>
-                <h3 style={{
-                  fontFamily: "var(--font-body)",
-                  fontSize: "16px",
-                  fontWeight: 700,
-                  color: "var(--text-primary)"
-                }}>
-                  {nextClassInfo.message}
-                </h3>
-                {nextClassInfo.detail && (
-                  <p style={{
-                    fontFamily: "var(--font-body)",
-                    fontSize: "13px",
-                    color: "var(--text-tertiary)",
-                    marginTop: "3px"
-                  }}>
-                    Next up: {nextClassInfo.detail}
-                  </p>
-                )}
-                <p style={{
-                  fontFamily: "var(--font-body)",
-                  fontSize: "13px",
-                  color: "var(--text-tertiary)",
-                  marginTop: "4px",
-                  fontStyle: "italic"
-                }}>
-                  {nextClassInfo.hint}
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* ── Weekly Progress ──────────────────────────────────────── */}
-        {weeklyProgressData.totalPeriods > 0 && (
-          <div className="animate-slide-up animation-delay-150 mt-4 relative">
-            <HelpHint
-              text="How many of your scheduled periods you've logged each day this week."
-              position="top"
-              createdAt={userCreatedAt}
-              className="absolute top-3 right-3 z-10"
-            />
-            <WeeklyProgress
-              days={weeklyProgressData.days}
-              totalCompleted={weeklyProgressData.totalCompleted}
-              totalPeriods={weeklyProgressData.totalPeriods}
-            />
-          </div>
-        )}
-
-        {/* ── Unfilled Periods This Week (collapsible) ─────────────── */}
-        {unfilledWeekSlots.length > 0 && (
-          <div className="animate-slide-up animation-delay-225 mt-4">
-            <button
-              onClick={() => setUnfilledOpen(!unfilledOpen)}
-              className="w-full card px-4 py-3 flex items-center justify-between"
-            >
-              <span className="text-sm font-bold text-[var(--text-primary)]">
-                Unfilled periods this week
-              </span>
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-mono tabular-nums" style={{ color: "var(--accent-text)" }}>
-                  {unfilledWeekSlots.length}
-                </span>
-                {unfilledOpen ? (
-                  <ChevronUp className="w-4 h-4 text-[var(--text-tertiary)]" />
-                ) : (
-                  <ChevronDown className="w-4 h-4 text-[var(--text-tertiary)]" />
-                )}
-              </div>
-            </button>
-            {unfilledOpen && (
-              <div className="mt-1 space-y-1">
-                {unfilledWeekSlots.map((slot, idx) => (
-                  <div
-                    key={`${slot.dateStr}-${slot.slotLabel}-${idx}`}
-                    className="card px-4 py-2.5 flex items-center justify-between"
-                  >
-                    <div>
-                      <p className="text-sm font-medium text-[var(--text-primary)]">
-                        {slot.subjectName}
-                      </p>
-                      <p className="text-xs text-[var(--text-tertiary)]">
-                        {slot.dayName} &middot; {slot.slotLabel} &middot; {slot.className}
-                      </p>
-                    </div>
-                    <Link
-                      href="/logbook/new"
-                      className="text-xs font-semibold px-2.5 py-1 rounded-[10px]"
-                      style={{
-                        background: "var(--accent-light)",
-                        color: "var(--accent-text)",
-                      }}
-                    >
-                      Log
-                    </Link>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* ── HOD Banner ───────────────────────────────────────────── */}
-        {isHOD && hodSubjects.length > 0 && (
-          <div className="animate-slide-up animation-delay-300 mt-4">
-            <Link
-              href="/hod"
-              className="card p-4 flex items-center gap-3 cursor-pointer"
-            >
-              <div
-                className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
-                style={{ background: "var(--accent-light)" }}
-              >
-                <Shield className="w-5 h-5" style={{ color: "var(--accent-text)" }} />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-bold text-[var(--text-primary)]">Head of Department</p>
-                <p className="text-xs text-[var(--text-tertiary)]">
-                  {hodSubjects.join(", ")}
-                </p>
-              </div>
-              <ChevronDown className="w-4 h-4 text-[var(--text-tertiary)] -rotate-90" />
-            </Link>
-          </div>
-        )}
-
-        {/* ── Level Coordinator Banner ─────────────────────────── */}
-        {(isCoordinator || isCoordinatorCtx) && (
-          <div className="animate-slide-up animation-delay-300 mt-4">
-            <div
-              className="card p-3 flex items-center gap-3 border-l-4"
-              style={{ borderLeftColor: "#8B5CF6" }}
-            >
-              <div
-                className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
-                style={{ background: "rgba(139,92,246,0.1)" }}
-              >
-                <Shield className="w-4 h-4" style={{ color: "#7C3AED" }} />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="font-bold text-[var(--text-primary)] text-xs">
-                  You&apos;re in Teacher mode
-                </p>
-                <p className="text-[11px] text-[var(--text-tertiary)]">
-                  {(coordinatorTitle || coordinatorTitleCtx) || "Level Coordinator"}
-                  {coordinatorPendingCount > 0 && (
-                    <span className="ml-1 font-semibold" style={{ color: "#D97706" }}>
-                      — {coordinatorPendingCount} to review
-                    </span>
+        <div className="grid grid-cols-5 gap-2">
+          {weeklyBars.map((bar, index) => (
+            <div key={bar.key} className="flex flex-col items-center gap-2">
+              <div className="flex h-28 w-full items-end rounded-[18px] bg-[hsl(var(--surface-secondary))] p-2">
+                <div
+                  className={cn(
+                    "w-full rounded-[12px] transition-all duration-700 ease-[var(--ease-spring)]",
+                    bar.ratio === 100 ? "bg-[linear-gradient(180deg,hsl(var(--success)),color-mix(in_srgb,hsl(var(--success))_68%,white))]" : bar.ratio > 0 ? "bg-dynamic-accent" : "bg-[hsl(var(--surface-tertiary))]",
+                    bar.isToday && "shadow-accent",
                   )}
-                </p>
+                  style={{ height: `${Math.max(bar.ratio, 12)}%`, transitionDelay: `${index * 100}ms` }}
+                />
               </div>
-              <button
-                onClick={() => switchMode("coordinator")}
-                className="flex-shrink-0 text-xs font-bold px-3 py-1.5 rounded-lg transition-all active:scale-95"
-                style={{ background: "#EDE9FE", color: "#5B21B6" }}
-              >
-                Switch →
-              </button>
+              <div className="text-center">
+                <p className={cn("font-mono text-[11px]", bar.isToday ? "font-extrabold text-content-primary" : "font-semibold text-content-tertiary")}>{bar.key}</p>
+                <p className="text-[11px] text-content-tertiary">{bar.logged}/{bar.total}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {nextClass ? (
+        <section className="card overflow-hidden p-4">
+          <div className="absolute inset-y-4 left-0 w-1 rounded-full bg-dynamic-accent" />
+          <div className="pl-3">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-content-tertiary">Next class</p>
+            <div className="mt-2 flex items-center justify-between gap-3">
+              <div>
+                <h3 className="text-base font-bold text-content-primary">{nextClass.assignment.subjectName}</h3>
+                <p className="text-sm text-content-secondary">{nextClass.assignment.className}</p>
+              </div>
+              <div className="text-right">
+                <p className="font-mono text-sm font-bold text-[hsl(var(--accent-text))]">{nextClass.startTime}</p>
+                <p className="text-xs text-content-tertiary">Starts later today</p>
+              </div>
             </div>
           </div>
-        )}
+        </section>
+      ) : null}
 
-        {/* Pending Assessments Card */}
-        {pendingAssessments > 0 && (
-          <div className="animate-slide-up animation-delay-300 mt-4">
-            <Link
-              href="/assessments"
-              className="card p-4 flex items-center gap-3 cursor-pointer"
-            >
-              <div
-                className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
-                style={{ background: "var(--warning-bg, #fef3c7)" }}
-              >
-                <Pen className="w-5 h-5" style={{ color: "var(--warning-text, #92400e)" }} />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-bold text-[var(--text-primary)]">
-                  {pendingAssessments} test{pendingAssessments !== 1 ? "s" : ""} pending results
-                </p>
-                <p className="text-xs text-[var(--text-tertiary)]">
-                  Enter results &rarr;
-                </p>
-              </div>
-              <ChevronRight className="w-4 h-4 text-[var(--text-tertiary)]" />
-            </Link>
+      <section className="space-y-3">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-content-tertiary">Recent feed</p>
+            <h2 className="text-lg font-bold text-content-primary">Your latest entries</h2>
           </div>
-        )}
+          <Link href="/history" className="inline-flex items-center gap-1 text-sm font-semibold text-[hsl(var(--accent-text))]">
+            Full history
+            <ChevronRight className="h-4 w-4" />
+          </Link>
+        </div>
 
-        {/* Empty state */}
-        {entries.length === 0 && sortedTodaySlots.length === 0 && (
-          <div className="text-center py-20 animate-fade-in">
-            <div
-              className="w-20 h-20 rounded-3xl flex items-center justify-center mx-auto mb-5"
-              style={{ backgroundColor: "var(--bg-tertiary)" }}
-            >
-              <BookOpen className="w-10 h-10 text-[var(--text-tertiary)]" />
+        <div className="feed-grid">
+          {feedEntries.length > 0 ? (
+            feedEntries.map((entry, index) => (
+              <DynamicEntryCard
+                key={entry.id}
+                entry={entry}
+                priority={index === 0 ? "live" : "default"}
+              />
+            ))
+          ) : (
+            <div className="card bg-dynamic-noise p-5 text-center">
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[hsl(var(--accent-soft))] text-[hsl(var(--accent-text))] shadow-accent">
+                <BookOpen className="h-6 w-6" />
+              </div>
+              <h3 className="mt-4 text-lg font-bold text-content-primary">Your feed will come alive here</h3>
+              <p className="mt-2 text-sm text-content-secondary">Create the first entry and Edlog starts building your live teaching record.</p>
+              <Link href="/logbook/new" className="btn-primary mt-4 w-full">
+                Create first entry
+              </Link>
             </div>
-            <p className="text-[var(--text-primary)] font-bold text-lg">No entries yet</p>
-            <p className="text-[var(--text-tertiary)] text-sm mt-1.5 max-w-xs mx-auto">
-              Start recording your teaching activities by tapping the button below
-            </p>
-            <Link
-              href="/logbook/new"
-              className="inline-flex items-center gap-2 mt-5 text-white font-semibold rounded-xl px-5 py-2.5 active:scale-95 transition-all"
-              style={{ backgroundColor: "var(--accent)" }}
-            >
-              <Plus className="w-4 h-4" />
-              Create First Entry
-            </Link>
-          </div>
-        )}
-      </div>
-      <OnboardingTour steps={TEACHER_TOUR} tourKey="teacher" />
+          )}
+        </div>
+      </section>
     </div>
   );
 }
