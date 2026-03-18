@@ -68,7 +68,7 @@ interface EntryDetail {
 const REMARK_COLORS: Record<string, { bg: string; text: string; border: string; bar: string; label: string }> = {
   self_reflection: { bg: "bg-emerald-50", text: "text-emerald-700", border: "border-emerald-200", bar: "bg-emerald-500", label: "Teacher" },
   hod_review: { bg: "bg-amber-50", text: "text-amber-700", border: "border-amber-200", bar: "bg-amber-500", label: "HOD" },
-  admin_verification: { bg: "bg-blue-50", text: "text-blue-700", border: "border-blue-200", bar: "bg-blue-500", label: "Admin" },
+  admin_observation: { bg: "bg-blue-50", text: "text-blue-700", border: "border-blue-200", bar: "bg-blue-500", label: "Admin" },
   inspector_note: { bg: "bg-purple-50", text: "text-purple-700", border: "border-purple-200", bar: "bg-purple-500", label: "Inspector" },
 };
 
@@ -502,4 +502,3 @@ export function EntryDetailModal({
     </div>
   );
 }
-

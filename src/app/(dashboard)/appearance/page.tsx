@@ -4,6 +4,7 @@ import { useTheme, type DynamicIntensity, type Theme } from "@/components/ThemeP
 import { ArrowLeft, Check, Moon, Sparkles, Sun, Waves } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { cn } from "@/lib/utils";
 
 interface ThemeOption {
   id: Theme;
@@ -201,6 +202,16 @@ export default function AppearancePage() {
           </span>
         </div>
 
+        <div className="grid gap-3 sm:grid-cols-2">
+          {themeOptions.map((option) => (
+            <ThemePreviewCard
+              key={option.id}
+              option={option}
+              isActive={theme === option.id}
+              onSelect={() => setTheme(option.id)}
+            />
+          ))}
+        </div>
 
         <div className="mt-4 card p-4 animate-slide-up animation-delay-150">
           <div className="flex items-center justify-between gap-3">

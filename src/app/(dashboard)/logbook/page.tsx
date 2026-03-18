@@ -5,24 +5,20 @@ import Link from "next/link";
 import {
   ArrowUpRight,
   BookOpen,
+  Calendar,
   CheckCircle2,
   ChevronRight,
+  ClipboardList,
   Clock3,
   Flame,
   Layers3,
   PenLine,
   Sparkles,
-  Waves,
 } from "lucide-react";
 import { NotificationBell } from "@/components/NotificationBell";
-import { StreakBadge } from "@/components/StreakBadge";
-import { WeeklyProgress } from "@/components/WeeklyProgress";
-import { OnboardingTour } from "@/components/OnboardingTour";
-import { HelpHint } from "@/components/HelpHint";
 import { QuickActionsRow } from "@/components/dashboard/QuickActionsRow";
-import { TeacherFeed } from "@/components/dashboard/TeacherFeed";
-import { TEACHER_TOUR } from "@/lib/tour-steps";
-import type { EntryWithRelations } from "@/types";
+import { DynamicEntryCard } from "@/components/DynamicEntryCard";
+import { Skeleton } from "@/components/ui/Skeleton";
 import { useCoordinatorMode } from "@/contexts/CoordinatorModeContext";
 import type { EntryWithRelations } from "@/types";
 import { cn } from "@/lib/utils";
@@ -61,7 +57,37 @@ interface StoryNotice {
   isRead: boolean;
 }
 
+interface NextClassInfo {
+  type: "prep-soon" | "up-next" | "rest-long";
+  message: string;
+  detail?: string;
+  hint?: string;
+}
+
 const weekdayShort = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const weekdayLong = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
+const WEEKEND_MESSAGES = [
+  "You've earned this rest. Recharge and come back strong.",
+  "Teaching is a marathon, not a sprint. Rest up.",
+  "Take this time to do something you love outside the classroom.",
+  "Your students are lucky to have you. Now go enjoy your weekend.",
+  "A well-rested teacher is a great teacher. See you Monday.",
+];
+
+const FREE_DAY_MESSAGES = [
+  "Use this time to prepare, mark, or simply breathe.",
+  "A day to catch up on planning or just enjoy some quiet.",
+  "No rush today. The classroom will be there tomorrow.",
+  "Great teachers prepare on days like this. Or rest. Both are valid.",
+];
+
+const ALL_CAUGHT_UP_MESSAGES = [
+  "Every class logged. Your students' progress is being recorded.",
+  "All done! Consistency like this is what makes great teachers.",
+  "100% logged today. That's the standard.",
+  "Another day of complete records. Your future self will thank you.",
+];
 
 function parseMinutes(value: string) {
   const [hours, minutes] = value.split(":").map(Number);
@@ -77,6 +103,13 @@ function startOfDay(value: Date) {
 function differenceInDays(a: Date, b: Date) {
   const ms = startOfDay(a).getTime() - startOfDay(b).getTime();
   return Math.round(ms / 86400000);
+}
+
+function getRotatingMessage(messages: string[]) {
+  const now = new Date();
+  const yearStart = new Date(now.getFullYear(), 0, 0);
+  const dayOfYear = Math.floor((startOfDay(now).getTime() - yearStart.getTime()) / 86400000);
+  return messages[dayOfYear % messages.length];
 }
 
 function getStreak(entries: EntryWithRelations[]) {
@@ -111,11 +144,10 @@ function getCurrentSlotIndex(slots: TimetableSlotInfo[]) {
   return slots.findIndex((slot) => minutesNow >= parseMinutes(slot.startTime) && minutesNow < parseMinutes(slot.endTime));
 }
 
-function getEntryMatch(entry: EntryWithRelations, slot: TimetableSlotInfo) {
+function getEntryMatch(entry: EntryWithRelations, slot: TimetableSlotInfo, referenceDate = new Date()) {
   const entryDate = new Date(entry.date);
-  const today = new Date();
   return (
-    entryDate.toDateString() === today.toDateString() &&
+    entryDate.toDateString() === referenceDate.toDateString() &&
     entry.class.id === slot.assignment.classId &&
     ((entry.assignment?.subject.id && entry.assignment.subject.id === slot.assignment.subjectId) ||
       entry.topics?.some((topic) => topic.subject?.id === slot.assignment.subjectId) ||
@@ -146,6 +178,62 @@ function getWeeklyBars(slots: TimetableSlotInfo[], entries: EntryWithRelations[]
       isToday: startOfDay(date).getTime() === startOfDay(new Date()).getTime(),
     };
   });
+}
+
+function getNextScheduledClassInfo(slots: TimetableSlotInfo[], now: Date): NextClassInfo | null {
+  if (!slots.length) return null;
+
+  const currentDay = now.getDay();
+  const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+  const candidates = slots
+    .map((slot) => {
+      let daysAway = (slot.dayOfWeek - currentDay + 7) % 7;
+      const slotMinutes = parseMinutes(slot.startTime);
+      if (daysAway === 0 && slotMinutes <= currentMinutes) {
+        daysAway = 7;
+      }
+
+      return {
+        slot,
+        daysAway,
+        minutesAway: daysAway * 1440 + (slotMinutes - currentMinutes),
+      };
+    })
+    .sort((a, b) => a.minutesAway - b.minutesAway);
+
+  const nextCandidate = candidates[0];
+  if (!nextCandidate) return null;
+
+  const { slot, daysAway, minutesAway } = nextCandidate;
+  const detail = `${slot.assignment.subjectName} • ${slot.assignment.className} • ${weekdayLong[slot.dayOfWeek]} at ${slot.startTime}`;
+
+  if (daysAway === 0 && minutesAway <= 120) {
+    return {
+      type: "prep-soon",
+      message: `${slot.assignment.subjectName} starts soon`,
+      detail,
+      hint: "A quick glance at your notes now will make the lesson feel effortless.",
+    };
+  }
+
+  if (daysAway === 0) {
+    return {
+      type: "up-next",
+      message: "Another class is lined up for later today.",
+      detail,
+      hint: "Take a breather, then step back in with the calm of a prepared teacher.",
+    };
+  }
+
+  return {
+    type: daysAway >= 2 ? "rest-long" : "up-next",
+    message: daysAway === 1 ? "Done for today!" : "No more classes until later in the week.",
+    detail,
+    hint: daysAway === 1
+      ? "Rest well — tomorrow brings another room full of learners."
+      : "A little breathing room now can become your best planning time.",
+  };
 }
 
 export default function LogbookPage() {
@@ -243,35 +331,36 @@ export default function LogbookPage() {
   const syllabusCoverage = Math.min(100, Math.round((uniqueTopics / coverageTarget) * 100));
   const currentSlotIndex = getCurrentSlotIndex(todaySlots);
   const pendingCount = Math.max(todaySlots.length - todaySlots.filter((slot) => entries.some((entry) => getEntryMatch(entry, slot))).length, 0);
+  const todayLoggedCount = todaySlots.length - pendingCount;
   const weeklyBars = useMemo(() => getWeeklyBars(allSlots, entries), [allSlots, entries]);
-  const nextClass = useMemo(() => {
-    const minutesNow = today.getHours() * 60 + today.getMinutes();
-    return todaySlots.find((slot) => parseMinutes(slot.startTime) > minutesNow);
-  }, [today, todaySlots]);
-  const upcomingLabel = nextClass
-    ? `${nextClass.assignment.subjectName} • ${nextClass.startTime}`
-    : null;
+  const nextClassInfo = useMemo(() => getNextScheduledClassInfo(allSlots, new Date()), [allSlots]);
+  const elapsedWeeklyBacklog = useMemo(
+    () => weeklyBars.filter((bar) => bar.date.getTime() <= startOfDay(today).getTime()).reduce((sum, bar) => sum + Math.max(bar.total - bar.logged, 0), 0),
+    [today, weeklyBars],
+  );
+  const weekendMessage = getRotatingMessage(WEEKEND_MESSAGES);
+  const freeDayMessage = getRotatingMessage(FREE_DAY_MESSAGES);
+  const allCaughtUpMessage = getRotatingMessage(ALL_CAUGHT_UP_MESSAGES);
   const feedEntries = entries.slice(0, 6);
+  const allClassesDone = !loading && isWeekday && todaySlots.length > 0 && pendingCount === 0;
 
   return (
-    <div className="page-shell space-y-4 pt-4">
-      <section className="page-header overflow-hidden rounded-[32px] px-5 pb-6 pt-5 text-white shadow-float">
+    <div className="page-shell space-y-4 pt-4 lg:space-y-5">
+      <section className="page-header overflow-hidden rounded-[32px] px-5 pb-6 pt-5 text-white shadow-float lg:px-6 lg:pb-7">
         <div className="relative z-10 space-y-5">
           <div className="flex items-start justify-between gap-3">
             <div className="space-y-2">
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/70">{greeting}</p>
-              <h1 className="font-display text-[2rem] leading-[1.05] text-white">
-                {displayName || "Teacher"}
-              </h1>
-              <p className="max-w-[16rem] text-sm text-white/76">
+              <h1 className="font-display text-[2rem] leading-[1.05] text-white lg:text-[2.3rem]">{displayName || "Teacher"}</h1>
+              <p className="max-w-[24rem] text-sm text-white/76 lg:text-[15px]">
                 Your log feed is tuned for fast taps, live context, and clean follow-through.
               </p>
             </div>
             <NotificationBell />
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div className="glass-panel rounded-[24px] p-4">
+          <div className="grid gap-3 sm:grid-cols-2 lg:gap-4">
+            <div className="glass-panel rounded-[24px] p-4 lg:p-5">
               <div className="flex items-start gap-3">
                 <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-dynamic-accent text-white shadow-accent motion-safe:animate-spring-bounce">
                   <Flame className="h-5 w-5" />
@@ -283,7 +372,7 @@ export default function LogbookPage() {
               </div>
             </div>
 
-            <div className="rounded-[24px] border border-white/10 bg-white/6 p-4 backdrop-blur-sm">
+            <div className="rounded-[24px] border border-white/10 bg-white/6 p-4 backdrop-blur-sm lg:p-5">
               <div className="flex items-start gap-3">
                 <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/10 text-white/90">
                   <Layers3 className="h-5 w-5" />
@@ -309,7 +398,7 @@ export default function LogbookPage() {
         </div>
       </section>
 
-      <QuickActionsRow pendingCount={pendingCount} upcomingLabel={upcomingLabel} />
+      <QuickActionsRow />
 
       <section className="space-y-3">
         <div className="flex items-center justify-between">
@@ -322,13 +411,16 @@ export default function LogbookPage() {
           </Link>
         </div>
 
-        <div className="-mx-4 overflow-x-auto px-4 pb-1">
-          <div className="flex gap-3 pr-2">
-            {(notices.length ? notices : [{ id: "fallback", title: "You are clear", message: "No new notices right now.", createdAt: new Date().toISOString(), isRead: true }]).map((notice, index) => (
+        <div className="-mx-4 overflow-x-auto px-4 pb-1 lg:mx-0 lg:px-0">
+          <div className="flex gap-3 pr-2 lg:grid lg:grid-cols-2 xl:grid-cols-3 lg:pr-0">
+            {(notices.length
+              ? notices
+              : [{ id: "fallback", title: "You are clear", message: "No new notices right now.", createdAt: new Date().toISOString(), isRead: true }]
+            ).map((notice, index) => (
               <Link
                 key={notice.id}
                 href="/notifications"
-                className={cn("story-pill min-w-[190px]", !notice.isRead && "motion-safe:animate-live-pulse")}
+                className={cn("story-pill min-w-[190px] lg:min-w-0", !notice.isRead && "motion-safe:animate-live-pulse")}
                 style={{ animationDelay: `${index * 120}ms` }}
               >
                 <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,hsl(var(--accent)),hsl(var(--accent-strong)))] text-white shadow-accent">
@@ -338,6 +430,7 @@ export default function LogbookPage() {
                   <span className="block truncate text-sm font-bold text-content-primary">{notice.title}</span>
                   <span className="mt-1 block line-clamp-2 text-xs text-content-secondary">{notice.message}</span>
                 </span>
+                <ChevronRight className="h-4 w-4 text-content-tertiary" />
               </Link>
             ))}
           </div>
@@ -347,11 +440,13 @@ export default function LogbookPage() {
       <section className="section-card space-y-4">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-content-tertiary">Today — {today.toLocaleDateString("en-GB", { weekday: "long" })}</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-content-tertiary">
+              Today — {today.toLocaleDateString("en-GB", { weekday: "long" })}
+            </p>
             <h2 className="text-lg font-bold text-content-primary">Tap the live class first</h2>
           </div>
           <span className="rounded-full bg-[hsl(var(--accent-soft))] px-3 py-1.5 font-mono text-[11px] font-bold text-[hsl(var(--accent-text))]">
-            {todaySlots.length - pendingCount}/{todaySlots.length || 0} logged
+            {todayLoggedCount}/{todaySlots.length || 0} logged
           </span>
         </div>
 
@@ -371,61 +466,163 @@ export default function LogbookPage() {
                   </div>
                 </div>
               </div>
-              <span className="text-sm font-semibold" style={{ color: "#92400E" }}>
-                You have {unreadAnnouncements} new announcement{unreadAnnouncements > 1 ? "s" : ""}
-              </span>
-            </div>
-            <ChevronRight className="w-4 h-4 text-amber-400" />
-          </Link>
-        )}
-
-         {/* ── Stories-style Quick Actions ───────────────────────────── */}
-        <QuickActionsRow />
-
-        {/* ── Entry Feed ──────────────────────────────────────────────── */}
-        <TeacherFeed entries={entries} loading={loading} />
-        
-        {/* ── Today's Schedule ─────────────────────────────────────── */}
-        {isWeekday && sortedTodaySlots.length > 0 && (
-          <div data-tour="today-schedule" className="animate-slide-up">
-            {/* Section header */}
-            <div className="flex items-center justify-between mb-3 px-1">
-              <h2
+            ))
+          ) : !isWeekday ? (
+            <div
+              className="card p-6 text-center"
+              style={{
+                background: "linear-gradient(135deg, rgba(245,158,11,0.04), rgba(251,191,36,0.02))",
+                border: "1px solid rgba(245,158,11,0.1)",
+              }}
+            >
+              <div className="mb-3 text-4xl">🌴</div>
+              <h3
                 style={{
-                  fontFamily: "var(--font-body)",
-                  fontSize: "14px",
+                  fontFamily: "var(--font-display)",
+                  fontSize: "20px",
                   fontWeight: 700,
                   color: "var(--text-primary)",
                 }}
               >
-                Today — {DAY_NAMES[dayOfWeek]}
-              </h2>
-              <span
-                className="tabular-nums"
+                Happy Weekend!
+              </h3>
+              <p
                 style={{
-                  fontSize: "12px",
+                  fontFamily: "var(--font-body)",
+                  fontSize: "14px",
                   color: "var(--text-tertiary)",
+                  marginTop: "6px",
+                  lineHeight: 1.6,
                 }}
               >
-                {todayFilledCount}/{sortedTodaySlots.length} logged
-              </span>
+                {dayOfWeek === 6
+                  ? `It's Saturday — ${weekendMessage}`
+                  : `Enjoy your Sunday. ${weekendMessage}`}
+              </p>
+
+              {elapsedWeeklyBacklog > 0 && (
+                <Link
+                  href="/logbook/new"
+                  className="mt-4 inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold"
+                  style={{
+                    background: "var(--accent-light)",
+                    color: "var(--accent-text)",
+                  }}
+                >
+                  <ClipboardList className="h-4 w-4" />
+                  Catch up on {elapsedWeeklyBacklog} unfilled entr{elapsedWeeklyBacklog === 1 ? "y" : "ies"}
+                </Link>
+              )}
+            </div>
+          ) : todaySlots.length === 0 ? (
+            <div
+              className="card p-6 text-center"
+              style={{
+                background: "linear-gradient(135deg, rgba(16,163,74,0.04), rgba(74,222,128,0.02))",
+                border: "1px solid rgba(16,163,74,0.08)",
+              }}
+            >
+              <div className="mb-3 text-4xl">☕</div>
+              <h3
+                style={{
+                  fontFamily: "var(--font-display)",
+                  fontSize: "20px",
+                  fontWeight: 700,
+                  color: "var(--text-primary)",
+                }}
+              >
+                Free day — no classes!
+              </h3>
+              <p
+                style={{
+                  fontFamily: "var(--font-body)",
+                  fontSize: "14px",
+                  color: "var(--text-tertiary)",
+                  marginTop: "6px",
+                  lineHeight: 1.6,
+                }}
+              >
+                You don&apos;t have any classes scheduled for today. {freeDayMessage}
+              </p>
+
+              <div className="mt-5 flex flex-wrap justify-center gap-3">
+                <Link
+                  href="/timetable"
+                  className="inline-flex items-center gap-1.5 rounded-xl px-4 py-2.5 text-sm font-semibold"
+                  style={{ background: "var(--bg-tertiary)", color: "var(--text-secondary)" }}
+                >
+                  <Calendar className="h-4 w-4" />
+                  View timetable
+                </Link>
+                {elapsedWeeklyBacklog > 0 && (
+                  <Link
+                    href="/logbook/new"
+                    className="inline-flex items-center gap-1.5 rounded-xl px-4 py-2.5 text-sm font-semibold"
+                    style={{ background: "var(--accent-light)", color: "var(--accent-text)" }}
+                  >
+                    <BookOpen className="h-4 w-4" />
+                    Catch up
+                  </Link>
+                )}
+              </div>
+            </div>
+          ) : allClassesDone ? (
+            <div
+              className="card p-6 text-center"
+              style={{
+                background: "linear-gradient(135deg, rgba(16,163,74,0.06), rgba(74,222,128,0.03))",
+                border: "1px solid rgba(16,163,74,0.12)",
+              }}
+            >
+              <div className="mb-3 text-4xl">🎉</div>
+              <h3
+                style={{
+                  fontFamily: "var(--font-display)",
+                  fontSize: "20px",
+                  fontWeight: 700,
+                  color: "var(--text-primary)",
+                }}
+              >
+                All caught up!
+              </h3>
+              <p
+                style={{
+                  fontFamily: "var(--font-body)",
+                  fontSize: "14px",
+                  color: "var(--text-tertiary)",
+                  marginTop: "6px",
+                  lineHeight: 1.6,
+                }}
+              >
+                {allCaughtUpMessage}
+              </p>
+
+              {streak > 0 && (
+                <p
+                  style={{
+                    fontFamily: "var(--font-mono)",
+                    fontSize: "13px",
+                    color: "var(--accent-text)",
+                    fontWeight: 600,
+                    marginTop: "10px",
+                  }}
+                >
+                  🔥 {streak}-day streak — keep it going!
+                </p>
+              )}
             </div>
           ) : (
             todaySlots.map((slot, index) => {
               const matchedEntry = entries.find((entry) => getEntryMatch(entry, slot));
               const isLogged = Boolean(matchedEntry);
               const isCurrent = index === currentSlotIndex;
-              const isUpcoming = index > currentSlotIndex || currentSlotIndex === -1;
+              const isUpcoming = currentSlotIndex === -1 || index > currentSlotIndex;
               const logHref = `/logbook/new?slotId=${slot.id}&assignmentId=${slot.assignment.id}`;
 
               return (
                 <article
                   key={slot.id}
-                  className={cn(
-                    "card p-4 transition-all duration-300",
-                    isCurrent && "live-card scale-[1.01]",
-                    isLogged && "opacity-70",
-                  )}
+                  className={cn("card p-4 transition-all duration-300", isCurrent && "live-card scale-[1.01]", isLogged && "opacity-70")}
                   style={{ animationDelay: `${index * 80}ms` }}
                 >
                   <div className="flex gap-4">
@@ -438,10 +635,7 @@ export default function LogbookPage() {
                       <div className="flex items-start justify-between gap-3">
                         <div>
                           <h3 className="text-sm font-bold text-content-primary">{slot.assignment.subjectName}</h3>
-                          <p className="mt-1 text-sm text-content-secondary">
-                            {slot.assignment.className}
-                            {matchedEntry?.moduleName ? ` • ${matchedEntry.moduleName}` : ""}
-                          </p>
+                          <p className="mt-1 text-sm text-content-secondary">{slot.assignment.className}</p>
                         </div>
 
                         {isLogged ? (
@@ -454,7 +648,12 @@ export default function LogbookPage() {
                             Log
                           </Link>
                         ) : (
-                          <span className={cn("flex h-10 w-10 items-center justify-center rounded-2xl border border-dashed", isUpcoming ? "border-[hsl(var(--border-strong))] text-content-tertiary" : "border-[hsl(var(--border-primary))] text-content-tertiary")}> 
+                          <span
+                            className={cn(
+                              "flex h-10 w-10 items-center justify-center rounded-2xl border border-dashed",
+                              isUpcoming ? "border-[hsl(var(--border-strong))] text-content-tertiary" : "border-[hsl(var(--border-primary))] text-content-tertiary",
+                            )}
+                          >
                             <Clock3 className="h-4 w-4" />
                           </span>
                         )}
@@ -486,14 +685,18 @@ export default function LogbookPage() {
           </span>
         </div>
 
-        <div className="grid grid-cols-5 gap-2">
+        <div className="grid grid-cols-5 gap-2 lg:gap-3">
           {weeklyBars.map((bar, index) => (
             <div key={bar.key} className="flex flex-col items-center gap-2">
               <div className="flex h-28 w-full items-end rounded-[18px] bg-[hsl(var(--surface-secondary))] p-2">
                 <div
                   className={cn(
                     "w-full rounded-[12px] transition-all duration-700 ease-[var(--ease-spring)]",
-                    bar.ratio === 100 ? "bg-[linear-gradient(180deg,hsl(var(--success)),color-mix(in_srgb,hsl(var(--success))_68%,white))]" : bar.ratio > 0 ? "bg-dynamic-accent" : "bg-[hsl(var(--surface-tertiary))]",
+                    bar.ratio === 100
+                      ? "bg-[linear-gradient(180deg,hsl(var(--success)),color-mix(in_srgb,hsl(var(--success))_68%,white))]"
+                      : bar.ratio > 0
+                        ? "bg-dynamic-accent"
+                        : "bg-[hsl(var(--surface-tertiary))]",
                     bar.isToday && "shadow-accent",
                   )}
                   style={{ height: `${Math.max(bar.ratio, 12)}%`, transitionDelay: `${index * 100}ms` }}
@@ -508,20 +711,60 @@ export default function LogbookPage() {
         </div>
       </section>
 
-      {nextClass ? (
-        <section className="card overflow-hidden p-4">
-          <div className="absolute inset-y-4 left-0 w-1 rounded-full bg-dynamic-accent" />
-          <div className="pl-3">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-content-tertiary">Next class</p>
-            <div className="mt-2 flex items-center justify-between gap-3">
-              <div>
-                <h3 className="text-base font-bold text-content-primary">{nextClass.assignment.subjectName}</h3>
-                <p className="text-sm text-content-secondary">{nextClass.assignment.className}</p>
-              </div>
-              <div className="text-right">
-                <p className="font-mono text-sm font-bold text-[hsl(var(--accent-text))]">{nextClass.startTime}</p>
-                <p className="text-xs text-content-tertiary">Starts later today</p>
-              </div>
+      {nextClassInfo ? (
+        <section
+          className="card p-5"
+          style={
+            nextClassInfo.type === "prep-soon"
+              ? {
+                  background: "linear-gradient(135deg, rgba(245,158,11,0.06), rgba(251,191,36,0.03))",
+                  border: "1px solid rgba(245,158,11,0.12)",
+                }
+              : {
+                  background: "linear-gradient(135deg, rgba(99,102,241,0.04), rgba(129,140,248,0.02))",
+                  border: "1px solid rgba(99,102,241,0.08)",
+                }
+          }
+        >
+          <div className="flex items-start gap-4">
+            <div className="text-3xl">{nextClassInfo.type === "prep-soon" ? "⏰" : nextClassInfo.type === "rest-long" ? "🌙" : "🕐"}</div>
+            <div>
+              <h3
+                style={{
+                  fontFamily: "var(--font-body)",
+                  fontSize: "16px",
+                  fontWeight: 700,
+                  color: "var(--text-primary)",
+                }}
+              >
+                {nextClassInfo.message}
+              </h3>
+              {nextClassInfo.detail && (
+                <p
+                  style={{
+                    fontFamily: "var(--font-body)",
+                    fontSize: "13px",
+                    color: "var(--text-tertiary)",
+                    marginTop: "3px",
+                  }}
+                >
+                  {nextClassInfo.type === "rest-long" ? `Next up: ${nextClassInfo.detail}` : nextClassInfo.detail}
+                </p>
+              )}
+              {nextClassInfo.hint && (
+                <p
+                  style={{
+                    fontFamily: "var(--font-body)",
+                    fontSize: "13px",
+                    color: nextClassInfo.type === "prep-soon" ? "var(--accent-text)" : "var(--text-tertiary)",
+                    fontWeight: nextClassInfo.type === "prep-soon" ? 600 : 400,
+                    marginTop: "4px",
+                    fontStyle: nextClassInfo.type === "prep-soon" ? "normal" : "italic",
+                  }}
+                >
+                  {nextClassInfo.hint}
+                </p>
+              )}
             </div>
           </div>
         </section>
@@ -539,23 +782,17 @@ export default function LogbookPage() {
           </Link>
         </div>
 
-        <div className="feed-grid">
+        <div className="feed-grid lg:grid-cols-2 xl:grid-cols-3">
           {feedEntries.length > 0 ? (
-            feedEntries.map((entry, index) => (
-              <DynamicEntryCard
-                key={entry.id}
-                entry={entry}
-                priority={index === 0 ? "live" : "default"}
-              />
-            ))
+            feedEntries.map((entry, index) => <DynamicEntryCard key={entry.id} entry={entry} priority={index === 0 ? "live" : "default"} />)
           ) : (
-            <div className="card bg-dynamic-noise p-5 text-center">
+            <div className="card bg-dynamic-noise p-5 text-center lg:col-span-full">
               <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[hsl(var(--accent-soft))] text-[hsl(var(--accent-text))] shadow-accent">
                 <BookOpen className="h-6 w-6" />
               </div>
               <h3 className="mt-4 text-lg font-bold text-content-primary">Your feed will come alive here</h3>
               <p className="mt-2 text-sm text-content-secondary">Create the first entry and Edlog starts building your live teaching record.</p>
-              <Link href="/logbook/new" className="btn-primary mt-4 w-full">
+              <Link href="/logbook/new" className="btn-primary mt-4 w-full lg:w-auto">
                 Create first entry
               </Link>
             </div>
