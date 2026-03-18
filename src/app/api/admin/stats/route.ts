@@ -1,5 +1,6 @@
 export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
+import { Prisma, TeacherSchoolStatus } from "@prisma/client";
 import { db } from "@/lib/db";
 import { getSessionUser } from "@/lib/auth";
 import { getStartOfWeek, getStartOfMonth, getWeekNumber } from "@/lib/utils";

@@ -111,11 +111,11 @@ const config: Config = {
           "0%, 100%": { transform: "translateY(0)" },
           "50%": { transform: "translateY(-2px)" },
         },
-        "bounce-in": {
-          "0%": { opacity: "0", transform: "scale(0.3)" },
-          "50%": { transform: "scale(1.05)" },
-          "70%": { transform: "scale(0.95)" },
-          "100%": { opacity: "1", transform: "scale(1)" },
+        "spring-bounce": {
+          "0%": { opacity: "0", transform: "scale(0.82) translateY(10px)" },
+          "55%": { opacity: "1", transform: "scale(1.04) translateY(-2px)" },
+          "78%": { transform: "scale(0.985) translateY(0)" },
+          "100%": { opacity: "1", transform: "scale(1) translateY(0)" },
         },
         "live-pulse": {
           "0%, 100%": { transform: "scale(1)", boxShadow: "0 0 0 0 hsl(var(--accent-glow) / 0.18)" },
