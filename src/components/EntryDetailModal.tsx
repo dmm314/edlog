@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState, useEffect } from "react";
 import {
   X, Calendar, Layers, BookOpen, Monitor, Smartphone,
@@ -68,7 +69,7 @@ interface EntryDetail {
 const REMARK_COLORS: Record<string, { bg: string; text: string; border: string; bar: string; label: string }> = {
   self_reflection: { bg: "bg-emerald-50", text: "text-emerald-700", border: "border-emerald-200", bar: "bg-emerald-500", label: "Teacher" },
   hod_review: { bg: "bg-amber-50", text: "text-amber-700", border: "border-amber-200", bar: "bg-amber-500", label: "HOD" },
-  admin_verification: { bg: "bg-blue-50", text: "text-blue-700", border: "border-blue-200", bar: "bg-blue-500", label: "Admin" },
+  admin_observation: { bg: "bg-blue-50", text: "text-blue-700", border: "border-blue-200", bar: "bg-blue-500", label: "Admin" },
   inspector_note: { bg: "bg-purple-50", text: "text-purple-700", border: "border-purple-200", bar: "bg-purple-500", label: "Inspector" },
 };
 
@@ -376,10 +377,13 @@ export function EntryDetailModal({
                 {entry.signatureData && (
                   <div className="mt-2">
                     <p style={{ fontSize: 11, color: "var(--text-tertiary)", marginBottom: 4 }}>Signature</p>
-                    <img
+                    <Image
                       src={entry.signatureData}
                       alt="Verification signature"
-                      style={{ maxHeight: 60, border: "1px solid var(--border-primary)", borderRadius: 8, background: "white", padding: 4 }}
+                      width={240}
+                      height={60}
+                      unoptimized
+                      style={{ maxHeight: 60, width: "auto", border: "1px solid var(--border-primary)", borderRadius: 8, background: "white", padding: 4 }}
                     />
                   </div>
                 )}
@@ -502,4 +506,3 @@ export function EntryDetailModal({
     </div>
   );
 }
-

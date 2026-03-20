@@ -137,7 +137,7 @@ export async function POST(
       if (entry.class.schoolId !== user.schoolId) {
         return NextResponse.json({ error: "Forbidden" }, { status: 403 });
       }
-      remarkType = "admin_verification";
+      remarkType = "admin_observation";
       authorRole = "SCHOOL_ADMIN";
     } else if (user.role === "TEACHER") {
       if (entry.teacherId === user.id) {
@@ -208,7 +208,7 @@ export async function POST(
       const typeLabel =
         remarkType === "hod_review"
           ? "HOD"
-          : remarkType === "admin_verification"
+          : remarkType === "admin_observation"
           ? "Admin"
           : "Inspector";
 

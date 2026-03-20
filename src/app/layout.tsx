@@ -1,8 +1,27 @@
 import type { Metadata, Viewport } from "next";
+import { DM_Sans, Fraunces, JetBrains_Mono } from "next/font/google";
 import { SessionProvider } from "next-auth/react";
 import { ToastProvider } from "@/components/ui/Toast";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import "./globals.css";
+
+const bodyFont = DM_Sans({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-body",
+});
+
+const displayFont = Fraunces({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-display",
+});
+
+const monoFont = JetBrains_Mono({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-mono",
+});
 
 
 export const metadata: Metadata = {
@@ -31,12 +50,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={`${bodyFont.variable} ${displayFont.variable} ${monoFont.variable}`}
+    >
       <head>
         <link rel="apple-touch-icon" href="/icon-192.png" />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,100..900&family=DM+Sans:opsz,wght@9..40,100..1000&family=JetBrains+Mono:wght@100..800&display=swap" rel="stylesheet" />
         <script
           dangerouslySetInnerHTML={{
             __html: `(function(){try{var root=document.documentElement;var t=localStorage.getItem('edlog-theme');var intensity=localStorage.getItem('edlog-dynamic-intensity')==='calm'?'calm':'vibrant';root.dataset.intensity=intensity;if(t==='dark'||t==='night'){root.classList.add('dark')}else if(t==='light'){root.classList.add('light')}else if(window.matchMedia('(prefers-color-scheme:dark)').matches){root.classList.add('dark')}else{root.classList.add('light')}}catch(e){}})()`,
