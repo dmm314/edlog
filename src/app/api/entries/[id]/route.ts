@@ -157,24 +157,9 @@ export async function PATCH(
       delete data.status;
     }
 
-    // School admins cannot change entry status — verification is delegated to VPs.
-    // If the school has no VPs, the admin entries page calls this endpoint as a fallback.
-    // In that case the UI already guards the action; we still allow it here so the
-    // fallback verify/flag flow works when hasVPs === false.
-    if (user.role === "SCHOOL_ADMIN" && data.status) {
-      // Check whether this school has any active coordinators
-      const vpCount = await db.levelCoordinator.count({
-        where: { schoolId: user.schoolId ?? undefined, isActive: true },
-      });
-      if (vpCount > 0) {
-        // VPs exist — admin cannot change status; strip it silently
-        delete data.status;
-      } else if (data.status !== "VERIFIED" && data.status !== "FLAGGED") {
-        return NextResponse.json(
-          { error: "Invalid status" },
-          { status: 400 }
-        );
-      }
+    // School admins can add remarks/observations but do not verify entries.
+    if (user.role === "SCHOOL_ADMIN") {
+      delete data.status;
     }
 
     // Sanitize text
