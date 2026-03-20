@@ -205,15 +205,25 @@
   .dashboard-shell {
     min-height: 100vh;
     padding-bottom: calc(94px + env(safe-area-inset-bottom));
+    position: relative;
   }
 
   .dashboard-content {
     width: 100%;
+    position: relative;
+    z-index: 1;
   }
 
   @media (min-width: 1024px) {
     .dashboard-shell {
-      padding-left: 18rem;
+      padding-left: 21.5rem;
+      padding-right: 1.5rem;
+      padding-bottom: 0;
+    }
+
+    .dashboard-content {
+      min-height: 100vh;
+      padding: 1.5rem 0 2rem;
     }
   }
 
@@ -294,6 +304,12 @@
 
   .section-card {
     @apply card p-5;
+  }
+
+  @media (min-width: 1024px) {
+    .section-card {
+      padding: 1.5rem;
+    }
   }
 
   .live-card {
@@ -587,7 +603,8 @@
 
 @layer components {
   .glass-nav {
-    background: color-mix(in srgb, var(--nav-bg) 86%, white 14%);
+    background:
+      linear-gradient(180deg, color-mix(in srgb, var(--nav-bg) 82%, white 18%), color-mix(in srgb, var(--nav-bg) 90%, white 10%));
   }
 
   .no-scrollbar::-webkit-scrollbar {
