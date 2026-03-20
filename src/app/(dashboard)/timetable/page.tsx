@@ -41,6 +41,7 @@ type ActiveSlot = {
   dayValue: number;
   eligibleDate: string | null;
   existingEntry: SlotEntryInfo | null;
+  recentEntry: SlotEntryInfo | null;
   isFuture: boolean;
   isPast: boolean;
   isToday: boolean;
@@ -127,6 +128,20 @@ function getSlotDate(dayValue: number): string {
   const date = new Date(now);
   date.setDate(now.getDate() + diff);
   return date.toISOString().split("T")[0];
+}
+
+function getEntryForSlotOnDate(
+  slotEntries: Record<string, SlotEntryInfo>,
+  slot: TimetableSlot,
+  dateStr: string,
+) {
+  const directMatch = slotEntries[`${slot.id}:${dateStr}`];
+  if (directMatch) return directMatch;
+
+  const periodMatch = slot.periodLabel.match(/\d+/);
+  if (!periodMatch) return null;
+
+  return slotEntries[`period:${periodMatch[0]}:${slot.assignment.classId}:${dateStr}`] || null;
 }
 
 /* ------------------------------------------------------------------ */
@@ -268,29 +283,27 @@ export default function TimetablePage() {
     slotDate.setDate(now.getDate() + dayDiff);
     const slotDateStr = slotDate.toISOString().split("T")[0];
 
-    // Check for existing entry by slotId+date
-    let existingEntry: SlotEntryInfo | null = slotEntries[`${slot.id}:${slotDateStr}`] || null;
-
-    // Also check by period number + classId if no direct match
-    if (!existingEntry) {
-      const periodMatch = slot.periodLabel.match(/\d+/);
-      if (periodMatch) {
-        existingEntry =
-          slotEntries[`period:${periodMatch[0]}:${slot.assignment.classId}:${slotDateStr}`] || null;
-      }
-    }
+    const existingEntry = getEntryForSlotOnDate(slotEntries, slot, slotDateStr);
+    const lastWeekDate = new Date(slotDate);
+    lastWeekDate.setDate(slotDate.getDate() - 7);
+    const lastWeekDateStr = lastWeekDate.toISOString().split("T")[0];
+    const lastWeekEntry = getEntryForSlotOnDate(slotEntries, slot, lastWeekDateStr);
 
     const isToday = dayDiff === 0;
     const isPast = dayDiff < 0;
     const isFuture = dayDiff > 0;
 
     const eligibleDate = isFuture ? null : slotDateStr;
+    const recentEntry = [existingEntry, lastWeekEntry]
+      .filter((entry): entry is SlotEntryInfo => Boolean(entry))
+      .sort((a, b) => b.date.localeCompare(a.date))[0] || null;
 
     setActiveSlot({
       slot,
       dayValue,
       eligibleDate,
       existingEntry,
+      recentEntry,
       isFuture,
       isPast,
       isToday,
@@ -301,7 +314,7 @@ export default function TimetablePage() {
     <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
       {/* ============ Header ============ */}
       <div className="page-header px-5 pt-10 pb-6 rounded-b-2xl">
-        <div className="max-w-lg mx-auto">
+        <div className="mx-auto w-full max-w-6xl">
           <Link
             href="/logbook"
             className="inline-flex items-center gap-1 text-white/70 hover:text-white text-sm mb-3"
@@ -363,7 +376,7 @@ export default function TimetablePage() {
       </div>
 
       {/* ============ Content ============ */}
-      <div className="px-5 mt-4 max-w-lg mx-auto">
+      <div className="mx-auto mt-4 w-full max-w-6xl px-5">
         {loading ? (
           <TimetableSkeleton />
         ) : error ? (
@@ -439,14 +452,7 @@ export default function TimetablePage() {
                       if (slot) {
                         const color = getSubjectColor(slot.assignment.subjectName);
                         const slotDateStr = getSlotDate(day.value);
-                        const periodMatch = slot.periodLabel.match(/\d+/);
-                        const periodNum = periodMatch ? periodMatch[0] : null;
-                        const hasEntry =
-                          slotEntries[`${slot.id}:${slotDateStr}`] ||
-                          (periodNum
-                            ? slotEntries[`period:${periodNum}:${slot.assignment.classId}:${slotDateStr}`]
-                            : null) ||
-                          null;
+                        const hasEntry = getEntryForSlotOnDate(slotEntries, slot, slotDateStr);
                         // Weekend (todayDow===0): all days are past
                         const isPastDay = todayDow === 0 ? true : day.value < todayDow;
                         const showFilledDot = !!hasEntry;
@@ -590,6 +596,36 @@ export default function TimetablePage() {
 
             {/* Actions */}
             <div className="px-5 pb-5 space-y-2">
+              {!activeSlot.existingEntry && activeSlot.recentEntry && (
+                <div className="rounded-xl px-3 py-2.5" style={{ background: "var(--bg-tertiary)" }}>
+                  <p style={{ fontFamily: "var(--font-body)", fontSize: "12px", fontWeight: 700, color: "var(--text-secondary)" }}>
+                    Most recent lesson on{" "}
+                    {new Date(activeSlot.recentEntry.date + "T00:00:00").toLocaleDateString("en-GB", {
+                      day: "numeric",
+                      month: "short",
+                    })}
+                  </p>
+                  {(activeSlot.recentEntry.moduleName || activeSlot.recentEntry.topicText) && (
+                    <p style={{ fontFamily: "var(--font-body)", fontSize: "12px", color: "var(--text-tertiary)", marginTop: "3px" }}>
+                      {activeSlot.recentEntry.moduleName}
+                      {activeSlot.recentEntry.topicText
+                        ? ` — ${activeSlot.recentEntry.topicText.substring(0, 60)}${activeSlot.recentEntry.topicText.length > 60 ? "..." : ""}`
+                        : ""}
+                    </p>
+                  )}
+                  <button
+                    onClick={() => {
+                      router.push(`/logbook/${activeSlot.recentEntry!.entryId}`);
+                      setActiveSlot(null);
+                    }}
+                    className="mt-2 inline-flex items-center gap-1.5 text-sm font-semibold"
+                    style={{ color: "var(--accent-text)", fontFamily: "var(--font-body)" }}
+                  >
+                    <Eye className="h-4 w-4" />
+                    View most recent entry
+                  </button>
+                </div>
+              )}
 
               {/* CASE 1: Entry exists */}
               {activeSlot.existingEntry && (

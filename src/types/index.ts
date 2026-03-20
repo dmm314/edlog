@@ -101,6 +101,19 @@ export interface AdminStats {
   entriesThisWeek: number;
   verifiedEntries: number;
   flaggedEntries: number;
+  verifiedEntriesThisMonth?: number;
+  flaggedEntriesThisMonth?: number;
+  pendingEntriesThisMonth?: number;
+  vpBreakdown?: Array<{
+    id: string;
+    title: string;
+    levels: string[];
+    name: string;
+    entriesThisMonth: number;
+    verifiedEntriesThisMonth: number;
+    pendingEntriesThisMonth: number;
+    flaggedEntriesThisMonth: number;
+  }>;
   complianceRate: number;
   entriesBySubject: { subject: string; count: number }[];
   entriesByWeek: { week: string; count: number }[];
