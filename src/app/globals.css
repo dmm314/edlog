@@ -245,15 +245,8 @@
 
 @layer components {
   .page-shell {
-    @apply mx-auto w-full px-4 pb-28 pt-5 sm:px-5 lg:px-6;
-    max-width: 92rem;
-  }
-
-  @media (min-width: 1024px) {
-    .page-shell {
-      padding-top: 0.25rem;
-      padding-bottom: 2rem;
-    }
+    @apply mx-auto w-full px-4 pb-28 pt-5;
+    max-width: 32rem;
   }
 
   .page-header {

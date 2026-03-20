@@ -98,8 +98,8 @@ function BottomNav({ role, isCoordinator, activeMode }: BottomNavProps) {
                 data-tour={tab.dataTour}
                 className={cn(
                   `flex min-h-11 flex-col items-center justify-center rounded-xl text-[10px] font-medium transition ${isActive ? "text-[#0866FF]" : "text-content-tertiary"}`,
-                  "group flex min-h-[62px] flex-col items-center justify-center gap-1 rounded-[22px] px-2 py-2 transition-all duration-300 ease-out active:scale-95",
-                  isActive && "bg-[linear-gradient(135deg,hsl(var(--accent-soft)),rgba(255,255,255,0.92))] shadow-card",
+                  "group flex min-h-[60px] flex-col items-center justify-center gap-1 rounded-2xl px-2 py-2 transition-all duration-300 ease-out active:scale-95",
+                  isActive && "bg-[hsl(var(--accent-soft))] shadow-card",
                 )}
               >
                 <Icon className={`mb-1 h-[18px] w-[18px] ${isActive ? "drop-shadow-[0_0_8px_rgba(8,102,255,0.35)]" : ""}`} />
