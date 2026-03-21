@@ -72,7 +72,6 @@ export function DynamicEntryCard({ entry, priority = "default", onClick }: Dynam
     const id = Date.now() + Math.random();
     const x = clientX - rect.left;
     const y = clientY - rect.top;
-    const size = Math.max(rect.width, rect.height) * 2;
     setRipples((current) => [...current, { id, x, y }]);
     window.setTimeout(() => {
       setRipples((current) => current.filter((ripple) => ripple.id !== id));

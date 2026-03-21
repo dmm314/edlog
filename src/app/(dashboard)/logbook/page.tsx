@@ -5,10 +5,8 @@ import Link from "next/link";
 import {
   ArrowUpRight,
   BookOpen,
-  Calendar,
   CheckCircle2,
   ChevronRight,
-  ClipboardList,
   Clock3,
   Flame,
   Layers3,
@@ -333,12 +331,19 @@ export default function LogbookPage() {
   const pendingCount = Math.max(todaySlots.length - todaySlots.filter((slot) => entries.some((entry) => getEntryMatch(entry, slot))).length, 0);
   const todayLoggedCount = todaySlots.length - pendingCount;
   const weeklyBars = useMemo(() => getWeeklyBars(allSlots, entries), [allSlots, entries]);
-  const nextClass = useMemo(() => {
-    const minutesNow = today.getHours() * 60 + today.getMinutes();
-    return todaySlots.find((slot) => parseMinutes(slot.startTime) > minutesNow);
-  }, [today, todaySlots]);
+  const nextClassInfo = useMemo(() => {
+    if (!isWeekday) {
+      return { type: "rest-long" as const, message: getRotatingMessage(WEEKEND_MESSAGES), hint: "See you next week." };
+    }
+    if (todaySlots.length > 0 && pendingCount === 0) {
+      return { type: "rest-long" as const, message: getRotatingMessage(ALL_CAUGHT_UP_MESSAGES) };
+    }
+    if (todaySlots.length === 0) {
+      return { type: "rest-long" as const, message: getRotatingMessage(FREE_DAY_MESSAGES) };
+    }
+    return getNextScheduledClassInfo(allSlots, today);
+  }, [isWeekday, todaySlots, pendingCount, allSlots, today]);
   const feedEntries = entries.slice(0, 6);
-  const allClassesDone = !loading && isWeekday && todaySlots.length > 0 && pendingCount === 0;
 
   return (
     <div className="page-shell space-y-4 pt-4 lg:space-y-5">
