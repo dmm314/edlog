@@ -196,7 +196,7 @@ export default function HODDashboard() {
   if (loading) {
     return (
       <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
-        <div className="bg-gradient-to-br from-amber-950 via-amber-900 to-amber-800 px-5 pt-10 pb-8 rounded-b-[2rem]">
+        <div className="bg-gradient-to-br from-[var(--header-from)] via-[var(--header-via)] to-[var(--header-to)] px-5 pt-10 pb-8 rounded-b-[2rem]">
           <div className="max-w-lg mx-auto">
             <div className="h-6 w-40 bg-[var(--bg-elevated)]/15 rounded mb-2 animate-pulse" />
             <div className="h-4 w-28 bg-[var(--bg-elevated)]/10 rounded animate-pulse" />
@@ -239,9 +239,9 @@ export default function HODDashboard() {
   return (
     <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
       {/* Header */}
-      <div className="bg-gradient-to-br from-amber-950 via-amber-900 to-amber-800 px-5 pt-10 pb-8 rounded-b-[2rem] shadow-elevated relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-amber-600/20 via-transparent to-transparent" />
-        <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/[0.07] rounded-full -translate-y-1/3 translate-x-1/4 blur-3xl" />
+      <div className="bg-gradient-to-br from-[var(--header-from)] via-[var(--header-via)] to-[var(--header-to)] px-5 pt-10 pb-8 rounded-b-[2rem] shadow-elevated relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[hsl(var(--accent-strong)/0.2)] via-transparent to-transparent" />
+        <div className="absolute top-0 right-0 w-64 h-64 bg-[hsl(var(--accent-soft))]0/[0.07] rounded-full -translate-y-1/3 translate-x-1/4 blur-3xl" />
 
         <div className="max-w-lg mx-auto relative">
           <Link
@@ -252,8 +252,8 @@ export default function HODDashboard() {
             Back to Logbook
           </Link>
           <div className="flex items-center gap-2 mb-1">
-            <Crown className="w-5 h-5 text-amber-400" />
-            <p className="text-amber-400/80 text-xs font-semibold uppercase tracking-wider">
+            <Crown className="w-5 h-5 text-[hsl(var(--accent-glow))]" />
+            <p className="text-[hsl(var(--accent-glow))]/80 text-xs font-semibold uppercase tracking-wider">
               Head of Department
             </p>
           </div>
@@ -282,8 +282,8 @@ export default function HODDashboard() {
         {/* Stats grid */}
         <div className="grid grid-cols-2 gap-3">
           <div className="card p-4">
-            <div className="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center mb-2">
-              <Users className="w-5 h-5 text-amber-600" />
+            <div className="w-10 h-10 bg-[hsl(var(--accent-soft))] rounded-xl flex items-center justify-center mb-2">
+              <Users className="w-5 h-5 text-[hsl(var(--accent-strong))]" />
             </div>
             <p className="text-2xl font-black text-[var(--text-primary)] tabular-nums">
               {stats.teachersInDept}
@@ -332,25 +332,25 @@ export default function HODDashboard() {
           href="/hod/announcements"
           className="flex items-center justify-between p-4 group active:scale-[0.98] transition-all duration-200"
           style={{
-            background: "linear-gradient(135deg, #FFFBEB, #FEF3C7)",
-            border: "1px solid #FDE68A",
+            background: "linear-gradient(135deg, hsl(var(--accent-soft)), hsl(var(--accent-soft)))",
+            border: "1px solid hsl(var(--accent) / 0.2)",
             borderRadius: "16px",
           }}
         >
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center">
-              <Megaphone className="w-5 h-5 text-amber-600" />
+            <div className="w-10 h-10 rounded-xl bg-[hsl(var(--accent-soft))] flex items-center justify-center">
+              <Megaphone className="w-5 h-5 text-[hsl(var(--accent-strong))]" />
             </div>
             <div>
-              <span style={{ fontFamily: "var(--font-body)", fontSize: 14, fontWeight: 700, color: "#92400E" }}>
+              <span style={{ fontFamily: "var(--font-body)", fontSize: 14, fontWeight: 700, color: "hsl(var(--accent-text))" }}>
                 Send Announcement
               </span>
-              <span className="block" style={{ fontFamily: "var(--font-body)", fontSize: 12, color: "#B45309" }}>
+              <span className="block" style={{ fontFamily: "var(--font-body)", fontSize: 12, color: "hsl(var(--accent-text))" }}>
                 Message teachers in your department
               </span>
             </div>
           </div>
-          <ChevronRight className="w-4 h-4 text-amber-400 group-hover:translate-x-0.5 transition-transform" />
+          <ChevronRight className="w-4 h-4 text-[hsl(var(--accent-glow))] group-hover:translate-x-0.5 transition-transform" />
         </Link>
 
         {/* Tab switcher */}
@@ -359,7 +359,7 @@ export default function HODDashboard() {
             onClick={() => setActiveTab("overview")}
             className={`flex-1 text-center text-sm font-semibold py-2.5 rounded-lg transition-all ${
               activeTab === "overview"
-                ? "bg-amber-600 text-white shadow-sm"
+                ? "bg-[hsl(var(--accent-strong))] text-white shadow-sm"
                 : "text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]"
             }`}
           >
@@ -369,7 +369,7 @@ export default function HODDashboard() {
             onClick={() => setActiveTab("entries")}
             className={`flex-1 text-center text-sm font-semibold py-2.5 rounded-lg transition-all ${
               activeTab === "entries"
-                ? "bg-amber-600 text-white shadow-sm"
+                ? "bg-[hsl(var(--accent-strong))] text-white shadow-sm"
                 : "text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]"
             }`}
           >
@@ -424,7 +424,7 @@ export default function HODDashboard() {
                         <span
                           className={`text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${
                             i === 0
-                              ? "bg-amber-100 text-amber-700"
+                              ? "bg-[hsl(var(--accent-soft))] text-[hsl(var(--accent-text))]"
                               : i === 1
                               ? "bg-[var(--bg-tertiary)] text-[var(--text-secondary)]"
                               : i === 2
@@ -442,14 +442,14 @@ export default function HODDashboard() {
                         <span className="text-xs text-[var(--text-tertiary)]">
                           {t.totalEntries} total
                         </span>
-                        <span className="text-sm font-bold text-amber-700 tabular-nums">
+                        <span className="text-sm font-bold text-[hsl(var(--accent-text))] tabular-nums">
                           {t.monthlyEntries}
                         </span>
                       </div>
                     </div>
                     <div className="h-1.5 bg-[var(--bg-tertiary)] rounded-full mt-2 ml-8 overflow-hidden">
                       <div
-                        className="h-full bg-gradient-to-r from-amber-500 to-amber-400 rounded-full transition-all"
+                        className="h-full bg-gradient-to-r from-[hsl(var(--accent))] to-[hsl(var(--accent-glow))] rounded-full transition-all"
                         style={{ width: `${Math.max(pct, 3)}%` }}
                       />
                     </div>
@@ -562,9 +562,9 @@ export default function HODDashboard() {
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="text-[10px] font-semibold text-[var(--text-tertiary)]">Active filters:</span>
                   {filterTeacher && (
-                    <span className="text-[10px] bg-amber-50 text-amber-700 font-semibold px-2 py-0.5 rounded-full border border-amber-200">
+                    <span className="text-[10px] bg-[hsl(var(--accent-soft))] text-[hsl(var(--accent-text))] font-semibold px-2 py-0.5 rounded-full border border-[hsl(var(--accent)/0.2)]">
                       Teacher
-                      <button onClick={() => setFilterTeacher("")} className="ml-1 text-amber-400 hover:text-amber-600">&times;</button>
+                      <button onClick={() => setFilterTeacher("")} className="ml-1 text-[hsl(var(--accent-glow))] hover:text-[hsl(var(--accent-strong))]">&times;</button>
                     </span>
                   )}
                   {filterSubject && (
@@ -648,7 +648,7 @@ export default function HODDashboard() {
                                   {subjectName}
                                 </span>
                                 {divisionName && (
-                                  <span className="text-[10px] font-medium bg-amber-50 text-amber-700 px-1.5 py-0.5 rounded">
+                                  <span className="text-[10px] font-medium bg-[hsl(var(--accent-soft))] text-[hsl(var(--accent-text))] px-1.5 py-0.5 rounded">
                                     {divisionName}
                                   </span>
                                 )}
@@ -776,7 +776,7 @@ export default function HODDashboard() {
                                   </div>
                                 ) : (
                                   <div className="space-y-2">
-                                    <label className="text-[10px] font-bold uppercase tracking-widest text-amber-600 flex items-center gap-1">
+                                    <label className="text-[10px] font-bold uppercase tracking-widest text-[hsl(var(--accent-strong))] flex items-center gap-1">
                                       <MessageSquare className="w-3 h-3" />
                                       Leave HOD Review
                                     </label>
@@ -792,7 +792,7 @@ export default function HODDashboard() {
                                         placeholder="e.g., Consider using the PhET simulation for forces..."
                                         maxLength={1000}
                                         rows={2}
-                                        className="flex-1 bg-[var(--bg-elevated)] border border-[var(--border-primary)] rounded-xl px-3 py-2 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-quaternary)] focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent resize-none"
+                                        className="flex-1 bg-[var(--bg-elevated)] border border-[var(--border-primary)] rounded-xl px-3 py-2 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-quaternary)] focus:outline-none focus:ring-2 focus:ring-[hsl(var(--accent))] focus:border-transparent resize-none"
                                       />
                                       <button
                                         onClick={() => sendHodRemark(entry.id)}
@@ -800,7 +800,7 @@ export default function HODDashboard() {
                                           !hodRemarkText[entry.id]?.trim() ||
                                           hodRemarkSending === entry.id
                                         }
-                                        className="self-end w-10 h-10 bg-amber-600 text-white rounded-xl flex items-center justify-center shadow-sm hover:shadow-md transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
+                                        className="self-end w-10 h-10 bg-[hsl(var(--accent-strong))] text-white rounded-xl flex items-center justify-center shadow-sm hover:shadow-md transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
                                       >
                                         {hodRemarkSending === entry.id ? (
                                           <Loader2 className="w-4 h-4 animate-spin" />
@@ -815,7 +815,7 @@ export default function HODDashboard() {
                                       </p>
                                       <Link
                                         href={`/logbook/${entry.id}`}
-                                        className="text-[10px] text-amber-600 font-semibold hover:underline"
+                                        className="text-[10px] text-[hsl(var(--accent-strong))] font-semibold hover:underline"
                                       >
                                         View full entry &rarr;
                                       </Link>
@@ -836,7 +836,7 @@ export default function HODDashboard() {
                     <button
                       onClick={() => fetchEntries(page - 1)}
                       disabled={page === 0}
-                      className="text-sm text-amber-600 font-medium disabled:text-[var(--text-quaternary)] px-3 py-1.5"
+                      className="text-sm text-[hsl(var(--accent-strong))] font-medium disabled:text-[var(--text-quaternary)] px-3 py-1.5"
                     >
                       Previous
                     </button>
@@ -846,7 +846,7 @@ export default function HODDashboard() {
                     <button
                       onClick={() => fetchEntries(page + 1)}
                       disabled={page >= totalPages - 1}
-                      className="text-sm text-amber-600 font-medium disabled:text-[var(--text-quaternary)] px-3 py-1.5"
+                      className="text-sm text-[hsl(var(--accent-strong))] font-medium disabled:text-[var(--text-quaternary)] px-3 py-1.5"
                     >
                       Next
                     </button>

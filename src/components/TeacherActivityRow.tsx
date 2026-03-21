@@ -20,9 +20,9 @@ function TeacherActivityRow({
   const barColor = rate >= 90 ? "progress-green" : rate >= 70 ? "progress-amber" : "progress-red";
 
   // Avatar colors based on compliance
-  const avatarBg = rate >= 90 ? "#DCFCE7" : rate >= 70 ? "#FEF3C7" : "#FEE2E2";
-  const avatarText = rate >= 90 ? "#16A34A" : rate >= 70 ? "#D97706" : "#DC2626";
-  const countColor = rate >= 90 ? "#16A34A" : rate >= 70 ? "#D97706" : "#DC2626";
+  const avatarBg = rate >= 90 ? "#DCFCE7" : rate >= 70 ? "hsl(var(--accent) / 0.1)" : "#FEE2E2";
+  const avatarText = rate >= 90 ? "#16A34A" : rate >= 70 ? "hsl(var(--accent-strong))" : "#DC2626";
+  const countColor = rate >= 90 ? "#16A34A" : rate >= 70 ? "hsl(var(--accent-strong))" : "#DC2626";
 
   return (
     <button

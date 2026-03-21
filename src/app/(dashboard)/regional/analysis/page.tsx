@@ -318,13 +318,13 @@ export default function RegionalAnalysisPage() {
                       >
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
-                            <Crown className="w-4 h-4 text-amber-500" />
+                            <Crown className="w-4 h-4 text-[hsl(var(--accent))]" />
                             <h4 className="text-sm font-bold text-[var(--text-primary)]">
                               {sub.subject}
                             </h4>
                           </div>
                           <div className="flex items-center gap-2">
-                            <span className="text-xs bg-amber-50 text-amber-700 font-bold px-2 py-0.5 rounded-md">
+                            <span className="text-xs bg-[hsl(var(--accent-soft))] text-[hsl(var(--accent-text))] font-bold px-2 py-0.5 rounded-md">
                               {sub.hodCount} HOD{sub.hodCount !== 1 ? "s" : ""}
                             </span>
                             {isOpen ? (

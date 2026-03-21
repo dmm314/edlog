@@ -81,7 +81,7 @@ function getSubjectBg(index: number): string {
     "bg-blue-50 text-blue-700 border-blue-100",
     "bg-emerald-50 text-emerald-700 border-emerald-100",
     "bg-violet-50 text-violet-700 border-violet-100",
-    "bg-amber-50 text-amber-700 border-amber-100",
+    "bg-[hsl(var(--accent-soft))] text-[hsl(var(--accent-text))] border-[hsl(var(--accent)/0.1)]",
     "bg-rose-50 text-rose-700 border-rose-100",
     "bg-cyan-50 text-cyan-700 border-cyan-100",
   ];
@@ -300,7 +300,7 @@ export default function ManageTeachersPage() {
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100/50 pb-24">
       {/* Header */}
       <div className="bg-gradient-to-br from-[var(--header-from)] via-[var(--header-via)] to-[var(--header-to)] px-5 pt-10 pb-8 rounded-b-[2rem] shadow-elevated relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[rgba(245,158,11,0.08)] via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[hsl(var(--accent)/0.08)] via-transparent to-transparent" />
         <div className="absolute top-0 right-0 w-64 h-64 rounded-full -translate-y-1/3 translate-x-1/4 blur-3xl" style={{ background: "var(--accent-light)" }} />
 
         <div className="max-w-lg mx-auto relative">
@@ -398,8 +398,8 @@ export default function ManageTeachersPage() {
         {pendingTeachers.length > 0 && (
           <div className="animate-slide-up">
             <div className="flex items-center gap-2 mb-3">
-              <Clock className="w-4 h-4 text-amber-500" />
-              <h3 className="text-xs font-bold uppercase tracking-widest text-amber-600">
+              <Clock className="w-4 h-4 text-[hsl(var(--accent))]" />
+              <h3 className="text-xs font-bold uppercase tracking-widest text-[hsl(var(--accent-strong))]">
                 Pending Approval ({pendingTeachers.length})
               </h3>
             </div>
@@ -407,7 +407,7 @@ export default function ManageTeachersPage() {
               {pendingTeachers.map((teacher) => (
                 <div
                   key={teacher.id}
-                  className="card overflow-hidden border-l-4 border-amber-400"
+                  className="card overflow-hidden border-l-4 border-[hsl(var(--accent-glow))]"
                 >
                   <div className="p-4">
                     <div className="flex items-start gap-3">
@@ -425,11 +425,11 @@ export default function ManageTeachersPage() {
                           </p>
                         )}
                         <div className="flex items-center gap-2 mt-1">
-                          <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">
+                          <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[hsl(var(--accent-soft))] text-[hsl(var(--accent-text))]">
                             <Clock className="w-2.5 h-2.5" />
                             Pending
                           </span>
-                          <span className="text-[10px] text-amber-600 font-medium">
+                          <span className="text-[10px] text-[hsl(var(--accent-strong))] font-medium">
                             Awaiting acceptance &middot; {formatDate(teacher.createdAt)}
                           </span>
                         </div>
@@ -646,7 +646,7 @@ export default function ManageTeachersPage() {
                           className={`flex items-center gap-1 text-[10px] font-bold rounded-full px-2.5 py-1 transition-all active:scale-95 flex-shrink-0 border ${
                             teacher.isVerified
                               ? "bg-emerald-50 text-emerald-700 border-emerald-100 hover:bg-emerald-100"
-                              : "bg-amber-50 text-amber-700 border-amber-100 hover:bg-amber-100"
+                              : "bg-[hsl(var(--accent-soft))] text-[hsl(var(--accent-text))] border-[hsl(var(--accent)/0.1)] hover:bg-[hsl(var(--accent-soft))]"
                           }`}
                         >
                           {teacher.isVerified ? (

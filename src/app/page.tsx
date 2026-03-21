@@ -191,8 +191,8 @@ export default function LandingPage() {
               }}
             >
               <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(245,158,11,0.10)" }}>
-                  <GraduationCap className="w-5 h-5" style={{ color: "#f59e0b" }} />
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "hsl(var(--accent) / 0.10)" }}>
+                  <GraduationCap className="w-5 h-5" style={{ color: "hsl(var(--accent))" }} />
                 </div>
                 <div>
                   <h3 className="font-bold text-base" style={{ fontFamily: "var(--font-body)", color: "var(--text-primary)" }}>Teacher</h3>

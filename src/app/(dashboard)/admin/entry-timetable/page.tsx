@@ -124,7 +124,7 @@ function getSubjectColor(index: number): string {
     "from-blue-500 to-indigo-600",
     "from-emerald-500 to-teal-600",
     "from-violet-500 to-purple-600",
-    "from-amber-500 to-orange-600",
+    "from-[hsl(var(--accent))] to-[hsl(var(--accent-strong))]",
     "from-rose-500 to-pink-600",
     "from-cyan-500 to-blue-600",
   ];
@@ -136,7 +136,7 @@ function getSubjectBgLight(index: number): string {
     "bg-blue-50 border-blue-200",
     "bg-emerald-50 border-emerald-200",
     "bg-violet-50 border-violet-200",
-    "bg-amber-50 border-amber-200",
+    "bg-[hsl(var(--accent-soft))] border-[hsl(var(--accent)/0.2)]",
     "bg-rose-50 border-rose-200",
     "bg-cyan-50 border-cyan-200",
   ];
@@ -148,7 +148,7 @@ function getSubjectText(index: number): string {
     "text-blue-700",
     "text-emerald-700",
     "text-violet-700",
-    "text-amber-700",
+    "text-[hsl(var(--accent-text))]",
     "text-rose-700",
     "text-cyan-700",
   ];
@@ -375,7 +375,7 @@ export default function EntryTimetablePage() {
     return (
       <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100/50 pb-24">
         <div className="bg-gradient-to-br from-[var(--header-from)] via-[var(--header-via)] to-[var(--header-to)] px-5 pt-10 pb-8 rounded-b-[2rem] shadow-elevated relative overflow-hidden">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[rgba(245,158,11,0.08)] via-transparent to-transparent" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[hsl(var(--accent)/0.08)] via-transparent to-transparent" />
           <div className="absolute top-0 right-0 w-64 h-64 bg-[var(--accent)]/[0.07] rounded-full -translate-y-1/3 translate-x-1/4 blur-3xl" />
           <div className="max-w-lg mx-auto relative">
             <Link href="/admin" className="inline-flex items-center gap-1.5 text-white/60 hover:text-white text-sm mb-4 transition-colors">
@@ -418,7 +418,7 @@ export default function EntryTimetablePage() {
                   group.compliance === "green"
                     ? "#16A34A"
                     : group.compliance === "amber"
-                    ? "#D97706"
+                    ? "hsl(var(--accent-strong))"
                     : "#DC2626";
                 return (
                   <button
@@ -514,7 +514,7 @@ export default function EntryTimetablePage() {
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100/50 pb-24">
       {/* Header */}
       <div className="bg-gradient-to-br from-[var(--header-from)] via-[var(--header-via)] to-[var(--header-to)] px-5 pt-10 pb-8 rounded-b-[2rem] shadow-elevated relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[rgba(245,158,11,0.08)] via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[hsl(var(--accent)/0.08)] via-transparent to-transparent" />
         <div className="max-w-lg mx-auto relative">
           <button onClick={() => { setSelectedClassId(null); setSelectedEntry(null); setSelectedSlot(null); saveAdminETState(null); }}
             className="inline-flex items-center gap-1.5 text-white/60 hover:text-white text-sm mb-4 transition-colors">
@@ -571,9 +571,9 @@ export default function EntryTimetablePage() {
               className="w-full flex items-center gap-3 p-3.5 hover:bg-[var(--bg-tertiary)] transition-colors text-left"
             >
               {unfilledOpen ? (
-                <FolderOpen className="w-5 h-5 text-amber-500 flex-shrink-0" />
+                <FolderOpen className="w-5 h-5 text-[hsl(var(--accent))] flex-shrink-0" />
               ) : (
-                <FolderClosed className="w-5 h-5 text-amber-500 flex-shrink-0" />
+                <FolderClosed className="w-5 h-5 text-[hsl(var(--accent))] flex-shrink-0" />
               )}
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-bold text-[var(--text-primary)]">
@@ -584,7 +584,7 @@ export default function EntryTimetablePage() {
                 </p>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-xs font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full">
+                <span className="text-xs font-bold text-[hsl(var(--accent-strong))] bg-[hsl(var(--accent-soft))] px-2 py-0.5 rounded-full">
                   {unfilledPeriods.length}
                 </span>
                 <ChevronRight className={`w-4 h-4 text-[var(--text-tertiary)] transition-transform ${unfilledOpen ? "rotate-90" : ""}`} />
@@ -606,9 +606,9 @@ export default function EntryTimetablePage() {
                           <button
                             key={slot.id}
                             onClick={() => { setSelectedSlot(slot); setSelectedEntry(null); }}
-                            className="w-full flex items-center gap-2.5 bg-amber-50/70 hover:bg-amber-50 border border-amber-100 rounded-lg px-3 py-2 text-left transition-colors"
+                            className="w-full flex items-center gap-2.5 bg-[hsl(var(--accent-soft))]/70 hover:bg-[hsl(var(--accent-soft))] border border-[hsl(var(--accent)/0.1)] rounded-lg px-3 py-2 text-left transition-colors"
                           >
-                            <AlertTriangle className="w-3.5 h-3.5 text-amber-400 flex-shrink-0" />
+                            <AlertTriangle className="w-3.5 h-3.5 text-[hsl(var(--accent-glow))] flex-shrink-0" />
                             <div className="flex-1 min-w-0">
                               <p className="text-xs font-semibold text-[var(--text-secondary)] truncate">
                                 {slot.subject} &middot; {slot.periodLabel}
@@ -868,8 +868,8 @@ export default function EntryTimetablePage() {
                     {/* Objectives */}
                     {selectedEntry.objectives && (
                       <div className="flex items-start gap-3">
-                        <div className="w-7 h-7 bg-amber-50 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
-                          <GraduationCap className="w-3.5 h-3.5 text-amber-500" />
+                        <div className="w-7 h-7 bg-[hsl(var(--accent-soft))] rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+                          <GraduationCap className="w-3.5 h-3.5 text-[hsl(var(--accent))]" />
                         </div>
                         <div>
                           <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-tertiary)]">Objectives</p>
@@ -892,7 +892,7 @@ export default function EntryTimetablePage() {
                             <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-tertiary)]">Engagement</p>
                             <p className={`text-sm font-bold mt-0.5 ${
                               selectedEntry.engagementLevel === "HIGH" ? "text-emerald-600" :
-                              selectedEntry.engagementLevel === "MEDIUM" ? "text-amber-600" : "text-red-500"
+                              selectedEntry.engagementLevel === "MEDIUM" ? "text-[hsl(var(--accent-strong))]" : "text-red-500"
                             }`}>
                               {selectedEntry.engagementLevel}
                             </p>

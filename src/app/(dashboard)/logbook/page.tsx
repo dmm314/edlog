@@ -573,55 +573,29 @@ export default function LogbookPage() {
 
       {nextClassInfo ? (
         <section
-          className="card p-5"
-          style={
-            nextClassInfo.type === "prep-soon"
-              ? {
-                  background: "linear-gradient(135deg, rgba(245,158,11,0.06), rgba(251,191,36,0.03))",
-                  border: "1px solid rgba(245,158,11,0.12)",
-                }
-              : {
-                  background: "linear-gradient(135deg, rgba(99,102,241,0.04), rgba(129,140,248,0.02))",
-                  border: "1px solid rgba(99,102,241,0.08)",
-                }
-          }
+          className={cn(
+            "card bg-dynamic-noise p-5",
+            nextClassInfo.type === "prep-soon" && "live-card",
+          )}
         >
           <div className="flex items-start gap-4">
-            <div className="text-3xl">{nextClassInfo.type === "prep-soon" ? "⏰" : nextClassInfo.type === "rest-long" ? "🌙" : "🕐"}</div>
-            <div>
-              <h3
-                style={{
-                  fontFamily: "var(--font-body)",
-                  fontSize: "16px",
-                  fontWeight: 700,
-                  color: "var(--text-primary)",
-                }}
-              >
-                {nextClassInfo.message}
-              </h3>
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[hsl(var(--accent-soft))] text-2xl shadow-card">
+              {nextClassInfo.type === "prep-soon" ? "⏰" : nextClassInfo.type === "rest-long" ? "🌙" : "🕐"}
+            </div>
+            <div className="min-w-0">
+              <h3 className="text-base font-bold text-content-primary">{nextClassInfo.message}</h3>
               {nextClassInfo.detail && (
-                <p
-                  style={{
-                    fontFamily: "var(--font-body)",
-                    fontSize: "13px",
-                    color: "var(--text-tertiary)",
-                    marginTop: "3px",
-                  }}
-                >
+                <p className="mt-1 text-sm text-content-tertiary">
                   {nextClassInfo.type === "rest-long" ? `Next up: ${nextClassInfo.detail}` : nextClassInfo.detail}
                 </p>
               )}
               {nextClassInfo.hint && (
-                <p
-                  style={{
-                    fontFamily: "var(--font-body)",
-                    fontSize: "13px",
-                    color: nextClassInfo.type === "prep-soon" ? "var(--accent-text)" : "var(--text-tertiary)",
-                    fontWeight: nextClassInfo.type === "prep-soon" ? 600 : 400,
-                    marginTop: "4px",
-                    fontStyle: nextClassInfo.type === "prep-soon" ? "normal" : "italic",
-                  }}
-                >
+                <p className={cn(
+                  "mt-1 text-sm",
+                  nextClassInfo.type === "prep-soon"
+                    ? "font-semibold text-[hsl(var(--accent-text))]"
+                    : "italic text-content-tertiary",
+                )}>
                   {nextClassInfo.hint}
                 </p>
               )}

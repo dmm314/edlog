@@ -201,7 +201,7 @@ export default function LoginForm() {
             style={{
               background: "linear-gradient(135deg, var(--accent), var(--accent-hover))",
               fontSize: "16px",
-              boxShadow: "0 4px 16px -4px rgba(245,158,11,0.3)",
+              boxShadow: "0 4px 16px -4px hsl(var(--accent) / 0.3)",
             }}
           >
             {loading ? (
@@ -243,8 +243,8 @@ export default function LoginForm() {
               borderRadius: "16px",
             }}
           >
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "rgba(245,158,11,0.15)" }}>
-              <GraduationCap className="w-5 h-5 text-amber-400" />
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "hsl(var(--accent) / 0.15)" }}>
+              <GraduationCap className="w-5 h-5" style={{ color: "hsl(var(--accent-glow))" }} />
             </div>
             <div className="flex-1 min-w-0">
               <h3 className="font-bold text-white text-sm" style={{ fontFamily: "var(--font-body)" }}>Teacher Account</h3>

@@ -139,7 +139,7 @@ export default function CoordinatorTeachersPage() {
                 const indicatorColor = entryCount >= 15
                   ? "#16A34A"
                   : entryCount >= 5
-                  ? "#FBBF24"
+                  ? "hsl(var(--accent-glow))"
                   : "#EF4444";
 
                 return (

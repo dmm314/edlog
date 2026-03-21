@@ -235,7 +235,7 @@ export function OnboardingTour({ steps, tourKey, onComplete }: OnboardingTourPro
                 cursor: "pointer",
                 boxShadow: isLastStep
                   ? "0 4px 12px -4px rgba(22,163,74,0.3)"
-                  : "0 4px 12px -4px rgba(245,158,11,0.3)",
+                  : "0 4px 12px -4px hsl(var(--accent) / 0.3)",
               }}
             >
               {isLastStep ? "Get Started!" : "Next →"}
@@ -262,7 +262,7 @@ export function OnboardingTour({ steps, tourKey, onComplete }: OnboardingTourPro
                     i === currentStep
                       ? "var(--accent)"
                       : i < currentStep
-                        ? "var(--accent-muted, #92400e)"
+                        ? "var(--accent-muted, hsl(var(--accent-strong)))"
                         : "var(--bg-tertiary)",
                   transition: "all 0.2s ease",
                 }}

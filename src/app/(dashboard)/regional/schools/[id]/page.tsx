@@ -89,7 +89,7 @@ export default function SchoolDetailPage() {
       case "ACTIVE":
         return "bg-green-50 text-green-700 border-green-200";
       case "PENDING":
-        return "bg-amber-50 text-amber-700 border-amber-200";
+        return "bg-[hsl(var(--accent-soft))] text-[hsl(var(--accent-text))] border-[hsl(var(--accent)/0.2)]";
       case "SUSPENDED":
         return "bg-red-50 text-red-700 border-red-200";
       default:
@@ -475,7 +475,7 @@ export default function SchoolDetailPage() {
                         className={`flex items-center gap-1 text-[10px] font-medium rounded-full px-2 py-0.5 ${
                           teacher.isVerified
                             ? "bg-green-50 text-green-700"
-                            : "bg-amber-50 text-amber-700"
+                            : "bg-[hsl(var(--accent-soft))] text-[hsl(var(--accent-text))]"
                         }`}
                       >
                         {teacher.isVerified ? (

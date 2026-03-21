@@ -24,7 +24,7 @@ import type { RegionalStats } from "@/types";
 function getRankColor(rank: number, total: number): string {
   const quartile = total > 0 ? rank / total : 1;
   if (quartile <= 0.25) return "text-emerald-600";
-  if (quartile <= 0.75) return "text-amber-600";
+  if (quartile <= 0.75) return "text-[hsl(var(--accent-strong))]";
   return "text-red-600";
 }
 
@@ -140,7 +140,7 @@ export default function RegionalDashboardPage() {
               boxShadow: "var(--shadow-card)",
             }}
           >
-            <Clock className="w-5 h-5 text-amber-600 flex-shrink-0" />
+            <Clock className="w-5 h-5 text-[hsl(var(--accent-strong))] flex-shrink-0" />
             <div className="flex-1">
               <p className="text-sm font-medium text-[var(--text-primary)]" style={{ fontFamily: "var(--font-body)" }}>
                 <span style={{ fontFamily: "var(--font-mono)" }}>{stats.pendingSchools}</span> school{stats.pendingSchools > 1 ? "s" : ""} pending approval
@@ -294,7 +294,7 @@ export default function RegionalDashboardPage() {
                         </p>
                         <span
                           className={`text-xs font-bold ml-2 flex-shrink-0 ${
-                            school.complianceRate >= 70 ? "text-emerald-600" : school.complianceRate >= 40 ? "text-amber-600" : "text-red-600"
+                            school.complianceRate >= 70 ? "text-emerald-600" : school.complianceRate >= 40 ? "text-[hsl(var(--accent-strong))]" : "text-red-600"
                           }`}
                           style={{ fontFamily: "var(--font-mono)" }}
                         >

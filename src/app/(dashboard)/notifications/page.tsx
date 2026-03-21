@@ -25,7 +25,7 @@ function getNotificationIcon(type: string) {
     case "WEEKLY_SUMMARY":
       return <BarChart3 className="w-4 h-4 text-purple-500" />;
     case "COMPLIANCE_WARNING":
-      return <AlertTriangle className="w-4 h-4 text-amber-500" />;
+      return <AlertTriangle className="w-4 h-4 text-[hsl(var(--accent))]" />;
     case "LOG_REVIEWED":
       return <CheckCheck className="w-4 h-4 text-green-500" />;
     case "NEW_TEACHER":
@@ -34,7 +34,7 @@ function getNotificationIcon(type: string) {
       return <AlertTriangle className="w-4 h-4 text-red-500" />;
     case "SCHOOL_ANNOUNCEMENT":
     case "REGIONAL_ANNOUNCEMENT":
-      return <Megaphone className="w-4 h-4 text-amber-500" />;
+      return <Megaphone className="w-4 h-4 text-[hsl(var(--accent))]" />;
     default:
       return <Info className="w-4 h-4 text-[var(--text-tertiary)]" />;
   }
@@ -156,14 +156,14 @@ export default function NotificationsPage() {
           }}
         >
           <div className="flex items-center gap-2.5">
-            <Megaphone className="w-4 h-4 text-amber-500" />
+            <Megaphone className="w-4 h-4 text-[hsl(var(--accent))]" />
             <span className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>
               View Announcements
             </span>
           </div>
           <div className="flex items-center gap-2">
             {unreadAnnouncements > 0 && (
-              <span className="text-[10px] font-bold text-white bg-amber-500 rounded-full px-1.5 py-0.5 min-w-[18px] text-center">
+              <span className="text-[10px] font-bold text-white bg-[hsl(var(--accent))] rounded-full px-1.5 py-0.5 min-w-[18px] text-center">
                 {unreadAnnouncements}
               </span>
             )}

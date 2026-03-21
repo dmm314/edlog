@@ -477,7 +477,7 @@ export default function ManageSubjectsPage() {
                                 {subject.code}
                               </span>
                               {subject.linked && subject.divisions.length > 0 && (
-                                <span className="text-[10px] text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded font-medium flex items-center gap-0.5">
+                                <span className="text-[10px] text-[hsl(var(--accent-strong))] bg-[hsl(var(--accent-soft))] px-1.5 py-0.5 rounded font-medium flex items-center gap-0.5">
                                   <Layers className="w-3 h-3" />
                                   {subject.divisions.length} division{subject.divisions.length !== 1 ? "s" : ""}
                                 </span>
@@ -545,13 +545,13 @@ export default function ManageSubjectsPage() {
                               {subject.divisions.map((d) => (
                                 <div
                                   key={d.id}
-                                  className="flex items-center justify-between bg-amber-50 rounded-lg px-3 py-2"
+                                  className="flex items-center justify-between bg-[hsl(var(--accent-soft))] rounded-lg px-3 py-2"
                                 >
                                   <div>
-                                    <p className="text-sm font-medium text-amber-900">
+                                    <p className="text-sm font-medium text-[hsl(var(--accent-text))]">
                                       {d.name}
                                     </p>
-                                    <p className="text-[10px] text-amber-600">
+                                    <p className="text-[10px] text-[hsl(var(--accent-strong))]">
                                       {getLevelLabel(d.levels)}
                                     </p>
                                   </div>
@@ -560,7 +560,7 @@ export default function ManageSubjectsPage() {
                                       handleDeleteDivision(subject.id, d.id)
                                     }
                                     disabled={deletingDiv === d.id}
-                                    className="p-1 text-amber-400 hover:text-red-500 rounded"
+                                    className="p-1 text-[hsl(var(--accent-glow))] hover:text-red-500 rounded"
                                   >
                                     {deletingDiv === d.id ? (
                                       <div className="w-4 h-4 border-2 border-red-300 border-t-transparent rounded-full animate-spin" />

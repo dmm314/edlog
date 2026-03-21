@@ -462,14 +462,14 @@ export default function TimetableManagementPage() {
 
         {/* Double-booking confirmation dialog */}
         {doubleBookWarning && (
-          <div className="bg-amber-50 border-2 border-amber-300 rounded-xl px-4 py-4 space-y-3">
+          <div className="bg-[hsl(var(--accent-soft))] border-2 border-[hsl(var(--accent)/0.3)] rounded-xl px-4 py-4 space-y-3">
             <div className="flex items-start gap-3">
-              <div className="w-8 h-8 bg-amber-100 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
-                <Calendar className="w-4 h-4 text-amber-600" />
+              <div className="w-8 h-8 bg-[hsl(var(--accent-soft))] rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+                <Calendar className="w-4 h-4 text-[hsl(var(--accent-strong))]" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-bold text-amber-800">Joint Class Detected</p>
-                <p className="text-sm text-amber-700 mt-1">{doubleBookWarning.message}</p>
+                <p className="text-sm font-bold text-[hsl(var(--accent-text))]">Joint Class Detected</p>
+                <p className="text-sm text-[hsl(var(--accent-text))] mt-1">{doubleBookWarning.message}</p>
               </div>
             </div>
             <div className="flex gap-2">
@@ -482,7 +482,7 @@ export default function TimetableManagementPage() {
               <button
                 onClick={handleDoubleBookConfirm}
                 disabled={saving}
-                className="flex-1 bg-amber-600 hover:bg-amber-700 text-white font-semibold text-sm rounded-xl py-2.5 px-4 transition-colors"
+                className="flex-1 bg-[hsl(var(--accent-strong))] hover:bg-[hsl(var(--accent-strong))] text-white font-semibold text-sm rounded-xl py-2.5 px-4 transition-colors"
               >
                 {saving ? "Adding..." : "Yes, Allow Double-Book"}
               </button>
@@ -492,7 +492,7 @@ export default function TimetableManagementPage() {
 
         {/* No assignments warning */}
         {classAssignments.length === 0 && (
-          <div className="card p-4 border-l-4 border-amber-400">
+          <div className="card p-4 border-l-4 border-[hsl(var(--accent-glow))]">
             <p className="text-sm font-medium text-[var(--text-primary)]">
               No teachers assigned to this class
             </p>
@@ -646,15 +646,15 @@ export default function TimetableManagementPage() {
                             className="px-1 py-1.5 align-top"
                           >
                             {slot ? (
-                              <div className={`${slot.jointWith && slot.jointWith.length > 0 ? "bg-amber-50 border-amber-200" : "border-[var(--accent-muted)]"} border rounded-lg p-1.5 relative group`} style={!(slot.jointWith && slot.jointWith.length > 0) ? { background: "var(--accent-light)" } : undefined}>
-                                <p className={`font-medium text-[10px] leading-tight truncate ${slot.jointWith && slot.jointWith.length > 0 ? "text-amber-800" : "text-[var(--text-primary)]"}`}>
+                              <div className={`${slot.jointWith && slot.jointWith.length > 0 ? "bg-[hsl(var(--accent-soft))] border-[hsl(var(--accent)/0.2)]" : "border-[var(--accent-muted)]"} border rounded-lg p-1.5 relative group`} style={!(slot.jointWith && slot.jointWith.length > 0) ? { background: "var(--accent-light)" } : undefined}>
+                                <p className={`font-medium text-[10px] leading-tight truncate ${slot.jointWith && slot.jointWith.length > 0 ? "text-[hsl(var(--accent-text))]" : "text-[var(--text-primary)]"}`}>
                                   {slot.subject}
                                 </p>
-                                <p className={`text-[9px] truncate mt-0.5 ${slot.jointWith && slot.jointWith.length > 0 ? "text-amber-500" : "text-[var(--accent-text)]"}`}>
+                                <p className={`text-[9px] truncate mt-0.5 ${slot.jointWith && slot.jointWith.length > 0 ? "text-[hsl(var(--accent))]" : "text-[var(--accent-text)]"}`}>
                                   {slot.teacher.split(" ")[0]}
                                 </p>
                                 {slot.jointWith && slot.jointWith.length > 0 && (
-                                  <p className="text-[8px] text-amber-600 font-semibold truncate mt-0.5">
+                                  <p className="text-[8px] text-[hsl(var(--accent-strong))] font-semibold truncate mt-0.5">
                                     + {slot.jointWith.join(", ")}
                                   </p>
                                 )}
@@ -726,7 +726,7 @@ export default function TimetableManagementPage() {
                           {slot.teacher}
                         </p>
                         {slot.jointWith && slot.jointWith.length > 0 && (
-                          <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-2 py-1 mt-1.5 font-medium">
+                          <p className="text-xs text-[hsl(var(--accent-text))] bg-[hsl(var(--accent-soft))] border border-[hsl(var(--accent)/0.2)] rounded-lg px-2 py-1 mt-1.5 font-medium">
                             Joint class with {slot.jointWith.join(" & ")}
                           </p>
                         )}

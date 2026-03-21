@@ -41,7 +41,7 @@ function applyDocumentTheme(theme: Theme, intensity: DynamicIntensity) {
 
   const meta = document.querySelector('meta[name="theme-color"]');
   if (meta) {
-    meta.setAttribute("content", theme === "dark" ? "#08111f" : "#f7fbff");
+    meta.setAttribute("content", theme === "dark" ? "#0d1117" : "#f0f2f5");
   }
 }
 

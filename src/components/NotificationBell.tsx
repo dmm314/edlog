@@ -37,7 +37,7 @@ export function NotificationBell() {
         <span
           className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full"
           style={{
-            backgroundColor: "#F59E0B",
+            backgroundColor: "hsl(var(--accent))",
             border: "2px solid var(--header-from)",
           }}
         />

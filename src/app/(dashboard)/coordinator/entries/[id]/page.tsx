@@ -394,7 +394,7 @@ export default function CoordinatorEntryReviewPage() {
                   <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-tertiary)]">Engagement</p>
                   <p className={`text-sm font-bold mt-0.5 ${
                     entry.engagementLevel === "HIGH" ? "text-emerald-600" :
-                    entry.engagementLevel === "MEDIUM" ? "text-amber-600" : "text-red-500"
+                    entry.engagementLevel === "MEDIUM" ? "text-[hsl(var(--accent-strong))]" : "text-red-500"
                   }`}>
                     {entry.engagementLevel}
                   </p>

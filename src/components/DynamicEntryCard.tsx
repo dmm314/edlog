@@ -1,7 +1,7 @@
 "use client";
 
 import type { CSSProperties, MouseEventHandler, PointerEventHandler } from "react";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useCallback } from "react";
 import { CheckCheck, CircleAlert, Clock3, Heart, MessageSquareText, Sparkles } from "lucide-react";
 import type { EntryStatus, EntryWithRelations } from "@/types";
 import { formatDateShort, formatTime } from "@/lib/utils";
@@ -18,38 +18,43 @@ const statusConfig: Record<
   {
     label: string;
     icon: typeof Sparkles;
-    shift: number;
+    hueShift: number;
     chipClass: string;
     description: string;
+    glowColor: string;
   }
 > = {
   DRAFT: {
     label: "Draft",
     icon: Clock3,
-    shift: -12,
+    hueShift: 0,
     chipClass: "badge-draft",
     description: "Still refining this lesson.",
+    glowColor: "var(--text-tertiary)",
   },
   SUBMITTED: {
     label: "Submitted",
     icon: Sparkles,
-    shift: 0,
+    hueShift: 0,
     chipClass: "badge-submitted",
     description: "Submitted and ready for review.",
+    glowColor: "var(--accent)",
   },
   VERIFIED: {
     label: "Verified",
     icon: CheckCheck,
-    shift: 12,
+    hueShift: -15,
     chipClass: "badge-verified",
     description: "Verified and safely in the record.",
+    glowColor: "var(--success)",
   },
   FLAGGED: {
     label: "Flagged",
     icon: CircleAlert,
-    shift: -15,
+    hueShift: 15,
     chipClass: "badge-flagged",
     description: "Needs a quick correction.",
+    glowColor: "var(--danger)",
   },
 };
 
@@ -62,17 +67,17 @@ export function DynamicEntryCard({ entry, priority = "default", onClick }: Dynam
   const moduleName = entry.topics?.[0]?.moduleName || entry.moduleName || "Teaching log";
   const subjectName = entry.topics?.[0]?.subject?.name || entry.assignment?.subject?.name || "Subject";
   const timestamp = useMemo(() => `${formatDateShort(entry.date)} • ${formatTime(entry.date)}`, [entry.date]);
-  const accentShift = priority === "live" ? status.shift + 6 : status.shift;
 
-  const spawnRipple = (clientX: number, clientY: number, rect: DOMRect) => {
+  const spawnRipple = useCallback((clientX: number, clientY: number, rect: DOMRect) => {
     const id = Date.now() + Math.random();
     const x = clientX - rect.left;
     const y = clientY - rect.top;
+    const size = Math.max(rect.width, rect.height) * 2;
     setRipples((current) => [...current, { id, x, y }]);
     window.setTimeout(() => {
       setRipples((current) => current.filter((ripple) => ripple.id !== id));
     }, 700);
-  };
+  }, []);
 
   const handleDoubleClick: MouseEventHandler<HTMLButtonElement> = (event) => {
     const rect = event.currentTarget.getBoundingClientRect();
@@ -96,25 +101,53 @@ export function DynamicEntryCard({ entry, priority = "default", onClick }: Dynam
       onDoubleClick={handleDoubleClick}
       onPointerDown={handlePointerDown}
       className={cn(
-        "card group w-full p-0 text-left",
+        "card group w-full p-0 text-left motion-safe:animate-slide-up",
         priority === "live" && "live-card",
-        priority === "calm" && "opacity-90",
+        priority === "calm" && "opacity-85",
       )}
-      style={{ ["--accent-status-shift" as string]: accentShift } as CSSProperties}
+      style={
+        {
+          "--card-accent-h": `calc(var(--accent-h) + ${status.hueShift})`,
+        } as CSSProperties
+      }
     >
       <div className="relative overflow-hidden rounded-[inherit] p-4">
-        <div className="pointer-events-none absolute inset-x-4 top-0 h-[3px] rounded-full bg-[linear-gradient(90deg,hsl(var(--accent)),hsl(var(--accent-strong)),transparent)] opacity-80" />
+        {/* Dynamic top accent bar */}
+        <div
+          className="pointer-events-none absolute inset-x-0 top-0 h-[3px]"
+          style={{
+            background: `linear-gradient(90deg, hsl(var(--card-accent-h, var(--accent-h)) var(--accent-s) var(--accent-l)), hsl(var(--card-accent-h, var(--accent-h)) var(--accent-s) calc(var(--accent-l) - 8%)), transparent)`,
+          }}
+        />
+
+        {/* Touch ripples */}
         {ripples.map((ripple) => (
           <span
             key={ripple.id}
-            className="pointer-events-none absolute h-40 w-40 animate-ripple rounded-full bg-[hsl(var(--accent-glow)/0.24)]"
+            className="pointer-events-none absolute h-40 w-40 animate-ripple rounded-full bg-[hsl(var(--accent-glow)/0.2)]"
             style={{ left: ripple.x, top: ripple.y }}
           />
         ))}
 
+        {/* Heart pop on double-tap */}
+        {liked && (
+          <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center">
+            <Heart className="h-12 w-12 animate-heart-pop fill-current text-[hsl(var(--accent))]" />
+          </div>
+        )}
+
         <div className="relative z-10 flex items-start gap-3">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,hsl(var(--accent-soft)),hsl(var(--accent-glow)/0.28))] shadow-accent">
-            <StatusIcon className="h-5 w-5 text-[hsl(var(--accent-text))]" />
+          {/* Status icon with dynamic accent */}
+          <div
+            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl shadow-accent motion-safe:animate-spring-bounce"
+            style={{
+              background: `linear-gradient(135deg, hsl(var(--card-accent-h, var(--accent-h)) 80% 95%), hsl(var(--card-accent-h, var(--accent-h)) 90% 60% / 0.28))`,
+            }}
+          >
+            <StatusIcon
+              className="h-5 w-5"
+              style={{ color: `hsl(var(--card-accent-h, var(--accent-h)) 100% 42%)` }}
+            />
           </div>
 
           <div className="min-w-0 flex-1">
@@ -133,6 +166,7 @@ export function DynamicEntryCard({ entry, priority = "default", onClick }: Dynam
           </div>
         </div>
 
+        {/* Footer with timestamp and actions */}
         <div className="relative z-10 mt-4 flex items-center justify-between gap-3 border-t border-[hsl(var(--border-muted))] pt-3">
           <div className="min-w-0">
             <p className="truncate text-xs font-semibold text-content-tertiary">{entry.class.name}</p>
@@ -140,18 +174,20 @@ export function DynamicEntryCard({ entry, priority = "default", onClick }: Dynam
           </div>
 
           <div className="flex items-center gap-2 text-content-tertiary">
-            <span className="inline-flex items-center gap-1 rounded-full bg-[hsl(var(--surface-secondary))] px-2.5 py-1 text-[11px] font-semibold">
+            <span className="inline-flex items-center gap-1 rounded-full bg-[hsl(var(--surface-tertiary))] px-2.5 py-1 text-[11px] font-semibold">
               <MessageSquareText className="h-3.5 w-3.5" />
               {entry.notes ? "Notes" : "Tap to add"}
             </span>
             <span
               className={cn(
                 "inline-flex h-9 w-9 items-center justify-center rounded-full transition-all duration-200",
-                liked ? "bg-[hsl(var(--accent-soft))] text-[hsl(var(--accent-text))] shadow-accent" : "bg-[hsl(var(--surface-secondary))] text-content-tertiary",
+                liked
+                  ? "bg-[hsl(var(--accent-soft))] text-[hsl(var(--accent-text))] shadow-accent"
+                  : "bg-[hsl(var(--surface-tertiary))] text-content-tertiary",
               )}
               aria-hidden="true"
             >
-              <Heart className={cn("h-4 w-4", liked && "fill-current")} />
+              <Heart className={cn("h-4 w-4 transition-transform", liked && "scale-110 fill-current")} />
             </span>
           </div>
         </div>

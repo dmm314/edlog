@@ -188,8 +188,8 @@ export default function EditEntryPage() {
           <h1 className="text-xl font-bold text-white">Edit Entry</h1>
           {entry.isEditable && minutesLeft > 0 && (
             <div className="flex items-center gap-1.5 mt-2">
-              <Clock className="w-3.5 h-3.5 text-amber-400" />
-              <span className="text-amber-300 text-sm font-medium">
+              <Clock className="w-3.5 h-3.5" style={{ color: "hsl(var(--accent-glow))" }} />
+              <span className="text-sm font-medium" style={{ color: "hsl(var(--accent-glow))" }}>
                 {minutesLeft} minute{minutesLeft !== 1 ? "s" : ""} remaining to edit
               </span>
             </div>

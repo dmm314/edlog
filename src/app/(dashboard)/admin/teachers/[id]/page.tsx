@@ -67,7 +67,7 @@ function getSubjectColor(index: number): string {
     "from-blue-500 to-indigo-600",
     "from-emerald-500 to-teal-600",
     "from-violet-500 to-purple-600",
-    "from-amber-500 to-orange-600",
+    "from-[hsl(var(--accent))] to-[hsl(var(--accent-strong))]",
     "from-rose-500 to-pink-600",
     "from-cyan-500 to-blue-600",
   ];
@@ -100,7 +100,7 @@ export default function TeacherDetailPage() {
     return (
       <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100/50 pb-24">
         <div className="bg-gradient-to-br from-[var(--header-from)] via-[var(--header-via)] to-[var(--header-to)] px-5 pt-10 pb-16 rounded-b-[2rem] shadow-elevated relative overflow-hidden">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[rgba(245,158,11,0.08)] via-transparent to-transparent" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[hsl(var(--accent)/0.08)] via-transparent to-transparent" />
           <div className="max-w-lg mx-auto relative">
             <div className="skeleton h-4 w-28 !bg-[var(--bg-elevated)]/10 mb-4" />
             <div className="flex items-center gap-4">
@@ -128,7 +128,7 @@ export default function TeacherDetailPage() {
     return (
       <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100/50 pb-24">
         <div className="bg-gradient-to-br from-[var(--header-from)] via-[var(--header-via)] to-[var(--header-to)] px-5 pt-10 pb-8 rounded-b-[2rem] shadow-elevated relative overflow-hidden">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[rgba(245,158,11,0.08)] via-transparent to-transparent" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[hsl(var(--accent)/0.08)] via-transparent to-transparent" />
           <div className="max-w-lg mx-auto relative">
             <Link
               href="/admin/teachers"
@@ -152,7 +152,7 @@ export default function TeacherDetailPage() {
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100/50 pb-24">
       {/* Header with teacher photo */}
       <div className="bg-gradient-to-br from-[var(--header-from)] via-[var(--header-via)] to-[var(--header-to)] px-5 pt-10 pb-16 rounded-b-[2rem] shadow-elevated relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[rgba(245,158,11,0.08)] via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[hsl(var(--accent)/0.08)] via-transparent to-transparent" />
         <div className="absolute top-0 right-0 w-64 h-64 bg-[var(--accent)]/[0.07] rounded-full -translate-y-1/3 translate-x-1/4 blur-3xl" />
 
         <div className="max-w-lg mx-auto relative">
@@ -199,7 +199,7 @@ export default function TeacherDetailPage() {
                   className={`flex items-center gap-1 text-[10px] font-bold rounded-full px-2.5 py-0.5 ${
                     teacher.isVerified
                       ? "bg-emerald-500/20 text-emerald-300"
-                      : "bg-amber-500/20 text-amber-300"
+                      : "bg-[hsl(var(--accent-soft))]0/20 text-[hsl(var(--accent-glow))]"
                   }`}
                 >
                   {teacher.isVerified ? (
@@ -231,7 +231,7 @@ export default function TeacherDetailPage() {
             <p className="text-[10px] text-[var(--text-tertiary)] font-semibold uppercase tracking-wider mt-0.5">Assignments</p>
           </div>
           <div className="card p-3.5 text-center">
-            <p className={`text-xl font-bold ${verifiedRate >= 70 ? "text-emerald-600" : verifiedRate >= 40 ? "text-amber-600" : "text-red-500"}`}>
+            <p className={`text-xl font-bold ${verifiedRate >= 70 ? "text-emerald-600" : verifiedRate >= 40 ? "text-[hsl(var(--accent-strong))]" : "text-red-500"}`}>
               {verifiedRate}%
             </p>
             <p className="text-[10px] text-[var(--text-tertiary)] font-semibold uppercase tracking-wider mt-0.5">Verified</p>

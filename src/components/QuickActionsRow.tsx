@@ -45,7 +45,7 @@ export function QuickActionsRow({ pendingCount, upcomingLabel }: QuickActionsRow
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-content-tertiary">One next move</p>
           <h2 className="text-lg font-bold text-content-primary">Quick actions</h2>
         </div>
-        <div className="inline-flex items-center gap-2 rounded-full bg-[hsl(var(--accent-soft))] px-3 py-1.5 text-[11px] font-bold text-[hsl(var(--accent-text))] shadow-card">
+        <div className="inline-flex items-center gap-2 rounded-full bg-[hsl(var(--accent-soft))] px-3 py-1.5 text-[11px] font-bold text-[hsl(var(--accent-text))] shadow-card motion-safe:animate-live-pulse">
           <Sparkles className="h-3.5 w-3.5" />
           {pendingCount > 0 ? `${pendingCount} waiting` : "All clear"}
         </div>
@@ -53,22 +53,23 @@ export function QuickActionsRow({ pendingCount, upcomingLabel }: QuickActionsRow
 
       <div className="-mx-4 overflow-x-auto px-4 pb-1">
         <div className="flex gap-3 pr-2">
-          {quickActions.map((action) => {
+          {quickActions.map((action, index) => {
             const Icon = action.icon;
             return (
               <Link
                 key={action.href}
                 href={action.href}
                 className={cn(
-                  "card min-w-[220px] flex-1 p-4",
-                  action.pulse && "animate-live-pulse",
+                  "card min-w-[220px] flex-1 p-4 motion-safe:animate-slide-up",
+                  action.pulse && "motion-safe:animate-live-pulse",
                 )}
+                style={{ animationDelay: `${index * 80}ms` }}
               >
                 <div className="flex items-start justify-between gap-3">
-                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,hsl(var(--accent-soft)),hsl(var(--accent-glow)/0.32))]">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,hsl(var(--accent-soft)),hsl(var(--accent-glow)/0.32))] shadow-card">
                     <Icon className="h-5 w-5 text-[hsl(var(--accent-text))]" />
                   </div>
-                  <ArrowRight className="mt-1 h-4 w-4 text-content-tertiary" />
+                  <ArrowRight className="mt-1 h-4 w-4 text-content-tertiary transition-transform group-hover:translate-x-0.5" />
                 </div>
 
                 <div className="mt-5 space-y-1">
