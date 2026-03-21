@@ -115,7 +115,7 @@ export default function DashboardLayout({
         style={{
           backgroundColor: "var(--bg-primary)",
           backgroundImage:
-            "radial-gradient(circle at top, hsl(var(--accent-glow) / 0.18), transparent 28%), radial-gradient(circle at bottom right, hsl(var(--accent) / 0.08), transparent 24%)",
+            "radial-gradient(ellipse at top, hsl(var(--accent-glow) / 0.1), transparent 40%), radial-gradient(circle at bottom right, hsl(var(--accent) / 0.05), transparent 30%)",
         }}
       >
         <SideNav role={role} userName={userName} isCoordinator={isCoordinator} activeMode={activeMode} switchMode={switchMode} />

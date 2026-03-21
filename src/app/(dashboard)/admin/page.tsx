@@ -176,9 +176,9 @@ export default function AdminDashboardPage() {
                   <span
                     className="inline-flex items-center gap-1 text-[10px] font-bold"
                     style={{
-                      background: school.status === "ACTIVE" ? "rgba(74,222,128,0.1)" : "rgba(251,191,36,0.1)",
-                      border: school.status === "ACTIVE" ? "1px solid rgba(74,222,128,0.15)" : "1px solid rgba(251,191,36,0.15)",
-                      color: school.status === "ACTIVE" ? "#4ADE80" : "#FBBF24",
+                      background: school.status === "ACTIVE" ? "rgba(74,222,128,0.1)" : "hsl(var(--accent-glow) / 0.1)",
+                      border: school.status === "ACTIVE" ? "1px solid rgba(74,222,128,0.15)" : "1px solid hsl(var(--accent-glow) / 0.15)",
+                      color: school.status === "ACTIVE" ? "#4ADE80" : "hsl(var(--accent-glow))",
                       borderRadius: "10px",
                       padding: "6px 12px",
                     }}
@@ -198,8 +198,8 @@ export default function AdminDashboardPage() {
           <div data-tour="admin-stats" className="flex mt-5 animate-slide-up animation-delay-75" style={{ gap: "8px" }}>
             {[
               { value: stats?.totalTeachers ?? 0, label: "Teachers", color: "#818CF8", hint: undefined },
-              { value: stats?.entriesThisWeek ?? 0, label: "This week", color: "#F59E0B", hint: undefined },
-              { value: `${complianceRate}%`, label: "Compliance", color: complianceRate >= 80 ? "#4ADE80" : complianceRate >= 50 ? "#FBBF24" : "#FB7185", hint: "The percentage of expected entries submitted across your school this month." },
+              { value: stats?.entriesThisWeek ?? 0, label: "This week", color: "hsl(var(--accent))", hint: undefined },
+              { value: `${complianceRate}%`, label: "Compliance", color: complianceRate >= 80 ? "#4ADE80" : complianceRate >= 50 ? "hsl(var(--accent-glow))" : "#FB7185", hint: "The percentage of expected entries submitted across your school this month." },
             ].map((stat) => (
               <div
                 key={stat.label}
@@ -287,8 +287,8 @@ export default function AdminDashboardPage() {
                 icon: BarChart3,
                 label: "Reports",
                 count: "Analytics & export",
-                gradient: "linear-gradient(135deg, #FEF3C7, #FDE68A)",
-                iconColor: "#D97706",
+                gradient: "linear-gradient(135deg, hsl(var(--accent-soft)), hsl(var(--accent) / 0.2))",
+                iconColor: "hsl(var(--accent-strong))",
               },
               {
                 href: "/admin/teachers",
@@ -366,26 +366,26 @@ export default function AdminDashboardPage() {
           href="/admin/announcements"
           className="animate-slide-up animation-delay-175 flex items-center justify-between p-4 group active:scale-[0.98] transition-all duration-200 relative"
           style={{
-            background: "linear-gradient(135deg, #FFFBEB, #FEF3C7)",
-            border: "1px solid #FDE68A",
+            background: "linear-gradient(135deg, hsl(var(--accent-soft)), hsl(var(--accent-soft)))",
+            border: "1px solid hsl(var(--accent) / 0.2)",
             borderRadius: "16px",
           }}
         >
           <HelpHint text="Send a message to all teachers at your school. They'll see it in their notifications." position="left" createdAt={userCreatedAt} className="absolute top-3 right-3 z-10" />
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center">
-              <Megaphone className="w-5 h-5 text-amber-600" />
+            <div className="w-10 h-10 rounded-xl bg-[hsl(var(--accent-soft))] flex items-center justify-center">
+              <Megaphone className="w-5 h-5 text-[hsl(var(--accent-strong))]" />
             </div>
             <div>
-              <span style={{ fontFamily: "var(--font-body)", fontSize: 14, fontWeight: 700, color: "#92400E" }}>
+              <span style={{ fontFamily: "var(--font-body)", fontSize: 14, fontWeight: 700, color: "hsl(var(--accent-text))" }}>
                 Send Announcement
               </span>
-              <span className="block" style={{ fontFamily: "var(--font-body)", fontSize: 12, color: "#B45309" }}>
+              <span className="block" style={{ fontFamily: "var(--font-body)", fontSize: 12, color: "hsl(var(--accent-text))" }}>
                 Broadcast to all teachers
               </span>
             </div>
           </div>
-          <ChevronRight className="w-4 h-4 text-amber-400 group-hover:translate-x-0.5 transition-transform" />
+          <ChevronRight className="w-4 h-4 text-[hsl(var(--accent-glow))] group-hover:translate-x-0.5 transition-transform" />
         </Link>
 
         {/* ── REPORTS LINK ── */}
@@ -517,9 +517,9 @@ export default function AdminDashboardPage() {
               })}
             </div>
           ) : (
-            <div className="rounded-xl p-3 text-center" style={{ background: "rgba(245,158,11,0.06)", border: "1px solid rgba(245,158,11,0.15)" }}>
-              <p className="text-xs font-semibold" style={{ color: "#92400E" }}>No VPs assigned yet</p>
-              <Link href="/admin/coordinators" className="text-xs font-bold underline mt-1 block" style={{ color: "#D97706" }}>
+            <div className="rounded-xl p-3 text-center" style={{ background: "hsl(var(--accent) / 0.06)", border: "1px solid hsl(var(--accent) / 0.15)" }}>
+              <p className="text-xs font-semibold" style={{ color: "hsl(var(--accent-text))" }}>No VPs assigned yet</p>
+              <Link href="/admin/coordinators" className="text-xs font-bold underline mt-1 block" style={{ color: "hsl(var(--accent-strong))" }}>
                 Set up Level Coordinators →
               </Link>
             </div>

@@ -104,7 +104,7 @@ function getStatusColor(status: string): string {
   switch (status) {
     case "VERIFIED": return "border-l-emerald-500 bg-[var(--badge-verified-bg)]";
     case "FLAGGED": return "border-l-red-500 bg-[var(--badge-flagged-bg)]";
-    case "SUBMITTED": return "border-l-amber-500 bg-[var(--badge-submitted-bg)]";
+    case "SUBMITTED": return "border-l-[hsl(var(--accent))] bg-[var(--badge-submitted-bg)]";
     default: return "border-l-[var(--text-quaternary)] bg-[var(--bg-tertiary)]";
   }
 }
@@ -113,7 +113,7 @@ function getLevelColor(level: string): { bg: string; text: string; border: strin
   if (level.includes("1")) return { bg: "bg-blue-50", text: "text-blue-700", border: "border-blue-200" };
   if (level.includes("2")) return { bg: "bg-emerald-50", text: "text-emerald-700", border: "border-emerald-200" };
   if (level.includes("3")) return { bg: "bg-violet-50", text: "text-violet-700", border: "border-violet-200" };
-  if (level.includes("4")) return { bg: "bg-amber-50", text: "text-amber-700", border: "border-amber-200" };
+  if (level.includes("4")) return { bg: "bg-[hsl(var(--accent-soft))]", text: "text-[hsl(var(--accent-text))]", border: "border-[hsl(var(--accent)/0.2)]" };
   if (level.includes("5")) return { bg: "bg-rose-50", text: "text-rose-700", border: "border-rose-200" };
   if (level.toLowerCase().includes("lower")) return { bg: "bg-indigo-50", text: "text-indigo-700", border: "border-indigo-200" };
   if (level.toLowerCase().includes("upper")) return { bg: "bg-purple-50", text: "text-purple-700", border: "border-purple-200" };
@@ -694,8 +694,8 @@ export default function HistoryPage() {
               {selectedEntry.objectives && (
                 <div className="py-4">
                   <div className="flex items-start gap-3">
-                    <div className="w-8 h-8 bg-amber-50 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <GraduationCap className="w-4 h-4 text-amber-600" />
+                    <div className="w-8 h-8 bg-[hsl(var(--accent-soft))] rounded-lg flex items-center justify-center flex-shrink-0">
+                      <GraduationCap className="w-4 h-4 text-[hsl(var(--accent-strong))]" />
                     </div>
                     <div>
                       <p className="text-[10px] font-semibold uppercase tracking-widest text-[var(--text-tertiary)]">Objectives</p>

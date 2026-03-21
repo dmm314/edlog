@@ -68,7 +68,7 @@ interface EntryDetail {
 
 const REMARK_COLORS: Record<string, { bg: string; text: string; border: string; bar: string; label: string }> = {
   self_reflection: { bg: "bg-emerald-50", text: "text-emerald-700", border: "border-emerald-200", bar: "bg-emerald-500", label: "Teacher" },
-  hod_review: { bg: "bg-amber-50", text: "text-amber-700", border: "border-amber-200", bar: "bg-amber-500", label: "HOD" },
+  hod_review: { bg: "bg-[hsl(var(--accent-soft))]", text: "text-[hsl(var(--accent-text))]", border: "border-[hsl(var(--accent)/0.2)]", bar: "bg-[hsl(var(--accent))]", label: "HOD" },
   admin_observation: { bg: "bg-blue-50", text: "text-blue-700", border: "border-blue-200", bar: "bg-blue-500", label: "Admin" },
   inspector_note: { bg: "bg-purple-50", text: "text-purple-700", border: "border-purple-200", bar: "bg-purple-500", label: "Inspector" },
 };
@@ -76,7 +76,7 @@ const REMARK_COLORS: Record<string, { bg: string; text: string; border: string; 
 const STATUS_CONFIG: Record<string, { color: string; label: string; icon: React.ReactNode }> = {
   VERIFIED: { color: "#10B981", label: "Verified", icon: <CheckCircle className="w-3.5 h-3.5" /> },
   FLAGGED: { color: "#EF4444", label: "Flagged", icon: <Flag className="w-3.5 h-3.5" /> },
-  SUBMITTED: { color: "#F59E0B", label: "Pending Review", icon: <AlertCircle className="w-3.5 h-3.5" /> },
+  SUBMITTED: { color: "hsl(var(--accent))", label: "Pending Review", icon: <AlertCircle className="w-3.5 h-3.5" /> },
   DRAFT: { color: "#6B7280", label: "Draft", icon: <FileText className="w-3.5 h-3.5" /> },
 };
 
@@ -101,7 +101,7 @@ function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
 }
 
 function CompletenessBar({ score }: { score: number }) {
-  const color = score >= 80 ? "#10B981" : score >= 60 ? "#F59E0B" : "#EF4444";
+  const color = score >= 80 ? "#10B981" : score >= 60 ? "hsl(var(--accent))" : "#EF4444";
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
       <div style={{ flex: 1, height: 6, background: "var(--bg-tertiary)", borderRadius: 3, overflow: "hidden" }}>
@@ -491,7 +491,7 @@ export function EntryDetailModal({
                 <SectionTitle><BarChart2 className="w-3 h-3 inline mr-1" />Completeness — {completeness.score}%</SectionTitle>
                 <div className="flex flex-wrap gap-1.5">
                   {completeness.missing.map((m) => (
-                    <span key={m} className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700">
+                    <span key={m} className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-[hsl(var(--accent-soft))] text-[hsl(var(--accent-text))]">
                       Missing: {m}
                     </span>
                   ))}

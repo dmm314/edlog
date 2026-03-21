@@ -883,7 +883,7 @@ export default function NewEntryPage() {
     return (
       <div className="min-h-screen flex flex-col" style={{ backgroundColor: "var(--bg-primary)" }}>
         <div className={`px-5 pt-12 pb-8 rounded-b-3xl ${
-          submittedEntries.isDraft ? "bg-gradient-to-br from-amber-600 to-amber-500"
+          submittedEntries.isDraft ? "bg-gradient-to-br from-[hsl(var(--accent-strong))] to-[hsl(var(--accent))]"
             : submittedEntries.classDidNotHold ? "bg-gradient-to-br from-slate-600 to-slate-500"
             : "bg-gradient-to-br from-emerald-600 to-emerald-500"
         }`}>
@@ -1039,9 +1039,9 @@ export default function NewEntryPage() {
                       </div>
                     )}
                     {submittedEntries.bilingualActivity && (
-                      <div className="rounded-xl py-2 px-3" style={{ background: "#FFFBEB" }}>
-                        <p className="text-[10px] text-amber-600">Bilingual Activity</p>
-                        <p className="text-xs font-semibold text-amber-700">
+                      <div className="rounded-xl py-2 px-3" style={{ background: "hsl(var(--accent-soft))" }}>
+                        <p className="text-[10px]" style={{ color: "hsl(var(--accent-strong))" }}>Bilingual Activity</p>
+                        <p className="text-xs font-semibold" style={{ color: "hsl(var(--accent-text))" }}>
                           {submittedEntries.bilingualType ? submittedEntries.bilingualType.replace("_", " ").replace(/\b\w/g, (c) => c.toUpperCase()) : "Yes"}
                         </p>
                       </div>
@@ -1184,7 +1184,7 @@ export default function NewEntryPage() {
             </h1>
             <div
               className={`flex items-center gap-1.5 rounded-full px-3 py-1 border text-xs font-mono font-bold tabular-nums ${
-                seconds > 60 ? "border-amber-300 text-amber-700" : ""
+                seconds > 60 ? "border-[hsl(var(--accent-glow))] text-[hsl(var(--accent-text))]" : ""
               }`}
               style={{
                 ...(seconds <= 60 ? { borderColor: "var(--border-primary)", color: "var(--text-tertiary)" } : {}),
@@ -1199,10 +1199,10 @@ export default function NewEntryPage() {
           {hasContext && (
             <div
               className="flex items-center gap-3 mb-4 animate-slide-up"
-              style={{ background: "linear-gradient(135deg, #FEF3C7, #FDE68A)", borderRadius: "14px", padding: "14px 16px" }}
+              style={{ background: "linear-gradient(135deg, hsl(var(--accent-soft)), hsl(var(--accent) / 0.2))", borderRadius: "14px", padding: "14px 16px" }}
             >
               <div className="flex-1 min-w-0">
-                <p className="text-[10px] font-semibold uppercase" style={{ color: "#92400E", letterSpacing: "0.06em" }}>
+                <p className="text-[10px] font-semibold uppercase" style={{ color: "hsl(var(--accent-text))", letterSpacing: "0.06em" }}>
                   Auto-filled from timetable
                 </p>
                 <p className="text-[15px] font-bold text-[var(--text-primary)] mt-1 truncate">
@@ -1216,7 +1216,7 @@ export default function NewEntryPage() {
               </div>
               <div
                 className="flex items-center justify-center flex-shrink-0"
-                style={{ width: "44px", height: "44px", borderRadius: "14px", background: "rgba(255,255,255,0.5)", color: "#D97706" }}
+                style={{ width: "44px", height: "44px", borderRadius: "14px", background: "rgba(255,255,255,0.5)", color: "hsl(var(--accent-strong))" }}
               >
                 <Zap className="w-5 h-5" />
               </div>
@@ -1234,9 +1234,9 @@ export default function NewEntryPage() {
               });
               if (unendedSlot) {
                 return (
-                  <div className="flex items-center gap-2 mb-3 animate-slide-up" style={{ background: "#FFFBEB", border: "1px solid #FDE68A", borderRadius: "12px", padding: "12px" }}>
-                    <Clock className="w-4 h-4 flex-shrink-0" style={{ color: "#B45309" }} />
-                    <p className="text-xs font-medium" style={{ color: "#B45309" }}>
+                  <div className="flex items-center gap-2 mb-3 animate-slide-up" style={{ background: "hsl(var(--accent-soft))", border: "1px solid hsl(var(--accent) / 0.2)", borderRadius: "12px", padding: "12px" }}>
+                    <Clock className="w-4 h-4 flex-shrink-0" style={{ color: "hsl(var(--accent-text))" }} />
+                    <p className="text-xs font-medium" style={{ color: "hsl(var(--accent-text))" }}>
                       This period hasn&apos;t ended yet. You can save as draft now and submit after {unendedSlot.endTime}.
                     </p>
                   </div>
@@ -1368,7 +1368,7 @@ export default function NewEntryPage() {
                             <p className="text-[10px] text-[var(--text-tertiary)]">{shortClassName(slot.assignment.className)}</p>
                             {isAlreadyFilled && <p className="text-[9px] font-bold mt-1" style={{ color: "var(--success)" }}>Already filled</p>}
                             {periodNotEnded && !isAlreadyFilled && (
-                              <p className="text-[9px] font-bold mt-1 flex items-center gap-0.5" style={{ color: "#92400E" }}>
+                              <p className="text-[9px] font-bold mt-1 flex items-center gap-0.5" style={{ color: "hsl(var(--accent-text))" }}>
                                 <Clock className="w-2.5 h-2.5" />
                                 Available at {slot.endTime}
                               </p>
@@ -1480,7 +1480,7 @@ export default function NewEntryPage() {
                             className="flex items-center gap-3.5 p-4 border text-left transition-all active:scale-[0.98] hover:-translate-y-0.5"
                             style={{ borderColor: "var(--border-primary)", background: "var(--bg-elevated)", boxShadow: "var(--shadow-card)", borderRadius: "16px" }}>
                             <div className="w-10 h-10 flex items-center justify-center font-display text-base font-bold flex-shrink-0"
-                              style={{ background: "linear-gradient(135deg, #FEF3C7, #FDE68A)", color: "#92400E", borderRadius: "12px" }}>
+                              style={{ background: "linear-gradient(135deg, hsl(var(--accent-soft)), hsl(var(--accent) / 0.2))", color: "hsl(var(--accent-text))", borderRadius: "12px" }}>
                               {i + 1}
                             </div>
                             <div className="flex-1 min-w-0">
@@ -1518,7 +1518,7 @@ export default function NewEntryPage() {
               <div className="space-y-4 animate-slide-in-right">
                 {moduleName && (
                   <div className="inline-flex items-center gap-2 text-xs font-semibold"
-                    style={{ background: "#FEF3C7", border: "1px solid #F59E0B", color: "#92400E", borderRadius: "10px", padding: "6px 12px" }}>
+                    style={{ background: "hsl(var(--accent-soft))", border: "1px solid hsl(var(--accent))", color: "hsl(var(--accent-text))", borderRadius: "10px", padding: "6px 12px" }}>
                     <Layers className="w-3 h-3" />
                     {moduleName}
                   </div>
@@ -1579,8 +1579,8 @@ export default function NewEntryPage() {
                         gap: 6,
                         fontFamily: "var(--font-body)",
                         fontSize: 11,
-                        color: "#D97706",
-                        background: "#FFFBEB",
+                        color: "hsl(var(--accent-strong))",
+                        background: "hsl(var(--accent-soft))",
                         borderRadius: 8,
                         padding: "8px 12px",
                       }}>
@@ -1984,15 +1984,15 @@ export default function NewEntryPage() {
                   <button type="button" onClick={() => setBilingualActivity(!bilingualActivity)}
                     className="w-full text-left flex items-center gap-3 px-4 py-3 rounded-2xl border-2 transition-all"
                     style={{
-                      borderColor: bilingualActivity ? "#F59E0B" : "var(--border-primary)",
-                      background: bilingualActivity ? "#FFFBEB" : "var(--bg-elevated)",
+                      borderColor: bilingualActivity ? "hsl(var(--accent))" : "var(--border-primary)",
+                      background: bilingualActivity ? "hsl(var(--accent-soft))" : "var(--bg-elevated)",
                     }}>
                     <div className="w-5 h-5 rounded-md border-2 flex items-center justify-center flex-shrink-0"
-                      style={{ borderColor: bilingualActivity ? "#F59E0B" : "var(--border-primary)", background: bilingualActivity ? "#F59E0B" : "var(--bg-elevated)" }}>
+                      style={{ borderColor: bilingualActivity ? "hsl(var(--accent))" : "var(--border-primary)", background: bilingualActivity ? "hsl(var(--accent))" : "var(--bg-elevated)" }}>
                       {bilingualActivity && <Check className="w-3 h-3 text-white" />}
                     </div>
                     <div className="flex-1">
-                      <p className={`text-sm font-semibold ${bilingualActivity ? "text-amber-700" : "text-[var(--text-secondary)]"}`}>
+                      <p className={`text-sm font-semibold ${bilingualActivity ? "text-[hsl(var(--accent-text))]" : "text-[var(--text-secondary)]"}`}>
                         <Globe className="w-3.5 h-3.5 inline -mt-0.5 mr-1" />
                         Bilingual activity conducted
                       </p>
@@ -2072,18 +2072,18 @@ export default function NewEntryPage() {
                 {/* ── Assignment Reminder Banner ── */}
                 {pendingAssignmentInfo && (
                   <div className="flex items-start gap-3 px-4 py-3 rounded-2xl border-2 animate-fade-in"
-                    style={{ borderColor: "#F59E0B", background: "#FFFBEB" }}>
-                    <ClipboardList className="w-5 h-5 flex-shrink-0 mt-0.5 text-amber-600" />
+                    style={{ borderColor: "hsl(var(--accent))", background: "hsl(var(--accent-soft))" }}>
+                    <ClipboardList className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: "hsl(var(--accent-strong))" }} />
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-amber-700">Previous assignment pending</p>
-                      <p className="text-xs text-amber-600 mt-0.5">{pendingAssignmentInfo}</p>
+                      <p className="text-sm font-semibold" style={{ color: "hsl(var(--accent-text))" }}>Previous assignment pending</p>
+                      <p className="text-xs mt-0.5" style={{ color: "hsl(var(--accent-strong))" }}>{pendingAssignmentInfo}</p>
                       <div className="flex gap-2 mt-2">
                         <button type="button" onClick={() => setAssignmentReviewed(true)}
                           className="text-xs font-semibold px-3 py-1.5 rounded-lg transition-all"
                           style={{
-                            background: assignmentReviewed === true ? "#DCFCE7" : "#FEF3C7",
-                            color: assignmentReviewed === true ? "#16A34A" : "#92400E",
-                            border: assignmentReviewed === true ? "1px solid #86EFAC" : "1px solid #FDE68A",
+                            background: assignmentReviewed === true ? "#DCFCE7" : "hsl(var(--accent-soft))",
+                            color: assignmentReviewed === true ? "#16A34A" : "hsl(var(--accent-text))",
+                            border: assignmentReviewed === true ? "1px solid #86EFAC" : "1px solid hsl(var(--accent) / 0.2)",
                           }}>
                           {assignmentReviewed === true && <Check className="w-3 h-3 inline mr-1 -mt-0.5" />}
                           Reviewed
@@ -2091,9 +2091,9 @@ export default function NewEntryPage() {
                         <button type="button" onClick={() => setAssignmentReviewed(false)}
                           className="text-xs font-semibold px-3 py-1.5 rounded-lg transition-all"
                           style={{
-                            background: assignmentReviewed === false ? "#FEE2E2" : "#FEF3C7",
-                            color: assignmentReviewed === false ? "#DC2626" : "#92400E",
-                            border: assignmentReviewed === false ? "1px solid #FCA5A5" : "1px solid #FDE68A",
+                            background: assignmentReviewed === false ? "#FEE2E2" : "hsl(var(--accent-soft))",
+                            color: assignmentReviewed === false ? "#DC2626" : "hsl(var(--accent-text))",
+                            border: assignmentReviewed === false ? "1px solid #FCA5A5" : "1px solid hsl(var(--accent) / 0.2)",
                           }}>
                           {assignmentReviewed === false && <Check className="w-3 h-3 inline mr-1 -mt-0.5" />}
                           Not reviewed
@@ -2173,7 +2173,7 @@ export default function NewEntryPage() {
                             const isActive = engagementLevel === level;
                             const colors: Record<string, { bg: string; text: string }> = {
                               HIGH: { bg: "#DCFCE7", text: "#16A34A" },
-                              MEDIUM: { bg: "#FEF3C7", text: "#D97706" },
+                              MEDIUM: { bg: "hsl(var(--accent-soft))", text: "hsl(var(--accent-strong))" },
                               LOW: { bg: "#FEE2E2", text: "#DC2626" },
                             };
                             const c = colors[level];

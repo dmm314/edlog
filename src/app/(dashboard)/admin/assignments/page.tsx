@@ -259,9 +259,9 @@ export default function AssignmentsPage() {
       <div className="px-5 mt-4 max-w-lg mx-auto space-y-4">
         {/* Setup warnings */}
         {!loading && !hasSetup && (
-          <div className="card p-4 border-l-4 border-amber-400">
+          <div className="card p-4 border-l-4 border-[hsl(var(--accent-glow))]">
             <div className="flex items-start gap-3">
-              <AlertCircle className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
+              <AlertCircle className="w-5 h-5 text-[hsl(var(--accent))] flex-shrink-0 mt-0.5" />
               <div className="space-y-2 text-sm">
                 <p className="font-medium text-[var(--text-primary)]">
                   Setup required before assigning teachers
@@ -390,7 +390,7 @@ export default function AssignmentsPage() {
                 ))}
               </select>
               {form.classId && availableSubjects.length === 0 && (
-                <p className="text-xs text-amber-600 mt-1">
+                <p className="text-xs text-[hsl(var(--accent-strong))] mt-1">
                   This class has no subjects.{" "}
                   <Link
                     href={`/admin/classes/${form.classId}`}
@@ -407,7 +407,7 @@ export default function AssignmentsPage() {
               <div>
                 <label className="label-field">
                   Division
-                  <span className="text-amber-600 ml-1">(required)</span>
+                  <span className="text-[hsl(var(--accent-strong))] ml-1">(required)</span>
                 </label>
                 <select
                   value={form.divisionId}
@@ -511,7 +511,7 @@ export default function AssignmentsPage() {
                             {a.subject.name}
                           </span>
                           {a.division && (
-                            <span className="text-xs font-medium bg-amber-50 text-amber-700 px-2 py-0.5 rounded">
+                            <span className="text-xs font-medium bg-[hsl(var(--accent-soft))] text-[hsl(var(--accent-text))] px-2 py-0.5 rounded">
                               {a.division.name}
                             </span>
                           )}

@@ -71,7 +71,7 @@ const CLASS_COLORS = [
   { bg: "rgba(109,40,217,0.10)", border: "rgba(109,40,217,0.28)", badge: "#7C3AED" },
   { bg: "rgba(37,99,235,0.10)", border: "rgba(37,99,235,0.28)", badge: "#2563EB" },
   { bg: "rgba(5,150,105,0.10)", border: "rgba(5,150,105,0.28)", badge: "#059669" },
-  { bg: "rgba(217,119,6,0.10)", border: "rgba(217,119,6,0.28)", badge: "#D97706" },
+  { bg: "hsl(var(--accent-strong) / 0.10)", border: "hsl(var(--accent-strong) / 0.28)", badge: "hsl(var(--accent-strong))" },
   { bg: "rgba(225,29,72,0.08)", border: "rgba(225,29,72,0.22)", badge: "#E11D48" },
   { bg: "rgba(22,163,74,0.08)", border: "rgba(22,163,74,0.25)", badge: "#16A34A" },
 ];

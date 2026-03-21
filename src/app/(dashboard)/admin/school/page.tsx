@@ -163,7 +163,7 @@ export default function SchoolProfilePage() {
                       school.status === "ACTIVE"
                         ? "bg-green-50 text-green-700"
                         : school.status === "PENDING"
-                        ? "bg-amber-50 text-amber-700"
+                        ? "bg-[hsl(var(--accent-soft))] text-[hsl(var(--accent-text))]"
                         : "bg-red-50 text-red-700"
                     }`}
                   >
@@ -195,7 +195,7 @@ export default function SchoolProfilePage() {
                 href="/admin/subjects"
                 className="card p-4 flex items-center gap-3 hover:shadow-md transition-shadow"
               >
-                <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-amber-50 text-amber-600">
+                <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-[hsl(var(--accent-soft))] text-[hsl(var(--accent-strong))]">
                   <BookOpen className="w-5 h-5" />
                 </div>
                 <div className="flex-1">

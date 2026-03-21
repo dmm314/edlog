@@ -17,8 +17,8 @@ function StreakBadge({ days, className = "" }: StreakBadgeProps) {
     <div
       className={`rounded-2xl border flex items-center gap-2.5 ${className}`}
       style={{
-        background: "rgba(245, 158, 11, 0.08)",
-        borderColor: "rgba(245, 158, 11, 0.12)",
+        background: "hsl(var(--accent) / 0.08)",
+        borderColor: "hsl(var(--accent) / 0.12)",
         padding: "12px 14px",
       }}
     >
@@ -28,7 +28,7 @@ function StreakBadge({ days, className = "" }: StreakBadgeProps) {
           width: "36px",
           height: "36px",
           borderRadius: "12px",
-          background: "linear-gradient(135deg, #F59E0B, #D97706)",
+          background: "linear-gradient(135deg, hsl(var(--accent)), hsl(var(--accent-strong)))",
           animationDuration: "500ms",
         }}
       >
@@ -43,7 +43,7 @@ function StreakBadge({ days, className = "" }: StreakBadgeProps) {
                 fontFamily: "var(--font-body)",
                 fontSize: "18px",
                 fontWeight: 800,
-                color: "#FBBF24",
+                color: "hsl(var(--accent-glow))",
               }}
             >
               {animatedDays} {animatedDays === 1 ? "day" : "days"}

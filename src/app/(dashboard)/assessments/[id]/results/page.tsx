@@ -237,7 +237,7 @@ export default function AssessmentResultsPage() {
       ? Math.round(((assessment.femalePassed / assessment.totalFemale) * 100) * 10) / 10
       : null;
   const passRateColor = passRate != null
-    ? passRate >= 70 ? "#16A34A" : passRate >= 50 ? "#D97706" : "#DC2626"
+    ? passRate >= 70 ? "#16A34A" : passRate >= 50 ? "hsl(var(--accent-strong))" : "#DC2626"
     : undefined;
 
   return (
@@ -426,7 +426,7 @@ export default function AssessmentResultsPage() {
                   style={{
                     background: "var(--bg-elevated)",
                     color: "var(--text-primary)",
-                    border: `1px solid ${genderMismatch ? "var(--warning-text, #92400e)" : "var(--border-primary)"}`,
+                    border: `1px solid ${genderMismatch ? "hsl(var(--accent-text))" : "var(--border-primary)"}`,
                   }}
                 />
               </div>
@@ -443,13 +443,13 @@ export default function AssessmentResultsPage() {
                   style={{
                     background: "var(--bg-elevated)",
                     color: "var(--text-primary)",
-                    border: `1px solid ${genderMismatch ? "var(--warning-text, #92400e)" : "var(--border-primary)"}`,
+                    border: `1px solid ${genderMismatch ? "hsl(var(--accent-text))" : "var(--border-primary)"}`,
                   }}
                 />
               </div>
             </div>
             {genderMismatch && (
-              <p className="text-xs" style={{ color: "var(--warning-text, #92400e)", marginTop: -8 }}>
+              <p className="text-xs" style={{ color: "hsl(var(--accent-text))", marginTop: -8 }}>
                 Male ({tmNum}) + Female ({tfNum}) = {tmNum + tfNum}, but total is {tsNum}
               </p>
             )}
@@ -488,7 +488,7 @@ export default function AssessmentResultsPage() {
                   style={{
                     background: "var(--bg-elevated)",
                     color: "var(--text-primary)",
-                    border: `1px solid ${genderPassedMismatch ? "var(--warning-text, #92400e)" : "var(--border-primary)"}`,
+                    border: `1px solid ${genderPassedMismatch ? "hsl(var(--accent-text))" : "var(--border-primary)"}`,
                   }}
                 />
               </div>
@@ -505,13 +505,13 @@ export default function AssessmentResultsPage() {
                   style={{
                     background: "var(--bg-elevated)",
                     color: "var(--text-primary)",
-                    border: `1px solid ${genderPassedMismatch ? "var(--warning-text, #92400e)" : "var(--border-primary)"}`,
+                    border: `1px solid ${genderPassedMismatch ? "hsl(var(--accent-text))" : "var(--border-primary)"}`,
                   }}
                 />
               </div>
             </div>
             {genderPassedMismatch && (
-              <p className="text-xs" style={{ color: "var(--warning-text, #92400e)", marginTop: -8 }}>
+              <p className="text-xs" style={{ color: "hsl(var(--accent-text))", marginTop: -8 }}>
                 Male passed ({mpNum}) + Female passed ({fpNum}) = {mpNum + fpNum}, but total passed is {tpNum}
               </p>
             )}

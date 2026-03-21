@@ -328,7 +328,7 @@ export default function AdminEntriesPage() {
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100/50 pb-24">
       {/* Header */}
       <div className="bg-gradient-to-br from-[var(--header-from)] via-[var(--header-via)] to-[var(--header-to)] px-5 pt-10 pb-8 rounded-b-[2rem] shadow-elevated relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[rgba(245,158,11,0.08)] via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[hsl(var(--accent)/0.08)] via-transparent to-transparent" />
         <div className="absolute top-0 right-0 w-64 h-64 bg-[var(--accent)]/[0.07] rounded-full -translate-y-1/3 translate-x-1/4 blur-3xl" />
 
         <div className="mx-auto w-full max-w-6xl relative">
@@ -383,11 +383,11 @@ export default function AdminEntriesPage() {
         {/* No VPs setup banner */}
         {hasVPs === false && (
           <div className="flex items-start gap-3 px-4 py-3 rounded-xl text-sm" style={{
-            background: "rgba(245,158,11,0.08)",
-            border: "1px solid rgba(245,158,11,0.2)"
+            background: "hsl(var(--accent) / 0.08)",
+            border: "1px solid hsl(var(--accent) / 0.2)"
           }}>
-            <AlertTriangle className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
-            <p style={{ color: "#92400E" }}>
+            <AlertTriangle className="w-4 h-4 text-[hsl(var(--accent-strong))] flex-shrink-0 mt-0.5" />
+            <p style={{ color: "hsl(var(--accent-text))" }}>
               Entries will stay pending until a VP is assigned.{" "}
               <Link href="/admin/coordinators" className="font-semibold underline">Set up VPs</Link>{" "}
               to activate level-based review.
@@ -670,7 +670,7 @@ export default function AdminEntriesPage() {
                                   <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-tertiary)]">Engagement</p>
                                   <p className={`text-sm font-bold mt-0.5 ${
                                     entry.engagementLevel === "HIGH" ? "text-emerald-600" :
-                                    entry.engagementLevel === "MEDIUM" ? "text-amber-600" : "text-red-500"
+                                    entry.engagementLevel === "MEDIUM" ? "text-[hsl(var(--accent-strong))]" : "text-red-500"
                                   }`}>
                                     {entry.engagementLevel}
                                   </p>
@@ -706,14 +706,14 @@ export default function AdminEntriesPage() {
                                   VP Notified
                                 </span>
                               ) : vpResult === "no-vp" ? (
-                                <span className="flex-1 flex items-center justify-center gap-1.5 text-sm font-semibold rounded-xl px-3 py-2.5 bg-amber-50 text-amber-700 border border-amber-100 text-center">
+                                <span className="flex-1 flex items-center justify-center gap-1.5 text-sm font-semibold rounded-xl px-3 py-2.5 bg-[hsl(var(--accent-soft))] text-[hsl(var(--accent-text))] border border-[hsl(var(--accent)/0.1)] text-center">
                                   No VP for this level
                                 </span>
                               ) : (
                                 <button
                                   onClick={() => notifyVP(entry.id)}
                                   disabled={notifyingId === entry.id}
-                                  className="flex-1 flex items-center justify-center gap-1.5 text-sm font-semibold rounded-xl px-3 py-2.5 transition-all border border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100 active:scale-[0.98] disabled:opacity-50"
+                                  className="flex-1 flex items-center justify-center gap-1.5 text-sm font-semibold rounded-xl px-3 py-2.5 transition-all border border-[hsl(var(--accent)/0.2)] bg-[hsl(var(--accent-soft))] text-[hsl(var(--accent-text))] hover:bg-[hsl(var(--accent-soft))] active:scale-[0.98] disabled:opacity-50"
                                 >
                                   {notifyingId === entry.id ? (
                                     <Loader2 className="w-4 h-4 animate-spin" />

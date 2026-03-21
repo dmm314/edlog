@@ -218,7 +218,7 @@ export default function RegionalAnnouncementsPage() {
 
         {/* Large audience warning */}
         {targetMode === "all" && teacherCount !== null && teacherCount > 50 && (
-          <div className="flex items-center gap-2 bg-amber-50 border border-amber-200 text-amber-700 text-sm rounded-xl px-4 py-3">
+          <div className="flex items-center gap-2 bg-[hsl(var(--accent-soft))] border border-[hsl(var(--accent)/0.2)] text-[hsl(var(--accent-text))] text-sm rounded-xl px-4 py-3">
             <AlertTriangle className="w-4 h-4 flex-shrink-0" />
             This will send to {teacherCount} teachers across {schoolCount ?? "multiple"} schools.
           </div>

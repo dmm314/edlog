@@ -132,7 +132,7 @@ export default function RegionalSchoolsPage() {
       case "ACTIVE":
         return "bg-green-50 text-green-700";
       case "PENDING":
-        return "bg-amber-50 text-amber-700";
+        return "bg-[hsl(var(--accent-soft))] text-[hsl(var(--accent-text))]";
       case "SUSPENDED":
         return "bg-red-50 text-red-700";
       default:
@@ -246,7 +246,7 @@ export default function RegionalSchoolsPage() {
             {
               label: "Pending",
               count: schools.filter((s) => s.status === "PENDING").length,
-              color: "bg-amber-100 text-amber-700",
+              color: "bg-[hsl(var(--accent-soft))] text-[hsl(var(--accent-text))]",
             },
             {
               label: "Suspended",

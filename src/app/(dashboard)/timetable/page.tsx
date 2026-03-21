@@ -403,7 +403,7 @@ export default function TimetablePage() {
                   return (
                     <div
                       key={day.value}
-                      className={`p-2 text-center ${isToday ? "bg-amber-100/60" : "bg-[var(--bg-tertiary)]"}`}
+                      className={`p-2 text-center ${isToday ? "bg-[hsl(var(--accent)/0.1)]" : "bg-[var(--bg-tertiary)]"}`}
                     >
                       <span
                         className={`text-[11px] font-bold uppercase tracking-wider ${
@@ -464,14 +464,14 @@ export default function TimetablePage() {
                             onClick={() => handleCellTap(slot, day.value)}
                             className={`relative p-1 m-0.5 rounded-lg text-left transition-all active:scale-[0.97] duration-[80ms] ${color.bg} ${
                               isCurrentCell ? "ring-2 ring-[var(--accent)]" : ""
-                            } ${isToday && !isCurrentCell ? "bg-amber-50/50" : ""} ${hasEntry ? "opacity-75" : ""}`}
+                            } ${isToday && !isCurrentCell ? "bg-[hsl(var(--accent)/0.05)]" : ""} ${hasEntry ? "opacity-75" : ""}`}
                             style={{ borderRadius: "8px" }}
                           >
                             {showFilledDot && (
                               <div className="absolute top-0.5 right-0.5 w-[6px] h-[6px] rounded-full bg-emerald-500" />
                             )}
                             {showUnfilledDot && (
-                              <div className="absolute top-0.5 right-0.5 w-[6px] h-[6px] rounded-full bg-amber-400" />
+                              <div className="absolute top-0.5 right-0.5 w-[6px] h-[6px] rounded-full bg-[hsl(var(--accent-glow))]" />
                             )}
                             <p
                               className={`text-[12px] font-bold leading-tight ${color.text}`}
@@ -493,7 +493,7 @@ export default function TimetablePage() {
                         <div
                           key={day.value}
                           className={`m-0.5 rounded-lg ${
-                            isToday ? "bg-amber-50/30" : ""
+                            isToday ? "bg-[hsl(var(--accent)/0.03)]" : ""
                           } ${isCurrentCell ? "ring-2 ring-[var(--accent-muted)]" : ""}`}
                         />
                       );
@@ -534,7 +534,7 @@ export default function TimetablePage() {
                   <span className="text-[10px] text-[var(--text-tertiary)]" style={{ fontFamily: "var(--font-body)" }}>Logged</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <div className="w-2 h-2 rounded-full bg-amber-400" />
+                  <div className="w-2 h-2 rounded-full bg-[hsl(var(--accent-glow))]" />
                   <span className="text-[10px] text-[var(--text-tertiary)]" style={{ fontFamily: "var(--font-body)" }}>Not yet logged</span>
                 </div>
               </div>
@@ -639,7 +639,7 @@ export default function TimetablePage() {
                           ? "rgba(16,185,129,0.08)"
                           : activeSlot.existingEntry.status === "FLAGGED"
                           ? "rgba(239,68,68,0.08)"
-                          : "rgba(245,158,11,0.08)",
+                          : "hsl(var(--accent) / 0.08)",
                     }}
                   >
                     <div
@@ -650,7 +650,7 @@ export default function TimetablePage() {
                             ? "#10B981"
                             : activeSlot.existingEntry.status === "FLAGGED"
                             ? "#EF4444"
-                            : "#F59E0B",
+                            : "hsl(var(--accent))",
                       }}
                     />
                     <p style={{ fontFamily: "var(--font-body)", fontSize: "13px", fontWeight: 600, color: "var(--text-secondary)" }}>
@@ -707,7 +707,7 @@ export default function TimetablePage() {
                     className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-bold text-sm text-white transition-all active:scale-[0.98]"
                     style={{
                       background: "linear-gradient(135deg, var(--accent), var(--accent-hover))",
-                      boxShadow: "0 4px 12px -4px rgba(245,158,11,0.3)",
+                      boxShadow: "0 4px 12px -4px hsl(var(--accent) / 0.3)",
                       fontFamily: "var(--font-body)",
                     }}
                   >

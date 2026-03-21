@@ -715,7 +715,7 @@ export default function ClassDetailPage() {
                           </div>
                           <div className="flex items-center gap-2">
                             {subject.divisions.length > 0 && (
-                              <span className="text-[10px] text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded font-medium flex items-center gap-0.5">
+                              <span className="text-[10px] text-[hsl(var(--accent-strong))] bg-[hsl(var(--accent-soft))] px-1.5 py-0.5 rounded font-medium flex items-center gap-0.5">
                                 <Layers className="w-3 h-3" />
                                 {subject.divisions.length} div.
                               </span>
@@ -735,8 +735,8 @@ export default function ClassDetailPage() {
                         </button>
                         {/* Show divisions when subject is linked and has divisions */}
                         {subject.linked && subject.divisions.length > 0 && (
-                          <div className="bg-amber-50/50 border border-t-0 border-amber-200 rounded-b-xl px-3 py-2">
-                            <p className="text-[10px] font-semibold uppercase tracking-widest text-amber-600 mb-1.5 flex items-center gap-1">
+                          <div className="bg-[hsl(var(--accent-soft))]/50 border border-t-0 border-[hsl(var(--accent)/0.2)] rounded-b-xl px-3 py-2">
+                            <p className="text-[10px] font-semibold uppercase tracking-widest text-[hsl(var(--accent-strong))] mb-1.5 flex items-center gap-1">
                               <Layers className="w-3 h-3" />
                               Divisions (taught by different teachers)
                             </p>
@@ -744,7 +744,7 @@ export default function ClassDetailPage() {
                               {subject.divisions.map((d) => (
                                 <span
                                   key={d.id}
-                                  className="text-xs bg-[var(--bg-elevated)] text-amber-800 px-2 py-0.5 rounded border border-amber-200 font-medium"
+                                  className="text-xs bg-[var(--bg-elevated)] text-[hsl(var(--accent-text))] px-2 py-0.5 rounded border border-[hsl(var(--accent)/0.2)] font-medium"
                                 >
                                   {d.name}
                                 </span>
@@ -838,7 +838,7 @@ export default function ClassDetailPage() {
                                     {subject.code}
                                   </span>
                                   {subject.divisions.length > 0 ? (
-                                    <span className="text-[10px] text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded font-medium flex items-center gap-0.5">
+                                    <span className="text-[10px] text-[hsl(var(--accent-strong))] bg-[hsl(var(--accent-soft))] px-1.5 py-0.5 rounded font-medium flex items-center gap-0.5">
                                       <Layers className="w-3 h-3" />
                                       {subject.divisions.length} division{subject.divisions.length !== 1 ? "s" : ""}
                                     </span>
@@ -883,13 +883,13 @@ export default function ClassDetailPage() {
                                   {subject.divisions.map((d) => (
                                     <div
                                       key={d.id}
-                                      className="flex items-center justify-between bg-amber-50 rounded-lg px-3 py-2"
+                                      className="flex items-center justify-between bg-[hsl(var(--accent-soft))] rounded-lg px-3 py-2"
                                     >
                                       <div>
-                                        <p className="text-sm font-medium text-amber-900">
+                                        <p className="text-sm font-medium text-[hsl(var(--accent-text))]">
                                           {d.name}
                                         </p>
-                                        <p className="text-[10px] text-amber-600">
+                                        <p className="text-[10px] text-[hsl(var(--accent-strong))]">
                                           {getLevelLabel(d.levels)}
                                         </p>
                                       </div>
@@ -898,7 +898,7 @@ export default function ClassDetailPage() {
                                           handleDeleteDivision(subject.id, d.id)
                                         }
                                         disabled={deletingDiv === d.id}
-                                        className="p-1 text-amber-400 hover:text-red-500 rounded"
+                                        className="p-1 text-[hsl(var(--accent-glow))] hover:text-red-500 rounded"
                                       >
                                         {deletingDiv === d.id ? (
                                           <div className="w-4 h-4 border-2 border-red-300 border-t-transparent rounded-full animate-spin" />

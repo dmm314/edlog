@@ -92,7 +92,7 @@ export default function InvitationsPage() {
     <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
       {/* Header */}
       <div className="bg-gradient-to-br from-[var(--header-from)] via-[var(--header-via)] to-[var(--header-to)] px-5 pt-10 pb-8 rounded-b-[2rem] shadow-elevated relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[rgba(245,158,11,0.08)] via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[hsl(var(--accent)/0.08)] via-transparent to-transparent" />
         <div className="max-w-lg mx-auto relative">
           <Link
             href="/logbook"
@@ -139,10 +139,10 @@ export default function InvitationsPage() {
                   {pending.map((m) => (
                     <div
                       key={m.id}
-                      className="card p-4 border-l-4 border-l-amber-400"
+                      className="card p-4 border-l-4 border-l-[hsl(var(--accent-glow))]"
                     >
                       <div className="flex items-start gap-3">
-                        <div className="w-11 h-11 bg-gradient-to-br from-amber-400 to-amber-600 rounded-xl flex items-center justify-center flex-shrink-0">
+                        <div className="w-11 h-11 bg-gradient-to-br from-[hsl(var(--accent-glow))] to-[hsl(var(--accent-strong))] rounded-xl flex items-center justify-center flex-shrink-0">
                           <Building2 className="w-5 h-5 text-white" />
                         </div>
                         <div className="flex-1 min-w-0">

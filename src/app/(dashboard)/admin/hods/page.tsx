@@ -147,7 +147,7 @@ export default function HODsPage() {
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100/50 pb-24">
       {/* Header */}
       <div className="bg-gradient-to-br from-[var(--header-from)] via-[var(--header-via)] to-[var(--header-to)] px-5 pt-10 pb-8 rounded-b-[2rem] shadow-elevated relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[rgba(245,158,11,0.08)] via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[hsl(var(--accent)/0.08)] via-transparent to-transparent" />
         <div className="max-w-lg mx-auto relative">
           <Link
             href="/admin"
@@ -159,7 +159,7 @@ export default function HODsPage() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-xl font-bold text-white flex items-center gap-2">
-                <Crown className="w-5 h-5 text-amber-400" />
+                <Crown className="w-5 h-5 text-[hsl(var(--accent-glow))]" />
                 Heads of Department
               </h1>
               <p className="text-[var(--header-text-muted)] text-sm mt-0.5">
@@ -183,9 +183,9 @@ export default function HODsPage() {
       <div className="px-5 mt-4 max-w-lg mx-auto space-y-4">
         {/* Info card */}
         {!loading && hods.length === 0 && !showForm && (
-          <div className="card p-4 border-l-4 border-amber-400">
+          <div className="card p-4 border-l-4 border-[hsl(var(--accent-glow))]">
             <div className="flex items-start gap-3">
-              <Crown className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
+              <Crown className="w-5 h-5 text-[hsl(var(--accent))] flex-shrink-0 mt-0.5" />
               <div className="text-sm">
                 <p className="font-medium text-[var(--text-primary)]">
                   What are Heads of Department?
@@ -306,7 +306,7 @@ export default function HODsPage() {
                 <div className="p-4">
                   <div className="flex items-start gap-3">
                     {/* Avatar */}
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center ring-2 ring-white shadow-sm flex-shrink-0">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[hsl(var(--accent-glow))] to-[hsl(var(--accent-strong))] flex items-center justify-center ring-2 ring-white shadow-sm flex-shrink-0">
                       <span className="text-sm font-bold text-white">
                         {hod.teacher.firstName[0]}
                         {hod.teacher.lastName[0]}
@@ -333,7 +333,7 @@ export default function HODsPage() {
                       </div>
 
                       <div className="flex items-center gap-2 mt-2 flex-wrap">
-                        <span className="text-[10px] font-bold bg-amber-50 text-amber-700 px-2 py-0.5 rounded-md border border-amber-100 flex items-center gap-1">
+                        <span className="text-[10px] font-bold bg-[hsl(var(--accent-soft))] text-[hsl(var(--accent-text))] px-2 py-0.5 rounded-md border border-[hsl(var(--accent)/0.1)] flex items-center gap-1">
                           <Crown className="w-3 h-3" />
                           HOD
                         </span>
@@ -349,12 +349,12 @@ export default function HODsPage() {
                       </div>
                       {divisionsBySubject[hod.subject.id] && divisionsBySubject[hod.subject.id].length > 0 && (
                         <div className="mt-2 flex items-start gap-1.5">
-                          <Layers className="w-3 h-3 text-amber-500 mt-0.5 flex-shrink-0" />
+                          <Layers className="w-3 h-3 text-[hsl(var(--accent))] mt-0.5 flex-shrink-0" />
                           <div className="flex flex-wrap gap-1">
                             {divisionsBySubject[hod.subject.id].map((d) => (
                               <span
                                 key={d.id}
-                                className="text-[10px] bg-amber-50 text-amber-600 px-1.5 py-0.5 rounded border border-amber-100"
+                                className="text-[10px] bg-[hsl(var(--accent-soft))] text-[hsl(var(--accent-strong))] px-1.5 py-0.5 rounded border border-[hsl(var(--accent)/0.1)]"
                               >
                                 {d.name}
                               </span>

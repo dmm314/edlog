@@ -288,8 +288,8 @@ export default function CoordinatorDashboardPage() {
           <div data-tour="coordinator-stats" className="flex mt-5 animate-slide-up animation-delay-75" style={{ gap: "8px" }}>
             {[
               { value: stats?.totalTeachers ?? teachers.length, label: "Teachers", color: "#818CF8", hint: undefined },
-              { value: stats?.totalEntries ?? 0, label: "This month", color: "#F59E0B", hint: undefined },
-              { value: pendingCount, label: "To Review", color: pendingCount > 0 ? "#FBBF24" : "#4ADE80", hint: "Entries waiting for your review. Tap any entry to read it, leave a remark, and verify." },
+              { value: stats?.totalEntries ?? 0, label: "This month", color: "hsl(var(--accent))", hint: undefined },
+              { value: pendingCount, label: "To Review", color: pendingCount > 0 ? "hsl(var(--accent-glow))" : "#4ADE80", hint: "Entries waiting for your review. Tap any entry to read it, leave a remark, and verify." },
             ].map((stat) => (
               <div key={stat.label} className="flex-1 text-center relative"
                 style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "14px", padding: "12px" }}>
@@ -438,7 +438,7 @@ export default function CoordinatorDashboardPage() {
                 label: "Reports",
                 count: "Entries database",
                 gradient: "linear-gradient(135deg, rgba(217,119,6,0.08), rgba(217,119,6,0.16))",
-                iconColor: "#D97706",
+                iconColor: "hsl(var(--accent-strong))",
               },
               {
                 href: "/coordinator/teachers",
@@ -470,8 +470,8 @@ export default function CoordinatorDashboardPage() {
           className="animate-slide-up animation-delay-175 flex items-center justify-between p-4 group active:scale-[0.98] transition-all duration-200"
           style={{ background: "linear-gradient(135deg, rgba(217,119,6,0.06), rgba(217,119,6,0.12))", border: "1px solid rgba(217,119,6,0.25)", borderRadius: "16px" }}>
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center">
-              <Megaphone className="w-5 h-5 text-amber-600" />
+            <div className="w-10 h-10 rounded-xl bg-[hsl(var(--accent-soft))] flex items-center justify-center">
+              <Megaphone className="w-5 h-5 text-[hsl(var(--accent-strong))]" />
             </div>
             <div>
               <span style={{ fontSize: 14, fontWeight: 700, color: "var(--text-primary)" }}>Send Announcement</span>
@@ -480,7 +480,7 @@ export default function CoordinatorDashboardPage() {
               </span>
             </div>
           </div>
-          <ChevronRight className="w-4 h-4 text-amber-400 group-hover:translate-x-0.5 transition-transform" />
+          <ChevronRight className="w-4 h-4 text-[hsl(var(--accent-glow))] group-hover:translate-x-0.5 transition-transform" />
         </Link>
 
         {/* ── TEACHER ACTIVITY ── */}

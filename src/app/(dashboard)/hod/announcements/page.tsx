@@ -87,8 +87,8 @@ export default function HODAnnouncementsPage() {
             Back to Dashboard
           </Link>
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-amber-500/20 flex items-center justify-center">
-              <Crown className="w-5 h-5 text-amber-400" />
+            <div className="w-9 h-9 rounded-xl bg-[hsl(var(--accent-soft))]0/20 flex items-center justify-center">
+              <Crown className="w-5 h-5 text-[hsl(var(--accent-glow))]" />
             </div>
             <div>
               <h1 className="text-xl font-bold text-white">Department Announcement</h1>
@@ -203,9 +203,9 @@ export default function HODAnnouncementsPage() {
             disabled={sending || !title.trim() || !message.trim()}
             className="w-full mt-4 flex items-center justify-center gap-2 py-3.5 rounded-2xl text-sm font-bold transition-all active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed"
             style={{
-              background: "linear-gradient(135deg, #F59E0B, #D97706)",
-              color: "#FFFBEB",
-              boxShadow: "0 2px 8px rgba(245,158,11,0.3)",
+              background: "linear-gradient(135deg, hsl(var(--accent)), hsl(var(--accent-strong)))",
+              color: "hsl(var(--accent-soft))",
+              boxShadow: "0 2px 8px hsl(var(--accent) / 0.3)",
             }}
           >
             {sending ? (
@@ -242,8 +242,8 @@ export default function HODAnnouncementsPage() {
             }}
           >
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center">
-                <Megaphone className="w-5 h-5 text-amber-600" />
+              <div className="w-10 h-10 rounded-xl bg-[hsl(var(--accent-soft))] flex items-center justify-center">
+                <Megaphone className="w-5 h-5 text-[hsl(var(--accent-strong))]" />
               </div>
               <h3 className="text-base font-bold text-[var(--text-primary)]" style={{ fontFamily: "var(--font-body)" }}>
                 Confirm Announcement
@@ -282,8 +282,8 @@ export default function HODAnnouncementsPage() {
                 onClick={handleSend}
                 className="flex-1 py-2.5 rounded-xl text-sm font-bold transition-all active:scale-[0.97]"
                 style={{
-                  background: "linear-gradient(135deg, #F59E0B, #D97706)",
-                  color: "#FFFBEB",
+                  background: "linear-gradient(135deg, hsl(var(--accent)), hsl(var(--accent-strong)))",
+                  color: "hsl(var(--accent-soft))",
                 }}
               >
                 Send

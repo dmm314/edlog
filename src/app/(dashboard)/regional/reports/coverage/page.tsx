@@ -28,11 +28,11 @@ function CoverageCell({ row }: { row: CoverageRow }) {
   const { schoolsCovering, totalSchools, coverageRate } = row;
   let barColor = "#DC2626"; // red
   if (coverageRate >= 80) barColor = "#16A34A"; // green
-  else if (coverageRate >= 50) barColor = "#F59E0B"; // amber
+  else if (coverageRate >= 50) barColor = "hsl(var(--accent))"; // amber
 
   let textColor = "#DC2626";
   if (coverageRate >= 80) textColor = "#16A34A";
-  else if (coverageRate >= 50) textColor = "#B45309";
+  else if (coverageRate >= 50) textColor = "hsl(var(--accent-text))";
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 4, alignItems: "center" }}>

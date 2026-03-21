@@ -130,10 +130,10 @@ function getRoleBadgeLabel(role: string) {
 
 function getInitialsBg(role: string) {
   switch (role) {
-    case "TEACHER": return "#f59e0b";
+    case "TEACHER": return "hsl(var(--accent))";
     case "SCHOOL_ADMIN": return "#6366f1";
     case "REGIONAL_ADMIN": return "#14b8a6";
-    default: return "#f59e0b";
+    default: return "hsl(var(--accent))";
   }
 }
 
@@ -650,7 +650,7 @@ export default function ProfilePage() {
                       : "var(--bg-tertiary)",
                     color: activeMode === mode ? "white" : "var(--text-tertiary)",
                     boxShadow: activeMode === mode
-                      ? mode === "coordinator" ? "0 2px 8px rgba(124,58,237,0.35)" : "0 2px 8px rgba(245,158,11,0.35)"
+                      ? mode === "coordinator" ? "0 2px 8px rgba(124,58,237,0.35)" : "0 2px 8px hsl(var(--accent) / 0.35)"
                       : "none",
                   }}
                 >
@@ -703,7 +703,7 @@ export default function ProfilePage() {
                       className="flex-1 flex flex-col items-center justify-center py-3.5 px-1 text-center"
                       style={{
                         borderLeft: i > 0 ? "1px solid var(--border-secondary)" : "none",
-                        background: cell.tint ? "rgba(245,158,11,0.05)" : "transparent",
+                        background: cell.tint ? "hsl(var(--accent) / 0.05)" : "transparent",
                       }}
                     >
                       <span
@@ -802,7 +802,7 @@ export default function ProfilePage() {
                 <div
                   className="relative px-4 py-4"
                   style={{
-                    background: "linear-gradient(135deg, var(--bg-elevated) 0%, rgba(245,158,11,0.06) 100%)",
+                    background: "linear-gradient(135deg, var(--bg-elevated) 0%, hsl(var(--accent) / 0.06) 100%)",
                   }}
                 >
                   <div className="flex items-start justify-between">

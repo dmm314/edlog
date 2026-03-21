@@ -63,7 +63,7 @@ export function HelpHint({ text, position = "top", createdAt, className }: HelpH
           height: "18px",
           borderRadius: "50%",
           background: "var(--accent-light)",
-          border: "1px solid rgba(245,158,11,0.25)",
+          border: "1px solid hsl(var(--accent) / 0.25)",
           color: "var(--accent-text)",
           fontFamily: "var(--font-body)",
           fontSize: "11px",

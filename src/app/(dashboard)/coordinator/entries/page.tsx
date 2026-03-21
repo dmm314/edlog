@@ -116,7 +116,7 @@ function StatusBadge({ status, views }: { status: string; views?: { viewerRole: 
   }
   if (status === "SUBMITTED" && isSeen) {
     return (
-      <span className="flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0" style={{ background: "#FEF3C7", color: "#92400E" }}>
+      <span className="flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0" style={{ background: "hsl(var(--accent-soft))", color: "hsl(var(--accent-text))" }}>
         <Eye className="w-2.5 h-2.5" /> Reviewed
       </span>
     );
@@ -498,7 +498,7 @@ export default function CoordinatorEntriesPage() {
                       {dayDate.getDate()}
                     </span>
                     <span className="w-1.5 h-1.5 rounded-full mt-0.5"
-                      style={{ background: allFilled ? "#4ADE80" : someFilled ? "#FBBF24" : "transparent" }} />
+                      style={{ background: allFilled ? "#4ADE80" : someFilled ? "hsl(var(--accent-glow))" : "transparent" }} />
                   </button>
                 );
               })}
@@ -540,7 +540,7 @@ export default function CoordinatorEntriesPage() {
                     ? (isPast ? "#EF4444" : "#D1D5DB")
                     : entry.status === "VERIFIED" ? "#16A34A"
                     : entry.status === "FLAGGED" ? "#DC2626"
-                    : isSeen ? "#F59E0B"
+                    : isSeen ? "hsl(var(--accent))"
                     : "#8B5CF6";
 
                   const slotCard = (

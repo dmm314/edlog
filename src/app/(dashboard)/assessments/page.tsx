@@ -150,7 +150,7 @@ export default function AssessmentsPage() {
                 ? passRate >= 70
                   ? "var(--success-text, #065f46)"
                   : passRate >= 50
-                  ? "var(--warning-text, #92400e)"
+                  ? "hsl(var(--accent-text))"
                   : "var(--error-text, #991b1b)"
                 : undefined;
 
@@ -220,14 +220,14 @@ export default function AssessmentsPage() {
                     className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
                     style={{
                       background: overdue
-                        ? "var(--warning-bg, #fef3c7)"
+                        ? "hsl(var(--accent-soft))"
                         : "var(--accent-light)",
                     }}
                   >
                     {overdue ? (
                       <AlertTriangle
                         className="w-5 h-5"
-                        style={{ color: "var(--warning-text, #92400e)" }}
+                        style={{ color: "hsl(var(--accent-text))" }}
                       />
                     ) : (
                       <Calendar
@@ -249,8 +249,8 @@ export default function AssessmentsPage() {
                         <span
                           className="text-xs font-semibold px-2 py-0.5 rounded-full flex-shrink-0"
                           style={{
-                            background: "var(--warning-bg, #fef3c7)",
-                            color: "var(--warning-text, #92400e)",
+                            background: "hsl(var(--accent-soft))",
+                            color: "hsl(var(--accent-text))",
                           }}
                         >
                           Overdue — {overdueDays} days

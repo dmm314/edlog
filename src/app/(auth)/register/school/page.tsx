@@ -359,7 +359,7 @@ export default function SchoolRegisterPage() {
                 style={{
                   background: "linear-gradient(135deg, var(--accent), var(--accent-hover))",
                   fontSize: "16px",
-                  boxShadow: "0 4px 16px -4px rgba(245,158,11,0.3)",
+                  boxShadow: "0 4px 16px -4px hsl(var(--accent) / 0.3)",
                 }}
               >
                 Continue <ChevronRight className="w-5 h-5" />
@@ -470,7 +470,7 @@ export default function SchoolRegisterPage() {
                   style={{
                     background: "linear-gradient(135deg, var(--accent), var(--accent-hover))",
                     fontSize: "16px",
-                    boxShadow: "0 4px 16px -4px rgba(245,158,11,0.3)",
+                    boxShadow: "0 4px 16px -4px hsl(var(--accent) / 0.3)",
                   }}
                 >
                   {loading ? (

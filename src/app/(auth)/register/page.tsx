@@ -156,8 +156,8 @@ export default function RegisterPage() {
 
         {/* Title */}
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: "rgba(245,158,11,0.10)" }}>
-            <GraduationCap className="w-4.5 h-4.5" style={{ color: "#f59e0b" }} />
+          <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: "hsl(var(--accent) / 0.10)" }}>
+            <GraduationCap className="w-4.5 h-4.5" style={{ color: "hsl(var(--accent))" }} />
           </div>
           <div>
             <h1 className="text-lg font-bold tracking-tight" style={{ fontFamily: "var(--font-display)", color: "var(--text-primary)" }}>
@@ -297,7 +297,7 @@ export default function RegisterPage() {
               style={{
                 background: "linear-gradient(135deg, var(--accent), var(--accent-hover))",
                 fontSize: "16px",
-                boxShadow: "0 4px 16px -4px rgba(245,158,11,0.3)",
+                boxShadow: "0 4px 16px -4px hsl(var(--accent) / 0.3)",
               }}
             >
               Continue <ArrowRight className="w-4 h-4" />
@@ -382,7 +382,7 @@ export default function RegisterPage() {
                 style={{
                   background: "linear-gradient(135deg, var(--accent), var(--accent-hover))",
                   fontSize: "16px",
-                  boxShadow: "0 4px 16px -4px rgba(245,158,11,0.3)",
+                  boxShadow: "0 4px 16px -4px hsl(var(--accent) / 0.3)",
                 }}
               >
                 {loading ? (
@@ -404,7 +404,7 @@ export default function RegisterPage() {
 
       <p className="text-center text-sm text-white/50 mt-6 relative z-10" style={{ fontFamily: "var(--font-body)" }}>
         Already have an account?{" "}
-        <Link href="/login" className="text-amber-400 font-semibold hover:underline">Sign in</Link>
+        <Link href="/login" className="font-semibold hover:underline" style={{ color: "hsl(var(--accent-glow))" }}>Sign in</Link>
       </p>
     </div>
   );

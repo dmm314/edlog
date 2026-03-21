@@ -108,7 +108,7 @@ function fmtDateTime(iso: string): string {
 function RemarkRoleBadge({ authorRole, remarkType }: { authorRole: string; remarkType: string }) {
   const config: Record<string, { bg: string; text: string; border: string; label: string }> = {
     self_reflection: { bg: "bg-emerald-50", text: "text-emerald-700", border: "border-emerald-200", label: "Teacher" },
-    hod_review: { bg: "bg-amber-50", text: "text-amber-700", border: "border-amber-200", label: "HOD" },
+    hod_review: { bg: "bg-[hsl(var(--accent-soft))]", text: "text-[hsl(var(--accent-text))]", border: "border-[hsl(var(--accent)/0.2)]", label: "HOD" },
     admin_observation: { bg: "bg-blue-50", text: "text-blue-700", border: "border-blue-200", label: "Admin" },
     coordinator_review: { bg: "bg-purple-50", text: "text-purple-700", border: "border-purple-200", label: "VP Review" },
     inspector_note: { bg: "bg-purple-50", text: "text-purple-700", border: "border-purple-200", label: "Inspector" },
@@ -124,7 +124,7 @@ function RemarkRoleBadge({ authorRole, remarkType }: { authorRole: string; remar
 function RemarkColorBar({ remarkType }: { remarkType: string }) {
   const colors: Record<string, string> = {
     self_reflection: "bg-emerald-500",
-    hod_review: "bg-amber-500",
+    hod_review: "bg-[hsl(var(--accent))]",
     admin_observation: "bg-blue-500",
     coordinator_review: "bg-purple-500",
     inspector_note: "bg-purple-500",
@@ -280,7 +280,7 @@ export default function EntryDetailPage() {
       case "SUBMITTED":
         if (hasSeen) {
           return (
-            <span className="inline-flex items-center gap-1 text-[10px] font-bold bg-amber-50 text-amber-700 px-2 py-0.5 rounded-full border border-amber-100">
+            <span className="inline-flex items-center gap-1 text-[10px] font-bold bg-[hsl(var(--accent-soft))] text-[hsl(var(--accent-text))] px-2 py-0.5 rounded-full border border-[hsl(var(--accent)/0.1)]">
               <CheckCircle className="w-3 h-3" /> Reviewed
             </span>
           );
@@ -303,7 +303,7 @@ export default function EntryDetailPage() {
     <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
       {/* Header */}
       <div className="bg-gradient-to-br from-[var(--header-from)] via-[var(--header-via)] to-[var(--header-to)] px-5 pt-10 pb-8 rounded-b-[2rem] shadow-elevated relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[rgba(245,158,11,0.08)] via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[hsl(var(--accent)/0.08)] via-transparent to-transparent" />
         <div className="max-w-lg mx-auto relative">
           <Link
             href="/logbook"
@@ -386,9 +386,9 @@ export default function EntryDetailPage() {
         {/* ── Seen By Info (for SUBMITTED entries viewed by coordinator/admin) ── */}
         {entry.status === "SUBMITTED" && hasSeen && entry.views && (
           <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl"
-            style={{ background: "#FFFBEB", border: "1px solid #FDE68A" }}>
-            <Eye className="w-3.5 h-3.5 flex-shrink-0 text-amber-600" />
-            <p className="text-xs text-amber-800">
+            style={{ background: "hsl(var(--accent-soft))", border: "1px solid hsl(var(--accent) / 0.2)" }}>
+            <Eye className="w-3.5 h-3.5 flex-shrink-0 text-[hsl(var(--accent-strong))]" />
+            <p className="text-xs text-[hsl(var(--accent-text))]">
               Seen by{" "}
               <span className="font-semibold">
                 {entry.views.map((v) => v.viewerTitle || `${v.viewer.firstName} ${v.viewer.lastName}`).join(", ")}
@@ -475,7 +475,7 @@ export default function EntryDetailPage() {
                   <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-tertiary)]">Engagement</p>
                   <p className={`text-sm font-bold mt-0.5 ${
                     entry.engagementLevel === "HIGH" ? "text-emerald-600" :
-                    entry.engagementLevel === "MEDIUM" ? "text-amber-600" : "text-red-500"
+                    entry.engagementLevel === "MEDIUM" ? "text-[hsl(var(--accent-strong))]" : "text-red-500"
                   }`}>
                     {entry.engagementLevel}
                   </p>
