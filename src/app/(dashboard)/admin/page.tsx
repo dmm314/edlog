@@ -92,19 +92,17 @@ export default function AdminDashboardPage() {
   // Loading skeleton
   if (loading) {
     return (
-      <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-primary)" }}>
-        {/* Admin header skeleton — uses cool slate gradient */}
-        <div className="px-5 pt-10 pb-8 rounded-b-[2rem]" style={{
-          background: "linear-gradient(135deg, #0F172A 0%, #1E293B 50%, #334155 100%)",
-        }}>
+      <div className="min-h-screen pb-24 bg-[hsl(var(--surface-canvas))]">
+        {/* Admin header skeleton */}
+        <div className="px-5 pt-8 pb-6 border-b border-[hsl(var(--border-primary))] bg-[hsl(var(--surface-elevated))]">
           <div className="mx-auto w-full max-w-6xl relative">
-            <div className="skeleton h-4 w-24 !bg-white/10 mb-2" />
-            <div className="skeleton h-7 w-44 !bg-white/15 mb-5" />
+            <div className="skeleton h-4 w-24 mb-2" />
+            <div className="skeleton h-7 w-44 mb-5" />
             <div className="flex gap-2">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="flex-1 rounded-[14px] p-3 bg-white/[0.04]">
-                  <div className="skeleton h-7 w-12 mx-auto !bg-white/10 mb-1" />
-                  <div className="skeleton h-2 w-16 mx-auto !bg-white/5" />
+                <div key={i} className="flex-1 rounded-[14px] p-3 bg-[hsl(var(--surface-secondary))] border border-[hsl(var(--border-muted))]">
+                  <div className="skeleton h-7 w-12 mx-auto mb-1" />
+                  <div className="skeleton h-2 w-16 mx-auto" />
                 </div>
               ))}
             </div>
@@ -146,48 +144,22 @@ export default function AdminDashboardPage() {
   const vpBreakdown = stats?.vpBreakdown ?? [];
 
   return (
-    <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-primary)" }}>
-      {/* ── HEADER — Cool slate gradient for admin ── */}
-      <div
-        className="px-5 pt-10 pb-7 rounded-b-[2rem] relative overflow-hidden"
-        style={{
-          background: "linear-gradient(135deg, #0F172A 0%, #1E293B 50%, #334155 100%)",
-        }}
-      >
-        {/* Dot pattern */}
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            opacity: 0.04,
-            backgroundImage: "radial-gradient(circle at 2px 2px, white 1px, transparent 0)",
-            backgroundSize: "20px 20px",
-          }}
-        />
-
-        <div className="mx-auto w-full max-w-6xl relative">
-          {/* Top row: label + notification */}
-          <div data-tour="admin-welcome" className="flex items-start justify-between animate-fade-in">
+    <div className="min-h-screen pb-24 bg-[hsl(var(--surface-canvas))]">
+      {/* ── HEADER — Clean functional bar ── */}
+      <div className="border-b border-[hsl(var(--border-primary))] bg-[hsl(var(--surface-elevated))] px-5 pt-8 pb-6">
+        <div className="mx-auto w-full max-w-6xl">
+          <div data-tour="admin-welcome" className="flex items-start justify-between">
             <div>
               <div className="flex items-center gap-2 mb-1">
-                <p style={{ fontFamily: "var(--font-body)", fontSize: "12px", fontWeight: 500, color: "#94A3B8" }}>
-                  School Admin
-                </p>
+                <span className="role-dot role-dot-admin" />
+                <p className="text-xs font-medium text-content-tertiary">School Admin</p>
                 {school && (
-                  <span
-                    className="inline-flex items-center gap-1 text-[10px] font-bold"
-                    style={{
-                      background: school.status === "ACTIVE" ? "rgba(74,222,128,0.1)" : "hsl(var(--accent-glow) / 0.1)",
-                      border: school.status === "ACTIVE" ? "1px solid rgba(74,222,128,0.15)" : "1px solid hsl(var(--accent-glow) / 0.15)",
-                      color: school.status === "ACTIVE" ? "#4ADE80" : "hsl(var(--accent-glow))",
-                      borderRadius: "10px",
-                      padding: "6px 12px",
-                    }}
-                  >
+                  <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold ${school.status === "ACTIVE" ? "bg-[hsl(var(--success)/0.1)] text-[hsl(var(--success))]" : "bg-[hsl(var(--surface-tertiary))] text-content-tertiary"}`}>
                     {school.status === "ACTIVE" ? "Active" : school.status}
                   </span>
                 )}
               </div>
-              <h1 className="font-display text-[22px] font-bold text-[var(--header-text)] tracking-tight">
+              <h1 className="font-display text-xl font-bold text-content-primary tracking-tight">
                 {school?.name || "Admin Dashboard"}
               </h1>
             </div>
@@ -195,32 +167,23 @@ export default function AdminDashboardPage() {
           </div>
 
           {/* 3 stat pods */}
-          <div data-tour="admin-stats" className="flex mt-5 animate-slide-up animation-delay-75" style={{ gap: "8px" }}>
+          <div data-tour="admin-stats" className="mt-4 flex gap-2">
             {[
-              { value: stats?.totalTeachers ?? 0, label: "Teachers", color: "#818CF8", hint: undefined },
-              { value: stats?.entriesThisWeek ?? 0, label: "This week", color: "hsl(var(--accent))", hint: undefined },
-              { value: `${complianceRate}%`, label: "Compliance", color: complianceRate >= 80 ? "#4ADE80" : complianceRate >= 50 ? "hsl(var(--accent-glow))" : "#FB7185", hint: "The percentage of expected entries submitted across your school this month." },
+              { value: stats?.totalTeachers ?? 0, label: "Teachers" },
+              { value: stats?.entriesThisWeek ?? 0, label: "This week" },
+              { value: `${complianceRate}%`, label: "Compliance", hint: "The percentage of expected entries submitted across your school this month." },
             ].map((stat) => (
               <div
                 key={stat.label}
-                className="flex-1 text-center relative"
-                style={{
-                  background: "rgba(255,255,255,0.04)",
-                  border: "1px solid rgba(255,255,255,0.06)",
-                  borderRadius: "14px",
-                  padding: "12px",
-                }}
+                className="relative flex-1 rounded-xl border border-[hsl(var(--border-muted))] bg-[hsl(var(--surface-secondary))] p-3 text-center"
               >
                 {stat.hint && (
                   <HelpHint text={stat.hint} position="bottom" createdAt={userCreatedAt} className="absolute -top-1 -right-1 z-10" />
                 )}
-                <p
-                  className="leading-none tabular-nums"
-                  style={{ fontFamily: "var(--font-body)", fontSize: "22px", fontWeight: 800, color: stat.color }}
-                >
+                <p className="text-xl font-bold tabular-nums text-content-primary">
                   {stat.value}
                 </p>
-                <p style={{ fontSize: "10px", color: "#64748B", marginTop: "6px" }}>
+                <p className="mt-1 text-[10px] font-medium text-content-tertiary">
                   {stat.label}
                 </p>
               </div>

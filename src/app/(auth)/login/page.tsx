@@ -5,8 +5,8 @@ export default function LoginPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen flex items-center justify-center" style={{ background: "linear-gradient(135deg, var(--header-from) 0%, var(--header-via) 50%, var(--header-to) 100%)" }}>
-          <div className="animate-spin h-8 w-8 border-4 rounded-full" style={{ borderColor: "var(--accent)", borderTopColor: "transparent" }} />
+        <div className="flex min-h-screen items-center justify-center bg-[hsl(var(--surface-canvas))]">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#0866FF] border-t-transparent" />
         </div>
       }
     >

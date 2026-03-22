@@ -1,91 +1,106 @@
-# EDLOG DESIGN SPECIFICATION — v4.0 (Dynamic Alive System)
+# EDLOG DESIGN SPECIFICATION — v5.0 (Elite Functional Minimal)
 
 ## DESIGN PHILOSOPHY
 
-Edlog is a **living teaching companion**. It should feel like opening the most
-polished, responsive feed in the world — alive, magnetic, and utterly clear.
-Every surface breathes. Every tap rewards. Every transition has spring.
+Edlog is a **functional-first teacher portal**. It must be the fastest, clearest
+tool a Cameroonian teacher has ever used — on any device, on any network. Beauty
+serves purpose. Beauty never hides function.
 
-**Target vibe:** Facebook 2026 density + Instagram Reels motion energy + Linear
-craft precision — but distilled into one action per screen for a Cameroonian
-teacher on a Tecno Spark in 30 seconds flat.
+**Target vibe:** Facebook 2026 top form — color only on tabs and active elements.
+The dashboard is neutral, readable, and functional. Teachers on Tecno phones
+finish a log in 30 seconds without fighting beauty.
 
-**Reference products:** Facebook (information density, alive feed, adaptive UI),
-Instagram Reels (motion energy, ripple feedback, spring animations), Linear
-(craft quality, single-accent cohesion), WhatsApp (familiar to every teacher).
+**Reference products:** Facebook (neutral feed, color only on nav tabs and
+buttons), WhatsApp (familiar, fast, functional), Linear (craft quality).
 
-**Anti-references:** Static admin dashboards, flat Material Design, multicolor
-rainbow UIs, anything that feels like 2020.
+**Anti-references:** Glassmorphism dashboards, glow effects, pulsing animations,
+rainbow accent shifts, anything that makes a button hard to find.
 
 ### The Three Pillars
 
-1. **Dynamic first.** Every color is HSL-derived. Accent hue subtly shifts by
-   context (role, status, time). Surfaces adapt. Shadows use accent-tinted
-   color-mix. Nothing is a fixed hex — everything breathes.
+1. **Function first.** Every screen has ONE clear purpose and ONE primary action.
+   A teacher sees "Log this class" within 2 seconds of opening the app. An admin
+   sees "What needs attention today" instantly.
 
-2. **One action, maximum reward.** A teacher taps one thing and gets spring
-   feedback, ripple confirmation, status glow. Entry in 30 seconds. The feed
-   rewards every interaction with motion.
+2. **Neutral calm.** Surfaces are white/gray in light mode, near-black in dark.
+   No accent-tinted shadows, no background gradients, no glows on cards. Color
+   appears ONLY on: active nav tabs, primary buttons, status badges, role dots.
 
-3. **Alive silence.** The app is visually quiet — clean neutrals, one accent
-   family — but every element is alive beneath the surface. Cards lift on
-   hover. Feed items pulse live. Double-tap ripples. The stillness has energy.
+3. **Beauty must never hide function.** The sign-in button is always visible.
+   The header always shows what school/role/date. Every touch target is 44px.
+   Every label is readable. Zero decorative animations.
 
 
-## COLOR SYSTEM — Dynamic HSL Adaptive
+## ROLE PORTALS — CLEAR FUNCTIONAL OBJECTIVES
+
+### 1. Regional Admin
+**Purpose:** Oversight across schools.
+- Must see at a glance: total teachers, pending verifications, flagged entries,
+  regional stats.
+- One action per screen: "Review schools" or "Broadcast notice."
+- Layout: Dense clean tables + filters. No distractions.
+- Role dot color: Navy (`hsl(210 100% 30%)`)
+
+### 2. VP / Level Coordinator
+**Purpose:** Quality control & signing logs.
+- Must see: Pending entries from their level with quick "Verify + Remark" flow.
+- One action: Open entry → read → annotate → green check.
+- Layout: Clean pending list + always-visible remark box.
+- Role dot color: Purple (`hsl(270 60% 45%)`)
+
+### 3. School Admin
+**Purpose:** School management & reports.
+- Must see: What needs attention today + full searchable reports.
+- One action: "Generate report" or "Assign teacher."
+- Layout: Summary cards + clean table.
+- Role dot color: Slate (`hsl(215 20% 40%)`)
+
+### 4. Teacher (default)
+**Purpose:** Daily logging in 30 seconds.
+- Must see: Today's timetable auto-filled + "Log this class now."
+- One action: Fill entry → submit.
+- Layout: Minimal form, collapsed extras, instant success.
+- Role dot color: Blue (`hsl(217 100% 51%)`)
+
+All portals share:
+- Bottom nav: Home / Timetable / New Entry / Notices / Profile
+- Mobile-first, 480px max content width
+- 44px minimum touch targets
+- WhatsApp-level familiarity
+
+
+## COLOR SYSTEM — Facebook-Minimal
 
 ### Philosophy
 
-One accent hue family. Never multicolor. The accent (blue-cyan, base hsl(217,
-100%, 51%) = #0866FF) shifts ±15° by context while maintaining absolute
-visual cohesion. All derived colors use CSS custom properties with HSL
-decomposition for true runtime adaptability.
+One accent color: **#0866FF** (Facebook blue). Used ONLY on:
+- Bottom nav active tab icon + label
+- Primary action buttons
+- Status pills (submitted = blue, verified = green, flagged = red)
+- Tiny role indicator dots in the header
 
-### Primary Accent
-
-| Context | Hue | Result |
-|---------|-----|--------|
-| Default (teacher) | 217° | Electric blue #0866FF |
-| Verified | 202° | Cyan-shifted (celebration) |
-| Flagged | 232° | Indigo-shifted (attention) |
-| Admin | 222° | Deeper blue (authority) |
-| Coordinator | 225° | Royal blue |
-| Regional | 210° | Sky blue (wide scope) |
-
-The shift is subtle (±15°) — users perceive one cohesive blue, not
-different colors. This is the core of the "alive" feeling.
+Everything else is neutral gray/white.
 
 ### Surface Palette
 
 | Token | Light | Dark | Purpose |
 |-------|-------|------|---------|
-| surface-canvas | 220 14% 96% | 220 16% 8% | Page background |
-| surface-primary | 220 14% 96% | 220 16% 8% | Primary fill |
-| surface-secondary | 0 0% 100% | 220 14% 12% | Cards, elevated |
-| surface-tertiary | 220 13% 91% | 220 12% 16% | Insets, dividers |
-| surface-elevated | 0 0% 100% | 220 14% 13% | Floating panels |
+| surface-canvas | `220 5% 96%` | `220 10% 8%` | Page background |
+| surface-secondary | `0 0% 100%` | `220 8% 12%` | Cards |
+| surface-tertiary | `220 5% 91%` | `220 6% 16%` | Insets, dividers |
+| surface-elevated | `0 0% 100%` | `220 8% 13%` | Floating panels |
 
-Neutrals have a 220° blue tint — never warm stone, never cold grey.
-Premium, modern, cohesive with the accent.
-
-### Dynamic Intensity Toggle
-
-Users can switch between `calm` and `vibrant` intensity:
-- **Calm:** accent saturation drops to 72%, lightness adjusts
-- **Vibrant (default):** full 100% saturation, maximum energy
-
-This respects user preference while keeping the system dynamic.
+Neutrals have minimal blue tint — clean, professional, not cold.
 
 ### Color Rules
 
-1. **Never use amber, orange, or warm tones as accent.** The old paper/amber
-   system is fully replaced. Blue-cyan is the only accent family.
-2. **Status colors stay semantic:** green=verified, amber=warning, red=danger.
-   They use `hsl(var(--status) / 0.12)` backgrounds that work on both modes.
-3. **All shadows use accent-tinted color-mix** — shadows are alive, not grey.
-4. **Borders blend with accent** via `color-mix(in oklab)` for cohesion.
-5. **No decorative multicolor.** Subject colors use the single accent at
-   different opacities, not different hues.
+1. **No accent-tinted shadows.** All shadows are neutral black at low opacity.
+2. **No accent-tinted borders.** Borders are neutral gray.
+3. **No background gradients** on cards, headers, or body.
+4. **No glow, pulse, breathe, or ripple** effects on any element.
+5. **Status colors stay semantic:** green=verified, amber=warning, red=flagged.
+6. **Sign-in button:** Always `background: #0866FF; color: #FFFFFF;` — visible
+   in both light and dark modes.
 
 
 ## TYPOGRAPHY
@@ -94,49 +109,44 @@ Three fonts. No more.
 
 | Font | Usage | Weight |
 |------|-------|--------|
-| Fraunces | Display — dashboard titles, hero headings, streak numbers | 600–800 |
-| DM Sans | Body — everything else | 400–700 |
-| JetBrains Mono | Data — numbers, timestamps, codes, metrics | 400–600 |
+| Fraunces | Display — page titles, greeting, streak numbers | 600–800 |
+| DM Sans | Body — everything else | 400–600 |
+| JetBrains Mono | Data — numbers, timestamps, codes | 400–600 |
 
 ### Type Scale
 
 | Size | Usage |
 |------|-------|
-| 24–28px | Dashboard greeting, page titles (Fraunces 700) |
-| 18–20px | Section headings (DM Sans 700) |
-| 14–16px | Body text, card content (DM Sans 400–500) |
-| 12–13px | Labels, captions, meta (DM Sans 500–600) |
+| 24–28px | Page titles (Fraunces 700) |
+| 16–18px | Section headings (DM Sans 600) |
+| 14–15px | Body text, card content (DM Sans 400–500) |
+| 12–13px | Labels, captions (DM Sans 500) |
 | 10–11px | Timestamps, badges (JetBrains Mono 500) |
 
 
-## MOTION SYSTEM — Spring + Ripple + Pulse
+## MOTION SYSTEM — Minimal
 
 ### Philosophy
 
-Every interaction produces visible, spring-based feedback. The app feels
-physically responsive — like touching a taut surface, not clicking flat UI.
+Motion exists only to confirm user actions and orient navigation. No decorative
+animations. No infinite loops. No spring physics.
 
-### Animation Library
+### Allowed Animations
 
-| Animation | Duration | Easing | Usage |
-|-----------|----------|--------|-------|
-| spring-bounce | 600ms | cubic-bezier(0.34,1.56,0.64,1) | Cards entering, stat numbers |
-| spring-expand | 450ms | spring easing | Composer opening, sections expanding |
-| ripple-tap | 500ms | ease-out | Touch feedback on any tappable surface |
-| live-pulse | 2400ms | ease-in-out, infinite | Live items, active class indicators |
-| glow-breathe | 3000ms | ease-in-out, infinite | Live cards, accent CTA buttons |
-| heart-pop | 500ms | spring easing | Double-tap reaction feedback |
-| shimmer | 1800ms | linear, infinite | Loading skeletons |
-| nav-bob | 400ms | spring easing | Active nav tab bounce |
-| slide-up | 350ms | expo-out | Feed items entering viewport |
-| stories-scroll | 20s | linear, infinite | Auto-scrolling notice pills |
+| Animation | Duration | Usage |
+|-----------|----------|-------|
+| fade-in | 200ms | Elements appearing |
+| slide-up | 250ms | Feed items entering |
+| scale-in | 200ms | Modals opening |
+| shimmer | 1800ms (loop) | Loading skeletons only |
 
 ### Rules
 
-1. All animations respect `prefers-reduced-motion: reduce` — instant cuts.
-2. Duration never exceeds 600ms for user-initiated actions.
-3. Spring easing is preferred over linear/ease for all transform animations.
-4. Infinite animations (pulse, breathe, shimmer) use low-intensity values.
+1. All animations respect `prefers-reduced-motion: reduce`.
+2. No `will-change` on static elements.
+3. No infinite animations except loading skeletons.
+4. No spring easing. Use simple `ease-out`.
+5. Button feedback: `transform: scale(0.97)` on active. Nothing more.
 
 
 ## LAYOUT
@@ -144,92 +154,88 @@ physically responsive — like touching a taut surface, not clicking flat UI.
 ### Mobile-First Grid
 
 - Max content width: 480px (phone), 720px (tablet), 1200px (desktop)
-- Horizontal padding: 16–20px (phone), 32px (tablet), 40px (desktop)
+- Horizontal padding: 16px (phone), 24px (tablet), 32px (desktop)
 - Card spacing: 12px between cards, 16px between sections
-- Card radius: 16px (cards), 24–32px (hero sections), pill (badges/chips)
-- Card padding: 16px (compact), 20px (standard), 24px (spacious)
+- Card radius: 14px
+- Card padding: 16–20px
 
 ### Touch Targets
 
-Minimum 44px height and width for ALL interactive elements. No exceptions.
-This is non-negotiable for Tecno Spark and similar budget phones.
+Minimum 44px height and width for ALL interactive elements. Non-negotiable.
 
-### Information Density
+### Header Bar
 
-Facebook principle: MORE data in LESS space. A teacher sees their full day
-without scrolling. An admin sees 6+ teacher rows. Reports show 15+ rows
-on desktop. Compact mode uses 44px row height.
-
-### Desktop Sidebar
-
-Persistent 312px left sidebar on ≥1024px screens. Content area uses
-remaining width. Navigation switches to SideNav.
+Clean functional bar on every page:
+- Left: School name (or "Edlog" for login)
+- Center/right: Role dot + date
+- Right: Primary action button (if applicable)
+- No gradients, no shine, no background images
+- Light: white bg + bottom border. Dark: near-black bg + bottom border.
 
 ### Bottom Navigation (Mobile)
 
-5 tabs maximum. Frosted glass background with accent-tinted blur. Active
-tab has accent glow + bob animation + accent background pill.
-Height: 78px + safe area inset.
+5 tabs maximum. Clean solid background (not frosted glass).
+- Active tab: accent blue icon + label
+- Inactive: gray icon + label
+- Center "New Entry": accent blue pill button
+- Height: 64px + safe area inset
+- No glow, no bob animation, no shadows on tabs
+
+### Desktop Sidebar
+
+Persistent 288px (18rem) left sidebar on ≥1024px. Clean white/dark surface
+with simple nav links. Active link has accent blue text + subtle blue bg tint.
 
 
 ## COMPONENT PATTERNS
 
-### DynamicEntryCard
+### Cards
 
-The hero component. Each card:
-- Status-adaptive accent glow along top edge
-- Touch ripple on tap (expanding circle from touch point)
-- Double-tap triggers heart-pop reaction
-- Spring-bounce entrance animation
-- Hover lifts card 2px with accent-tinted shadow
-- Status badge animates on verification
-
-### QuickActionsRow
-
-Horizontally scrollable action cards:
-- Primary action (Log Now) has live-pulse animation
-- Each card springs on entry (staggered delay)
-- Touch produces ripple feedback
-- Icon containers use accent gradient backgrounds
-- Pending count shown as live badge
-
-### BottomNav
-
-Frosted glass bar with:
-- Active tab: accent background pill + glow shadow + nav-bob on select
-- Center "New Entry" button: accent gradient, always prominent
-- Inactive: subtle text, transitions to active on tap
-
-### Story Notices
-
-Horizontally scrolling notice pills:
-- Unread notices pulse with live-pulse animation
-- Glass panel background with accent tint
-- Staggered entrance animations
-- Auto-scroll option for ambient display
+Simple white (or dark surface) cards with:
+- 1px neutral border
+- Subtle neutral shadow (box-shadow, no accent tint)
+- 14px border-radius
+- No hover lift animation. Shadow deepens slightly on hover.
+- No `::after` pseudo-element glow lines.
 
 ### Buttons
 
 | Variant | Style |
 |---------|-------|
-| Primary | Accent gradient, white text, accent shadow, spring on tap |
-| Secondary | Surface fill + accent tint, accent border on hover |
-| Ghost | Transparent, accent-soft background on hover |
-| Danger | Red gradient with red shadow |
-| Success | Green gradient with green shadow |
+| Primary | Solid accent blue bg, white text |
+| Secondary | White bg, gray border, dark text |
+| Ghost | Transparent, gray text, gray bg on hover |
+| Danger | Solid red bg, white text |
+| Success | Solid green bg, white text |
 
 One primary button per screen. Everything else secondary or ghost.
+
+### Status Badges
+
+Small pills with tinted backgrounds:
+- Draft: gray bg, gray text
+- Submitted: light blue bg, blue text
+- Verified: light green bg, green text
+- Flagged: light red bg, red text
+
+### Entry Cards
+
+Clean, functional display:
+- White card with neutral border
+- Subject name + class in bold
+- Time + period as mono text
+- Status badge on the right
+- No ripple effects, no double-tap reactions, no spring entrance
 
 
 ## DARK MODE
 
-1. Every element uses HSL CSS variables. No hardcoded hex in components.
-2. Dark surfaces use 220° hue tint (blue-tinted darks, not warm stone).
-3. Accent lightness increases in dark mode for visibility (51% → 66%).
-4. Shadows use deeper blacks with slight accent tint.
-5. Glass effects increase blur and reduce transparency.
-6. Text hierarchy: primary=near-white, secondary=64% lightness, tertiary=46%.
-7. Borders are visible but quiet (20% lightness).
+1. Every element uses CSS custom properties.
+2. Dark surfaces: near-black with minimal blue tint (220° 8-10%).
+3. Accent blue brightens in dark mode for visibility (51% → 66% lightness).
+4. Shadows use deeper blacks (no accent tint).
+5. Text hierarchy: primary=near-white, secondary=64%, tertiary=46%.
+6. Borders stay subtle (20% lightness).
 
 
 ## RESPONSIVE BREAKPOINTS
@@ -244,10 +250,9 @@ One primary button per screen. Everything else secondary or ghost.
 ## PERFORMANCE
 
 - Target: 60fps on Tecno Spark (Mediatek Helio A22)
-- All animations use `transform` and `opacity` only (GPU-composited)
-- `will-change: transform` on animated elements, removed after animation
+- No decorative animations consuming GPU cycles
+- All transitions use `transform` and `opacity` only
 - Image loading via Next/Image with blur placeholders
 - Skeleton screens for all data-loading states
-- No spinner — always skeletons with shimmer
-- CSS animations preferred over JS where possible
+- CSS-only — no JS animation libraries
 - `content-visibility: auto` for off-screen feed items

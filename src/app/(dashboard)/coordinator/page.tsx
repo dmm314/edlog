@@ -216,17 +216,16 @@ export default function CoordinatorDashboardPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-primary)" }}>
-        <div className="px-5 pt-10 pb-8 rounded-b-[2rem]"
-          style={{ background: "linear-gradient(135deg, #4C1D95 0%, #6D28D9 50%, #7C3AED 100%)" }}>
+      <div className="min-h-screen pb-24 bg-[hsl(var(--surface-canvas))]">
+        <div className="border-b border-[hsl(var(--border-primary))] bg-[hsl(var(--surface-elevated))] px-5 pt-8 pb-6">
           <div className="max-w-lg mx-auto">
-            <div className="skeleton h-4 w-24 !bg-white/10 mb-2" />
-            <div className="skeleton h-7 w-44 !bg-white/15 mb-5" />
+            <div className="skeleton h-4 w-24 mb-2" />
+            <div className="skeleton h-7 w-44 mb-5" />
             <div className="flex gap-2">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="flex-1 rounded-[14px] p-3 bg-white/[0.04]">
-                  <div className="skeleton h-7 w-12 mx-auto !bg-white/10 mb-1" />
-                  <div className="skeleton h-2 w-16 mx-auto !bg-white/5" />
+                <div key={i} className="flex-1 bg-[hsl(var(--surface-secondary))] border border-[hsl(var(--border-muted))] rounded-xl p-3">
+                  <div className="skeleton h-7 w-12 mx-auto mb-1" />
+                  <div className="skeleton h-2 w-16 mx-auto" />
                 </div>
               ))}
             </div>
@@ -249,7 +248,7 @@ export default function CoordinatorDashboardPage() {
 
   if (!coordinator) {
     return (
-      <div className="min-h-screen flex items-center justify-center pb-24" style={{ backgroundColor: "var(--bg-primary)" }}>
+      <div className="min-h-screen flex items-center justify-center pb-24 bg-[hsl(var(--surface-canvas))]">
         <div className="text-center px-5">
           <p className="font-semibold text-[var(--text-secondary)]">Coordinator record not found</p>
           <Link href="/logbook" className="text-sm font-semibold mt-3 inline-block" style={{ color: "var(--accent)" }}>Go to Teacher Dashboard</Link>
@@ -259,25 +258,20 @@ export default function CoordinatorDashboardPage() {
   }
 
   return (
-    <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-primary)" }}>
-      {/* ── HEADER — Purple gradient for coordinator ── */}
-      <div
-        className="px-5 pt-10 pb-7 rounded-b-[2rem] relative overflow-hidden"
-        style={{ background: "linear-gradient(135deg, #4C1D95 0%, #6D28D9 50%, #7C3AED 100%)" }}
-      >
-        <div className="absolute inset-0 pointer-events-none"
-          style={{ opacity: 0.04, backgroundImage: "radial-gradient(circle at 2px 2px, white 1px, transparent 0)", backgroundSize: "20px 20px" }} />
-
-        <div className="max-w-lg mx-auto relative">
-          <div data-tour="coordinator-welcome" className="flex items-start justify-between animate-fade-in">
+    <div className="min-h-screen pb-24 bg-[hsl(var(--surface-canvas))]">
+      {/* ── HEADER — Clean functional bar ── */}
+      <div className="border-b border-[hsl(var(--border-primary))] bg-[hsl(var(--surface-elevated))] px-5 pt-8 pb-6">
+        <div className="max-w-lg mx-auto">
+          <div data-tour="coordinator-welcome" className="flex items-start justify-between">
             <div>
-              <p style={{ fontSize: "12px", fontWeight: 500, color: "rgba(196,181,253,0.8)" }}>
-                {coordinator.title}
-              </p>
-              <h1 className="font-display text-[22px] font-bold tracking-tight" style={{ color: "white", lineHeight: 1.2 }}>
+              <div className="flex items-center gap-1.5 mb-1">
+                <span className="role-dot role-dot-coordinator" />
+                <p className="text-xs font-medium text-content-tertiary">{coordinator.title}</p>
+              </div>
+              <h1 className="font-display text-xl font-bold tracking-tight text-content-primary">
                 {coordinator.schoolName || "Coordinator Portal"}
               </h1>
-              <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.5)", marginTop: "2px" }}>
+              <p className="text-xs text-content-tertiary mt-0.5">
                 Managing {levelSummary} classes
               </p>
             </div>
@@ -285,20 +279,18 @@ export default function CoordinatorDashboardPage() {
           </div>
 
           {/* 3 stat pods */}
-          <div data-tour="coordinator-stats" className="flex mt-5 animate-slide-up animation-delay-75" style={{ gap: "8px" }}>
+          <div data-tour="coordinator-stats" className="mt-4 flex gap-2">
             {[
-              { value: stats?.totalTeachers ?? teachers.length, label: "Teachers", color: "#818CF8", hint: undefined },
-              { value: stats?.totalEntries ?? 0, label: "This month", color: "hsl(var(--accent))", hint: undefined },
-              { value: pendingCount, label: "To Review", color: pendingCount > 0 ? "hsl(var(--accent-glow))" : "#4ADE80", hint: "Entries waiting for your review. Tap any entry to read it, leave a remark, and verify." },
+              { value: stats?.totalTeachers ?? teachers.length, label: "Teachers", hint: undefined },
+              { value: stats?.totalEntries ?? 0, label: "This month", hint: undefined },
+              { value: pendingCount, label: "To Review", hint: "Entries waiting for your review. Tap any entry to read it, leave a remark, and verify." },
             ].map((stat) => (
-              <div key={stat.label} className="flex-1 text-center relative"
-                style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "14px", padding: "12px" }}>
+              <div key={stat.label} className="relative flex-1 rounded-xl border border-[hsl(var(--border-muted))] bg-[hsl(var(--surface-secondary))] p-3 text-center">
                 {stat.hint && (
                   <HelpHint text={stat.hint} position="bottom" createdAt={userCreatedAt} className="absolute -top-1 -right-1 z-10" />
                 )}
-                <p className="leading-none tabular-nums"
-                  style={{ fontSize: "22px", fontWeight: 800, color: stat.color }}>{stat.value}</p>
-                <p style={{ fontSize: "10px", color: "rgba(255,255,255,0.4)", marginTop: "6px" }}>{stat.label}</p>
+                <p className="text-xl font-bold tabular-nums text-content-primary">{stat.value}</p>
+                <p className="mt-1 text-[10px] font-medium text-content-tertiary">{stat.label}</p>
               </div>
             ))}
           </div>
