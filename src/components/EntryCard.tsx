@@ -50,7 +50,7 @@ export function EntryCard({ entry, priority = "default", onOpen }: EntryCardProp
 
   return (
   <article
-      className={`relative overflow-hidden rounded-xl border border-border-theme bg-white p-4 shadow-card transition-transform duration-200 ${isInteractive ? "active:scale-[0.99] cursor-pointer" : ""} ${priority === "vibrant" ? "ring-1 ring-accent/30" : ""}`}
+      className={`relative overflow-hidden rounded-xl border border-border p-4 shadow-card transition-transform duration-200 bg-surface-elevated ${isInteractive ? "active:scale-[0.99] cursor-pointer" : ""} ${priority === "vibrant" ? "ring-1 ring-accent/30" : ""}`}
       onDoubleClick={triggerLike}
       role={isInteractive ? "button" : undefined}
       tabIndex={isInteractive ? 0 : undefined}
@@ -68,7 +68,7 @@ export function EntryCard({ entry, priority = "default", onOpen }: EntryCardProp
       )}
 
         <header className="mb-3 flex items-start gap-3">
-        <div className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-[#1877F2] to-[#0866FF] text-xs font-bold text-white shadow-accent">
+        <div className="flex h-11 w-11 items-center justify-center rounded-full text-xs font-bold text-white" style={{ background: "linear-gradient(135deg, hsl(var(--accent-strong)), hsl(var(--accent)))" }}>
           {getInitials(meta.subjectName)}
         </div>
         <div className="min-w-0 flex-1">
@@ -81,7 +81,7 @@ export function EntryCard({ entry, priority = "default", onOpen }: EntryCardProp
         <p className="line-clamp-2 text-sm font-semibold text-content-primary">{meta.topicText}</p>
         {entry.notes && <p className="line-clamp-3 text-sm text-content-secondary">{entry.notes}</p>}
       </div>
-    <footer className="mt-4 border-t border-border-theme pt-3">
+    <footer className="mt-4 border-t border-border pt-3">
         <div className="grid grid-cols-3 gap-2 text-xs text-content-secondary">
           <button
             type="button"
@@ -89,7 +89,7 @@ export function EntryCard({ entry, priority = "default", onOpen }: EntryCardProp
               event.stopPropagation();
               triggerLike();
             }}
-            className={`inline-flex min-h-11 items-center justify-center gap-1 rounded-full transition ${liked ? "bg-[#E7F3FF] text-[#0866FF]" : "hover:bg-surface-secondary"}`}
+            className={`inline-flex min-h-11 items-center justify-center gap-1 rounded-full transition ${liked ? "bg-accent-soft text-accent-text" : "hover:bg-surface-secondary"}`}
           >
             {liked ? <Heart className="h-4 w-4 fill-current" /> : <ThumbsUp className="h-4 w-4" />} React
           </button>

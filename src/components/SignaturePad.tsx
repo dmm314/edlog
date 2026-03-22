@@ -17,7 +17,7 @@ function SignaturePad({ onSign, onClear }: SignaturePadProps) {
     if (!canvas) return null;
     const ctx = canvas.getContext("2d");
     if (!ctx) return null;
-    ctx.strokeStyle = "#0F2B4C";
+    ctx.strokeStyle = "hsl(var(--text-primary))";
     ctx.lineWidth = 2.5;
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
@@ -123,7 +123,7 @@ function SignaturePad({ onSign, onClear }: SignaturePadProps) {
           width={600}
           height={200}
           className="w-full border-2 border-dashed rounded-xl cursor-crosshair"
-          style={{ touchAction: "none", borderColor: "var(--border-primary)", backgroundColor: "#FFFFFF" }}
+          style={{ touchAction: "none", borderColor: "var(--border-primary)", backgroundColor: "hsl(var(--surface-elevated))" }}
           onMouseDown={startDrawing}
           onMouseMove={draw}
           onMouseUp={stopDrawing}

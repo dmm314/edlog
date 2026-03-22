@@ -175,7 +175,7 @@ export default function RegionalAnnouncementsPage() {
       {/* Header */}
       <div
         className="px-5 pt-10 pb-6 rounded-b-2xl"
-        style={{ background: "linear-gradient(135deg, #0C1222 0%, #1A2744 50%, #0F172A 100%)" }}
+        style={{ background: "linear-gradient(135deg, var(--header-from) 0%, var(--header-via) 50%, var(--header-to) 100%)" }}
       >
         <div className="max-w-lg mx-auto">
           <Link
@@ -186,8 +186,8 @@ export default function RegionalAnnouncementsPage() {
             Back to Dashboard
           </Link>
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-teal-500/20 flex items-center justify-center">
-              <Megaphone className="w-5 h-5 text-teal-400" />
+            <div className="w-9 h-9 rounded-xl bg-[hsl(var(--success)/0.2)] flex items-center justify-center">
+              <Megaphone className="w-5 h-5 text-[hsl(var(--success))]" />
             </div>
             <div>
               <h1 className="text-xl font-bold text-white">Regional Announcement</h1>
@@ -247,8 +247,8 @@ export default function RegionalAnnouncementsPage() {
                 key={opt.value}
                 className="flex items-start gap-3 p-3 rounded-xl cursor-pointer transition-colors"
                 style={{
-                  background: targetMode === opt.value ? "rgba(20,184,166,0.08)" : "var(--bg-secondary)",
-                  border: targetMode === opt.value ? "1px solid rgba(20,184,166,0.3)" : "1px solid var(--border-secondary)",
+                  background: targetMode === opt.value ? "hsl(var(--success) / 0.08)" : "var(--bg-secondary)",
+                  border: targetMode === opt.value ? "1px solid hsl(var(--success) / 0.3)" : "1px solid var(--border-secondary)",
                 }}
               >
                 <input
@@ -262,7 +262,7 @@ export default function RegionalAnnouncementsPage() {
                     setTeacherQuery("");
                     setSelectedSchoolId("");
                   }}
-                  className="mt-0.5 accent-teal-500"
+                  className="mt-0.5 accent-[hsl(var(--success))]"
                 />
                 <div>
                   <p className="text-sm font-medium text-[var(--text-primary)]">{opt.label}</p>
@@ -297,7 +297,7 @@ export default function RegionalAnnouncementsPage() {
               {selectedTeacher ? (
                 <div
                   className="flex items-center justify-between p-3 rounded-xl"
-                  style={{ background: "rgba(20,184,166,0.08)", border: "1px solid rgba(20,184,166,0.3)" }}
+                  style={{ background: "hsl(var(--success) / 0.08)", border: "1px solid hsl(var(--success) / 0.3)" }}
                 >
                   <div>
                     <p className="text-sm font-semibold text-[var(--text-primary)]">{selectedTeacher.name}</p>
@@ -435,9 +435,9 @@ export default function RegionalAnnouncementsPage() {
             disabled={sending || !canSend()}
             className="w-full mt-4 flex items-center justify-center gap-2 py-3.5 rounded-2xl text-sm font-bold transition-all active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed"
             style={{
-              background: "linear-gradient(135deg, #14B8A6, #0D9488)",
-              color: "#F0FDFA",
-              boxShadow: "0 2px 8px rgba(20,184,166,0.3)",
+              background: "linear-gradient(135deg, hsl(var(--success)), hsl(var(--success) / 0.85))",
+              color: "hsl(var(--success) / 0.05)",
+              boxShadow: "0 2px 8px hsl(var(--success) / 0.3)",
             }}
           >
             {sending ? (
@@ -561,8 +561,8 @@ export default function RegionalAnnouncementsPage() {
                 onClick={handleSend}
                 className="flex-1 py-2.5 rounded-xl text-sm font-bold transition-all active:scale-[0.97]"
                 style={{
-                  background: "linear-gradient(135deg, #14B8A6, #0D9488)",
-                  color: "#F0FDFA",
+                  background: "linear-gradient(135deg, hsl(var(--success)), hsl(var(--success)))",
+                  color: "hsl(var(--success) / 0.06)",
                 }}
               >
                 Send

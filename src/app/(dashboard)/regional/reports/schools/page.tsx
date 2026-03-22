@@ -80,8 +80,8 @@ const columns: ColumnDef<SchoolRow>[] = [
     align: "center",
     render: (value) => {
       const rate = Number(value ?? 0);
-      let color = "#DC2626"; // red
-      if (rate >= 80) color = "#16A34A"; // green
+      let color = "hsl(var(--danger))"; // red
+      if (rate >= 80) color = "hsl(var(--success))"; // green
       else if (rate >= 50) color = "hsl(var(--accent))"; // amber
       return (
         <span style={{ fontFamily: "var(--font-mono)", fontWeight: 600, color }}>

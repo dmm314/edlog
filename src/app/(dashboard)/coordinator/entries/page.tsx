@@ -65,7 +65,7 @@ function TeacherAvatar({ photoUrl, firstName, lastName, size = "sm" }: { photoUr
   }
   return (
     <div className={`${dim} ${radius} flex items-center justify-center flex-shrink-0 font-black text-white ${textSize}`}
-      style={{ background: "linear-gradient(135deg, #6D28D9, #7C3AED)" }}>
+      style={{ background: "linear-gradient(135deg, hsl(var(--accent-strong)), hsl(var(--accent)))" }}>
       {firstName[0]}{lastName[0]}
     </div>
   );
@@ -102,14 +102,14 @@ function StatusBadge({ status, views }: { status: string; views?: { viewerRole: 
   const isSeen = (views?.length ?? 0) > 0;
   if (status === "VERIFIED") {
     return (
-      <span className="flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0" style={{ background: "#DCFCE7", color: "#15803D" }}>
+      <span className="flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0" style={{ background: "hsl(var(--success) / 0.15)", color: "hsl(var(--success))" }}>
         <CheckCircle className="w-2.5 h-2.5" /> Verified
       </span>
     );
   }
   if (status === "FLAGGED") {
     return (
-      <span className="flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0" style={{ background: "#FEE2E2", color: "#B91C1C" }}>
+      <span className="flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0" style={{ background: "hsl(var(--danger) / 0.1)", color: "hsl(var(--danger))" }}>
         <Flag className="w-2.5 h-2.5" /> Flagged
       </span>
     );
@@ -123,7 +123,7 @@ function StatusBadge({ status, views }: { status: string; views?: { viewerRole: 
   }
   if (status === "SUBMITTED") {
     return (
-      <span className="flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0" style={{ background: "#EDE9FE", color: "#5B21B6" }}>
+      <span className="flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0" style={{ background: "hsl(var(--accent-soft))", color: "hsl(var(--accent-text))" }}>
         <Clock className="w-2.5 h-2.5" /> Pending
       </span>
     );
@@ -247,7 +247,7 @@ export default function CoordinatorEntriesPage() {
     <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-primary)" }}>
       {/* ── Header ── */}
       <div className="px-5 pt-10 pb-6 rounded-b-[2rem] relative overflow-hidden"
-        style={{ background: "linear-gradient(135deg, #4C1D95 0%, #6D28D9 50%, #7C3AED 100%)" }}>
+        style={{ background: "linear-gradient(135deg, hsl(var(--accent-strong)), hsl(var(--accent)))" }}>
         <div className="absolute inset-0 pointer-events-none" style={{ opacity: 0.04, backgroundImage: "radial-gradient(circle at 2px 2px, white 1px, transparent 0)", backgroundSize: "20px 20px" }} />
         <div className="max-w-lg mx-auto relative">
           <Link href="/coordinator" className="inline-flex items-center gap-1.5 text-white/60 hover:text-white text-sm mb-4 transition-colors">
@@ -290,13 +290,13 @@ export default function CoordinatorEntriesPage() {
                   placeholder="Search topics, teacher, class..."
                   className="input-field pl-9 pr-4" />
               </div>
-              <button onClick={handleSearch} className="px-4 py-2.5 rounded-xl text-sm font-bold text-white active:scale-95" style={{ background: "#7C3AED" }}>
+              <button onClick={handleSearch} className="px-4 py-2.5 rounded-xl text-sm font-bold text-white active:scale-95" style={{ background: "hsl(var(--accent))" }}>
                 Search
               </button>
               <button onClick={() => setShowFilters(!showFilters)} className="relative px-3 py-2.5 rounded-xl active:scale-95 transition-all"
-                style={{ background: showFilters || hasActiveFilters ? "#EDE9FE" : "var(--bg-elevated)", border: "1px solid var(--border-primary)", color: hasActiveFilters ? "#5B21B6" : "var(--text-secondary)" }}>
+                style={{ background: showFilters || hasActiveFilters ? "hsl(var(--accent-soft))" : "var(--bg-elevated)", border: "1px solid var(--border-primary)", color: hasActiveFilters ? "hsl(var(--accent-text))" : "var(--text-secondary)" }}>
                 <Filter className="w-4 h-4" />
-                {hasActiveFilters && <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full text-white flex items-center justify-center" style={{ background: "#7C3AED", fontSize: "8px" }}>●</span>}
+                {hasActiveFilters && <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full text-white flex items-center justify-center" style={{ background: "hsl(var(--accent))", fontSize: "8px" }}>●</span>}
               </button>
             </div>
 
@@ -306,7 +306,7 @@ export default function CoordinatorEntriesPage() {
                 <div className="flex items-center justify-between">
                   <p className="text-xs font-bold text-[var(--text-primary)]">Filters</p>
                   {hasActiveFilters && (
-                    <button onClick={clearFilters} className="text-xs font-semibold flex items-center gap-1" style={{ color: "#7C3AED" }}>
+                    <button onClick={clearFilters} className="text-xs font-semibold flex items-center gap-1" style={{ color: "hsl(var(--accent))" }}>
                       <X className="w-3 h-3" /> Clear
                     </button>
                   )}
@@ -366,7 +366,7 @@ export default function CoordinatorEntriesPage() {
                 <FileText className="w-10 h-10 mx-auto mb-3" style={{ color: "var(--text-quaternary)" }} />
                 <p className="font-bold text-[var(--text-secondary)]">No entries found</p>
                 {(search || hasActiveFilters) && (
-                  <button onClick={() => { setSearch(""); setSearchInput(""); clearFilters(); }} className="mt-3 text-sm font-semibold" style={{ color: "#7C3AED" }}>
+                  <button onClick={() => { setSearch(""); setSearchInput(""); clearFilters(); }} className="mt-3 text-sm font-semibold" style={{ color: "hsl(var(--accent))" }}>
                     Clear search & filters
                   </button>
                 )}
@@ -381,7 +381,7 @@ export default function CoordinatorEntriesPage() {
                   return (
                     <Link key={entry.id} href={`/coordinator/entries/${entry.id}`}
                       className="card block active:scale-[0.98] transition-transform"
-                      style={{ borderLeft: isUnseen ? "3px solid #8B5CF6" : entry.status === "VERIFIED" ? "3px solid #16A34A" : entry.status === "FLAGGED" ? "3px solid #DC2626" : "3px solid var(--border-secondary)" }}>
+                      style={{ borderLeft: isUnseen ? "3px solid hsl(var(--accent))" : entry.status === "VERIFIED" ? "3px solid hsl(var(--success))" : entry.status === "FLAGGED" ? "3px solid hsl(var(--danger))" : "3px solid var(--border-secondary)" }}>
                       <div className="p-4">
                         {/* Topic + status */}
                         <div className="flex items-start justify-between gap-2 mb-2.5">

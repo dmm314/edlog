@@ -23,7 +23,7 @@ import type { RegionalStats } from "@/types";
 
 function getRankColor(rank: number, total: number): string {
   const quartile = total > 0 ? rank / total : 1;
-  if (quartile <= 0.25) return "text-emerald-600";
+  if (quartile <= 0.25) return "text-[hsl(var(--success))]";
   if (quartile <= 0.75) return "text-[hsl(var(--accent-strong))]";
   return "text-red-600";
 }
@@ -160,8 +160,8 @@ export default function RegionalDashboardPage() {
               boxShadow: "var(--shadow-card)",
             }}
           >
-            <div className="w-10 h-10 bg-purple-50 rounded-xl flex items-center justify-center mb-2">
-              <Users className="w-5 h-5 text-purple-600" />
+            <div className="w-10 h-10 bg-[hsl(var(--accent-soft))] rounded-xl flex items-center justify-center mb-2">
+              <Users className="w-5 h-5 text-accent-text" />
             </div>
             <p className="text-2xl font-bold text-[var(--text-primary)]" style={{ fontFamily: "var(--font-mono)" }}>
               {stats?.totalTeachers ?? 0}
@@ -186,8 +186,8 @@ export default function RegionalDashboardPage() {
               createdAt={userCreatedAt}
               className="absolute -top-1 -right-1 z-10"
             />
-            <div className="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center mb-2">
-              <TrendingUp className="w-5 h-5 text-emerald-600" />
+            <div className="w-10 h-10 bg-[hsl(var(--success)/0.1)] rounded-xl flex items-center justify-center mb-2">
+              <TrendingUp className="w-5 h-5 text-[hsl(var(--success))]" />
             </div>
             <p className="text-2xl font-bold text-[var(--text-primary)]" style={{ fontFamily: "var(--font-mono)" }}>
               {stats?.complianceRate ?? 0}%
@@ -206,8 +206,8 @@ export default function RegionalDashboardPage() {
               boxShadow: "var(--shadow-card)",
             }}
           >
-            <div className="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center mb-2">
-              <BookOpen className="w-5 h-5 text-orange-600" />
+            <div className="w-10 h-10 bg-[hsl(var(--accent-soft))] rounded-xl flex items-center justify-center mb-2">
+              <BookOpen className="w-5 h-5 text-accent-text" />
             </div>
             <p className="text-2xl font-bold text-[var(--text-primary)]" style={{ fontFamily: "var(--font-mono)" }}>
               {stats?.entriesThisMonth ?? 0}
@@ -273,7 +273,7 @@ export default function RegionalDashboardPage() {
                         </p>
                         <span
                           className={`text-xs font-bold ml-2 flex-shrink-0 ${
-                            school.complianceRate >= 70 ? "text-emerald-600" : school.complianceRate >= 40 ? "text-[hsl(var(--accent-strong))]" : "text-red-600"
+                            school.complianceRate >= 70 ? "text-[hsl(var(--success))]" : school.complianceRate >= 40 ? "text-[hsl(var(--accent-strong))]" : "text-red-600"
                           }`}
                           style={{ fontFamily: "var(--font-mono)" }}
                         >

@@ -163,9 +163,9 @@ export default function NewAssessmentPage() {
         <div className="text-center max-w-sm">
           <div
             className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"
-            style={{ background: "var(--success-bg, #d1fae5)" }}
+            style={{ background: "hsl(var(--success) / 0.15)" }}
           >
-            <Check className="w-8 h-8" style={{ color: "var(--success-text, #065f46)" }} />
+            <Check className="w-8 h-8" style={{ color: "hsl(var(--success))" }} />
           </div>
           <h2
             className="text-lg font-bold mb-1"
@@ -181,7 +181,7 @@ export default function NewAssessmentPage() {
               <Link
                 href={`/assessments/${createdId}/results`}
                 className="text-sm font-bold px-5 py-2.5 rounded-xl"
-                style={{ background: "var(--accent)", color: "#fff" }}
+                style={{ background: "var(--accent)", color: "hsl(var(--text-inverse))" }}
               >
                 Enter results now?
               </Link>
@@ -240,7 +240,7 @@ export default function NewAssessmentPage() {
         {error && (
           <div
             className="flex items-center gap-2 p-3 rounded-xl text-sm"
-            style={{ background: "var(--error-bg, #fee2e2)", color: "var(--error-text, #991b1b)" }}
+            style={{ background: "hsl(var(--danger) / 0.1)", color: "hsl(var(--danger))" }}
           >
             <AlertCircle className="w-4 h-4 flex-shrink-0" />
             {error}
@@ -333,7 +333,7 @@ export default function NewAssessmentPage() {
                 className="text-xs font-semibold px-3 py-1.5 rounded-full transition-all"
                 style={{
                   background: type === t.value ? "var(--accent)" : "var(--bg-tertiary)",
-                  color: type === t.value ? "#fff" : "var(--text-secondary)",
+                  color: type === t.value ? "hsl(var(--text-inverse))" : "var(--text-secondary)",
                 }}
               >
                 {t.label}
@@ -426,7 +426,7 @@ export default function NewAssessmentPage() {
                     className="text-xs font-medium px-3 py-1.5 rounded-full transition-all"
                     style={{
                       background: selected ? "var(--accent)" : "var(--bg-tertiary)",
-                      color: selected ? "#fff" : "var(--text-secondary)",
+                      color: selected ? "hsl(var(--text-inverse))" : "var(--text-secondary)",
                     }}
                   >
                     {t.name}
@@ -468,7 +468,7 @@ export default function NewAssessmentPage() {
           className="w-full py-3 rounded-xl text-sm font-bold active:scale-[0.98] transition-all"
           style={{
             background: "var(--accent)",
-            color: "#fff",
+            color: "hsl(var(--text-inverse))",
             opacity: submitting || !classId || !subjectId || !title.trim() ? 0.5 : 1,
           }}
         >

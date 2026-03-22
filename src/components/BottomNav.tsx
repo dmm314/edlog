@@ -91,7 +91,7 @@ function BottomNav({ role, isCoordinator, activeMode }: BottomNavProps) {
                 aria-label={tab.label}
                 data-tour={tab.dataTour}
               >
-                <span className="inline-flex min-h-[36px] items-center justify-center gap-1.5 rounded-full bg-[#0866FF] px-4 text-xs font-semibold text-white active:scale-95">
+                <span className="inline-flex min-h-[36px] items-center justify-center gap-1.5 rounded-full bg-accent px-4 text-xs font-semibold text-white active:scale-95">
                   <Plus className="h-4 w-4" /> New
                 </span>
               </Link>

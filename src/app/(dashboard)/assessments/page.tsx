@@ -77,7 +77,7 @@ export default function AssessmentsPage() {
           <Link
             href="/assessments/new"
             className="flex items-center gap-1.5 text-sm font-semibold rounded-xl px-4 py-2 active:scale-95 transition-transform"
-            style={{ background: "var(--accent)", color: "#fff" }}
+            style={{ background: "var(--accent)", color: "hsl(var(--text-inverse))" }}
           >
             <Plus className="w-4 h-4" />
             Log New Test
@@ -148,10 +148,10 @@ export default function AssessmentsPage() {
                 : null);
               const passRateColor = passRate != null
                 ? passRate >= 70
-                  ? "var(--success-text, #065f46)"
+                  ? "hsl(var(--success))"
                   : passRate >= 50
                   ? "hsl(var(--accent-text))"
-                  : "var(--error-text, #991b1b)"
+                  : "hsl(var(--danger))"
                 : undefined;
 
               if (a.corrected) {
@@ -274,7 +274,7 @@ export default function AssessmentsPage() {
 
                   <span
                     className="text-xs font-bold px-3 py-1.5 rounded-xl flex-shrink-0"
-                    style={{ background: "var(--accent)", color: "#fff" }}
+                    style={{ background: "var(--accent)", color: "hsl(var(--text-inverse))" }}
                   >
                     Enter Results
                   </span>

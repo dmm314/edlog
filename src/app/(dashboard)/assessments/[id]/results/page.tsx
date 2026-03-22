@@ -237,7 +237,7 @@ export default function AssessmentResultsPage() {
       ? Math.round(((assessment.femalePassed / assessment.totalFemale) * 100) * 10) / 10
       : null;
   const passRateColor = passRate != null
-    ? passRate >= 70 ? "#16A34A" : passRate >= 50 ? "hsl(var(--accent-strong))" : "#DC2626"
+    ? passRate >= 70 ? "hsl(var(--success))" : passRate >= 50 ? "hsl(var(--accent-strong))" : "hsl(var(--danger))"
     : undefined;
 
   return (
@@ -372,7 +372,7 @@ export default function AssessmentResultsPage() {
         {saved && (
           <div
             className="flex items-center gap-2 p-3 rounded-xl text-sm"
-            style={{ background: "var(--success-bg, #d1fae5)", color: "var(--success-text, #065f46)" }}
+            style={{ background: "hsl(var(--success) / 0.15)", color: "hsl(var(--success))" }}
           >
             <Check className="w-4 h-4 flex-shrink-0" />
             Results saved successfully.
@@ -385,7 +385,7 @@ export default function AssessmentResultsPage() {
             {error && (
               <div
                 className="flex items-center gap-2 p-3 rounded-xl text-sm"
-                style={{ background: "var(--error-bg, #fee2e2)", color: "var(--error-text, #991b1b)" }}
+                style={{ background: "hsl(var(--danger) / 0.1)", color: "hsl(var(--danger))" }}
               >
                 <AlertCircle className="w-4 h-4 flex-shrink-0" />
                 {error}
@@ -587,8 +587,8 @@ export default function AssessmentResultsPage() {
               disabled={submitting}
               className="w-full py-3 rounded-xl text-sm font-bold active:scale-[0.98] transition-all"
               style={{
-                background: "#16A34A",
-                color: "#fff",
+                background: "hsl(var(--success))",
+                color: "hsl(var(--text-inverse))",
                 opacity: submitting ? 0.5 : 1,
               }}
             >

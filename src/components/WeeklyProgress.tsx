@@ -51,7 +51,7 @@ function WeeklyProgress({ days, totalCompleted, totalPeriods }: WeeklyProgressPr
             fillGradient = "linear-gradient(180deg, var(--accent-warm, var(--accent)), var(--accent))";
           } else if (isComplete || day.completed > 0) {
             // Past days with any logging: green gradient
-            fillGradient = "linear-gradient(180deg, #22C55E, #16A34A)";
+            fillGradient = "linear-gradient(180deg, hsl(var(--success)), hsl(var(--success)))";
           } else {
             fillGradient = "transparent";
           }

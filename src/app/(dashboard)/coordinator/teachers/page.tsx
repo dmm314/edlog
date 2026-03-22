@@ -24,7 +24,7 @@ function TeacherInitials({ firstName, lastName }: { firstName: string; lastName:
   return (
     <div
       className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 font-bold text-white text-xs"
-      style={{ background: "linear-gradient(135deg, #6D28D9, #7C3AED)" }}
+      style={{ background: "linear-gradient(135deg, hsl(var(--accent-strong)), hsl(var(--accent)))" }}
     >
       {firstName[0]}{lastName[0]}
     </div>
@@ -76,7 +76,7 @@ export default function CoordinatorTeachersPage() {
       {/* Header */}
       <div
         className="px-5 pt-10 pb-8 rounded-b-[2rem] relative overflow-hidden"
-        style={{ background: "linear-gradient(135deg, #4C1D95 0%, #6D28D9 50%, #7C3AED 100%)" }}
+        style={{ background: "linear-gradient(135deg, hsl(var(--accent-strong)), hsl(var(--accent)))" }}
       >
         <div className="absolute inset-0 pointer-events-none" style={{ opacity: 0.04, backgroundImage: "radial-gradient(circle at 2px 2px, white 1px, transparent 0)", backgroundSize: "20px 20px" }} />
         <div className="max-w-lg mx-auto relative">
@@ -137,10 +137,10 @@ export default function CoordinatorTeachersPage() {
 
                 // Simple compliance indicator: more entries = better
                 const indicatorColor = entryCount >= 15
-                  ? "#16A34A"
+                  ? "hsl(var(--success))"
                   : entryCount >= 5
                   ? "hsl(var(--accent-glow))"
-                  : "#EF4444";
+                  : "hsl(var(--danger))";
 
                 return (
                   <div key={teacher.id} className="card p-4">
@@ -186,8 +186,8 @@ export default function CoordinatorTeachersPage() {
                                 key={cls.id}
                                 className="text-[10px] font-medium px-1.5 py-0.5 rounded-md"
                                 style={{
-                                  background: "#EDE9FE",
-                                  color: "#5B21B6",
+                                  background: "hsl(var(--accent-soft))",
+                                  color: "hsl(var(--accent-text))",
                                 }}
                               >
                                 {cls.name}

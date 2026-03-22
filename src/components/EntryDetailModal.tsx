@@ -67,17 +67,17 @@ interface EntryDetail {
 /* ─── Constants ──────────────────────────────────────────────── */
 
 const REMARK_COLORS: Record<string, { bg: string; text: string; border: string; bar: string; label: string }> = {
-  self_reflection: { bg: "bg-emerald-50", text: "text-emerald-700", border: "border-emerald-200", bar: "bg-emerald-500", label: "Teacher" },
+  self_reflection: { bg: "bg-[hsl(var(--success)/0.08)]", text: "text-status-success", border: "border-[hsl(var(--success)/0.2)]", bar: "bg-status-success", label: "Teacher" },
   hod_review: { bg: "bg-[hsl(var(--accent-soft))]", text: "text-[hsl(var(--accent-text))]", border: "border-[hsl(var(--accent)/0.2)]", bar: "bg-[hsl(var(--accent))]", label: "HOD" },
-  admin_observation: { bg: "bg-blue-50", text: "text-blue-700", border: "border-blue-200", bar: "bg-blue-500", label: "Admin" },
-  inspector_note: { bg: "bg-purple-50", text: "text-purple-700", border: "border-purple-200", bar: "bg-purple-500", label: "Inspector" },
+  admin_observation: { bg: "bg-[hsl(var(--info)/0.08)]", text: "text-status-info", border: "border-[hsl(var(--info)/0.2)]", bar: "bg-status-info", label: "Admin" },
+  inspector_note: { bg: "bg-[hsl(var(--accent-soft))]", text: "text-[hsl(var(--accent-text))]", border: "border-[hsl(var(--accent)/0.2)]", bar: "bg-[hsl(var(--accent))]", label: "Inspector" },
 };
 
 const STATUS_CONFIG: Record<string, { color: string; label: string; icon: React.ReactNode }> = {
-  VERIFIED: { color: "#10B981", label: "Verified", icon: <CheckCircle className="w-3.5 h-3.5" /> },
-  FLAGGED: { color: "#EF4444", label: "Flagged", icon: <Flag className="w-3.5 h-3.5" /> },
+  VERIFIED: { color: "hsl(var(--success))", label: "Verified", icon: <CheckCircle className="w-3.5 h-3.5" /> },
+  FLAGGED: { color: "hsl(var(--danger))", label: "Flagged", icon: <Flag className="w-3.5 h-3.5" /> },
   SUBMITTED: { color: "hsl(var(--accent))", label: "Pending Review", icon: <AlertCircle className="w-3.5 h-3.5" /> },
-  DRAFT: { color: "#6B7280", label: "Draft", icon: <FileText className="w-3.5 h-3.5" /> },
+  DRAFT: { color: "hsl(var(--text-tertiary))", label: "Draft", icon: <FileText className="w-3.5 h-3.5" /> },
 };
 
 /* ─── Section helpers ────────────────────────────────────────── */
@@ -101,7 +101,7 @@ function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
 }
 
 function CompletenessBar({ score }: { score: number }) {
-  const color = score >= 80 ? "#10B981" : score >= 60 ? "hsl(var(--accent))" : "#EF4444";
+  const color = score >= 80 ? "hsl(var(--success))" : score >= 60 ? "hsl(var(--accent))" : "hsl(var(--danger))";
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
       <div style={{ flex: 1, height: 6, background: "var(--bg-tertiary)", borderRadius: 3, overflow: "hidden" }}>
@@ -195,10 +195,10 @@ export function EntryDetailModal({
   })();
 
   const lessonModeIcon = entry?.lessonMode === "digital"
-    ? <Monitor className="w-3.5 h-3.5 text-blue-600" />
+    ? <Monitor className="w-3.5 h-3.5 text-accent-text" />
     : entry?.lessonMode === "hybrid"
-    ? <Smartphone className="w-3.5 h-3.5 text-purple-600" />
-    : <Users className="w-3.5 h-3.5 text-emerald-600" />;
+    ? <Smartphone className="w-3.5 h-3.5 text-accent-text" />
+    : <Users className="w-3.5 h-3.5 text-status-success" />;
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
@@ -335,7 +335,7 @@ export function EntryDetailModal({
                   label="Digital Tools"
                   value={<span className="flex flex-wrap gap-1">
                     {entry.digitalTools.map((t) => (
-                      <span key={t} className="text-xs bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full">{t}</span>
+                      <span key={t} className="text-xs bg-accent-soft text-accent-text px-2 py-0.5 rounded-full">{t}</span>
                     ))}
                   </span>}
                 />
@@ -359,7 +359,7 @@ export function EntryDetailModal({
             {/* ── Section 6: Verification ── */}
             {(entry.verifiedByName || entry.signatureData) && (
               <div className="px-5 py-4 border-b border-[var(--border-secondary)]">
-                <SectionTitle><CheckCircle className="w-3 h-3 inline mr-1 text-emerald-600" />Verification</SectionTitle>
+                <SectionTitle><CheckCircle className="w-3 h-3 inline mr-1 text-status-success" />Verification</SectionTitle>
                 {entry.verifiedByName && (
                   <InfoRow
                     label="Verified By"

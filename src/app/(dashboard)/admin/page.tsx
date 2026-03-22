@@ -234,16 +234,16 @@ export default function AdminDashboardPage() {
                 icon: CheckCircle2,
                 label: "Entry Overview",
                 count: "View all entries",
-                gradient: "linear-gradient(135deg, #EEF2FF, #E0E7FF)",
-                iconColor: "#4F46E5",
+                gradient: "linear-gradient(135deg, hsl(var(--accent-soft)), hsl(var(--accent) / 0.15))",
+                iconColor: "hsl(var(--accent-strong))",
               },
               {
                 href: "/admin/timetable",
                 icon: Calendar,
                 label: "Timetable",
                 count: "Manage schedule",
-                gradient: "linear-gradient(135deg, #F0FDF4, #DCFCE7)",
-                iconColor: "#16A34A",
+                gradient: "linear-gradient(135deg, hsl(var(--success) / 0.08), hsl(var(--success) / 0.15))",
+                iconColor: "hsl(var(--success))",
               },
               {
                 href: "/admin/reports",
@@ -258,24 +258,24 @@ export default function AdminDashboardPage() {
                 icon: Users,
                 label: "Teachers",
                 count: `${stats?.totalTeachers ?? 0} active`,
-                gradient: "linear-gradient(135deg, #FFF1F2, #FFE4E6)",
-                iconColor: "#E11D48",
+                gradient: "linear-gradient(135deg, hsl(var(--danger) / 0.08), hsl(var(--danger) / 0.12))",
+                iconColor: "hsl(var(--danger))",
               },
               {
                 href: "/admin/classes",
                 icon: BookOpen,
                 label: "Manage Classes",
                 count: "Add & organise classes",
-                gradient: "linear-gradient(135deg, #F0F9FF, #E0F2FE)",
-                iconColor: "#0284C7",
+                gradient: "linear-gradient(135deg, hsl(var(--accent) / 0.06), hsl(var(--accent) / 0.12))",
+                iconColor: "hsl(var(--accent))",
               },
               {
                 href: "/admin/subjects",
                 icon: Layers,
                 label: "Assign Subjects",
                 count: "Subjects per class",
-                gradient: "linear-gradient(135deg, #F7FEE7, #ECFCCB)",
-                iconColor: "#65A30D",
+                gradient: "linear-gradient(135deg, hsl(var(--success) / 0.06), hsl(var(--success) / 0.1))",
+                iconColor: "hsl(var(--success))",
               },
             ].map((action) => {
               const Icon = action.icon;
@@ -302,26 +302,26 @@ export default function AdminDashboardPage() {
           href="/admin/coordinators"
           className="animate-slide-up animation-delay-175 flex items-center justify-between p-4 group active:scale-[0.98] transition-all duration-200 relative"
           style={{
-            background: "linear-gradient(135deg, #F5F3FF, #EDE9FE)",
-            border: "1px solid #DDD6FE",
+            background: "linear-gradient(135deg, hsl(var(--accent-soft)), hsl(var(--accent) / 0.12))",
+            border: "1px solid hsl(var(--accent) / 0.2)",
             borderRadius: "16px",
           }}
         >
           <HelpHint text="Assign Vice Principals to manage entry verification for each class level." position="left" createdAt={userCreatedAt} className="absolute top-3 right-3 z-10" />
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "#EDE9FE" }}>
-              <Shield className="w-5 h-5" style={{ color: "#6D28D9" }} />
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "hsl(var(--accent) / 0.12)" }}>
+              <Shield className="w-5 h-5" style={{ color: "hsl(var(--accent-strong))" }} />
             </div>
             <div>
-              <span style={{ fontFamily: "var(--font-body)", fontSize: 14, fontWeight: 700, color: "#3B0764" }}>
+              <span style={{ fontFamily: "var(--font-body)", fontSize: 14, fontWeight: 700, color: "hsl(var(--accent-text))" }}>
                 Manage VPs
               </span>
-              <span className="block" style={{ fontFamily: "var(--font-body)", fontSize: 12, color: "#5B21B6" }}>
+              <span className="block" style={{ fontFamily: "var(--font-body)", fontSize: 12, color: "hsl(var(--accent-strong))" }}>
                 Level Coordinators — assign per class level
               </span>
             </div>
           </div>
-          <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" style={{ color: "#7C3AED" }} />
+          <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" style={{ color: "hsl(var(--accent))" }} />
         </Link>
 
         {/* ── SEND ANNOUNCEMENT ── */}
@@ -423,10 +423,10 @@ export default function AdminDashboardPage() {
 
           <div className="grid grid-cols-2 gap-2 mb-4 lg:grid-cols-4">
             {[
-              { label: "This month", value: entriesThisMonth, color: "#0F172A", bg: "#F8FAFC", hint: "All entries submitted this month." },
-              { label: "Verified by VPs", value: `${verifiedThisMonth} (${verificationRate}%)`, color: "#16A34A", bg: "#F0FDF4", hint: "Entries already reviewed by level coordinators." },
-              { label: "Pending review", value: pendingThisMonth, color: "#2563EB", bg: "#EFF6FF", hint: "Entries still waiting for VP review." },
-              { label: "Flagged", value: flaggedThisMonth, color: "#DC2626", bg: "#FEF2F2", hint: "Entries VPs returned for correction." },
+              { label: "This month", value: entriesThisMonth, color: "hsl(var(--text-primary))", bg: "hsl(var(--surface-secondary))", hint: "All entries submitted this month." },
+              { label: "Verified by VPs", value: `${verifiedThisMonth} (${verificationRate}%)`, color: "hsl(var(--success))", bg: "hsl(var(--success) / 0.08)", hint: "Entries already reviewed by level coordinators." },
+              { label: "Pending review", value: pendingThisMonth, color: "hsl(var(--accent))", bg: "hsl(var(--accent-soft))", hint: "Entries still waiting for VP review." },
+              { label: "Flagged", value: flaggedThisMonth, color: "hsl(var(--danger))", bg: "hsl(var(--danger) / 0.08)", hint: "Entries VPs returned for correction." },
             ].map((s) => (
               <div key={s.label} className="rounded-xl p-3" style={{ background: s.bg }}>
                 <p className="text-lg font-bold tabular-nums" style={{ color: s.color }}>{s.value}</p>
@@ -458,16 +458,16 @@ export default function AdminDashboardPage() {
                           {coord.title} · {coord.levels.join(", ")}
                         </p>
                       </div>
-                      <span className="rounded-full px-2 py-0.5 text-[10px] font-semibold" style={{ background: "#E0E7FF", color: "#4338CA" }}>
+                      <span className="rounded-full px-2 py-0.5 text-[10px] font-semibold" style={{ background: "hsl(var(--accent-soft))", color: "hsl(var(--accent-strong))" }}>
                         {coordRate}% reviewed
                       </span>
                     </div>
 
                     <div className="mt-3 grid grid-cols-3 gap-2">
                       {[
-                        { label: "Verified", value: coord.verifiedEntriesThisMonth, color: "#15803D", bg: "#F0FDF4" },
-                        { label: "Pending", value: coord.pendingEntriesThisMonth, color: "#2563EB", bg: "#EFF6FF" },
-                        { label: "Flagged", value: coord.flaggedEntriesThisMonth, color: "#B91C1C", bg: "#FEF2F2" },
+                        { label: "Verified", value: coord.verifiedEntriesThisMonth, color: "hsl(var(--success))", bg: "hsl(var(--success) / 0.08)" },
+                        { label: "Pending", value: coord.pendingEntriesThisMonth, color: "hsl(var(--accent))", bg: "hsl(var(--accent-soft))" },
+                        { label: "Flagged", value: coord.flaggedEntriesThisMonth, color: "hsl(var(--danger))", bg: "hsl(var(--danger) / 0.08)" },
                       ].map((item) => (
                         <div key={item.label} className="rounded-xl px-3 py-2 text-center" style={{ background: item.bg }}>
                           <p className="text-sm font-bold tabular-nums" style={{ color: item.color }}>{item.value}</p>

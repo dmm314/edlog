@@ -146,7 +146,7 @@ export default function SchoolRegisterPage() {
   function FieldError({ msg }: { msg?: string }) {
     if (!msg) return null;
     return (
-      <p className="text-xs mt-1 flex items-center gap-1" style={{ color: "#ef4444" }}>
+      <p className="text-xs mt-1 flex items-center gap-1" style={{ color: "hsl(var(--danger))" }}>
         <AlertCircle className="w-3 h-3" />{msg}
       </p>
     );
@@ -180,8 +180,8 @@ export default function SchoolRegisterPage() {
           </Link>
 
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(16,185,129,0.15)" }}>
-              <Shield className="w-5 h-5" style={{ color: "#10b981" }} />
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "hsl(var(--success) / 0.15)" }}>
+              <Shield className="w-5 h-5" style={{ color: "hsl(var(--success))" }} />
             </div>
             <div>
               <h1 className="text-2xl font-extrabold text-white tracking-tight" style={{ fontFamily: "var(--font-display)" }}>
@@ -220,8 +220,8 @@ export default function SchoolRegisterPage() {
           {/* Success: Show generated school code */}
           {registeredCode && (
             <div className="text-center space-y-4">
-              <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto" style={{ background: "rgba(16,185,129,0.10)" }}>
-                <svg className="w-8 h-8" style={{ color: "#10b981" }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+              <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto" style={{ background: "hsl(var(--success) / 0.10)" }}>
+                <svg className="w-8 h-8" style={{ color: "hsl(var(--success))" }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                 </svg>
               </div>
@@ -251,7 +251,7 @@ export default function SchoolRegisterPage() {
           {!registeredCode && serverError && (
             <div
               className="text-sm rounded-xl px-4 py-3 mb-4 flex items-center gap-2"
-              style={{ background: "rgba(239,68,68,0.08)", color: "#ef4444" }}
+              style={{ background: "hsl(var(--danger) / 0.08)", color: "hsl(var(--danger))" }}
             >
               <AlertCircle className="w-4 h-4 flex-shrink-0" />
               {serverError}
