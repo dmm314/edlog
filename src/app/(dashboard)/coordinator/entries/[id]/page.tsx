@@ -407,7 +407,7 @@ export default function CoordinatorEntryReviewPage() {
         {/* Success state after verification */}
         {done && doneStatus && (
           <div className="card p-5 text-center animate-scale-in"
-            style={{ borderLeft: `4px solid ${doneStatus === "VERIFIED" ? "#16A34A" : "#DC2626"}` }}>
+            style={{ borderLeft: `4px solid ${doneStatus === "VERIFIED" ? "hsl(var(--success))" : "hsl(var(--danger))"}` }}>
             {doneStatus === "VERIFIED"
               ? <CheckCircle className="w-10 h-10 text-emerald-500 mx-auto mb-2" />
               : <Flag className="w-10 h-10 text-red-500 mx-auto mb-2" />}

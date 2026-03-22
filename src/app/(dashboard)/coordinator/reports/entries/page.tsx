@@ -160,7 +160,7 @@ export default function CoordinatorReportEntriesPage() {
         >
           <Filter className="w-4 h-4" />
           {hasActiveFilters && (
-            <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full text-white flex items-center justify-center" style={{ background: "#7C3AED", fontSize: "8px" }}>●</span>
+            <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full text-white flex items-center justify-center" style={{ background: "hsl(var(--accent))", fontSize: "8px" }}>●</span>
           )}
         </button>
       </div>
@@ -171,7 +171,7 @@ export default function CoordinatorReportEntriesPage() {
           <div className="flex items-center justify-between">
             <p className="text-xs font-bold text-[var(--text-primary)]">Filters</p>
             {hasActiveFilters && (
-              <button onClick={clearFilters} className="text-xs font-semibold flex items-center gap-1" style={{ color: "#7C3AED" }}>
+              <button onClick={clearFilters} className="text-xs font-semibold flex items-center gap-1" style={{ color: "hsl(var(--accent))" }}>
                 <X className="w-3 h-3" /> Clear
               </button>
             )}
@@ -231,7 +231,7 @@ export default function CoordinatorReportEntriesPage() {
           <FileText className="w-10 h-10 mx-auto mb-3" style={{ color: "var(--text-quaternary)" }} />
           <p className="font-bold text-[var(--text-secondary)]">No entries found</p>
           {(search || hasActiveFilters) && (
-            <button onClick={() => { setSearch(""); setSearchInput(""); clearFilters(); }} className="mt-3 text-sm font-semibold" style={{ color: "#7C3AED" }}>
+            <button onClick={() => { setSearch(""); setSearchInput(""); clearFilters(); }} className="mt-3 text-sm font-semibold" style={{ color: "hsl(var(--accent))" }}>
               Clear search & filters
             </button>
           )}
@@ -248,9 +248,9 @@ export default function CoordinatorReportEntriesPage() {
                 href={`/coordinator/entries/${entry.id}`}
                 className="card p-4 flex items-start gap-3 active:scale-[0.98] transition-transform"
                 style={{
-                  borderLeft: entry.status === "SUBMITTED" ? "3px solid #7C3AED"
-                    : entry.status === "VERIFIED" ? "3px solid #16A34A"
-                    : entry.status === "FLAGGED" ? "3px solid #DC2626"
+                  borderLeft: entry.status === "SUBMITTED" ? "3px solid hsl(var(--accent))"
+                    : entry.status === "VERIFIED" ? "3px solid hsl(var(--success))"
+                    : entry.status === "FLAGGED" ? "3px solid hsl(var(--danger))"
                     : "3px solid var(--border-secondary)",
                 }}
               >
