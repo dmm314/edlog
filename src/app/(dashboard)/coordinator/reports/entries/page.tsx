@@ -255,7 +255,7 @@ export default function CoordinatorReportEntriesPage() {
                 }}
               >
                 <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 font-bold text-white text-xs"
-                  style={{ background: "linear-gradient(135deg, #6D28D9, #7C3AED)" }}>
+                  style={{ background: "linear-gradient(135deg, hsl(var(--accent-strong)), hsl(var(--accent)))" }}>
                   {entry.teacher.firstName[0]}{entry.teacher.lastName[0]}
                 </div>
                 <div className="flex-1 min-w-0">
