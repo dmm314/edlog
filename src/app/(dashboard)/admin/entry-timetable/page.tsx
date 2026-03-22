@@ -416,10 +416,10 @@ export default function EntryTimetablePage() {
               {groupedByLevel.map((group, gi) => {
                 const dotColor =
                   group.compliance === "green"
-                    ? "#16A34A"
+                    ? "hsl(var(--success))"
                     : group.compliance === "amber"
                     ? "hsl(var(--accent-strong))"
-                    : "#DC2626";
+                    : "hsl(var(--danger))";
                 return (
                   <button
                     key={group.level}

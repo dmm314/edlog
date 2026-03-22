@@ -267,16 +267,16 @@ export default function CoordinatorEntryReviewPage() {
         {alreadyReviewed && (
           <div className="rounded-2xl border overflow-hidden"
             style={{
-              background: entry.status === "VERIFIED" ? "#F0FDF4" : "#FFF1F2",
-              borderColor: entry.status === "VERIFIED" ? "#86EFAC" : "#FCA5A5",
+              background: entry.status === "VERIFIED" ? "hsl(var(--success) / 0.06)" : "hsl(var(--danger) / 0.06)",
+              borderColor: entry.status === "VERIFIED" ? "hsl(var(--success) / 0.4)" : "hsl(var(--danger) / 0.3)",
             }}>
             {/* Header row */}
             <div className="px-4 py-3 flex items-center gap-2"
-              style={{ borderBottom: `1px solid ${entry.status === "VERIFIED" ? "#BBF7D0" : "#FCA5A5"}` }}>
+              style={{ borderBottom: `1px solid ${entry.status === "VERIFIED" ? "hsl(var(--success) / 0.3)" : "hsl(var(--danger) / 0.3)"}` }}>
               {entry.status === "VERIFIED"
                 ? <CheckCircle className="w-5 h-5 text-emerald-600 flex-shrink-0" />
                 : <Flag className="w-5 h-5 text-red-500 flex-shrink-0" />}
-              <p className="text-sm font-bold" style={{ color: entry.status === "VERIFIED" ? "#14532D" : "#7F1D1D" }}>
+              <p className="text-sm font-bold" style={{ color: entry.status === "VERIFIED" ? "hsl(var(--success))" : "hsl(var(--danger))" }}>
                 {entry.status === "VERIFIED" ? "Entry Verified" : "Entry Flagged"}
               </p>
             </div>
@@ -284,8 +284,8 @@ export default function CoordinatorEntryReviewPage() {
             <div className="px-4 py-3 space-y-1.5">
               {entry.verifiedByName && (
                 <div className="flex items-center gap-2">
-                  <Shield className="w-3.5 h-3.5 flex-shrink-0" style={{ color: entry.status === "VERIFIED" ? "#16A34A" : "#DC2626" }} />
-                  <p className="text-xs" style={{ color: entry.status === "VERIFIED" ? "#166534" : "#991B1B" }}>
+                  <Shield className="w-3.5 h-3.5 flex-shrink-0" style={{ color: entry.status === "VERIFIED" ? "hsl(var(--success))" : "hsl(var(--danger))" }} />
+                  <p className="text-xs" style={{ color: entry.status === "VERIFIED" ? "hsl(var(--success))" : "hsl(var(--danger))" }}>
                     <span className="font-semibold">{entry.verifiedByName}</span>
                     {entry.verifiedByTitle && <span className="ml-1 text-[var(--text-tertiary)]">({entry.verifiedByTitle})</span>}
                   </p>
@@ -298,7 +298,7 @@ export default function CoordinatorEntryReviewPage() {
                 </div>
               )}
               {entry.verificationSignature && (
-                <div className="mt-2 pt-2" style={{ borderTop: `1px solid ${entry.status === "VERIFIED" ? "#BBF7D0" : "#FCA5A5"}` }}>
+                <div className="mt-2 pt-2" style={{ borderTop: `1px solid ${entry.status === "VERIFIED" ? "hsl(var(--success) / 0.3)" : "hsl(var(--danger) / 0.3)"}` }}>
                   <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-tertiary)] mb-1.5">Signature</p>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={entry.verificationSignature} alt="Verification signature"
@@ -306,7 +306,7 @@ export default function CoordinatorEntryReviewPage() {
                 </div>
               )}
               {coordRemark && (
-                <div className="mt-2 pt-2" style={{ borderTop: `1px solid ${entry.status === "VERIFIED" ? "#BBF7D0" : "#FCA5A5"}` }}>
+                <div className="mt-2 pt-2" style={{ borderTop: `1px solid ${entry.status === "VERIFIED" ? "hsl(var(--success) / 0.3)" : "hsl(var(--danger) / 0.3)"}` }}>
                   <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-tertiary)] mb-1">Remark</p>
                   <p className="text-xs whitespace-pre-wrap" style={{ color: "var(--text-secondary)" }}>
                     &ldquo;{coordRemark.content}&rdquo;

@@ -40,21 +40,21 @@ interface Filters {
 function StatusBadge({ status }: { status: string }) {
   if (status === "VERIFIED") {
     return (
-      <span className="flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: "#DCFCE7", color: "#15803D" }}>
+      <span className="flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: "hsl(var(--success) / 0.15)", color: "hsl(var(--success))" }}>
         <CheckCircle className="w-2.5 h-2.5" /> Verified
       </span>
     );
   }
   if (status === "FLAGGED") {
     return (
-      <span className="flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: "#FEE2E2", color: "#B91C1C" }}>
+      <span className="flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: "hsl(var(--danger) / 0.1)", color: "hsl(var(--danger))" }}>
         <Flag className="w-2.5 h-2.5" /> Flagged
       </span>
     );
   }
   if (status === "SUBMITTED") {
     return (
-      <span className="flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: "#DBEAFE", color: "#1D4ED8" }}>
+      <span className="flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: "hsl(var(--info) / 0.15)", color: "hsl(var(--info))" }}>
         <Clock className="w-2.5 h-2.5" /> Submitted
       </span>
     );
@@ -145,7 +145,7 @@ export default function CoordinatorReportEntriesPage() {
         <button
           onClick={handleSearch}
           className="px-4 py-2.5 rounded-xl text-sm font-bold text-white transition-all active:scale-95"
-          style={{ background: "#7C3AED" }}
+          style={{ background: "hsl(var(--accent))" }}
         >
           Search
         </button>
@@ -153,9 +153,9 @@ export default function CoordinatorReportEntriesPage() {
           onClick={() => setShowFilters(!showFilters)}
           className="relative px-3 py-2.5 rounded-xl transition-all active:scale-95"
           style={{
-            background: showFilters || hasActiveFilters ? "#EDE9FE" : "var(--bg-elevated)",
+            background: showFilters || hasActiveFilters ? "hsl(var(--accent-soft))" : "var(--bg-elevated)",
             border: "1px solid var(--border-primary)",
-            color: hasActiveFilters ? "#5B21B6" : "var(--text-secondary)",
+            color: hasActiveFilters ? "hsl(var(--accent-text))" : "var(--text-secondary)",
           }}
         >
           <Filter className="w-4 h-4" />
