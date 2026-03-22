@@ -429,7 +429,7 @@ export default function CoordinatorDashboardPage() {
                 icon: BarChart3,
                 label: "Reports",
                 count: "Entries database",
-                gradient: "linear-gradient(135deg, rgba(217,119,6,0.08), rgba(217,119,6,0.16))",
+                gradient: "linear-gradient(135deg, hsl(var(--warning) / 0.08), hsl(var(--warning) / 0.16))",
                 iconColor: "hsl(var(--accent-strong))",
               },
               {
@@ -460,7 +460,7 @@ export default function CoordinatorDashboardPage() {
         {/* ── SEND ANNOUNCEMENT ── */}
         <Link href="/coordinator/announcements"
           className="animate-slide-up animation-delay-175 flex items-center justify-between p-4 group active:scale-[0.98] transition-all duration-200"
-          style={{ background: "linear-gradient(135deg, rgba(217,119,6,0.06), rgba(217,119,6,0.12))", border: "1px solid rgba(217,119,6,0.25)", borderRadius: "16px" }}>
+          style={{ background: "linear-gradient(135deg, hsl(var(--warning) / 0.06), hsl(var(--warning) / 0.12))", border: "1px solid hsl(var(--warning) / 0.25)", borderRadius: "16px" }}>
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-[hsl(var(--accent-soft))] flex items-center justify-center">
               <Megaphone className="w-5 h-5 text-[hsl(var(--accent-strong))]" />
@@ -514,7 +514,7 @@ export default function CoordinatorDashboardPage() {
               </h3>
               {pendingCount > 5 && (
                 <span className="text-xs font-bold px-2 py-0.5 rounded-full"
-                  style={{ background: "rgba(217,119,6,0.12)", color: "var(--text-secondary)" }}>
+                  style={{ background: "hsl(var(--warning) / 0.12)", color: "var(--text-secondary)" }}>
                   {pendingCount} total
                 </span>
               )}
