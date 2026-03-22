@@ -103,54 +103,54 @@ function formatDateISO(date: Date): string {
 
 function getStatusColor(status: string) {
   switch (status) {
-    case "VERIFIED": return "bg-emerald-500";
-    case "FLAGGED": return "bg-red-500";
+    case "VERIFIED": return "bg-[hsl(var(--success))]";
+    case "FLAGGED": return "bg-[hsl(var(--danger))]";
     case "DRAFT": return "bg-[var(--text-tertiary)]";
-    default: return "bg-blue-500";
+    default: return "bg-[hsl(var(--accent))]";
   }
 }
 
 function getStatusBg(status: string) {
   switch (status) {
-    case "VERIFIED": return "bg-emerald-50 border-emerald-200 text-emerald-700";
-    case "FLAGGED": return "bg-red-50 border-red-200 text-red-700";
+    case "VERIFIED": return "bg-[hsl(var(--success)/0.1)] border-[hsl(var(--success)/0.2)] text-[hsl(var(--success))]";
+    case "FLAGGED": return "bg-[hsl(var(--danger)/0.1)] border-[hsl(var(--danger)/0.2)] text-[hsl(var(--danger))]";
     case "DRAFT": return "bg-[var(--bg-tertiary)] border-[var(--border-primary)] text-[var(--text-secondary)]";
-    default: return "bg-blue-50 border-blue-200 text-blue-700";
+    default: return "bg-[hsl(var(--accent-soft))] border-[hsl(var(--accent)/0.2)] text-[hsl(var(--accent))]";
   }
 }
 
 function getSubjectColor(index: number): string {
   const colors = [
-    "from-blue-500 to-indigo-600",
-    "from-emerald-500 to-teal-600",
-    "from-violet-500 to-purple-600",
     "from-[hsl(var(--accent))] to-[hsl(var(--accent-strong))]",
-    "from-rose-500 to-pink-600",
-    "from-cyan-500 to-blue-600",
+    "from-[hsl(var(--success))] to-[hsl(var(--success))]",
+    "from-[hsl(var(--accent-strong))] to-[hsl(var(--accent-text))]",
+    "from-[hsl(var(--accent))] to-[hsl(var(--accent-strong))]",
+    "from-[hsl(var(--danger))] to-[hsl(var(--danger))]",
+    "from-[hsl(var(--accent))] to-[hsl(var(--accent))]",
   ];
   return colors[index % colors.length];
 }
 
 function getSubjectBgLight(index: number): string {
   const colors = [
-    "bg-blue-50 border-blue-200",
-    "bg-emerald-50 border-emerald-200",
-    "bg-violet-50 border-violet-200",
     "bg-[hsl(var(--accent-soft))] border-[hsl(var(--accent)/0.2)]",
-    "bg-rose-50 border-rose-200",
-    "bg-cyan-50 border-cyan-200",
+    "bg-[hsl(var(--success)/0.1)] border-[hsl(var(--success)/0.2)]",
+    "bg-[hsl(var(--accent-muted))] border-[hsl(var(--accent)/0.2)]",
+    "bg-[hsl(var(--accent-soft))] border-[hsl(var(--accent)/0.2)]",
+    "bg-[hsl(var(--danger)/0.1)] border-[hsl(var(--danger)/0.2)]",
+    "bg-[hsl(var(--accent-soft))] border-[hsl(var(--accent)/0.2)]",
   ];
   return colors[index % colors.length];
 }
 
 function getSubjectText(index: number): string {
   const colors = [
-    "text-blue-700",
-    "text-emerald-700",
-    "text-violet-700",
     "text-[hsl(var(--accent-text))]",
-    "text-rose-700",
-    "text-cyan-700",
+    "text-[hsl(var(--success))]",
+    "text-[hsl(var(--accent-strong))]",
+    "text-[hsl(var(--accent-text))]",
+    "text-[hsl(var(--danger))]",
+    "text-[hsl(var(--accent))]",
   ];
   return colors[index % colors.length];
 }
@@ -373,7 +373,7 @@ export default function EntryTimetablePage() {
   // ─── CLASS LIST VIEW ───
   if (!selectedClassId) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100/50 pb-24">
+      <div className="min-h-screen bg-gradient-to-b from-[var(--bg-secondary)] to-[var(--bg-tertiary)] pb-24">
         <div className="bg-gradient-to-br from-[var(--header-from)] via-[var(--header-via)] to-[var(--header-to)] px-5 pt-10 pb-8 rounded-b-[2rem] shadow-elevated relative overflow-hidden">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[hsl(var(--accent)/0.08)] via-transparent to-transparent" />
           <div className="absolute top-0 right-0 w-64 h-64 bg-[var(--accent)]/[0.07] rounded-full -translate-y-1/3 translate-x-1/4 blur-3xl" />
@@ -511,7 +511,7 @@ export default function EntryTimetablePage() {
 
   // ─── ENTRY TIMETABLE GRID VIEW ───
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100/50 pb-24">
+    <div className="min-h-screen bg-gradient-to-b from-[var(--bg-secondary)] to-[var(--bg-tertiary)] pb-24">
       {/* Header */}
       <div className="bg-gradient-to-br from-[var(--header-from)] via-[var(--header-via)] to-[var(--header-to)] px-5 pt-10 pb-8 rounded-b-[2rem] shadow-elevated relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[hsl(var(--accent)/0.08)] via-transparent to-transparent" />
@@ -558,7 +558,7 @@ export default function EntryTimetablePage() {
             <p className="text-[10px] text-[var(--text-tertiary)] font-semibold uppercase tracking-wider">Filled</p>
           </div>
           <div className="card p-3 text-center">
-            <p className="text-lg font-bold text-emerald-600">{weekStats.verifiedCount}</p>
+            <p className="text-lg font-bold text-[hsl(var(--success))]">{weekStats.verifiedCount}</p>
             <p className="text-[10px] text-[var(--text-tertiary)] font-semibold uppercase tracking-wider">Verified</p>
           </div>
         </div>
@@ -744,15 +744,15 @@ export default function EntryTimetablePage() {
             {/* Legend */}
             <div className="px-3 py-2.5 border-t border-[var(--border-secondary)] flex items-center gap-3 flex-wrap">
               <div className="flex items-center gap-1.5 text-[10px] text-[var(--text-tertiary)]">
-                <div className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
+                <div className="w-2.5 h-2.5 rounded-full bg-[hsl(var(--success))]" />
                 <span>Verified</span>
               </div>
               <div className="flex items-center gap-1.5 text-[10px] text-[var(--text-tertiary)]">
-                <div className="w-2.5 h-2.5 rounded-full bg-blue-500" />
+                <div className="w-2.5 h-2.5 rounded-full bg-[hsl(var(--accent))]" />
                 <span>Submitted</span>
               </div>
               <div className="flex items-center gap-1.5 text-[10px] text-[var(--text-tertiary)]">
-                <div className="w-2.5 h-2.5 rounded-full bg-red-500" />
+                <div className="w-2.5 h-2.5 rounded-full bg-[hsl(var(--danger))]" />
                 <span>Flagged</span>
               </div>
               <div className="flex items-center gap-1.5 text-[10px] text-[var(--text-tertiary)]">
@@ -831,8 +831,8 @@ export default function EntryTimetablePage() {
                     {/* Module */}
                     {selectedEntry.moduleName && (
                       <div className="flex items-start gap-3">
-                        <div className="w-7 h-7 bg-purple-50 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
-                          <GraduationCap className="w-3.5 h-3.5 text-purple-500" />
+                        <div className="w-7 h-7 bg-[hsl(var(--accent-soft))] rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+                          <GraduationCap className="w-3.5 h-3.5 text-[hsl(var(--accent))]" />
                         </div>
                         <div>
                           <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-tertiary)]">Module</p>
@@ -843,8 +843,8 @@ export default function EntryTimetablePage() {
 
                     {/* Duration */}
                     <div className="flex items-start gap-3">
-                      <div className="w-7 h-7 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <Clock className="w-3.5 h-3.5 text-blue-500" />
+                      <div className="w-7 h-7 bg-[hsl(var(--accent-soft))] rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <Clock className="w-3.5 h-3.5 text-[hsl(var(--accent))]" />
                       </div>
                       <div>
                         <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-tertiary)]">Duration</p>
@@ -855,8 +855,8 @@ export default function EntryTimetablePage() {
                     {/* Notes */}
                     {selectedEntry.notes && (
                       <div className="flex items-start gap-3">
-                        <div className="w-7 h-7 bg-emerald-50 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
-                          <FileText className="w-3.5 h-3.5 text-emerald-500" />
+                        <div className="w-7 h-7 bg-[hsl(var(--success)/0.1)] rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+                          <FileText className="w-3.5 h-3.5 text-[hsl(var(--success))]" />
                         </div>
                         <div>
                           <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-tertiary)]">Notes</p>
@@ -891,8 +891,8 @@ export default function EntryTimetablePage() {
                           <div className="bg-[var(--bg-tertiary)] rounded-xl p-3 border border-[var(--border-secondary)]">
                             <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-tertiary)]">Engagement</p>
                             <p className={`text-sm font-bold mt-0.5 ${
-                              selectedEntry.engagementLevel === "HIGH" ? "text-emerald-600" :
-                              selectedEntry.engagementLevel === "MEDIUM" ? "text-[hsl(var(--accent-strong))]" : "text-red-500"
+                              selectedEntry.engagementLevel === "HIGH" ? "text-[hsl(var(--success))]" :
+                              selectedEntry.engagementLevel === "MEDIUM" ? "text-[hsl(var(--accent-strong))]" : "text-[hsl(var(--danger))]"
                             }`}>
                               {selectedEntry.engagementLevel}
                             </p>
