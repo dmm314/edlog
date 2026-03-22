@@ -131,8 +131,8 @@ function getRoleBadgeLabel(role: string) {
 function getInitialsBg(role: string) {
   switch (role) {
     case "TEACHER": return "hsl(var(--accent))";
-    case "SCHOOL_ADMIN": return "#6366f1";
-    case "REGIONAL_ADMIN": return "#14b8a6";
+    case "SCHOOL_ADMIN": return "hsl(var(--accent))";
+    case "REGIONAL_ADMIN": return "hsl(var(--success))";
     default: return "hsl(var(--accent))";
   }
 }
@@ -608,7 +608,7 @@ export default function ProfilePage() {
 
             {/* Verification badge */}
             {profile?.isVerified ? (
-              <span className="flex items-center gap-1 text-[11px] font-semibold mt-1.5" style={{ color: "#10b981" }}>
+              <span className="flex items-center gap-1 text-[11px] font-semibold mt-1.5" style={{ color: "hsl(var(--success))" }}>
                 <CheckCircle className="w-3 h-3" /> Verified
               </span>
             ) : role === "TEACHER" ? (
@@ -628,8 +628,8 @@ export default function ProfilePage() {
           <div
             className="rounded-2xl p-3 animate-fade-slide-in"
             style={{
-              backgroundColor: activeMode === "coordinator" ? "rgba(109,40,217,0.06)" : "var(--bg-elevated)",
-              border: `1px solid ${activeMode === "coordinator" ? "rgba(124,58,237,0.22)" : "var(--border-primary)"}`,
+              backgroundColor: activeMode === "coordinator" ? "hsl(var(--accent) / 0.06)" : "var(--bg-elevated)",
+              border: `1px solid ${activeMode === "coordinator" ? "hsl(var(--accent) / 0.22)" : "var(--border-primary)"}`,
             }}
           >
             <p className="text-[10px] font-bold uppercase tracking-widest mb-2" style={{ color: "var(--text-tertiary)" }}>
@@ -646,11 +646,11 @@ export default function ProfilePage() {
                   className="flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all"
                   style={{
                     background: activeMode === mode
-                      ? mode === "coordinator" ? "#7C3AED" : "var(--accent)"
+                      ? mode === "coordinator" ? "hsl(var(--accent))" : "var(--accent)"
                       : "var(--bg-tertiary)",
                     color: activeMode === mode ? "white" : "var(--text-tertiary)",
                     boxShadow: activeMode === mode
-                      ? mode === "coordinator" ? "0 2px 8px rgba(124,58,237,0.35)" : "0 2px 8px hsl(var(--accent) / 0.35)"
+                      ? mode === "coordinator" ? "0 2px 8px hsl(var(--accent) / 0.35)" : "0 2px 8px hsl(var(--accent) / 0.35)"
                       : "none",
                   }}
                 >
@@ -831,8 +831,8 @@ export default function ProfilePage() {
                       }}
                       className="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl transition-all mt-0.5 flex-shrink-0"
                       style={{
-                        backgroundColor: copiedTC ? "rgba(16,185,129,0.12)" : "var(--bg-elevated)",
-                        color: copiedTC ? "#10b981" : "var(--text-secondary)",
+                        backgroundColor: copiedTC ? "hsl(var(--success) / 0.12)" : "var(--bg-elevated)",
+                        color: copiedTC ? "hsl(var(--success))" : "var(--text-secondary)",
                         border: "1px solid var(--border-primary)",
                       }}
                     >
@@ -960,7 +960,7 @@ export default function ProfilePage() {
                         <div className="flex items-center gap-3 min-w-0">
                           <div
                             className="w-2 h-2 rounded-full flex-shrink-0"
-                            style={{ backgroundColor: ts.status === "ACTIVE" ? "#10b981" : "var(--accent)" }}
+                            style={{ backgroundColor: ts.status === "ACTIVE" ? "hsl(var(--success))" : "var(--accent)" }}
                           />
                           <div className="min-w-0">
                             <p className="text-sm font-semibold truncate" style={{ color: "var(--text-primary)" }}>
@@ -976,7 +976,7 @@ export default function ProfilePage() {
                             <button
                               onClick={() => handleInvitation(ts.id, "accept")}
                               className="p-1.5 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1"
-                              style={{ background: "rgba(16,185,129,0.1)", color: "#10b981" }}
+                              style={{ background: "hsl(var(--success) / 0.1)", color: "hsl(var(--success))" }}
                               title="Accept"
                             >
                               <Check className="w-3.5 h-3.5" />
@@ -984,7 +984,7 @@ export default function ProfilePage() {
                             <button
                               onClick={() => handleInvitation(ts.id, "decline")}
                               className="p-1.5 rounded-lg transition-colors"
-                              style={{ background: "rgba(239,68,68,0.08)", color: "#ef4444" }}
+                              style={{ background: "hsl(var(--danger) / 0.08)", color: "hsl(var(--danger))" }}
                               title="Decline"
                             >
                               <X className="w-3.5 h-3.5" />
@@ -1103,7 +1103,7 @@ export default function ProfilePage() {
                         </div>
                         <div>
                           <p className="text-[11px] font-medium" style={{ color: "var(--text-tertiary)" }}>Status</p>
-                          <p className="text-sm font-semibold mt-0.5" style={{ color: profile.school.status === "ACTIVE" ? "#10b981" : "var(--accent-text)" }}>
+                          <p className="text-sm font-semibold mt-0.5" style={{ color: profile.school.status === "ACTIVE" ? "hsl(var(--success))" : "var(--accent-text)" }}>
                             {profile.school.status}
                           </p>
                         </div>
@@ -1382,9 +1382,9 @@ export default function ProfilePage() {
             onClick={() => signOut({ callbackUrl: "/login" })}
             className="w-full flex items-center justify-center gap-2 rounded-2xl px-4 py-3.5 text-sm font-semibold transition-colors"
             style={{
-              backgroundColor: "rgba(239,68,68,0.06)",
-              border: "1px solid rgba(239,68,68,0.15)",
-              color: "#ef4444",
+              backgroundColor: "hsl(var(--danger) / 0.06)",
+              border: "1px solid hsl(var(--danger) / 0.15)",
+              color: "hsl(var(--danger))",
             }}
           >
             <LogOut className="w-4 h-4" />

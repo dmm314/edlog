@@ -78,7 +78,7 @@ export default function LoginForm() {
       <div className="relative z-10 w-full max-w-[400px] animate-fade-in rounded-2xl border border-[hsl(var(--border-primary))] bg-[hsl(var(--surface-elevated))] p-6 shadow-elevated">
         {/* Logo */}
         <div className="mb-6 flex items-center justify-center gap-2.5">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#0866FF]">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[hsl(var(--accent))]">
             <BookOpen className="h-5 w-5 text-white" />
           </div>
           <span className="font-display text-2xl font-bold text-[hsl(var(--text-primary))]">
@@ -151,7 +151,7 @@ export default function LoginForm() {
           <button
             type="submit"
             disabled={loading || !email || !password}
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#0866FF] py-3.5 text-base font-semibold text-white shadow-[0_2px_8px_-2px_rgba(8,102,255,0.3)] transition-all duration-[80ms] hover:bg-[#0756d4] active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50"
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-[hsl(var(--accent))] py-3.5 text-base font-semibold text-white shadow-[0_2px_8px_-2px_rgba(8,102,255,0.3)] transition-all duration-[80ms] hover:bg-[hsl(var(--accent-strong))] active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50"
           >
             {loading ? (
               <>
@@ -172,7 +172,7 @@ export default function LoginForm() {
 
         <p className="mt-5 text-center text-sm text-[hsl(var(--text-tertiary))]">
           Don&apos;t have an account?{" "}
-          <Link href="/register" className="font-semibold text-[#0866FF]">Get Started</Link>
+          <Link href="/register" className="font-semibold text-[hsl(var(--accent))]">Get Started</Link>
         </p>
       </div>
 
@@ -188,7 +188,7 @@ export default function LoginForm() {
             className="group flex items-center gap-3.5 rounded-xl border border-[hsl(var(--border-primary))] bg-[hsl(var(--surface-elevated))] p-4 transition-all duration-[80ms] active:scale-[0.98]"
           >
             <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-[hsl(var(--accent-soft))]">
-              <GraduationCap className="h-5 w-5 text-[#0866FF]" />
+              <GraduationCap className="h-5 w-5 text-[hsl(var(--accent))]" />
             </div>
             <div className="min-w-0 flex-1">
               <h3 className="text-sm font-bold text-[hsl(var(--text-primary))]">Teacher Account</h3>

@@ -227,14 +227,14 @@ export function OnboardingTour({ steps, tourKey, onComplete }: OnboardingTourPro
                 fontWeight: 700,
                 color: "white",
                 background: isLastStep
-                  ? "linear-gradient(135deg, #16A34A, #15803D)"
-                  : "linear-gradient(135deg, var(--accent), var(--accent-hover))",
+                  ? "hsl(var(--success))"
+                  : "hsl(var(--accent))",
                 border: "none",
                 borderRadius: "12px",
                 padding: "10px 20px",
                 cursor: "pointer",
                 boxShadow: isLastStep
-                  ? "0 4px 12px -4px rgba(22,163,74,0.3)"
+                  ? "0 4px 12px -4px hsl(var(--success) / 0.3)"
                   : "0 4px 12px -4px hsl(var(--accent) / 0.3)",
               }}
             >

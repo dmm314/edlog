@@ -103,7 +103,7 @@ export default function RegisterPage() {
   function FieldError({ msg }: { msg?: string }) {
     if (!msg) return null;
     return (
-      <p className="text-xs mt-1 flex items-center gap-1" style={{ color: "#ef4444" }}>
+      <p className="text-xs mt-1 flex items-center gap-1" style={{ color: "hsl(var(--danger))" }}>
         <AlertCircle className="w-3 h-3" />{msg}
       </p>
     );
@@ -182,7 +182,7 @@ export default function RegisterPage() {
         {serverError && (
           <div
             className="text-sm rounded-xl px-4 py-3 mb-5 flex items-center gap-2"
-            style={{ background: "rgba(239,68,68,0.08)", color: "#ef4444" }}
+            style={{ background: "hsl(var(--danger) / 0.08)", color: "hsl(var(--danger))" }}
           >
             <AlertCircle className="w-4 h-4 flex-shrink-0" />
             {serverError}
@@ -313,9 +313,9 @@ export default function RegisterPage() {
             >
               <div
                 className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
-                style={{ background: "rgba(16,185,129,0.10)" }}
+                style={{ background: "hsl(var(--success) / 0.10)" }}
               >
-                <CheckCircle className="w-4.5 h-4.5" style={{ color: "#10b981" }} />
+                <CheckCircle className="w-4.5 h-4.5" style={{ color: "hsl(var(--success))" }} />
               </div>
               <div className="min-w-0">
                 <p className="text-sm font-semibold truncate" style={{ color: "var(--text-primary)" }}>{form.firstName} {form.lastName}</p>

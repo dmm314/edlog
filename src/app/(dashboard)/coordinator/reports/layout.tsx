@@ -19,7 +19,7 @@ export default function CoordinatorReportsLayout({ children }: { children: React
       {/* Header */}
       <div
         className="px-5 pt-10 pb-6 rounded-b-[2rem] relative overflow-hidden"
-        style={{ background: "linear-gradient(135deg, #4C1D95 0%, #6D28D9 50%, #7C3AED 100%)" }}
+        style={{ background: "linear-gradient(135deg, hsl(var(--accent-strong)), hsl(var(--accent)))" }}
       >
         <div
           className="absolute inset-0 pointer-events-none"

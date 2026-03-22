@@ -316,10 +316,10 @@ export default function CoordinatorDashboardPage() {
         {/* ── TODAY'S SCHEDULE ── always visible on weekdays when slots exist */}
         {todaySlots.length > 0 && (
           <div className="animate-slide-up animation-delay-100 rounded-2xl overflow-hidden border"
-            style={{ background: "var(--bg-elevated)", borderColor: liveCount > 0 ? "rgba(22,163,74,0.35)" : "var(--border-primary)" }}>
+            style={{ background: "var(--bg-elevated)", borderColor: liveCount > 0 ? "hsl(var(--success) / 0.35)" : "var(--border-primary)" }}>
             {/* Header */}
             <div className="px-4 pt-3.5 pb-2.5 flex items-center gap-2"
-              style={{ borderBottom: `1px solid ${liveCount > 0 ? "rgba(22,163,74,0.2)" : "var(--border-secondary)"}` }}>
+              style={{ borderBottom: `1px solid ${liveCount > 0 ? "hsl(var(--success) / 0.2)" : "var(--border-secondary)"}` }}>
               {liveCount > 0
                 ? <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse flex-shrink-0" />
                 : <Clock className="w-3.5 h-3.5 flex-shrink-0" style={{ color: "var(--text-tertiary)" }} />}
@@ -328,7 +328,7 @@ export default function CoordinatorDashboardPage() {
               </p>
               {liveCount > 0 && (
                 <span className="text-[10px] font-bold px-2 py-0.5 rounded-full"
-                  style={{ background: "rgba(22,163,74,0.15)", color: "#16A34A" }}>
+                  style={{ background: "hsl(var(--success) / 0.15)", color: "hsl(var(--success))" }}>
                   {liveCount} in session
                 </span>
               )}
@@ -351,7 +351,7 @@ export default function CoordinatorDashboardPage() {
                         className="w-8 h-8 rounded-xl object-cover flex-shrink-0" />
                     ) : (
                       <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 text-[10px] font-black text-white"
-                        style={{ background: isLive ? "#16A34A" : isDone ? "var(--bg-tertiary)" : "var(--accent)" }}>
+                        style={{ background: isLive ? "hsl(var(--success))" : isDone ? "var(--bg-tertiary)" : "var(--accent)" }}>
                         <span style={{ color: isDone ? "var(--text-tertiary)" : "white" }}>
                           {slot.teacher.split(" ").map((n) => n[0]).slice(0, 2).join("")}
                         </span>
@@ -370,7 +370,7 @@ export default function CoordinatorDashboardPage() {
                       </p>
                       <p className="text-xs mt-0.5" style={{ color: "var(--text-secondary)" }}>
                         {slot.periodLabel} · {fmtTime(slot.startTime)}–{fmtTime(slot.endTime)}
-                        {isLive && <span className="ml-1.5 font-semibold" style={{ color: "#16A34A" }}>· in session</span>}
+                        {isLive && <span className="ml-1.5 font-semibold" style={{ color: "hsl(var(--success))" }}>· in session</span>}
                         {!isLive && !isDone && <span className="ml-1.5" style={{ color: "var(--text-tertiary)" }}>· upcoming</span>}
                       </p>
                     </div>
@@ -381,14 +381,14 @@ export default function CoordinatorDashboardPage() {
                         {slot.teacherPhone && (
                           <a href={`tel:${slot.teacherPhone}`}
                             className="flex items-center gap-1 text-[11px] font-semibold px-2 py-1.5 rounded-lg"
-                            style={{ background: "rgba(22,163,74,0.15)", color: "var(--text-primary)" }}>
+                            style={{ background: "hsl(var(--success) / 0.15)", color: "var(--text-primary)" }}>
                             <Phone className="w-3 h-3" />
                             Call
                           </a>
                         )}
                         <a href={`mailto:${slot.teacherEmail}`}
                           className="flex items-center gap-1 text-[11px] font-semibold px-2 py-1.5 rounded-lg"
-                          style={{ background: "rgba(22,163,74,0.15)", color: "var(--text-primary)" }}>
+                          style={{ background: "hsl(var(--success) / 0.15)", color: "var(--text-primary)" }}>
                           <Mail className="w-3 h-3" />
                           Email
                         </a>
@@ -413,23 +413,23 @@ export default function CoordinatorDashboardPage() {
                 icon: CheckCircle2,
                 label: "Verify Entries",
                 count: `${pendingCount} pending`,
-                gradient: "linear-gradient(135deg, rgba(109,40,217,0.08), rgba(109,40,217,0.16))",
-                iconColor: "#7C3AED",
+                gradient: "linear-gradient(135deg, hsl(var(--accent) / 0.08), hsl(var(--accent) / 0.16))",
+                iconColor: "hsl(var(--accent))",
               },
               {
                 href: "/coordinator/timetable",
                 icon: Calendar,
                 label: "Timetable",
                 count: "View schedule",
-                gradient: "linear-gradient(135deg, rgba(22,163,74,0.08), rgba(22,163,74,0.15))",
-                iconColor: "#16A34A",
+                gradient: "linear-gradient(135deg, hsl(var(--success) / 0.08), hsl(var(--success) / 0.15))",
+                iconColor: "hsl(var(--success))",
               },
               {
                 href: "/coordinator/reports",
                 icon: BarChart3,
                 label: "Reports",
                 count: "Entries database",
-                gradient: "linear-gradient(135deg, rgba(217,119,6,0.08), rgba(217,119,6,0.16))",
+                gradient: "linear-gradient(135deg, hsl(var(--warning) / 0.08), hsl(var(--warning) / 0.16))",
                 iconColor: "hsl(var(--accent-strong))",
               },
               {
@@ -437,8 +437,8 @@ export default function CoordinatorDashboardPage() {
                 icon: Users,
                 label: "Teachers",
                 count: `${stats?.totalTeachers ?? teachers.length} at your level`,
-                gradient: "linear-gradient(135deg, rgba(225,29,72,0.06), rgba(225,29,72,0.13))",
-                iconColor: "#E11D48",
+                gradient: "linear-gradient(135deg, hsl(var(--danger) / 0.06), hsl(var(--danger) / 0.13))",
+                iconColor: "hsl(var(--danger))",
               },
             ].map((action) => {
               const Icon = action.icon;
@@ -460,7 +460,7 @@ export default function CoordinatorDashboardPage() {
         {/* ── SEND ANNOUNCEMENT ── */}
         <Link href="/coordinator/announcements"
           className="animate-slide-up animation-delay-175 flex items-center justify-between p-4 group active:scale-[0.98] transition-all duration-200"
-          style={{ background: "linear-gradient(135deg, rgba(217,119,6,0.06), rgba(217,119,6,0.12))", border: "1px solid rgba(217,119,6,0.25)", borderRadius: "16px" }}>
+          style={{ background: "linear-gradient(135deg, hsl(var(--warning) / 0.06), hsl(var(--warning) / 0.12))", border: "1px solid hsl(var(--warning) / 0.25)", borderRadius: "16px" }}>
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-[hsl(var(--accent-soft))] flex items-center justify-center">
               <Megaphone className="w-5 h-5 text-[hsl(var(--accent-strong))]" />
@@ -514,7 +514,7 @@ export default function CoordinatorDashboardPage() {
               </h3>
               {pendingCount > 5 && (
                 <span className="text-xs font-bold px-2 py-0.5 rounded-full"
-                  style={{ background: "rgba(217,119,6,0.12)", color: "var(--text-secondary)" }}>
+                  style={{ background: "hsl(var(--warning) / 0.12)", color: "var(--text-secondary)" }}>
                   {pendingCount} total
                 </span>
               )}
@@ -537,7 +537,7 @@ export default function CoordinatorDashboardPage() {
                         </p>
                         {isSeen && (
                           <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold px-1.5 py-0.5 rounded-full flex-shrink-0"
-                            style={{ background: "rgba(109,40,217,0.12)", color: "var(--accent)" }}>
+                            style={{ background: "hsl(var(--accent) / 0.12)", color: "var(--accent)" }}>
                             <Eye className="w-2.5 h-2.5" />
                             {seenByTitle}
                           </span>
@@ -549,7 +549,7 @@ export default function CoordinatorDashboardPage() {
                     </Link>
                     <button onClick={() => handleVerify(entry.id)} disabled={!!verifying}
                       className="flex items-center justify-center flex-shrink-0 ml-3 transition-all active:scale-90 disabled:opacity-50"
-                      style={{ width: "36px", height: "36px", borderRadius: "12px", background: "rgba(22,163,74,0.15)", color: "#16A34A" }}
+                      style={{ width: "36px", height: "36px", borderRadius: "12px", background: "hsl(var(--success) / 0.15)", color: "hsl(var(--success))" }}
                       aria-label="Quick verify">
                       {isVerifying
                         ? <Loader2 className="w-4 h-4 animate-spin" />

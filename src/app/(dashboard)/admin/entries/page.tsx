@@ -361,21 +361,21 @@ export default function AdminEntriesPage() {
 
         {/* Verification policy banner */}
         <div className="flex flex-wrap items-start gap-3 rounded-2xl px-4 py-3 text-sm" style={{
-          background: "rgba(79,70,229,0.06)",
-          border: "1px solid rgba(79,70,229,0.14)"
+          background: "hsl(var(--accent) / 0.06)",
+          border: "1px solid hsl(var(--accent) / 0.14)"
         }}>
           <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0 text-indigo-600" />
           <div className="min-w-0 flex-1">
-            <p style={{ color: "#3730A3" }}>
+            <p style={{ color: "hsl(var(--accent-text))" }}>
               Entry verification is managed by Level Coordinators (VPs). Contact the VP for this level if there&apos;s an issue.
             </p>
             {hasVPs === false ? (
-              <p className="mt-1" style={{ color: "#5B21B6" }}>
+              <p className="mt-1" style={{ color: "hsl(var(--accent-text))" }}>
                 No active VP is assigned yet for this school. Set up coordinators so entries can move through review properly.
               </p>
             ) : null}
           </div>
-          <Link href="/admin/coordinators" className="text-sm font-semibold underline" style={{ color: "#4338CA" }}>
+          <Link href="/admin/coordinators" className="text-sm font-semibold underline" style={{ color: "hsl(var(--accent-text))" }}>
             Manage VPs
           </Link>
         </div>

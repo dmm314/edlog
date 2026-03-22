@@ -110,7 +110,7 @@ function SideNav({ role, userName, isCoordinator, activeMode, switchMode }: Side
       <div className="flex h-full flex-col px-4 py-5">
         {/* Brand */}
         <div className="mb-5 flex items-center gap-2.5 px-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#0866FF] text-sm font-extrabold text-white">
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent text-sm font-extrabold text-white">
             E
           </div>
           <span className="font-display text-lg font-bold text-[hsl(var(--text-primary))]">Edlog</span>
@@ -141,7 +141,7 @@ function SideNav({ role, userName, isCoordinator, activeMode, switchMode }: Side
                 className={cn(
                   "rounded-lg px-3 py-2.5 text-sm font-semibold transition-colors",
                   activeMode === "teacher"
-                    ? "bg-[#0866FF] text-white"
+                    ? "bg-accent text-white"
                     : "text-[hsl(var(--text-secondary))] hover:bg-[hsl(var(--surface-tertiary))]",
                 )}
               >
@@ -152,7 +152,7 @@ function SideNav({ role, userName, isCoordinator, activeMode, switchMode }: Side
                 className={cn(
                   "rounded-lg px-3 py-2.5 text-sm font-semibold transition-colors",
                   activeMode === "coordinator"
-                    ? "bg-[hsl(270,60%,45%)] text-white"
+                    ? "bg-accent text-white"
                     : "text-[hsl(var(--text-secondary))] hover:bg-[hsl(var(--surface-tertiary))]",
                 )}
               >
@@ -183,7 +183,7 @@ function SideNav({ role, userName, isCoordinator, activeMode, switchMode }: Side
                 <Icon className="h-[18px] w-[18px]" />
                 <span className="flex-1">{tab.label}</span>
                 {tab.highlight ? (
-                  <span className="rounded-full bg-[#0866FF] px-2 py-0.5 text-[10px] font-bold text-white">
+                  <span className="rounded-full bg-accent px-2 py-0.5 text-[10px] font-bold text-white">
                     New
                   </span>
                 ) : null}

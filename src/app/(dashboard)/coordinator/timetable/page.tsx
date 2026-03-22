@@ -68,12 +68,12 @@ function isCurrentlyActive(slot: SlotInfo): boolean {
 
 // Colour palette for classes (cycles by index) — rgba-based for dark mode compatibility
 const CLASS_COLORS = [
-  { bg: "rgba(109,40,217,0.10)", border: "rgba(109,40,217,0.28)", badge: "#7C3AED" },
-  { bg: "rgba(37,99,235,0.10)", border: "rgba(37,99,235,0.28)", badge: "#2563EB" },
-  { bg: "rgba(5,150,105,0.10)", border: "rgba(5,150,105,0.28)", badge: "#059669" },
+  { bg: "hsl(var(--accent) / 0.10)", border: "hsl(var(--accent) / 0.28)", badge: "hsl(var(--accent))" },
+  { bg: "hsl(var(--accent) / 0.10)", border: "hsl(var(--accent) / 0.28)", badge: "hsl(var(--accent))" },
+  { bg: "hsl(var(--success) / 0.10)", border: "hsl(var(--success) / 0.28)", badge: "hsl(var(--success))" },
   { bg: "hsl(var(--accent-strong) / 0.10)", border: "hsl(var(--accent-strong) / 0.28)", badge: "hsl(var(--accent-strong))" },
-  { bg: "rgba(225,29,72,0.08)", border: "rgba(225,29,72,0.22)", badge: "#E11D48" },
-  { bg: "rgba(22,163,74,0.08)", border: "rgba(22,163,74,0.25)", badge: "#16A34A" },
+  { bg: "hsl(var(--danger) / 0.08)", border: "hsl(var(--danger) / 0.22)", badge: "hsl(var(--danger))" },
+  { bg: "hsl(var(--success) / 0.08)", border: "hsl(var(--success) / 0.25)", badge: "hsl(var(--success))" },
 ];
 
 export default function CoordinatorTimetablePage() {
@@ -174,7 +174,7 @@ export default function CoordinatorTimetablePage() {
     return (
       <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-primary)" }}>
         <div className="px-5 pt-10 pb-6 rounded-b-[2rem]"
-          style={{ background: "linear-gradient(135deg, #4C1D95 0%, #6D28D9 50%, #7C3AED 100%)" }}>
+          style={{ background: "linear-gradient(135deg, hsl(var(--accent-strong)), hsl(var(--accent)))" }}>
           <div className="max-w-lg mx-auto">
             <div className="skeleton h-4 w-24 !bg-white/10 mb-4" />
             <div className="skeleton h-7 w-32 !bg-white/15" />
@@ -201,7 +201,7 @@ export default function CoordinatorTimetablePage() {
       <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-primary)" }}>
         {/* Header */}
         <div className="px-5 pt-10 pb-6 rounded-b-[2rem] relative overflow-hidden"
-          style={{ background: "linear-gradient(135deg, #4C1D95 0%, #6D28D9 50%, #7C3AED 100%)" }}>
+          style={{ background: "linear-gradient(135deg, hsl(var(--accent-strong)), hsl(var(--accent)))" }}>
           <div className="absolute inset-0 pointer-events-none"
             style={{ opacity: 0.04, backgroundImage: "radial-gradient(circle at 2px 2px, white 1px, transparent 0)", backgroundSize: "20px 20px" }} />
           <div className="max-w-lg mx-auto relative">
@@ -277,7 +277,7 @@ export default function CoordinatorTimetablePage() {
                                 <p className="text-sm font-bold" style={{ color: "var(--text-primary)" }}>{cls.name}</p>
                                 {hasLiveSlot && (
                                   <span className="flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded-full"
-                                    style={{ background: "rgba(22,163,74,0.15)", color: "#16A34A" }}>
+                                    style={{ background: "hsl(var(--success) / 0.15)", color: "hsl(var(--success))" }}>
                                     <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse inline-block" />
                                     LIVE
                                   </span>
@@ -309,7 +309,7 @@ export default function CoordinatorTimetablePage() {
     <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-primary)" }}>
       {/* Header */}
       <div className="px-5 pt-10 pb-6 rounded-b-[2rem] relative overflow-hidden"
-        style={{ background: "linear-gradient(135deg, #4C1D95 0%, #6D28D9 50%, #7C3AED 100%)" }}>
+        style={{ background: "linear-gradient(135deg, hsl(var(--accent-strong)), hsl(var(--accent)))" }}>
         <div className="absolute inset-0 pointer-events-none"
           style={{ opacity: 0.04, backgroundImage: "radial-gradient(circle at 2px 2px, white 1px, transparent 0)", backgroundSize: "20px 20px" }} />
         <div className="max-w-lg mx-auto relative">
@@ -341,7 +341,7 @@ export default function CoordinatorTimetablePage() {
                   className="flex-shrink-0 px-3.5 py-2 rounded-xl text-xs font-bold transition-all"
                   style={{
                     background: isActive ? "white" : "rgba(255,255,255,0.12)",
-                    color: isActive ? "#4C1D95" : "rgba(255,255,255,0.7)",
+                    color: isActive ? "hsl(var(--accent-strong))" : "rgba(255,255,255,0.7)",
                   }}>
                   <span>{day.short}</span>
                   {isToday && !isActive && (
@@ -349,7 +349,7 @@ export default function CoordinatorTimetablePage() {
                   )}
                   {count > 0 && (
                     <span className="ml-1.5 text-[9px]"
-                      style={{ color: isActive ? "#6D28D9" : "rgba(255,255,255,0.45)" }}>
+                      style={{ color: isActive ? "hsl(var(--accent-strong))" : "rgba(255,255,255,0.45)" }}>
                       {count}
                     </span>
                   )}
@@ -379,9 +379,9 @@ export default function CoordinatorTimetablePage() {
                 <div key={slot.id}
                   className="rounded-2xl border overflow-hidden transition-all"
                   style={{
-                    background: active ? "rgba(22,163,74,0.08)" : "var(--bg-elevated)",
-                    borderColor: active ? "rgba(22,163,74,0.3)" : "var(--border-primary)",
-                    boxShadow: active ? "0 0 0 2px rgba(22,163,74,0.2)" : undefined,
+                    background: active ? "hsl(var(--success) / 0.08)" : "var(--bg-elevated)",
+                    borderColor: active ? "hsl(var(--success) / 0.3)" : "var(--border-primary)",
+                    boxShadow: active ? "0 0 0 2px hsl(var(--success) / 0.2)" : undefined,
                   }}>
                   <div className="px-4 py-3.5 flex items-start gap-3">
                     {/* Time column */}
@@ -422,7 +422,7 @@ export default function CoordinatorTimetablePage() {
                               style={{ border: "1px solid var(--border-secondary)" }} />
                           ) : (
                             <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 text-[10px] font-black text-white"
-                              style={{ background: active ? "#16A34A" : "linear-gradient(135deg, var(--accent), var(--accent))" }}>
+                              style={{ background: active ? "hsl(var(--success))" : "linear-gradient(135deg, var(--accent), var(--accent))" }}>
                               {slot.teacher.split(" ").map((n) => n[0]).slice(0, 2).join("")}
                             </div>
                           )}
@@ -440,7 +440,7 @@ export default function CoordinatorTimetablePage() {
                         {slot.teacherPhone && (
                           <a href={`tel:${slot.teacherPhone}`}
                             className="flex-shrink-0 text-[11px] font-semibold px-2.5 py-1.5 rounded-lg transition-colors"
-                            style={{ background: active ? "rgba(22,163,74,0.15)" : "var(--bg-secondary)", color: "var(--text-primary)" }}>
+                            style={{ background: active ? "hsl(var(--success) / 0.15)" : "var(--bg-secondary)", color: "var(--text-primary)" }}>
                             Call
                           </a>
                         )}

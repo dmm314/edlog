@@ -26,12 +26,12 @@ interface CoverageRow {
 
 function CoverageCell({ row }: { row: CoverageRow }) {
   const { schoolsCovering, totalSchools, coverageRate } = row;
-  let barColor = "#DC2626"; // red
-  if (coverageRate >= 80) barColor = "#16A34A"; // green
+  let barColor = "hsl(var(--danger))"; // red
+  if (coverageRate >= 80) barColor = "hsl(var(--success))"; // green
   else if (coverageRate >= 50) barColor = "hsl(var(--accent))"; // amber
 
-  let textColor = "#DC2626";
-  if (coverageRate >= 80) textColor = "#16A34A";
+  let textColor = "hsl(var(--danger))";
+  if (coverageRate >= 80) textColor = "hsl(var(--success))";
   else if (coverageRate >= 50) textColor = "hsl(var(--accent-text))";
 
   return (

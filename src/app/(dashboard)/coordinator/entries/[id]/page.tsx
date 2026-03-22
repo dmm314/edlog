@@ -177,7 +177,7 @@ export default function CoordinatorEntryReviewPage() {
     return (
       <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
         <div className="px-5 pt-10 pb-8 rounded-b-[2rem]"
-          style={{ background: "linear-gradient(135deg, #4C1D95 0%, #6D28D9 50%, #7C3AED 100%)" }}>
+          style={{ background: "linear-gradient(135deg, hsl(var(--accent-strong)), hsl(var(--accent)))" }}>
           <div className="max-w-lg mx-auto">
             <div className="h-4 w-24 bg-white/15 rounded mb-4 animate-pulse" />
             <div className="h-6 w-48 bg-white/15 rounded mb-2 animate-pulse" />
@@ -202,7 +202,7 @@ export default function CoordinatorEntryReviewPage() {
         <div className="text-center">
           <BookOpen className="w-12 h-12 text-[var(--text-quaternary)] mx-auto mb-3" />
           <p className="text-[var(--text-secondary)] font-semibold">{error || "Entry not found"}</p>
-          <Link href="/coordinator" className="text-sm font-semibold mt-3 inline-block" style={{ color: "#7C3AED" }}>
+          <Link href="/coordinator" className="text-sm font-semibold mt-3 inline-block" style={{ color: "hsl(var(--accent))" }}>
             Back to Coordinator
           </Link>
         </div>
@@ -224,7 +224,7 @@ export default function CoordinatorEntryReviewPage() {
     <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
       {/* Header */}
       <div className="px-5 pt-10 pb-8 rounded-b-[2rem] shadow-elevated relative overflow-hidden"
-        style={{ background: "linear-gradient(135deg, #4C1D95 0%, #6D28D9 50%, #7C3AED 100%)" }}>
+        style={{ background: "linear-gradient(135deg, hsl(var(--accent-strong)), hsl(var(--accent)))" }}>
         <div className="absolute inset-0 pointer-events-none" style={{ opacity: 0.04, backgroundImage: "radial-gradient(circle at 2px 2px, white 1px, transparent 0)", backgroundSize: "20px 20px" }} />
         <div className="max-w-lg mx-auto relative">
           <Link href="/coordinator"
@@ -267,16 +267,16 @@ export default function CoordinatorEntryReviewPage() {
         {alreadyReviewed && (
           <div className="rounded-2xl border overflow-hidden"
             style={{
-              background: entry.status === "VERIFIED" ? "#F0FDF4" : "#FFF1F2",
-              borderColor: entry.status === "VERIFIED" ? "#86EFAC" : "#FCA5A5",
+              background: entry.status === "VERIFIED" ? "hsl(var(--success) / 0.06)" : "hsl(var(--danger) / 0.06)",
+              borderColor: entry.status === "VERIFIED" ? "hsl(var(--success) / 0.4)" : "hsl(var(--danger) / 0.3)",
             }}>
             {/* Header row */}
             <div className="px-4 py-3 flex items-center gap-2"
-              style={{ borderBottom: `1px solid ${entry.status === "VERIFIED" ? "#BBF7D0" : "#FCA5A5"}` }}>
+              style={{ borderBottom: `1px solid ${entry.status === "VERIFIED" ? "hsl(var(--success) / 0.3)" : "hsl(var(--danger) / 0.3)"}` }}>
               {entry.status === "VERIFIED"
                 ? <CheckCircle className="w-5 h-5 text-emerald-600 flex-shrink-0" />
                 : <Flag className="w-5 h-5 text-red-500 flex-shrink-0" />}
-              <p className="text-sm font-bold" style={{ color: entry.status === "VERIFIED" ? "#14532D" : "#7F1D1D" }}>
+              <p className="text-sm font-bold" style={{ color: entry.status === "VERIFIED" ? "hsl(var(--success))" : "hsl(var(--danger))" }}>
                 {entry.status === "VERIFIED" ? "Entry Verified" : "Entry Flagged"}
               </p>
             </div>
@@ -284,8 +284,8 @@ export default function CoordinatorEntryReviewPage() {
             <div className="px-4 py-3 space-y-1.5">
               {entry.verifiedByName && (
                 <div className="flex items-center gap-2">
-                  <Shield className="w-3.5 h-3.5 flex-shrink-0" style={{ color: entry.status === "VERIFIED" ? "#16A34A" : "#DC2626" }} />
-                  <p className="text-xs" style={{ color: entry.status === "VERIFIED" ? "#166534" : "#991B1B" }}>
+                  <Shield className="w-3.5 h-3.5 flex-shrink-0" style={{ color: entry.status === "VERIFIED" ? "hsl(var(--success))" : "hsl(var(--danger))" }} />
+                  <p className="text-xs" style={{ color: entry.status === "VERIFIED" ? "hsl(var(--success))" : "hsl(var(--danger))" }}>
                     <span className="font-semibold">{entry.verifiedByName}</span>
                     {entry.verifiedByTitle && <span className="ml-1 text-[var(--text-tertiary)]">({entry.verifiedByTitle})</span>}
                   </p>
@@ -298,7 +298,7 @@ export default function CoordinatorEntryReviewPage() {
                 </div>
               )}
               {entry.verificationSignature && (
-                <div className="mt-2 pt-2" style={{ borderTop: `1px solid ${entry.status === "VERIFIED" ? "#BBF7D0" : "#FCA5A5"}` }}>
+                <div className="mt-2 pt-2" style={{ borderTop: `1px solid ${entry.status === "VERIFIED" ? "hsl(var(--success) / 0.3)" : "hsl(var(--danger) / 0.3)"}` }}>
                   <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-tertiary)] mb-1.5">Signature</p>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={entry.verificationSignature} alt="Verification signature"
@@ -306,7 +306,7 @@ export default function CoordinatorEntryReviewPage() {
                 </div>
               )}
               {coordRemark && (
-                <div className="mt-2 pt-2" style={{ borderTop: `1px solid ${entry.status === "VERIFIED" ? "#BBF7D0" : "#FCA5A5"}` }}>
+                <div className="mt-2 pt-2" style={{ borderTop: `1px solid ${entry.status === "VERIFIED" ? "hsl(var(--success) / 0.3)" : "hsl(var(--danger) / 0.3)"}` }}>
                   <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-tertiary)] mb-1">Remark</p>
                   <p className="text-xs whitespace-pre-wrap" style={{ color: "var(--text-secondary)" }}>
                     &ldquo;{coordRemark.content}&rdquo;
@@ -407,7 +407,7 @@ export default function CoordinatorEntryReviewPage() {
         {/* Success state after verification */}
         {done && doneStatus && (
           <div className="card p-5 text-center animate-scale-in"
-            style={{ borderLeft: `4px solid ${doneStatus === "VERIFIED" ? "#16A34A" : "#DC2626"}` }}>
+            style={{ borderLeft: `4px solid ${doneStatus === "VERIFIED" ? "hsl(var(--success))" : "hsl(var(--danger))"}` }}>
             {doneStatus === "VERIFIED"
               ? <CheckCircle className="w-10 h-10 text-emerald-500 mx-auto mb-2" />
               : <Flag className="w-10 h-10 text-red-500 mx-auto mb-2" />}
@@ -421,7 +421,7 @@ export default function CoordinatorEntryReviewPage() {
             </p>
             <button onClick={() => router.push("/coordinator")}
               className="mt-4 px-5 py-2 rounded-xl text-sm font-bold text-white"
-              style={{ background: "#7C3AED" }}>
+              style={{ background: "hsl(var(--accent))" }}>
               Back to Dashboard
             </button>
           </div>
@@ -429,11 +429,11 @@ export default function CoordinatorEntryReviewPage() {
 
         {/* Verification Form — only show if entry is pending and not done */}
         {!done && !alreadyReviewed && coordinator && (
-          <div className="card overflow-hidden" style={{ borderTop: "3px solid #7C3AED" }}>
+          <div className="card overflow-hidden" style={{ borderTop: "3px solid hsl(var(--accent))" }}>
             <div className="px-4 py-3 flex items-center gap-2"
-              style={{ background: "linear-gradient(135deg, #EDE9FE, #DDD6FE)" }}>
-              <Eye className="w-4 h-4" style={{ color: "#5B21B6" }} />
-              <h3 className="text-sm font-bold" style={{ color: "#3B0764" }}>Review this entry</h3>
+              style={{ background: "linear-gradient(135deg, hsl(var(--accent-soft)), hsl(var(--accent-soft)))" }}>
+              <Eye className="w-4 h-4" style={{ color: "hsl(var(--accent-text))" }} />
+              <h3 className="text-sm font-bold" style={{ color: "hsl(var(--accent-text))" }}>Review this entry</h3>
             </div>
 
             <div className="p-4 space-y-4">
@@ -483,13 +483,13 @@ export default function CoordinatorEntryReviewPage() {
               <div className="flex gap-3 pt-1">
                 <button type="button" onClick={() => handleSubmit("FLAGGED")} disabled={!!submitting}
                   className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold border-2 transition-all active:scale-95 disabled:opacity-50"
-                  style={{ borderColor: "#DC2626", color: "#DC2626", background: "transparent" }}>
+                  style={{ borderColor: "hsl(var(--danger))", color: "hsl(var(--danger))", background: "transparent" }}>
                   {submitting === "FLAGGED" ? <Loader2 className="w-4 h-4 animate-spin" /> : <Flag className="w-4 h-4" />}
                   Flag Entry
                 </button>
                 <button type="button" onClick={() => handleSubmit("VERIFIED")} disabled={!!submitting}
                   className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold text-white transition-all active:scale-95 disabled:opacity-50"
-                  style={{ background: submitting ? "#16A34A99" : "#16A34A" }}>
+                  style={{ background: submitting ? "hsl(var(--success) / 0.6)" : "hsl(var(--success))" }}>
                   {submitting === "VERIFIED" ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
                   Verify Entry
                 </button>
@@ -502,7 +502,7 @@ export default function CoordinatorEntryReviewPage() {
         {!alreadyReviewed && !done && (
           <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl"
             style={{ background: "var(--bg-elevated)", border: "1px solid var(--border-secondary)" }}>
-            <Eye className="w-3.5 h-3.5 flex-shrink-0" style={{ color: "#7C3AED" }} />
+            <Eye className="w-3.5 h-3.5 flex-shrink-0" style={{ color: "hsl(var(--accent))" }} />
             <p className="text-xs text-[var(--text-tertiary)]">
               This entry has been marked as <span className="font-semibold text-[var(--text-secondary)]">seen by you</span>.
             </p>
@@ -528,8 +528,8 @@ export default function CoordinatorEntryReviewPage() {
                     </span>
                     <span className="text-[10px] font-bold px-1.5 py-0.5 rounded"
                       style={{
-                        background: r.remarkType === "coordinator_review" ? "#EDE9FE" : "var(--bg-tertiary)",
-                        color: r.remarkType === "coordinator_review" ? "#5B21B6" : "var(--text-tertiary)",
+                        background: r.remarkType === "coordinator_review" ? "hsl(var(--accent-soft))" : "var(--bg-tertiary)",
+                        color: r.remarkType === "coordinator_review" ? "hsl(var(--accent-text))" : "var(--text-tertiary)",
                       }}>
                       {r.remarkType === "coordinator_review" ? "VP Review" : r.remarkType.replace(/_/g, " ")}
                     </span>

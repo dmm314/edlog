@@ -6,7 +6,7 @@ export default function LoginPage() {
     <Suspense
       fallback={
         <div className="flex min-h-screen items-center justify-center bg-[hsl(var(--surface-canvas))]">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#0866FF] border-t-transparent" />
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-[hsl(var(--accent))] border-t-transparent" />
         </div>
       }
     >

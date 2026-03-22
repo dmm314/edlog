@@ -67,8 +67,8 @@ function SenderBadge({ senderRole }: { senderRole: string | null }) {
       <span
         className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold"
         style={{
-          background: "rgba(59,130,246,0.12)",
-          color: "#3B82F6",
+          background: "hsl(var(--info) / 0.12)",
+          color: "hsl(var(--info))",
         }}
       >
         <Globe className="w-3 h-3" />
@@ -308,7 +308,7 @@ export default function MessagesPage() {
                                 background:
                                   activeTab === "school"
                                     ? "var(--accent)"
-                                    : "#3B82F6",
+                                    : "hsl(var(--info))",
                               }}
                             />
                           )}

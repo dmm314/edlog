@@ -25,12 +25,12 @@ interface SchoolCoverageRow {
 
 function CoverageCell({ row }: { row: SchoolCoverageRow }) {
   const { topicsCovered, totalTopics, coverageRate } = row;
-  let barColor = "#DC2626";
-  if (coverageRate >= 80) barColor = "#16A34A";
+  let barColor = "hsl(var(--danger))";
+  if (coverageRate >= 80) barColor = "hsl(var(--success))";
   else if (coverageRate >= 50) barColor = "hsl(var(--accent))";
 
-  let textColor = "#DC2626";
-  if (coverageRate >= 80) textColor = "#16A34A";
+  let textColor = "hsl(var(--danger))";
+  if (coverageRate >= 80) textColor = "hsl(var(--success))";
   else if (coverageRate >= 50) textColor = "hsl(var(--accent-text))";
 
   return (
@@ -77,8 +77,8 @@ function MissingTopicsCell({ row }: { row: SchoolCoverageRow }) {
   if (gaps.length === 0) {
     return (
       <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
-        <Check size={16} style={{ color: "#16A34A" }} />
-        <span style={{ fontFamily: "var(--font-body)", fontSize: 12, fontWeight: 600, color: "#16A34A" }}>
+        <Check size={16} style={{ color: "hsl(var(--success))" }} />
+        <span style={{ fontFamily: "var(--font-body)", fontSize: 12, fontWeight: 600, color: "hsl(var(--success))" }}>
           Complete
         </span>
       </span>

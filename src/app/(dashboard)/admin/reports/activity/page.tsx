@@ -51,7 +51,7 @@ const columns: ColumnDef<ActivityRow>[] = [
     hideOnMobile: true,
     render: (value) => {
       const score = Number(value);
-      const color = score >= 80 ? "#10B981" : score >= 60 ? "hsl(var(--accent))" : "#EF4444";
+      const color = score >= 80 ? "hsl(var(--success))" : score >= 60 ? "hsl(var(--accent))" : "hsl(var(--danger))";
       return <span style={{ fontFamily: "var(--font-mono)", fontWeight: 700, color }}>{score}%</span>;
     },
   },
