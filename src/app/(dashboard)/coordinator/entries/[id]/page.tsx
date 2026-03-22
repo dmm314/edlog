@@ -421,7 +421,7 @@ export default function CoordinatorEntryReviewPage() {
             </p>
             <button onClick={() => router.push("/coordinator")}
               className="mt-4 px-5 py-2 rounded-xl text-sm font-bold text-white"
-              style={{ background: "#7C3AED" }}>
+              style={{ background: "hsl(var(--accent))" }}>
               Back to Dashboard
             </button>
           </div>
@@ -429,11 +429,11 @@ export default function CoordinatorEntryReviewPage() {
 
         {/* Verification Form — only show if entry is pending and not done */}
         {!done && !alreadyReviewed && coordinator && (
-          <div className="card overflow-hidden" style={{ borderTop: "3px solid #7C3AED" }}>
+          <div className="card overflow-hidden" style={{ borderTop: "3px solid hsl(var(--accent))" }}>
             <div className="px-4 py-3 flex items-center gap-2"
-              style={{ background: "linear-gradient(135deg, #EDE9FE, #DDD6FE)" }}>
-              <Eye className="w-4 h-4" style={{ color: "#5B21B6" }} />
-              <h3 className="text-sm font-bold" style={{ color: "#3B0764" }}>Review this entry</h3>
+              style={{ background: "linear-gradient(135deg, hsl(var(--accent-soft)), hsl(var(--accent-soft)))" }}>
+              <Eye className="w-4 h-4" style={{ color: "hsl(var(--accent-text))" }} />
+              <h3 className="text-sm font-bold" style={{ color: "hsl(var(--accent-text))" }}>Review this entry</h3>
             </div>
 
             <div className="p-4 space-y-4">
