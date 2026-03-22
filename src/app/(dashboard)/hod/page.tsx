@@ -246,7 +246,7 @@ export default function HODDashboard() {
         <div className="max-w-lg mx-auto relative">
           <Link
             href="/logbook"
-            className="inline-flex items-center gap-1.5 text-white/60 hover:text-white text-sm mb-4 transition-colors"
+            className="inline-flex items-center gap-1.5 text-white/70 hover:text-white text-sm mb-4 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to Logbook
@@ -268,7 +268,7 @@ export default function HODDashboard() {
               >
                 {s.name}
                 {s.divisions && s.divisions.length > 0 && (
-                  <span className="text-white/60 ml-1">
+                  <span className="text-white/70 ml-1">
                     ({s.divisions.length} div.)
                   </span>
                 )}

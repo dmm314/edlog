@@ -250,25 +250,25 @@ export default function CoordinatorEntriesPage() {
         style={{ background: "linear-gradient(135deg, hsl(var(--accent-strong)), hsl(var(--accent)))" }}>
         <div className="absolute inset-0 pointer-events-none" style={{ opacity: 0.04, backgroundImage: "radial-gradient(circle at 2px 2px, white 1px, transparent 0)", backgroundSize: "20px 20px" }} />
         <div className="max-w-lg mx-auto relative">
-          <Link href="/coordinator" className="inline-flex items-center gap-1.5 text-white/60 hover:text-white text-sm mb-4 transition-colors">
+          <Link href="/coordinator" className="inline-flex items-center gap-1.5 text-white/70 hover:text-white text-sm mb-4 transition-colors">
             <ArrowLeft className="w-4 h-4" />
             Dashboard
           </Link>
           <h1 className="text-xl font-bold text-white">Entry Database</h1>
-          <p className="text-white/60 text-sm mt-0.5">Browse, filter and verify entries</p>
+          <p className="text-white/70 text-sm mt-0.5">Browse, filter and verify entries</p>
           {viewMode === "list" && total > 0 && (
-            <p className="text-white/40 text-xs mt-1">{total} entries found</p>
+            <p className="text-white/70 text-xs mt-1">{total} entries found</p>
           )}
           {/* View mode toggle */}
           <div className="flex mt-3 gap-1 rounded-xl p-1" style={{ background: "rgba(255,255,255,0.1)", width: "fit-content" }}>
             <button onClick={() => setViewMode("list")}
               className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all"
-              style={{ background: viewMode === "list" ? "rgba(255,255,255,0.2)" : "transparent", color: viewMode === "list" ? "white" : "rgba(255,255,255,0.5)" }}>
+              style={{ background: viewMode === "list" ? "rgba(255,255,255,0.25)" : "transparent", color: viewMode === "list" ? "white" : "rgba(255,255,255,0.7)" }}>
               <AlignJustify className="w-3.5 h-3.5" /> List
             </button>
             <button onClick={() => setViewMode("timetable")}
               className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all"
-              style={{ background: viewMode === "timetable" ? "rgba(255,255,255,0.2)" : "transparent", color: viewMode === "timetable" ? "white" : "rgba(255,255,255,0.5)" }}>
+              style={{ background: viewMode === "timetable" ? "rgba(255,255,255,0.25)" : "transparent", color: viewMode === "timetable" ? "white" : "rgba(255,255,255,0.7)" }}>
               <Calendar className="w-3.5 h-3.5" /> Timetable
             </button>
           </div>

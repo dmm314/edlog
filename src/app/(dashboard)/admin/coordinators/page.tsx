@@ -249,7 +249,7 @@ export default function CoordinatorsPage() {
         <div className="max-w-lg mx-auto relative">
           <Link
             href="/admin"
-            className="inline-flex items-center gap-1.5 text-white/60 hover:text-white text-sm mb-4 transition-colors"
+            className="inline-flex items-center gap-1.5 text-white/70 hover:text-white text-sm mb-4 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to Dashboard

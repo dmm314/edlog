@@ -378,7 +378,7 @@ export default function EntryTimetablePage() {
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[hsl(var(--accent)/0.08)] via-transparent to-transparent" />
           <div className="absolute top-0 right-0 w-64 h-64 bg-[var(--accent)]/[0.07] rounded-full -translate-y-1/3 translate-x-1/4 blur-3xl" />
           <div className="max-w-lg mx-auto relative">
-            <Link href="/admin" className="inline-flex items-center gap-1.5 text-white/60 hover:text-white text-sm mb-4 transition-colors">
+            <Link href="/admin" className="inline-flex items-center gap-1.5 text-white/70 hover:text-white text-sm mb-4 transition-colors">
               <ArrowLeft className="w-4 h-4" />Back to Dashboard
             </Link>
             <h1 className="text-xl font-bold text-white flex items-center gap-2">
@@ -517,7 +517,7 @@ export default function EntryTimetablePage() {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[hsl(var(--accent)/0.08)] via-transparent to-transparent" />
         <div className="max-w-lg mx-auto relative">
           <button onClick={() => { setSelectedClassId(null); setSelectedEntry(null); setSelectedSlot(null); saveAdminETState(null); }}
-            className="inline-flex items-center gap-1.5 text-white/60 hover:text-white text-sm mb-4 transition-colors">
+            className="inline-flex items-center gap-1.5 text-white/70 hover:text-white text-sm mb-4 transition-colors">
             <ArrowLeft className="w-4 h-4" />{expandedLevel || "All Classes"}
           </button>
           <h1 className="text-xl font-bold text-white">{className}</h1>

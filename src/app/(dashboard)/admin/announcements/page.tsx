@@ -374,7 +374,7 @@ export default function AdminAnnouncementsPage() {
             </div>
             <div>
               <h1 className="text-xl font-bold text-white">Announcements</h1>
-              <p className="text-white/50 text-sm mt-0.5">
+              <p className="text-white/70 text-sm mt-0.5">
                 Broadcast messages to your teachers
               </p>
             </div>

@@ -187,7 +187,7 @@ export default function SchoolRegisterPage() {
               <h1 className="text-2xl font-extrabold text-white tracking-tight" style={{ fontFamily: "var(--font-display)" }}>
                 Register Your School
               </h1>
-              <p className="text-sm mt-0.5 text-white/50" style={{ fontFamily: "var(--font-body)" }}>
+              <p className="text-sm mt-0.5 text-white/70" style={{ fontFamily: "var(--font-body)" }}>
                 Set up your school on Edlog
               </p>
             </div>
@@ -201,7 +201,7 @@ export default function SchoolRegisterPage() {
             <div className="flex-1 h-1 rounded-full bg-white/20 overflow-hidden">
               <div className={`h-full rounded-full transition-all duration-300 ${step >= 2 ? "w-full" : "w-0"}`} style={{ backgroundColor: "var(--accent)" }} />
             </div>
-            <span className="text-white/50 text-xs font-medium ml-2">{step}/2</span>
+            <span className="text-white/70 text-xs font-medium ml-2">{step}/2</span>
           </div>
         </div>
       </div>
