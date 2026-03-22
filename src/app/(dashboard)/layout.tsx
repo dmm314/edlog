@@ -17,7 +17,6 @@ export default function DashboardLayout({
   const { data: session, status } = useSession();
   const router = useRouter();
 
-  // Coordinator state
   const [isCoordinator, setIsCoordinator] = useState(false);
   const [coordinatorTitle, setCoordinatorTitle] = useState<string | null>(null);
   const [hasTeachingAssignments, setHasTeachingAssignments] = useState(true);
@@ -29,7 +28,6 @@ export default function DashboardLayout({
     }
   }, [status, router]);
 
-  // Check coordinator status for TEACHER role users
   useEffect(() => {
     const role = (session?.user as Record<string, unknown>)?.role as string | undefined;
     if (status !== "authenticated" || role !== "TEACHER") return;
@@ -44,15 +42,12 @@ export default function DashboardLayout({
 
         if (data.isCoordinator) {
           if (!hasAssignments) {
-            // Pure coordinator — always coordinator mode
             setActiveMode("coordinator");
           } else {
-            // Dual role — respect saved preference
             const saved = typeof window !== "undefined"
               ? localStorage.getItem(PORTAL_MODE_KEY)
               : null;
             if (saved === "coordinator") setActiveMode("coordinator");
-            // else stay "teacher"
           }
         }
       })
@@ -73,29 +68,17 @@ export default function DashboardLayout({
 
   if (status === "loading") {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: "var(--bg-primary)" }}>
+      <div className="flex min-h-screen items-center justify-center bg-[hsl(var(--surface-canvas))]">
         <div className="text-center">
           <svg
-            className="animate-spin h-8 w-8 mx-auto"
-            style={{ color: "var(--accent)" }}
+            className="mx-auto h-8 w-8 animate-spin text-[hsl(var(--accent))]"
             viewBox="0 0 24 24"
             fill="none"
           >
-            <circle
-              className="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              strokeWidth="4"
-            />
-            <path
-              className="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-            />
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
           </svg>
-          <p className="text-sm mt-3" style={{ color: "var(--text-tertiary)" }}>Loading...</p>
+          <p className="mt-3 text-sm text-[hsl(var(--text-tertiary))]">Loading...</p>
         </div>
       </div>
     );
@@ -110,14 +93,7 @@ export default function DashboardLayout({
     <CoordinatorModeContext.Provider
       value={{ activeMode, isCoordinator, coordinatorTitle, hasTeachingAssignments, switchMode }}
     >
-      <div
-        className="dashboard-shell min-h-screen"
-        style={{
-          backgroundColor: "var(--bg-primary)",
-          backgroundImage:
-            "radial-gradient(ellipse at top, hsl(var(--accent-glow) / 0.1), transparent 40%), radial-gradient(circle at bottom right, hsl(var(--accent) / 0.05), transparent 30%)",
-        }}
-      >
+      <div className="dashboard-shell min-h-screen bg-[hsl(var(--surface-canvas))]">
         <SideNav role={role} userName={userName} isCoordinator={isCoordinator} activeMode={activeMode} switchMode={switchMode} />
         <div className="dashboard-content">
           {children}

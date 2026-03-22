@@ -347,41 +347,39 @@ export default function LogbookPage() {
 
   return (
     <div className="page-shell space-y-4 pt-4 lg:space-y-5">
-      <section className="page-header overflow-hidden rounded-[32px] px-5 pb-6 pt-5 text-white shadow-float lg:px-6 lg:pb-7">
-        <div className="relative z-10 space-y-5">
+      {/* ─ Clean functional header ─ */}
+      <section className="rounded-2xl border border-[hsl(var(--border-primary))] bg-[hsl(var(--surface-elevated))] p-5 lg:p-6">
+        <div className="space-y-4">
           <div className="flex items-start justify-between gap-3">
-            <div className="space-y-2">
-              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/70">{greeting}</p>
-              <h1 className="font-display text-[2rem] leading-[1.05] text-white">{displayName || "Teacher"}</h1>
-              <p className="max-w-[16rem] text-sm text-white/76">
-                Your log feed is tuned for fast taps, live context, and clean follow-through.
-              </p>
+            <div className="space-y-1">
+              <p className="text-xs font-medium uppercase tracking-[0.1em] text-content-tertiary">{greeting}</p>
+              <h1 className="font-display text-2xl font-bold text-content-primary">{displayName || "Teacher"}</h1>
+              <div className="flex items-center gap-1.5">
+                <span className="role-dot role-dot-teacher" />
+                <span className="text-xs text-content-tertiary">Teacher</span>
+              </div>
             </div>
             <NotificationBell />
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-2 lg:gap-4">
-            <div className="glass-panel rounded-[24px] p-4 lg:p-5">
-              <div className="flex items-start gap-3">
-                <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-dynamic-accent text-white shadow-accent motion-safe:animate-spring-bounce">
-                  <Flame className="h-5 w-5" />
-                </span>
-                <div>
-                  <p className="text-xl font-black text-white">{streak > 0 ? `${streak} days` : "Start today"}</p>
-                  <p className="text-xs text-white/70">Logging streak</p>
-                </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="flex items-center gap-3 rounded-xl border border-[hsl(var(--border-muted))] bg-[hsl(var(--surface-secondary))] p-3">
+              <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-[hsl(var(--warning)/0.1)] text-[hsl(var(--warning))]">
+                <Flame className="h-5 w-5" />
+              </span>
+              <div>
+                <p className="text-lg font-bold text-content-primary">{streak > 0 ? `${streak} days` : "Start today"}</p>
+                <p className="text-xs text-content-tertiary">Logging streak</p>
               </div>
             </div>
 
-            <div className="rounded-[24px] border border-white/10 bg-white/6 p-4 backdrop-blur-sm lg:p-5">
-              <div className="flex items-start gap-3">
-                <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/10 text-white/90">
-                  <Layers3 className="h-5 w-5" />
-                </span>
-                <div>
-                  <p className="font-mono text-xl font-black text-white">{syllabusCoverage}%</p>
-                  <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-white/66">Syllabus coverage</p>
-                </div>
+            <div className="flex items-center gap-3 rounded-xl border border-[hsl(var(--border-muted))] bg-[hsl(var(--surface-secondary))] p-3">
+              <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-[hsl(var(--accent-soft))] text-[hsl(var(--accent-text))]">
+                <Layers3 className="h-5 w-5" />
+              </span>
+              <div>
+                <p className="font-mono text-lg font-bold text-content-primary">{syllabusCoverage}%</p>
+                <p className="text-xs text-content-tertiary">Syllabus coverage</p>
               </div>
             </div>
           </div>
@@ -390,7 +388,7 @@ export default function LogbookPage() {
             <button
               type="button"
               onClick={() => switchMode("coordinator")}
-              className="inline-flex min-h-[44px] items-center gap-2 rounded-2xl border border-white/12 bg-white/8 px-4 text-sm font-semibold text-white/84 transition hover:bg-white/12"
+              className="inline-flex min-h-[44px] items-center gap-2 rounded-xl border border-[hsl(var(--border-primary))] bg-[hsl(var(--surface-secondary))] px-4 text-sm font-medium text-content-secondary transition hover:bg-[hsl(var(--surface-tertiary))]"
             >
               Open coordinator mode
               <ArrowUpRight className="h-4 w-4" />
@@ -401,35 +399,32 @@ export default function LogbookPage() {
 
       <QuickActionsRow />
 
+      {/* ─ Notices ─ */}
       <section className="space-y-3">
         <div className="flex items-center justify-between">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-content-tertiary">Stories-style notices</p>
-            <h2 className="text-lg font-bold text-content-primary">What changed today</h2>
-          </div>
-          <Link href="/notifications" className="text-sm font-semibold text-[hsl(var(--accent-text))]">
+          <h2 className="text-sm font-semibold text-content-primary">Notices</h2>
+          <Link href="/notifications" className="text-sm font-medium text-[hsl(var(--accent-text))]">
             View all
           </Link>
         </div>
 
         <div className="-mx-4 overflow-x-auto px-4 pb-1">
-          <div className="flex gap-3 pr-2">
+          <div className="flex gap-2 pr-2">
             {(notices.length
               ? notices
               : [{ id: "fallback", title: "You are clear", message: "No new notices right now.", createdAt: new Date().toISOString(), isRead: true }]
-            ).map((notice, index) => (
+            ).map((notice) => (
               <Link
                 key={notice.id}
                 href="/notifications"
-                className={cn("story-pill min-w-[190px] lg:min-w-0", !notice.isRead && "motion-safe:animate-live-pulse")}
-                style={{ animationDelay: `${index * 120}ms` }}
+                className="story-pill min-w-[190px] lg:min-w-0"
               >
-                <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,hsl(var(--accent)),hsl(var(--accent-strong)))] text-white shadow-accent">
-                  <Sparkles className="h-4.5 w-4.5" />
+                <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-[hsl(var(--accent-soft))] text-[hsl(var(--accent-text))]">
+                  <Sparkles className="h-4 w-4" />
                 </span>
                 <span className="min-w-0 flex-1">
-                  <span className="block truncate text-sm font-bold text-content-primary">{notice.title}</span>
-                  <span className="mt-1 block line-clamp-2 text-xs text-content-secondary">{notice.message}</span>
+                  <span className="block truncate text-sm font-semibold text-content-primary">{notice.title}</span>
+                  <span className="mt-0.5 block truncate text-xs text-content-tertiary">{notice.message}</span>
                 </span>
                 <ChevronRight className="h-4 w-4 text-content-tertiary" />
               </Link>
@@ -438,23 +433,23 @@ export default function LogbookPage() {
         </div>
       </section>
 
+      {/* ─ Today's timetable ─ */}
       <section className="section-card space-y-4">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-content-tertiary">
+            <h2 className="text-sm font-semibold text-content-primary">
               Today — {today.toLocaleDateString("en-GB", { weekday: "long" })}
-            </p>
-            <h2 className="text-lg font-bold text-content-primary">Tap the live class first</h2>
+            </h2>
           </div>
-          <span className="rounded-full bg-[hsl(var(--accent-soft))] px-3 py-1.5 font-mono text-[11px] font-bold text-[hsl(var(--accent-text))]">
+          <span className="rounded-full bg-[hsl(var(--surface-tertiary))] px-2.5 py-1 font-mono text-[11px] font-semibold text-content-secondary">
             {todayLoggedCount}/{todaySlots.length || 0} logged
           </span>
         </div>
 
-        <div className="space-y-3">
+        <div className="space-y-2">
           {loading ? (
             Array.from({ length: 3 }).map((_, index) => (
-              <div key={index} className="card p-4">
+              <div key={index} className="rounded-xl border border-[hsl(var(--border-muted))] bg-[hsl(var(--surface-secondary))] p-4">
                 <div className="flex gap-3">
                   <div className="w-14 space-y-2">
                     <Skeleton className="h-3 w-12" />
@@ -463,7 +458,7 @@ export default function LogbookPage() {
                   <div className="min-w-0 flex-1 space-y-2">
                     <Skeleton className="h-4 w-36" />
                     <Skeleton className="h-3 w-48" />
-                    <Skeleton className="h-10 w-full rounded-2xl" />
+                    <Skeleton className="h-10 w-full rounded-xl" />
                   </div>
                 </div>
               </div>
@@ -479,35 +474,38 @@ export default function LogbookPage() {
               return (
                 <article
                   key={slot.id}
-                  className={cn("card p-4 transition-all duration-300", isCurrent && "live-card scale-[1.01]", isLogged && "opacity-70")}
-                  style={{ animationDelay: `${index * 80}ms` }}
+                  className={cn(
+                    "rounded-xl border bg-[hsl(var(--surface-secondary))] p-4",
+                    isCurrent ? "border-[hsl(var(--accent)/0.3)]" : "border-[hsl(var(--border-muted))]",
+                    isLogged && "opacity-60",
+                  )}
                 >
                   <div className="flex gap-4">
                     <div className="w-14 shrink-0 pt-1 text-left">
-                      <p className={cn("font-mono text-xs font-bold", isCurrent ? "text-[hsl(var(--accent-text))]" : "text-content-secondary")}>{slot.startTime}</p>
+                      <p className={cn("font-mono text-xs font-semibold", isCurrent ? "text-[hsl(var(--accent-text))]" : "text-content-secondary")}>{slot.startTime}</p>
                       <p className="mt-1 text-[11px] text-content-tertiary">{slot.periodLabel}</p>
                     </div>
 
                     <div className="min-w-0 flex-1">
                       <div className="flex items-start justify-between gap-3">
                         <div>
-                          <h3 className="text-sm font-bold text-content-primary">{slot.assignment.subjectName}</h3>
-                          <p className="mt-1 text-sm text-content-secondary">{slot.assignment.className}</p>
+                          <h3 className="text-sm font-semibold text-content-primary">{slot.assignment.subjectName}</h3>
+                          <p className="mt-0.5 text-sm text-content-secondary">{slot.assignment.className}</p>
                         </div>
 
                         {isLogged ? (
-                          <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[hsl(var(--success)/0.14)] text-[hsl(var(--success))]">
+                          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-[hsl(var(--success)/0.1)] text-[hsl(var(--success))]">
                             <CheckCircle2 className="h-5 w-5" />
                           </span>
                         ) : isCurrent ? (
-                          <Link href={logHref} className="btn-primary px-4 py-2 text-sm shadow-accent">
+                          <Link href={logHref} className="btn-primary px-4 py-2 text-sm">
                             <PenLine className="h-4 w-4" />
                             Log
                           </Link>
                         ) : (
                           <span
                             className={cn(
-                              "flex h-10 w-10 items-center justify-center rounded-2xl border border-dashed",
+                              "flex h-9 w-9 items-center justify-center rounded-lg border border-dashed",
                               isUpcoming ? "border-[hsl(var(--border-strong))] text-content-tertiary" : "border-[hsl(var(--border-primary))] text-content-tertiary",
                             )}
                           >
@@ -516,9 +514,9 @@ export default function LogbookPage() {
                         )}
                       </div>
 
-                      <div className="mt-3 flex items-center justify-between gap-3 text-xs text-content-tertiary">
+                      <div className="mt-2 flex items-center justify-between gap-3 text-xs text-content-tertiary">
                         <span className="font-mono">{slot.startTime}–{slot.endTime}</span>
-                        <span className="inline-flex items-center gap-1 rounded-full bg-[hsl(var(--surface-secondary))] px-2.5 py-1 font-semibold">
+                        <span className="inline-flex items-center gap-1 rounded-full bg-[hsl(var(--surface-tertiary))] px-2 py-0.5 font-medium">
                           {isLogged ? "Done" : isCurrent ? "Live now" : isUpcoming ? "Upcoming" : "Missed"}
                         </span>
                       </div>
@@ -528,67 +526,65 @@ export default function LogbookPage() {
               );
             })
           ) : (
-            <div className="card bg-dynamic-noise p-5 text-center">
-              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[hsl(var(--accent-soft))] text-[hsl(var(--accent-text))] shadow-accent">
+            <div className="rounded-xl border border-[hsl(var(--border-muted))] bg-[hsl(var(--surface-secondary))] p-5 text-center">
+              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[hsl(var(--surface-tertiary))] text-content-tertiary">
                 <Clock3 className="h-6 w-6" />
               </div>
-              <h3 className="mt-4 text-lg font-bold text-content-primary">No classes queued for today</h3>
-              <p className="mt-2 text-sm text-content-secondary">Your timetable will show live periods here as soon as they are scheduled.</p>
+              <h3 className="mt-3 text-sm font-semibold text-content-primary">No classes queued for today</h3>
+              <p className="mt-1 text-sm text-content-tertiary">Your timetable will show periods here as soon as they are scheduled.</p>
             </div>
           )}
         </div>
       </section>
 
+      {/* ─ Weekly progress ─ */}
       <section className="section-card space-y-4">
         <div className="flex items-center justify-between gap-3">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-content-tertiary">This week</p>
-            <h2 className="text-lg font-bold text-content-primary">Progress that fills up like a feed</h2>
-          </div>
-          <span className="font-mono text-xs font-bold text-[hsl(var(--accent-text))]">
+          <h2 className="text-sm font-semibold text-content-primary">This week</h2>
+          <span className="font-mono text-xs font-medium text-content-tertiary">
             {weeklyBars.reduce((sum, day) => sum + day.logged, 0)}/{weeklyBars.reduce((sum, day) => sum + day.total, 0)} periods
           </span>
         </div>
 
-        <div className="grid grid-cols-5 gap-2 lg:gap-3">
-          {weeklyBars.map((bar, index) => (
-            <div key={bar.key} className="flex flex-col items-center gap-2">
-              <div className="flex h-28 w-full items-end rounded-[18px] bg-[hsl(var(--surface-secondary))] p-2">
+        <div className="grid grid-cols-5 gap-2">
+          {weeklyBars.map((bar) => (
+            <div key={bar.key} className="flex flex-col items-center gap-1.5">
+              <div className="flex h-24 w-full items-end rounded-lg bg-[hsl(var(--surface-tertiary))] p-1.5">
                 <div
                   className={cn(
-                    "w-full rounded-[12px] transition-all duration-700 ease-[var(--ease-spring)]",
+                    "w-full rounded transition-all duration-500",
                     bar.ratio === 100
-                      ? "bg-[linear-gradient(180deg,hsl(var(--success)),color-mix(in_srgb,hsl(var(--success))_68%,white))]"
+                      ? "bg-[hsl(var(--success))]"
                       : bar.ratio > 0
-                        ? "bg-dynamic-accent"
-                        : "bg-[hsl(var(--surface-tertiary))]",
-                    bar.isToday && "shadow-accent",
+                        ? "bg-[hsl(var(--accent))]"
+                        : "bg-[hsl(var(--border-muted))]",
                   )}
-                  style={{ height: `${Math.max(bar.ratio, 12)}%`, transitionDelay: `${index * 100}ms` }}
+                  style={{ height: `${Math.max(bar.ratio, 10)}%` }}
                 />
               </div>
               <div className="text-center">
-                <p className={cn("font-mono text-[11px]", bar.isToday ? "font-extrabold text-content-primary" : "font-semibold text-content-tertiary")}>{bar.key}</p>
-                <p className="text-[11px] text-content-tertiary">{bar.logged}/{bar.total}</p>
+                <p className={cn("font-mono text-[11px]", bar.isToday ? "font-bold text-content-primary" : "font-medium text-content-tertiary")}>{bar.key}</p>
+                <p className="text-[10px] text-content-tertiary">{bar.logged}/{bar.total}</p>
               </div>
             </div>
           ))}
         </div>
       </section>
 
+      {/* ─ Next class info ─ */}
       {nextClassInfo ? (
         <section
           className={cn(
-            "card bg-dynamic-noise p-5",
-            nextClassInfo.type === "prep-soon" && "live-card",
+            "section-card",
+            nextClassInfo.type === "prep-soon" && "border-[hsl(var(--accent)/0.3)]",
           )}
         >
-          <div className="flex items-start gap-4">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[hsl(var(--accent-soft))] text-2xl shadow-card">
+          <div className="flex items-start gap-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[hsl(var(--surface-tertiary))] text-lg">
               {nextClassInfo.type === "prep-soon" ? "⏰" : nextClassInfo.type === "rest-long" ? "🌙" : "🕐"}
             </div>
             <div className="min-w-0">
-              <h3 className="text-base font-bold text-content-primary">{nextClassInfo.message}</h3>
+              <h3 className="text-sm font-semibold text-content-primary">{nextClassInfo.message}</h3>
               {nextClassInfo.detail && (
                 <p className="mt-1 text-sm text-content-tertiary">
                   {nextClassInfo.type === "rest-long" ? `Next up: ${nextClassInfo.detail}` : nextClassInfo.detail}
@@ -598,7 +594,7 @@ export default function LogbookPage() {
                 <p className={cn(
                   "mt-1 text-sm",
                   nextClassInfo.type === "prep-soon"
-                    ? "font-semibold text-[hsl(var(--accent-text))]"
+                    ? "font-medium text-[hsl(var(--accent-text))]"
                     : "italic text-content-tertiary",
                 )}>
                   {nextClassInfo.hint}
@@ -609,13 +605,11 @@ export default function LogbookPage() {
         </section>
       ) : null}
 
+      {/* ─ Recent entries feed ─ */}
       <section className="space-y-3">
         <div className="flex items-center justify-between gap-3">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-content-tertiary">Recent feed</p>
-            <h2 className="text-lg font-bold text-content-primary">Your latest entries</h2>
-          </div>
-          <Link href="/history" className="inline-flex items-center gap-1 text-sm font-semibold text-[hsl(var(--accent-text))]">
+          <h2 className="text-sm font-semibold text-content-primary">Recent entries</h2>
+          <Link href="/history" className="inline-flex items-center gap-1 text-sm font-medium text-[hsl(var(--accent-text))]">
             Full history
             <ChevronRight className="h-4 w-4" />
           </Link>
@@ -625,13 +619,13 @@ export default function LogbookPage() {
           {feedEntries.length > 0 ? (
             feedEntries.map((entry, index) => <DynamicEntryCard key={entry.id} entry={entry} priority={index === 0 ? "live" : "default"} />)
           ) : (
-            <div className="card bg-dynamic-noise p-5 text-center lg:col-span-full">
-              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[hsl(var(--accent-soft))] text-[hsl(var(--accent-text))] shadow-accent">
+            <div className="rounded-xl border border-[hsl(var(--border-muted))] bg-[hsl(var(--surface-secondary))] p-5 text-center lg:col-span-full">
+              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[hsl(var(--surface-tertiary))] text-content-tertiary">
                 <BookOpen className="h-6 w-6" />
               </div>
-              <h3 className="mt-4 text-lg font-bold text-content-primary">Your feed will come alive here</h3>
-              <p className="mt-2 text-sm text-content-secondary">Create the first entry and Edlog starts building your live teaching record.</p>
-              <Link href="/logbook/new" className="btn-primary mt-4 w-full lg:w-auto">
+              <h3 className="mt-3 text-sm font-semibold text-content-primary">Your entries will appear here</h3>
+              <p className="mt-1 text-sm text-content-tertiary">Create the first entry and Edlog starts building your teaching record.</p>
+              <Link href="/logbook/new" className="btn-primary mt-4 w-full px-6 py-3 lg:w-auto">
                 Create first entry
               </Link>
             </div>

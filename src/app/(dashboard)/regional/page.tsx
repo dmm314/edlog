@@ -56,19 +56,14 @@ export default function RegionalDashboardPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
-        <div
-          className="px-5 pt-10 pb-6 rounded-b-2xl"
-          style={{ background: "linear-gradient(135deg, #0C1222 0%, #1A2744 50%, #0F172A 100%)" }}
-        >
+      <div className="min-h-screen pb-24 bg-[hsl(var(--surface-canvas))]">
+        <div className="border-b border-[hsl(var(--border-primary))] bg-[hsl(var(--surface-elevated))] px-5 pt-8 pb-6">
           <div className="max-w-lg mx-auto">
-            <p className="text-teal-400 text-xs font-medium" style={{ fontFamily: "var(--font-body)" }}>
-              Regional Inspector
-            </p>
-            <h1
-              className="text-[22px] font-bold text-white tracking-tight mt-1"
-              style={{ fontFamily: "var(--font-display)" }}
-            >
+            <div className="flex items-center gap-1.5 mb-1">
+              <span className="role-dot role-dot-regional" />
+              <p className="text-xs font-medium text-content-tertiary">Regional Inspector</p>
+            </div>
+            <h1 className="font-display text-xl font-bold text-content-primary tracking-tight">
               Regional Dashboard
             </h1>
           </div>
@@ -93,33 +88,17 @@ export default function RegionalDashboardPage() {
     : [];
 
   return (
-    <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
-      {/* Header — deep navy/teal gradient */}
-      <div
-        className="relative overflow-hidden px-5 pt-10 pb-6 rounded-b-2xl"
-        style={{ background: "linear-gradient(135deg, #0C1222 0%, #1A2744 50%, #0F172A 100%)" }}
-      >
-        {/* Dot pattern overlay */}
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            backgroundImage: "radial-gradient(circle at 2px 2px, rgba(255,255,255,0.03) 1px, transparent 0)",
-            backgroundSize: "24px 24px",
-          }}
-        />
-        <div className="max-w-lg mx-auto relative">
+    <div className="min-h-screen pb-24 bg-[hsl(var(--surface-canvas))]">
+      {/* Header — clean functional bar */}
+      <div className="border-b border-[hsl(var(--border-primary))] bg-[hsl(var(--surface-elevated))] px-5 pt-8 pb-6">
+        <div className="max-w-lg mx-auto">
           <div data-tour="regional-welcome" className="flex items-start justify-between">
             <div>
-              <p
-                className="text-teal-400 text-xs font-medium"
-                style={{ fontFamily: "var(--font-body)", fontSize: "12px" }}
-              >
-                Regional Inspector
-              </p>
-              <h1
-                className="text-white tracking-tight mt-1"
-                style={{ fontFamily: "var(--font-display)", fontSize: "22px", fontWeight: 700 }}
-              >
+              <div className="flex items-center gap-1.5 mb-1">
+                <span className="role-dot role-dot-regional" />
+                <p className="text-xs font-medium text-content-tertiary">Regional Inspector</p>
+              </div>
+              <h1 className="font-display text-xl font-bold text-content-primary tracking-tight">
                 {stats ? "Region Overview" : "Regional Dashboard"}
               </h1>
             </div>
