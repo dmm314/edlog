@@ -350,9 +350,9 @@ export default function CoordinatorDashboardPage() {
                       <img src={slot.teacherPhotoUrl} alt={slot.teacher}
                         className="w-8 h-8 rounded-xl object-cover flex-shrink-0" />
                     ) : (
-                      <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 text-[10px] font-black text-white"
-                        style={{ background: isLive ? "hsl(var(--success))" : isDone ? "var(--bg-tertiary)" : "var(--accent)" }}>
-                        <span style={{ color: isDone ? "var(--text-tertiary)" : "white" }}>
+                      <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 text-[10px] font-black"
+                        style={{ background: isLive ? "hsl(var(--success))" : isDone ? "var(--bg-tertiary)" : "var(--accent)", color: isDone ? "var(--text-tertiary)" : "white" }}>
+                        <span>
                           {slot.teacher.split(" ").map((n) => n[0]).slice(0, 2).join("")}
                         </span>
                       </div>

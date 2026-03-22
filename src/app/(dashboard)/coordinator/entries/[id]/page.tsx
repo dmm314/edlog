@@ -228,13 +228,13 @@ export default function CoordinatorEntryReviewPage() {
         <div className="absolute inset-0 pointer-events-none" style={{ opacity: 0.04, backgroundImage: "radial-gradient(circle at 2px 2px, white 1px, transparent 0)", backgroundSize: "20px 20px" }} />
         <div className="max-w-lg mx-auto relative">
           <Link href="/coordinator"
-            className="inline-flex items-center gap-1.5 text-white/60 hover:text-white text-sm mb-4 transition-colors">
+            className="inline-flex items-center gap-1.5 text-white/70 hover:text-white text-sm mb-4 transition-colors">
             <ArrowLeft className="w-4 h-4" />
             Back to Coordinator
           </Link>
           <div className="flex items-center gap-2 flex-wrap mb-1">
-            <span className="text-[10px] font-bold bg-white/15 text-white px-2 py-0.5 rounded-md">{subjectName}</span>
-            <span className="text-[10px] font-semibold bg-white/10 text-white/80 px-2 py-0.5 rounded-md">{entry.class.name}</span>
+            <span className="text-[10px] font-bold bg-white/20 text-white px-2 py-0.5 rounded-md border border-white/10">{subjectName}</span>
+            <span className="text-[10px] font-semibold bg-white/15 text-white px-2 py-0.5 rounded-md border border-white/10">{entry.class.name}</span>
             {entry.status === "SUBMITTED" && (
               <span className="text-[10px] font-bold bg-[hsl(var(--accent)/0.2)] text-[hsl(var(--accent)/0.7)] px-2 py-0.5 rounded-md">Submitted</span>
             )}
@@ -250,7 +250,7 @@ export default function CoordinatorEntryReviewPage() {
             )}
           </div>
           <h1 className="text-xl font-bold text-white mt-2 leading-snug">{topicNames}</h1>
-          <div className="flex items-center gap-3 text-white/60 text-xs mt-2 flex-wrap">
+          <div className="flex items-center gap-3 text-white/70 text-xs mt-2 flex-wrap">
             <span className="flex items-center gap-1">
               <Calendar className="w-3 h-3" />{formatDate(entry.date)}
             </span>

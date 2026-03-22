@@ -92,7 +92,7 @@ export default function HODAnnouncementsPage() {
             </div>
             <div>
               <h1 className="text-xl font-bold text-white">Department Announcement</h1>
-              <p className="text-white/60 text-sm mt-0.5">
+              <p className="text-white/70 text-sm mt-0.5">
                 Send a message to teachers in your department
               </p>
             </div>

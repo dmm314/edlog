@@ -82,7 +82,7 @@ export default function CoordinatorTeachersPage() {
         <div className="max-w-lg mx-auto relative">
           <Link
             href="/coordinator"
-            className="inline-flex items-center gap-1.5 text-white/60 hover:text-white text-sm mb-4 transition-colors"
+            className="inline-flex items-center gap-1.5 text-white/70 hover:text-white text-sm mb-4 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
             Coordinator
@@ -91,7 +91,7 @@ export default function CoordinatorTeachersPage() {
             <Users className="w-5 h-5 text-[hsl(var(--accent)/0.7)]" />
             <h1 className="text-xl font-bold text-white">Teachers</h1>
           </div>
-          <p className="text-white/60 text-sm">
+          <p className="text-white/70 text-sm">
             {levelSummary ? `Teaching at ${levelSummary}` : "At your assigned levels"}
           </p>
         </div>

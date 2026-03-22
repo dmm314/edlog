@@ -206,7 +206,7 @@ export default function CoordinatorTimetablePage() {
             style={{ opacity: 0.04, backgroundImage: "radial-gradient(circle at 2px 2px, white 1px, transparent 0)", backgroundSize: "20px 20px" }} />
           <div className="max-w-lg mx-auto relative">
             <Link href="/coordinator"
-              className="inline-flex items-center gap-1.5 text-white/60 hover:text-white text-sm mb-4 transition-colors">
+              className="inline-flex items-center gap-1.5 text-white/70 hover:text-white text-sm mb-4 transition-colors">
               <ArrowLeft className="w-4 h-4" />
               Coordinator
             </Link>
@@ -214,7 +214,7 @@ export default function CoordinatorTimetablePage() {
               <Calendar className="w-5 h-5 text-[hsl(var(--accent)/0.7)]" />
               <h1 className="text-xl font-bold text-white">Timetable</h1>
             </div>
-            <p className="text-white/60 text-sm">
+            <p className="text-white/70 text-sm">
               {levelSummary ? `${levelSummary} — select a class` : "Select a class to view its schedule"}
             </p>
             <div className="flex items-center gap-2 mt-4">
@@ -314,19 +314,19 @@ export default function CoordinatorTimetablePage() {
           style={{ opacity: 0.04, backgroundImage: "radial-gradient(circle at 2px 2px, white 1px, transparent 0)", backgroundSize: "20px 20px" }} />
         <div className="max-w-lg mx-auto relative">
           <button onClick={() => setSelectedClassId(null)}
-            className="inline-flex items-center gap-1.5 text-white/60 hover:text-white text-sm mb-4 transition-colors">
+            className="inline-flex items-center gap-1.5 text-white/70 hover:text-white text-sm mb-4 transition-colors">
             <ArrowLeft className="w-4 h-4" />
             All Classes
           </button>
 
           <div className="flex items-start gap-3">
             <div className="w-12 h-12 rounded-xl flex items-center justify-center font-black text-sm flex-shrink-0"
-              style={{ background: "rgba(255,255,255,0.15)", color: "white" }}>
+              style={{ background: "rgba(255,255,255,0.2)", color: "white", border: "1px solid rgba(255,255,255,0.15)" }}>
               {selectedClass?.name.replace(/\s+/g, "").slice(-2).toUpperCase()}
             </div>
             <div>
               <h1 className="text-xl font-bold text-white leading-tight">{selectedClass?.name}</h1>
-              <p className="text-white/55 text-sm mt-0.5">{selectedClass?.level}</p>
+              <p className="text-white/70 text-sm mt-0.5">{selectedClass?.level}</p>
             </div>
           </div>
 

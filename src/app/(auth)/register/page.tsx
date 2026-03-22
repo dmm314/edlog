@@ -402,7 +402,7 @@ export default function RegisterPage() {
         )}
       </div>
 
-      <p className="text-center text-sm text-white/50 mt-6 relative z-10" style={{ fontFamily: "var(--font-body)" }}>
+      <p className="text-center text-sm text-white/70 mt-6 relative z-10" style={{ fontFamily: "var(--font-body)" }}>
         Already have an account?{" "}
         <Link href="/login" className="font-semibold hover:underline" style={{ color: "hsl(var(--accent-glow))" }}>Sign in</Link>
       </p>

@@ -317,7 +317,7 @@ export default function CoordinatorAnnouncementsPage() {
             </div>
             <div>
               <h1 className="text-xl font-bold text-white">Announcements</h1>
-              <p className="text-white/50 text-sm mt-0.5">
+              <p className="text-white/70 text-sm mt-0.5">
                 {targetTeacherName ? `Direct message to ${targetTeacherName}` : `Broadcast to teachers at ${levelSummary}`}
               </p>
             </div>
