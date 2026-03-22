@@ -528,8 +528,8 @@ export default function CoordinatorEntryReviewPage() {
                     </span>
                     <span className="text-[10px] font-bold px-1.5 py-0.5 rounded"
                       style={{
-                        background: r.remarkType === "coordinator_review" ? "#EDE9FE" : "var(--bg-tertiary)",
-                        color: r.remarkType === "coordinator_review" ? "#5B21B6" : "var(--text-tertiary)",
+                        background: r.remarkType === "coordinator_review" ? "hsl(var(--accent-soft))" : "var(--bg-tertiary)",
+                        color: r.remarkType === "coordinator_review" ? "hsl(var(--accent-text))" : "var(--text-tertiary)",
                       }}>
                       {r.remarkType === "coordinator_review" ? "VP Review" : r.remarkType.replace(/_/g, " ")}
                     </span>
