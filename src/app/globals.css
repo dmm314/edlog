@@ -48,16 +48,15 @@
     --bg-elevated: #FFFFFF;
     --bg-inset: #F0F2F5;
 
-    /* ─ Header (clean flat bar) ─ */
-    --header-bg: #FFFFFF;
-    --header-text: hsl(220 14% 10%);
-    --header-text-muted: hsl(220 6% 38%);
-    /* Legacy compat — pages still using gradient vars get a flat surface */
-    --header-from: hsl(220 5% 96%);
-    --header-via: hsl(220 5% 96%);
-    --header-to: hsl(220 5% 96%);
-    --header-overlay: transparent;
-    --header-accent: transparent;
+    /* ─ Header (accent gradient for contrast with white text) ─ */
+    --header-bg: hsl(217 100% 51%);
+    --header-text: #FFFFFF;
+    --header-text-muted: rgba(255, 255, 255, 0.7);
+    --header-from: hsl(217 100% 48%);
+    --header-via: hsl(217 100% 51%);
+    --header-to: hsl(220 100% 58%);
+    --header-overlay: rgba(255, 255, 255, 0.04);
+    --header-accent: rgba(255, 255, 255, 0.12);
 
     /* ─ Shadows (neutral, no accent tint) ─ */
     --shadow-card: 0 1px 3px 0 rgba(0, 0, 0, 0.06), 0 1px 2px -1px rgba(0, 0, 0, 0.06);
@@ -147,14 +146,14 @@
     --bg-inset: hsl(220 10% 8%);
 
     /* ─ Header ─ */
-    --header-bg: hsl(220 10% 8%);
+    --header-bg: hsl(217 80% 32%);
     --header-text: hsl(220 8% 96%);
-    --header-text-muted: hsl(220 6% 64%);
-    --header-from: hsl(220 10% 10%);
-    --header-via: hsl(220 10% 10%);
-    --header-to: hsl(220 10% 10%);
-    --header-overlay: transparent;
-    --header-accent: transparent;
+    --header-text-muted: rgba(255, 255, 255, 0.65);
+    --header-from: hsl(217 80% 28%);
+    --header-via: hsl(217 70% 32%);
+    --header-to: hsl(220 60% 38%);
+    --header-overlay: rgba(255, 255, 255, 0.03);
+    --header-accent: rgba(255, 255, 255, 0.08);
 
     /* ─ Shadows ─ */
     --shadow-card: 0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 1px 2px -1px rgba(0, 0, 0, 0.2);
@@ -312,7 +311,7 @@
 
   .page-header {
     background: var(--header-bg);
-    border-bottom: 1px solid hsl(var(--border-primary));
+    border-bottom: none;
   }
 
   /* ─── CARDS — Clean neutral ─── */
