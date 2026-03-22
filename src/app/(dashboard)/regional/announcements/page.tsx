@@ -202,7 +202,7 @@ export default function RegionalAnnouncementsPage() {
       <div className="px-5 mt-4 max-w-lg mx-auto space-y-4 desktop-content-form">
         {/* Success */}
         {success !== null && (
-          <div className="flex items-center gap-2 bg-green-50 border border-green-200 text-green-700 text-sm rounded-xl px-4 py-3 animate-slide-down">
+          <div className="flex items-center gap-2 bg-[hsl(var(--success)/0.1)] border border-[hsl(var(--success)/0.2)] text-[hsl(var(--success))] text-sm rounded-xl px-4 py-3 animate-slide-down">
             <CheckCircle className="w-4 h-4 flex-shrink-0" />
             Announcement sent to {success} teacher{success !== 1 ? "s" : ""}!
           </div>
@@ -210,7 +210,7 @@ export default function RegionalAnnouncementsPage() {
 
         {/* Error */}
         {error && (
-          <div className="flex items-center gap-2 bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-4 py-3">
+          <div className="flex items-center gap-2 bg-[hsl(var(--danger)/0.1)] border border-[hsl(var(--danger)/0.2)] text-[hsl(var(--danger))] text-sm rounded-xl px-4 py-3">
             <AlertTriangle className="w-4 h-4 flex-shrink-0" />
             {error}
           </div>
@@ -305,7 +305,7 @@ export default function RegionalAnnouncementsPage() {
                   </div>
                   <button
                     onClick={() => { setSelectedTeacher(null); setTeacherQuery(""); }}
-                    className="text-xs font-semibold text-red-500 hover:text-red-600"
+                    className="text-xs font-semibold text-[hsl(var(--danger))] hover:text-[hsl(var(--danger))]"
                   >
                     Change
                   </button>
@@ -516,8 +516,8 @@ export default function RegionalAnnouncementsPage() {
             }}
           >
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 rounded-xl bg-teal-50 flex items-center justify-center">
-                <Megaphone className="w-5 h-5 text-teal-600" />
+              <div className="w-10 h-10 rounded-xl bg-[hsl(var(--success)/0.1)] flex items-center justify-center">
+                <Megaphone className="w-5 h-5 text-[hsl(var(--success))]" />
               </div>
               <h3 className="text-base font-bold text-[var(--text-primary)]" style={{ fontFamily: "var(--font-body)" }}>
                 Confirm Announcement

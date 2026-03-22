@@ -107,13 +107,13 @@ export default function RegistrationCodesPage() {
       <div className="px-5 mt-4 max-w-lg mx-auto space-y-4">
         {/* Status summary */}
         <div className="flex gap-2">
-          <div className="flex-1 rounded-xl px-3 py-2 text-center bg-green-100 text-green-700">
+          <div className="flex-1 rounded-xl px-3 py-2 text-center bg-[hsl(var(--success)/0.15)] text-[hsl(var(--success))]">
             <p className="text-lg font-bold">{available.length}</p>
             <p className="text-[10px] font-medium uppercase tracking-wide">
               Available
             </p>
           </div>
-          <div className="flex-1 rounded-xl px-3 py-2 text-center bg-blue-100 text-blue-700">
+          <div className="flex-1 rounded-xl px-3 py-2 text-center bg-[hsl(var(--accent-muted))] text-[hsl(var(--accent-strong))]">
             <p className="text-lg font-bold">{used.length}</p>
             <p className="text-[10px] font-medium uppercase tracking-wide">
               Used
@@ -128,11 +128,11 @@ export default function RegistrationCodesPage() {
         </div>
 
         {/* How it works */}
-        <div className="card p-4 bg-blue-50 border border-blue-100">
-          <h3 className="text-sm font-semibold text-blue-900 mb-1">
+        <div className="card p-4 bg-[hsl(var(--accent-soft))] border border-[hsl(var(--accent-muted))]">
+          <h3 className="text-sm font-semibold text-[hsl(var(--accent-text))] mb-1">
             How it works
           </h3>
-          <ol className="text-xs text-blue-700 space-y-1 list-decimal list-inside">
+          <ol className="text-xs text-[hsl(var(--accent-strong))] space-y-1 list-decimal list-inside">
             <li>Generate a registration code</li>
             <li>Share it with the school administrator</li>
             <li>They enter the code when registering their school</li>
@@ -166,7 +166,7 @@ export default function RegistrationCodesPage() {
                   code.isUsed
                     ? "bg-[var(--bg-tertiary)]"
                     : code.isExpired
-                    ? "bg-red-50/50"
+                    ? "bg-[hsl(var(--danger)/0.05)]"
                     : ""
                 }`}
               >
@@ -181,7 +181,7 @@ export default function RegistrationCodesPage() {
                         className="p-1 text-[var(--text-tertiary)] hover:text-[var(--accent-text)] transition-colors"
                       >
                         {copiedId === code.id ? (
-                          <Check className="w-4 h-4 text-green-500" />
+                          <Check className="w-4 h-4 text-[hsl(var(--success))]" />
                         ) : (
                           <Copy className="w-4 h-4" />
                         )}
@@ -189,17 +189,17 @@ export default function RegistrationCodesPage() {
                     )}
                   </div>
                   {code.isUsed ? (
-                    <span className="flex items-center gap-1 text-xs font-medium text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">
+                    <span className="flex items-center gap-1 text-xs font-medium text-[hsl(var(--accent))] bg-[hsl(var(--accent-soft))] px-2 py-0.5 rounded-full">
                       <CheckCircle className="w-3 h-3" />
                       Used
                     </span>
                   ) : code.isExpired ? (
-                    <span className="flex items-center gap-1 text-xs font-medium text-red-600 bg-red-50 px-2 py-0.5 rounded-full">
+                    <span className="flex items-center gap-1 text-xs font-medium text-[hsl(var(--danger))] bg-[hsl(var(--danger)/0.1)] px-2 py-0.5 rounded-full">
                       <XCircle className="w-3 h-3" />
                       Expired
                     </span>
                   ) : (
-                    <span className="flex items-center gap-1 text-xs font-medium text-green-600 bg-green-50 px-2 py-0.5 rounded-full">
+                    <span className="flex items-center gap-1 text-xs font-medium text-[hsl(var(--success))] bg-[hsl(var(--success)/0.1)] px-2 py-0.5 rounded-full">
                       <Clock className="w-3 h-3" />
                       Active
                     </span>
@@ -210,7 +210,7 @@ export default function RegistrationCodesPage() {
                   <p>Created: {formatDate(code.createdAt)}</p>
                   <p>Expires: {formatDate(code.expiresAt)}</p>
                   {code.usedBy && (
-                    <p className="text-blue-600">Used by: {code.usedBy}</p>
+                    <p className="text-[hsl(var(--accent))]">Used by: {code.usedBy}</p>
                   )}
                 </div>
               </div>

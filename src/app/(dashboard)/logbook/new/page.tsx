@@ -884,8 +884,8 @@ export default function NewEntryPage() {
       <div className="min-h-screen flex flex-col" style={{ backgroundColor: "var(--bg-primary)" }}>
         <div className={`px-5 pt-12 pb-8 rounded-b-3xl ${
           submittedEntries.isDraft ? "bg-gradient-to-br from-[hsl(var(--accent-strong))] to-[hsl(var(--accent))]"
-            : submittedEntries.classDidNotHold ? "bg-gradient-to-br from-slate-600 to-slate-500"
-            : "bg-gradient-to-br from-emerald-600 to-emerald-500"
+            : submittedEntries.classDidNotHold ? "bg-gradient-to-br from-[var(--text-secondary)] to-[var(--text-tertiary)]"
+            : "bg-gradient-to-br from-[hsl(var(--success))] to-[hsl(var(--success))]"
         }`}>
           <div className="max-w-lg mx-auto text-center">
             <div className="inline-flex items-center justify-center w-20 h-20 bg-white/20 rounded-full mb-4 animate-spring-bounce">
@@ -1070,14 +1070,14 @@ export default function NewEntryPage() {
                     )}
                     {submittedEntries.assignmentReviewed === true && (
                       <div className="rounded-xl py-2 px-3" style={{ background: "hsl(var(--success) / 0.15)" }}>
-                        <p className="text-[10px] text-emerald-600">Previous Assignment</p>
-                        <p className="text-xs font-semibold text-emerald-700">Reviewed</p>
+                        <p className="text-[10px] text-[hsl(var(--success))]">Previous Assignment</p>
+                        <p className="text-xs font-semibold text-[hsl(var(--success))]">Reviewed</p>
                       </div>
                     )}
                     {submittedEntries.assignmentReviewed === false && (
                       <div className="rounded-xl py-2 px-3" style={{ background: "hsl(var(--danger) / 0.1)" }}>
-                        <p className="text-[10px] text-red-600">Previous Assignment</p>
-                        <p className="text-xs font-semibold text-red-700">Not reviewed</p>
+                        <p className="text-[10px] text-[hsl(var(--danger))]">Previous Assignment</p>
+                        <p className="text-xs font-semibold text-[hsl(var(--danger))]">Not reviewed</p>
                       </div>
                     )}
                   </div>
@@ -1090,7 +1090,7 @@ export default function NewEntryPage() {
           {!submittedEntries.isDraft && !submittedEntries.classDidNotHold && (
             <div className="mt-4 card overflow-hidden">
               <div className="px-4 py-3 border-b border-[var(--border-secondary)] flex items-center gap-2">
-                <MessageSquare className="w-4 h-4 text-emerald-600" />
+                <MessageSquare className="w-4 h-4 text-[hsl(var(--success))]" />
                 <h3 className="text-sm font-bold text-[var(--text-primary)]">
                   Quick Reflection
                 </h3>
@@ -1098,7 +1098,7 @@ export default function NewEntryPage() {
               </div>
               <div className="p-4">
                 {reflectionSent ? (
-                  <div className="flex items-center gap-2 text-sm text-emerald-600 font-semibold">
+                  <div className="flex items-center gap-2 text-sm text-[hsl(var(--success))] font-semibold">
                     <CheckCircle className="w-4 h-4" />
                     Reflection saved
                   </div>
@@ -1110,7 +1110,7 @@ export default function NewEntryPage() {
                       placeholder="How did the lesson go? Any notes for yourself?"
                       maxLength={1000}
                       rows={2}
-                      className="w-full bg-[var(--bg-elevated)] border border-[var(--border-primary)] rounded-xl px-3 py-2 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-quaternary)] focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent resize-none"
+                      className="w-full bg-[var(--bg-elevated)] border border-[var(--border-primary)] rounded-xl px-3 py-2 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-quaternary)] focus:outline-none focus:ring-2 focus:ring-[hsl(var(--success))] focus:border-transparent resize-none"
                     />
                     <div className="flex items-center justify-between">
                       <p className="text-[10px] text-[var(--text-quaternary)]">
@@ -1137,7 +1137,7 @@ export default function NewEntryPage() {
                           }
                         }}
                         disabled={!reflectionText.trim() || reflectionSending}
-                        className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-semibold text-white bg-emerald-600 rounded-xl shadow-sm hover:bg-emerald-700 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-semibold text-white bg-[hsl(var(--success))] rounded-xl shadow-sm hover:bg-[hsl(var(--success))] hover:brightness-90 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         {reflectionSending ? (
                           <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -1595,7 +1595,7 @@ export default function NewEntryPage() {
                 {subjectId && otherClassesForSubject.length > 0 && (
                   <div>
                     <label className="label-field flex items-center gap-1.5">
-                      <Copy className="w-3.5 h-3.5 text-violet-500" />
+                      <Copy className="w-3.5 h-3.5 text-[hsl(var(--accent))]" />
                       Also submit for other classes?
                     </label>
                     <div className="flex flex-wrap gap-2 mt-2">

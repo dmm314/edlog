@@ -80,10 +80,10 @@ export default function RegionalAnalysisPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100/50 pb-24">
+    <div className="min-h-screen bg-gradient-to-b from-[var(--bg-secondary)] to-[var(--bg-tertiary)] pb-24">
       {/* Header */}
-      <div className="bg-gradient-to-br from-violet-950 via-violet-900 to-violet-800 px-5 pt-10 pb-8 rounded-b-[2rem] shadow-elevated relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-violet-600/20 via-transparent to-transparent" />
+      <div className="bg-gradient-to-br from-[hsl(var(--accent-text))] via-[hsl(var(--accent-strong))] to-[hsl(var(--accent))] px-5 pt-10 pb-8 rounded-b-[2rem] shadow-elevated relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[hsl(var(--accent)/0.2)] via-transparent to-transparent" />
         <div className="max-w-lg mx-auto relative">
           <Link
             href="/regional"
@@ -93,10 +93,10 @@ export default function RegionalAnalysisPage() {
             Back to Dashboard
           </Link>
           <h1 className="text-xl font-bold text-white flex items-center gap-2">
-            <Layers className="w-5 h-5 text-violet-400" />
+            <Layers className="w-5 h-5 text-[hsl(var(--accent-muted))]" />
             Deep Analysis
           </h1>
-          <p className="text-violet-400/70 text-sm mt-0.5">
+          <p className="text-[hsl(var(--accent-muted)/0.7)] text-sm mt-0.5">
             Module completion, teachers, and HODs across schools
           </p>
         </div>
@@ -118,7 +118,7 @@ export default function RegionalAnalysisPage() {
               }}
               className={`flex-1 flex items-center justify-center gap-1.5 text-sm font-semibold py-2.5 rounded-lg transition-all ${
                 activeTab === tab.key
-                  ? "bg-violet-600 text-white shadow-sm"
+                  ? "bg-[hsl(var(--accent))] text-white shadow-sm"
                   : "text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]"
               }`}
             >
@@ -242,7 +242,7 @@ export default function RegionalAnalysisPage() {
                             </p>
                           </div>
                           <div className="flex items-center gap-2">
-                            <span className="text-lg font-black text-violet-600 tabular-nums">
+                            <span className="text-lg font-black text-[hsl(var(--accent))] tabular-nums">
                               {sub.totalTeachers}
                             </span>
                             {isOpen ? (

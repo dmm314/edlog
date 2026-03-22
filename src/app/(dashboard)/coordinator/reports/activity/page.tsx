@@ -97,7 +97,7 @@ export default function CoordinatorActivityReportPage() {
           entryId={selectedEntryId}
           onClose={() => setSelectedEntryId(null)}
           remarkLabel="Coordinator Note"
-          accentClass="from-emerald-900 to-emerald-800"
+          accentClass="from-[hsl(var(--success))] to-[hsl(var(--success))]"
         />
       )}
     </>

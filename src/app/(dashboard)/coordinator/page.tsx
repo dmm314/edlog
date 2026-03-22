@@ -321,7 +321,7 @@ export default function CoordinatorDashboardPage() {
             <div className="px-4 pt-3.5 pb-2.5 flex items-center gap-2"
               style={{ borderBottom: `1px solid ${liveCount > 0 ? "hsl(var(--success) / 0.2)" : "var(--border-secondary)"}` }}>
               {liveCount > 0
-                ? <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse flex-shrink-0" />
+                ? <span className="w-2 h-2 rounded-full bg-[hsl(var(--success))] animate-pulse flex-shrink-0" />
                 : <Clock className="w-3.5 h-3.5 flex-shrink-0" style={{ color: "var(--text-tertiary)" }} />}
               <p className="text-xs font-bold uppercase tracking-widest flex-1" style={{ color: "var(--text-tertiary)" }}>
                 {levelSummary} — Today&apos;s Classes

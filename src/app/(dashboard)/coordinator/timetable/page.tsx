@@ -211,7 +211,7 @@ export default function CoordinatorTimetablePage() {
               Coordinator
             </Link>
             <div className="flex items-center gap-2 mb-1">
-              <Calendar className="w-5 h-5 text-violet-300" />
+              <Calendar className="w-5 h-5 text-[hsl(var(--accent)/0.7)]" />
               <h1 className="text-xl font-bold text-white">Timetable</h1>
             </div>
             <p className="text-white/60 text-sm">
@@ -219,11 +219,11 @@ export default function CoordinatorTimetablePage() {
             </p>
             <div className="flex items-center gap-2 mt-4">
               <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10">
-                <Users className="w-3.5 h-3.5 text-violet-200" />
+                <Users className="w-3.5 h-3.5 text-[hsl(var(--accent)/0.6)]" />
                 <span className="text-xs font-semibold text-white/80">{classes.length} classes</span>
               </div>
               <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10">
-                <Clock className="w-3.5 h-3.5 text-violet-200" />
+                <Clock className="w-3.5 h-3.5 text-[hsl(var(--accent)/0.6)]" />
                 <span className="text-xs font-semibold text-white/80">{slots.length} slots total</span>
               </div>
             </div>
@@ -232,7 +232,7 @@ export default function CoordinatorTimetablePage() {
 
         <div className="px-5 mt-4 max-w-lg mx-auto">
           {error && (
-            <div className="mb-4 bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-4 py-3">
+            <div className="mb-4 bg-[hsl(var(--danger)/0.1)] border border-[hsl(var(--danger)/0.2)] text-[hsl(var(--danger))] text-sm rounded-xl px-4 py-3">
               {error}
             </div>
           )}
@@ -278,7 +278,7 @@ export default function CoordinatorTimetablePage() {
                                 {hasLiveSlot && (
                                   <span className="flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded-full"
                                     style={{ background: "hsl(var(--success) / 0.15)", color: "hsl(var(--success))" }}>
-                                    <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse inline-block" />
+                                    <span className="w-1.5 h-1.5 rounded-full bg-[hsl(var(--success))] animate-pulse inline-block" />
                                     LIVE
                                   </span>
                                 )}
@@ -345,7 +345,7 @@ export default function CoordinatorTimetablePage() {
                   }}>
                   <span>{day.short}</span>
                   {isToday && !isActive && (
-                    <span className="ml-1 w-1.5 h-1.5 rounded-full bg-violet-300 inline-block" />
+                    <span className="ml-1 w-1.5 h-1.5 rounded-full bg-[hsl(var(--accent)/0.7)] inline-block" />
                   )}
                   {count > 0 && (
                     <span className="ml-1.5 text-[9px]"
@@ -401,8 +401,8 @@ export default function CoordinatorTimetablePage() {
                           {slot.subject}
                         </p>
                         {active && (
-                          <span className="flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-green-100 text-green-700">
-                            <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse inline-block" />
+                          <span className="flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-[hsl(var(--success)/0.15)] text-[hsl(var(--success))]">
+                            <span className="w-1.5 h-1.5 rounded-full bg-[hsl(var(--success))] animate-pulse inline-block" />
                             NOW
                           </span>
                         )}

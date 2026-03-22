@@ -107,11 +107,11 @@ function fmtDateTime(iso: string): string {
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 function RemarkRoleBadge({ authorRole, remarkType }: { authorRole: string; remarkType: string }) {
   const config: Record<string, { bg: string; text: string; border: string; label: string }> = {
-    self_reflection: { bg: "bg-emerald-50", text: "text-emerald-700", border: "border-emerald-200", label: "Teacher" },
+    self_reflection: { bg: "bg-[hsl(var(--success)/0.1)]", text: "text-[hsl(var(--success))]", border: "border-[hsl(var(--success)/0.2)]", label: "Teacher" },
     hod_review: { bg: "bg-[hsl(var(--accent-soft))]", text: "text-[hsl(var(--accent-text))]", border: "border-[hsl(var(--accent)/0.2)]", label: "HOD" },
-    admin_observation: { bg: "bg-blue-50", text: "text-blue-700", border: "border-blue-200", label: "Admin" },
-    coordinator_review: { bg: "bg-purple-50", text: "text-purple-700", border: "border-purple-200", label: "VP Review" },
-    inspector_note: { bg: "bg-purple-50", text: "text-purple-700", border: "border-purple-200", label: "Inspector" },
+    admin_observation: { bg: "bg-[hsl(var(--accent-soft))]", text: "text-[hsl(var(--accent-strong))]", border: "border-[hsl(var(--accent)/0.2)]", label: "Admin" },
+    coordinator_review: { bg: "bg-[hsl(var(--accent-soft))]", text: "text-[hsl(var(--accent-strong))]", border: "border-[hsl(var(--accent)/0.2)]", label: "VP Review" },
+    inspector_note: { bg: "bg-[hsl(var(--accent-soft))]", text: "text-[hsl(var(--accent-strong))]", border: "border-[hsl(var(--accent)/0.2)]", label: "Inspector" },
   };
   const c = config[remarkType] || config.self_reflection;
   return (
@@ -123,13 +123,13 @@ function RemarkRoleBadge({ authorRole, remarkType }: { authorRole: string; remar
 
 function RemarkColorBar({ remarkType }: { remarkType: string }) {
   const colors: Record<string, string> = {
-    self_reflection: "bg-emerald-500",
+    self_reflection: "bg-[hsl(var(--success))]",
     hod_review: "bg-[hsl(var(--accent))]",
-    admin_observation: "bg-blue-500",
-    coordinator_review: "bg-purple-500",
-    inspector_note: "bg-purple-500",
+    admin_observation: "bg-[hsl(var(--accent))]",
+    coordinator_review: "bg-[hsl(var(--accent))]",
+    inspector_note: "bg-[hsl(var(--accent))]",
   };
-  return <div className={`w-1 rounded-full self-stretch flex-shrink-0 ${colors[remarkType] || "bg-gray-400"}`} />;
+  return <div className={`w-1 rounded-full self-stretch flex-shrink-0 ${colors[remarkType] || "bg-[var(--text-tertiary)]"}`} />;
 }
 
 export default function EntryDetailPage() {
@@ -261,13 +261,13 @@ export default function EntryDetailPage() {
     switch (status) {
       case "VERIFIED":
         return (
-          <span className="inline-flex items-center gap-1 text-[10px] font-bold bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full border border-emerald-100">
+          <span className="inline-flex items-center gap-1 text-[10px] font-bold bg-[hsl(var(--success)/0.1)] text-[hsl(var(--success))] px-2 py-0.5 rounded-full border border-[hsl(var(--success)/0.15)]">
             <Check className="w-3 h-3" /> Verified
           </span>
         );
       case "FLAGGED":
         return (
-          <span className="inline-flex items-center gap-1 text-[10px] font-bold bg-red-50 text-red-700 px-2 py-0.5 rounded-full border border-red-100">
+          <span className="inline-flex items-center gap-1 text-[10px] font-bold bg-[hsl(var(--danger)/0.1)] text-[hsl(var(--danger))] px-2 py-0.5 rounded-full border border-[hsl(var(--danger)/0.15)]">
             <Flag className="w-3 h-3" /> Flagged
           </span>
         );
@@ -349,8 +349,8 @@ export default function EntryDetailPage() {
             <div className="px-4 py-3 flex items-center gap-2"
               style={{ borderBottom: `1px solid ${entry.status === "VERIFIED" ? "hsl(var(--success) / 0.3)" : "hsl(var(--danger) / 0.3)"}` }}>
               {entry.status === "VERIFIED"
-                ? <CheckCircle className="w-5 h-5 text-emerald-600 flex-shrink-0" />
-                : <Flag className="w-5 h-5 text-red-500 flex-shrink-0" />}
+                ? <CheckCircle className="w-5 h-5 text-[hsl(var(--success))] flex-shrink-0" />
+                : <Flag className="w-5 h-5 text-[hsl(var(--danger))] flex-shrink-0" />}
               <p className="text-sm font-bold" style={{ color: entry.status === "VERIFIED" ? "hsl(var(--success))" : "hsl(var(--danger))" }}>
                 {entry.status === "VERIFIED" ? "Entry Verified" : "Entry Flagged"}
               </p>
@@ -474,8 +474,8 @@ export default function EntryDetailPage() {
                 <div className="flex-1 bg-[var(--bg-tertiary)] rounded-xl p-3 border border-[var(--border-secondary)]">
                   <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-tertiary)]">Engagement</p>
                   <p className={`text-sm font-bold mt-0.5 ${
-                    entry.engagementLevel === "HIGH" ? "text-emerald-600" :
-                    entry.engagementLevel === "MEDIUM" ? "text-[hsl(var(--accent-strong))]" : "text-red-500"
+                    entry.engagementLevel === "HIGH" ? "text-[hsl(var(--success))]" :
+                    entry.engagementLevel === "MEDIUM" ? "text-[hsl(var(--accent-strong))]" : "text-[hsl(var(--danger))]"
                   }`}>
                     {entry.engagementLevel}
                   </p>
@@ -542,7 +542,7 @@ export default function EntryDetailPage() {
           {canRemark && (
             <div className="px-4 py-3 border-t border-[var(--border-secondary)] bg-[var(--bg-tertiary)]">
               {remarkError && (
-                <p className="text-xs text-red-600 mb-2">{remarkError}</p>
+                <p className="text-xs text-[hsl(var(--danger))] mb-2">{remarkError}</p>
               )}
               <div className="flex gap-2">
                 <textarea

@@ -236,15 +236,15 @@ export default function CoordinatorEntryReviewPage() {
             <span className="text-[10px] font-bold bg-white/15 text-white px-2 py-0.5 rounded-md">{subjectName}</span>
             <span className="text-[10px] font-semibold bg-white/10 text-white/80 px-2 py-0.5 rounded-md">{entry.class.name}</span>
             {entry.status === "SUBMITTED" && (
-              <span className="text-[10px] font-bold bg-blue-400/20 text-blue-200 px-2 py-0.5 rounded-md">Submitted</span>
+              <span className="text-[10px] font-bold bg-[hsl(var(--accent)/0.2)] text-[hsl(var(--accent)/0.7)] px-2 py-0.5 rounded-md">Submitted</span>
             )}
             {entry.status === "VERIFIED" && (
-              <span className="text-[10px] font-bold bg-emerald-400/20 text-emerald-200 px-2 py-0.5 rounded-md flex items-center gap-1">
+              <span className="text-[10px] font-bold bg-[hsl(var(--success)/0.2)] text-[hsl(var(--success)/0.7)] px-2 py-0.5 rounded-md flex items-center gap-1">
                 <Check className="w-3 h-3" /> Verified
               </span>
             )}
             {entry.status === "FLAGGED" && (
-              <span className="text-[10px] font-bold bg-red-400/20 text-red-200 px-2 py-0.5 rounded-md flex items-center gap-1">
+              <span className="text-[10px] font-bold bg-[hsl(var(--danger)/0.2)] text-[hsl(var(--danger)/0.7)] px-2 py-0.5 rounded-md flex items-center gap-1">
                 <Flag className="w-3 h-3" /> Flagged
               </span>
             )}
@@ -274,8 +274,8 @@ export default function CoordinatorEntryReviewPage() {
             <div className="px-4 py-3 flex items-center gap-2"
               style={{ borderBottom: `1px solid ${entry.status === "VERIFIED" ? "hsl(var(--success) / 0.3)" : "hsl(var(--danger) / 0.3)"}` }}>
               {entry.status === "VERIFIED"
-                ? <CheckCircle className="w-5 h-5 text-emerald-600 flex-shrink-0" />
-                : <Flag className="w-5 h-5 text-red-500 flex-shrink-0" />}
+                ? <CheckCircle className="w-5 h-5 text-[hsl(var(--success))] flex-shrink-0" />
+                : <Flag className="w-5 h-5 text-[hsl(var(--danger))] flex-shrink-0" />}
               <p className="text-sm font-bold" style={{ color: entry.status === "VERIFIED" ? "hsl(var(--success))" : "hsl(var(--danger))" }}>
                 {entry.status === "VERIFIED" ? "Entry Verified" : "Entry Flagged"}
               </p>
@@ -393,8 +393,8 @@ export default function CoordinatorEntryReviewPage() {
                 <div className="flex-1 bg-[var(--bg-tertiary)] rounded-xl p-3 border border-[var(--border-secondary)]">
                   <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-tertiary)]">Engagement</p>
                   <p className={`text-sm font-bold mt-0.5 ${
-                    entry.engagementLevel === "HIGH" ? "text-emerald-600" :
-                    entry.engagementLevel === "MEDIUM" ? "text-[hsl(var(--accent-strong))]" : "text-red-500"
+                    entry.engagementLevel === "HIGH" ? "text-[hsl(var(--success))]" :
+                    entry.engagementLevel === "MEDIUM" ? "text-[hsl(var(--accent-strong))]" : "text-[hsl(var(--danger))]"
                   }`}>
                     {entry.engagementLevel}
                   </p>
@@ -409,8 +409,8 @@ export default function CoordinatorEntryReviewPage() {
           <div className="card p-5 text-center animate-scale-in"
             style={{ borderLeft: `4px solid ${doneStatus === "VERIFIED" ? "hsl(var(--success))" : "hsl(var(--danger))"}` }}>
             {doneStatus === "VERIFIED"
-              ? <CheckCircle className="w-10 h-10 text-emerald-500 mx-auto mb-2" />
-              : <Flag className="w-10 h-10 text-red-500 mx-auto mb-2" />}
+              ? <CheckCircle className="w-10 h-10 text-[hsl(var(--success))] mx-auto mb-2" />
+              : <Flag className="w-10 h-10 text-[hsl(var(--danger))] mx-auto mb-2" />}
             <p className="font-bold text-[var(--text-primary)]">
               Entry {doneStatus === "VERIFIED" ? "Verified" : "Flagged"}
             </p>
@@ -477,7 +477,7 @@ export default function CoordinatorEntryReviewPage() {
               </div>
 
               {formError && (
-                <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{formError}</p>
+                <p className="text-sm text-[hsl(var(--danger))] bg-[hsl(var(--danger)/0.1)] rounded-lg px-3 py-2">{formError}</p>
               )}
 
               <div className="flex gap-3 pt-1">
