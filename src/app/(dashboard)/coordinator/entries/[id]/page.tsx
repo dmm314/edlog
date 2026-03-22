@@ -483,13 +483,13 @@ export default function CoordinatorEntryReviewPage() {
               <div className="flex gap-3 pt-1">
                 <button type="button" onClick={() => handleSubmit("FLAGGED")} disabled={!!submitting}
                   className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold border-2 transition-all active:scale-95 disabled:opacity-50"
-                  style={{ borderColor: "#DC2626", color: "#DC2626", background: "transparent" }}>
+                  style={{ borderColor: "hsl(var(--danger))", color: "hsl(var(--danger))", background: "transparent" }}>
                   {submitting === "FLAGGED" ? <Loader2 className="w-4 h-4 animate-spin" /> : <Flag className="w-4 h-4" />}
                   Flag Entry
                 </button>
                 <button type="button" onClick={() => handleSubmit("VERIFIED")} disabled={!!submitting}
                   className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold text-white transition-all active:scale-95 disabled:opacity-50"
-                  style={{ background: submitting ? "#16A34A99" : "#16A34A" }}>
+                  style={{ background: submitting ? "hsl(var(--success) / 0.6)" : "hsl(var(--success))" }}>
                   {submitting === "VERIFIED" ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
                   Verify Entry
                 </button>
@@ -502,7 +502,7 @@ export default function CoordinatorEntryReviewPage() {
         {!alreadyReviewed && !done && (
           <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl"
             style={{ background: "var(--bg-elevated)", border: "1px solid var(--border-secondary)" }}>
-            <Eye className="w-3.5 h-3.5 flex-shrink-0" style={{ color: "#7C3AED" }} />
+            <Eye className="w-3.5 h-3.5 flex-shrink-0" style={{ color: "hsl(var(--accent))" }} />
             <p className="text-xs text-[var(--text-tertiary)]">
               This entry has been marked as <span className="font-semibold text-[var(--text-secondary)]">seen by you</span>.
             </p>
