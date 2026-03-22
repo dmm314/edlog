@@ -106,7 +106,7 @@ function SideNav({ role, userName, isCoordinator, activeMode, switchMode }: Side
   }
 
   return (
-    <nav className="hidden lg:fixed lg:inset-y-0 lg:left-0 lg:z-40 lg:flex lg:w-[288px] lg:flex-col lg:border-r lg:border-[hsl(var(--border-primary))] lg:bg-[hsl(var(--surface-elevated))]">
+    <nav className="hidden lg:fixed lg:inset-y-0 lg:left-0 lg:z-40 lg:flex lg:w-[264px] lg:flex-col lg:border-r lg:border-[hsl(var(--border-primary))] lg:bg-[hsl(var(--surface-elevated))]">
       <div className="flex h-full flex-col px-4 py-5">
         {/* Brand */}
         <div className="mb-5 flex items-center gap-2.5 px-3">

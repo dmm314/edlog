@@ -408,8 +408,8 @@ export default function LogbookPage() {
           </Link>
         </div>
 
-        <div className="-mx-4 overflow-x-auto px-4 pb-1">
-          <div className="flex gap-2 pr-2">
+        <div className="-mx-4 overflow-x-auto px-4 pb-1 lg:mx-0 lg:px-0">
+          <div className="flex gap-2 pr-2 lg:grid lg:grid-cols-2 xl:grid-cols-3 lg:pr-0">
             {(notices.length
               ? notices
               : [{ id: "fallback", title: "You are clear", message: "No new notices right now.", createdAt: new Date().toISOString(), isRead: true }]
@@ -432,6 +432,9 @@ export default function LogbookPage() {
           </div>
         </div>
       </section>
+
+      {/* ─ Two-column layout on desktop ─ */}
+      <div className="lg:grid lg:grid-cols-2 lg:gap-5 space-y-4 lg:space-y-0">
 
       {/* ─ Today's timetable ─ */}
       <section className="section-card space-y-4">
@@ -570,6 +573,8 @@ export default function LogbookPage() {
           ))}
         </div>
       </section>
+
+      </div>{/* end two-column layout */}
 
       {/* ─ Next class info ─ */}
       {nextClassInfo ? (
