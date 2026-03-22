@@ -76,7 +76,7 @@ export default function HODAnnouncementsPage() {
       {/* Header */}
       <div
         className="px-5 pt-10 pb-6 rounded-b-2xl"
-        style={{ background: "linear-gradient(135deg, #292524 0%, #44403C 50%, #57534E 100%)" }}
+        style={{ background: "linear-gradient(135deg, hsl(var(--accent-strong)), hsl(var(--accent)))" }}
       >
         <div className="max-w-lg mx-auto">
           <Link

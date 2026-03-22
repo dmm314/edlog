@@ -1103,7 +1103,7 @@ export default function ProfilePage() {
                         </div>
                         <div>
                           <p className="text-[11px] font-medium" style={{ color: "var(--text-tertiary)" }}>Status</p>
-                          <p className="text-sm font-semibold mt-0.5" style={{ color: profile.school.status === "ACTIVE" ? "#10b981" : "var(--accent-text)" }}>
+                          <p className="text-sm font-semibold mt-0.5" style={{ color: profile.school.status === "ACTIVE" ? "hsl(var(--success))" : "var(--accent-text)" }}>
                             {profile.school.status}
                           </p>
                         </div>
@@ -1382,9 +1382,9 @@ export default function ProfilePage() {
             onClick={() => signOut({ callbackUrl: "/login" })}
             className="w-full flex items-center justify-center gap-2 rounded-2xl px-4 py-3.5 text-sm font-semibold transition-colors"
             style={{
-              backgroundColor: "rgba(239,68,68,0.06)",
-              border: "1px solid rgba(239,68,68,0.15)",
-              color: "#ef4444",
+              backgroundColor: "hsl(var(--danger) / 0.06)",
+              border: "1px solid hsl(var(--danger) / 0.15)",
+              color: "hsl(var(--danger))",
             }}
           >
             <LogOut className="w-4 h-4" />

@@ -1069,13 +1069,13 @@ export default function NewEntryPage() {
                       </div>
                     )}
                     {submittedEntries.assignmentReviewed === true && (
-                      <div className="rounded-xl py-2 px-3" style={{ background: "#DCFCE7" }}>
+                      <div className="rounded-xl py-2 px-3" style={{ background: "hsl(var(--success) / 0.15)" }}>
                         <p className="text-[10px] text-emerald-600">Previous Assignment</p>
                         <p className="text-xs font-semibold text-emerald-700">Reviewed</p>
                       </div>
                     )}
                     {submittedEntries.assignmentReviewed === false && (
-                      <div className="rounded-xl py-2 px-3" style={{ background: "#FEE2E2" }}>
+                      <div className="rounded-xl py-2 px-3" style={{ background: "hsl(var(--danger) / 0.1)" }}>
                         <p className="text-[10px] text-red-600">Previous Assignment</p>
                         <p className="text-xs font-semibold text-red-700">Not reviewed</p>
                       </div>
@@ -1623,7 +1623,7 @@ export default function NewEntryPage() {
                   className="w-full font-bold text-[15px] transition-all active:scale-[0.98] disabled:opacity-40"
                   style={{
                     background: (topicText.trim() || selectedTopicIds.length > 0) ? "linear-gradient(135deg, var(--accent), var(--accent-hover))" : "var(--bg-tertiary)",
-                    color: (topicText.trim() || selectedTopicIds.length > 0) ? "#FFF" : "var(--text-tertiary)",
+                    color: (topicText.trim() || selectedTopicIds.length > 0) ? "white" : "var(--text-tertiary)",
                     boxShadow: (topicText.trim() || selectedTopicIds.length > 0) ? "var(--shadow-accent)" : "none",
                     padding: "16px",
                     borderRadius: "16px",
@@ -1643,7 +1643,7 @@ export default function NewEntryPage() {
                     ["Module", moduleName || "—"],
                     ["Topic", topicText || selectedTopicIds.map((id) => topicsForModule.find((t) => t.id === id)?.name).filter(Boolean).join(", ") || "—"],
                   ].map(([label, value], idx) => (
-                    <div key={label} className="flex justify-between py-2" style={{ borderBottom: idx < 3 ? "1px solid #F5F5F4" : "none" }}>
+                    <div key={label} className="flex justify-between py-2" style={{ borderBottom: idx < 3 ? "1px solid var(--bg-tertiary)" : "none" }}>
                       <span className="text-[13px] text-[var(--text-tertiary)]">{label}</span>
                       <span className="text-[13px] font-semibold text-[var(--text-primary)] text-right max-w-[60%] truncate">{value}</span>
                     </div>
@@ -2081,9 +2081,9 @@ export default function NewEntryPage() {
                         <button type="button" onClick={() => setAssignmentReviewed(true)}
                           className="text-xs font-semibold px-3 py-1.5 rounded-lg transition-all"
                           style={{
-                            background: assignmentReviewed === true ? "#DCFCE7" : "hsl(var(--accent-soft))",
-                            color: assignmentReviewed === true ? "#16A34A" : "hsl(var(--accent-text))",
-                            border: assignmentReviewed === true ? "1px solid #86EFAC" : "1px solid hsl(var(--accent) / 0.2)",
+                            background: assignmentReviewed === true ? "hsl(var(--success) / 0.15)" : "hsl(var(--accent-soft))",
+                            color: assignmentReviewed === true ? "hsl(var(--success))" : "hsl(var(--accent-text))",
+                            border: assignmentReviewed === true ? "1px solid hsl(var(--success) / 0.4)" : "1px solid hsl(var(--accent) / 0.2)",
                           }}>
                           {assignmentReviewed === true && <Check className="w-3 h-3 inline mr-1 -mt-0.5" />}
                           Reviewed
@@ -2091,9 +2091,9 @@ export default function NewEntryPage() {
                         <button type="button" onClick={() => setAssignmentReviewed(false)}
                           className="text-xs font-semibold px-3 py-1.5 rounded-lg transition-all"
                           style={{
-                            background: assignmentReviewed === false ? "#FEE2E2" : "hsl(var(--accent-soft))",
-                            color: assignmentReviewed === false ? "#DC2626" : "hsl(var(--accent-text))",
-                            border: assignmentReviewed === false ? "1px solid #FCA5A5" : "1px solid hsl(var(--accent) / 0.2)",
+                            background: assignmentReviewed === false ? "hsl(var(--danger) / 0.1)" : "hsl(var(--accent-soft))",
+                            color: assignmentReviewed === false ? "hsl(var(--danger))" : "hsl(var(--accent-text))",
+                            border: assignmentReviewed === false ? "1px solid hsl(var(--danger) / 0.3)" : "1px solid hsl(var(--accent) / 0.2)",
                           }}>
                           {assignmentReviewed === false && <Check className="w-3 h-3 inline mr-1 -mt-0.5" />}
                           Not reviewed
@@ -2160,29 +2160,29 @@ export default function NewEntryPage() {
                   <div className="space-y-4 animate-fade-in">
                     <div className="flex gap-2">
                       <div className="flex-1 card p-3.5">
-                        <p className="text-[11px] font-semibold mb-1.5" style={{ color: "#A8A29E" }}>Attendance</p>
+                        <p className="text-[11px] font-semibold mb-1.5" style={{ color: "var(--text-tertiary)" }}>Attendance</p>
                         <input type="number" value={studentAttendance} onChange={(e) => setStudentAttendance(e.target.value)}
                           className="w-full text-center py-2.5 text-lg font-bold font-mono bg-transparent"
-                          style={{ background: "#F5F5F4", color: "var(--text-primary)", borderRadius: "10px" }}
+                          style={{ background: "var(--bg-tertiary)", color: "var(--text-primary)", borderRadius: "10px" }}
                           placeholder="—" min="0" max="999" />
                       </div>
                       <div className="flex-1 card p-3.5">
-                        <p className="text-[11px] font-semibold mb-1.5" style={{ color: "#A8A29E" }}>Engagement</p>
+                        <p className="text-[11px] font-semibold mb-1.5" style={{ color: "var(--text-tertiary)" }}>Engagement</p>
                         <div className="flex gap-1">
                           {(["HIGH", "MEDIUM", "LOW"] as const).map((level) => {
                             const isActive = engagementLevel === level;
                             const colors: Record<string, { bg: string; text: string }> = {
-                              HIGH: { bg: "#DCFCE7", text: "#16A34A" },
+                              HIGH: { bg: "hsl(var(--success) / 0.15)", text: "hsl(var(--success))" },
                               MEDIUM: { bg: "hsl(var(--accent-soft))", text: "hsl(var(--accent-strong))" },
-                              LOW: { bg: "#FEE2E2", text: "#DC2626" },
+                              LOW: { bg: "hsl(var(--danger) / 0.1)", text: "hsl(var(--danger))" },
                             };
                             const c = colors[level];
                             return (
                               <button key={level} type="button" onClick={() => setEngagementLevel(isActive ? "" : level)}
                                 className="flex-1 py-2.5 text-xs font-semibold transition-all"
                                 style={{
-                                  background: isActive ? c.bg : "#F5F5F4",
-                                  color: isActive ? c.text : "#A8A29E",
+                                  background: isActive ? c.bg : "var(--bg-tertiary)",
+                                  color: isActive ? c.text : "var(--text-tertiary)",
                                   borderRadius: "10px",
                                 }}>
                                 {level === "HIGH" ? "High" : level === "MEDIUM" ? "Med" : "Low"}
@@ -2230,7 +2230,7 @@ export default function NewEntryPage() {
 
                 <button type="submit" disabled={!isFormValid || submitting || savingDraft || selectedPeriodNotEnded}
                   className="w-full font-bold text-base text-white flex items-center justify-center gap-2 transition-all active:scale-[0.97] disabled:opacity-50"
-                  style={{ background: "linear-gradient(135deg, #16A34A, #15803D)", boxShadow: "0 4px 16px -4px rgba(22,163,74,0.4)", padding: "18px", borderRadius: "16px" }}>
+                  style={{ background: "linear-gradient(135deg, hsl(var(--success)), hsl(var(--success)))", boxShadow: "0 4px 16px -4px hsl(var(--success) / 0.4)", padding: "18px", borderRadius: "16px" }}>
                   {submitting ? (
                     <>
                       <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24" fill="none">

@@ -243,7 +243,7 @@ export default function CoordinatorsPage() {
       {/* Header */}
       <div
         className="px-5 pt-10 pb-8 rounded-b-[2rem] relative overflow-hidden"
-        style={{ background: "linear-gradient(135deg, #0F172A 0%, #1E293B 50%, #334155 100%)" }}
+        style={{ background: "linear-gradient(135deg, hsl(var(--accent-strong)), hsl(var(--accent)))" }}
       >
         <div className="absolute inset-0 pointer-events-none" style={{ opacity: 0.04, backgroundImage: "radial-gradient(circle at 2px 2px, white 1px, transparent 0)", backgroundSize: "20px 20px" }} />
         <div className="max-w-lg mx-auto relative">
@@ -274,7 +274,7 @@ export default function CoordinatorsPage() {
         {newCredentials && (
           <div
             className="card p-4 border-l-4"
-            style={{ borderLeftColor: "#7C3AED" }}
+            style={{ borderLeftColor: "hsl(var(--accent))" }}
           >
             <p className="text-sm font-bold text-[var(--text-primary)] mb-2">
               Account created for {newCredentials.name}
@@ -345,7 +345,7 @@ export default function CoordinatorsPage() {
                         <>
                           <span
                             className="text-[10px] font-bold px-2 py-0.5 rounded-full"
-                            style={{ background: "#DCFCE7", color: "#15803D" }}
+                            style={{ background: "hsl(var(--success) / 0.15)", color: "hsl(var(--success))" }}
                           >
                             Active
                           </span>
@@ -366,7 +366,7 @@ export default function CoordinatorsPage() {
                         <button
                           onClick={() => openAssignForm(level)}
                           className="flex items-center gap-1 text-xs font-bold px-3 py-1.5 rounded-lg transition-all active:scale-95"
-                          style={{ background: "#EDE9FE", color: "#5B21B6" }}
+                          style={{ background: "hsl(var(--accent-soft))", color: "hsl(var(--accent-text))" }}
                         >
                           <Plus className="w-3.5 h-3.5" />
                           Assign
@@ -391,7 +391,7 @@ export default function CoordinatorsPage() {
                             onClick={() => handleDeactivate(coord.id)}
                             disabled={deactivating === coord.id}
                             className="flex items-center gap-1.5 text-xs font-bold px-3 py-2 rounded-lg transition-all active:scale-95 disabled:opacity-50"
-                            style={{ background: "#FEE2E2", color: "#DC2626" }}
+                            style={{ background: "hsl(var(--danger) / 0.1)", color: "hsl(var(--danger))" }}
                           >
                             {deactivating === coord.id ? (
                               <span className="w-3.5 h-3.5 border-2 border-red-400 border-t-transparent rounded-full animate-spin" />
@@ -473,7 +473,7 @@ export default function CoordinatorsPage() {
                               onClick={() => handleAssignExisting(level)}
                               disabled={saving || !selectedTeacherId}
                               className="flex-1 py-2 rounded-xl text-xs font-bold text-white transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-1"
-                              style={{ background: "#7C3AED" }}
+                              style={{ background: "hsl(var(--accent))" }}
                             >
                               {saving ? (
                                 <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -553,7 +553,7 @@ export default function CoordinatorsPage() {
                               onClick={() => handleCreateNew(level)}
                               disabled={saving}
                               className="flex-1 py-2 rounded-xl text-xs font-bold text-white transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-1"
-                              style={{ background: "#7C3AED" }}
+                              style={{ background: "hsl(var(--accent))" }}
                             >
                               {saving ? (
                                 <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />

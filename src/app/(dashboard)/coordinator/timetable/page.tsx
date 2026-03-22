@@ -422,7 +422,7 @@ export default function CoordinatorTimetablePage() {
                               style={{ border: "1px solid var(--border-secondary)" }} />
                           ) : (
                             <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 text-[10px] font-black text-white"
-                              style={{ background: active ? "#16A34A" : "linear-gradient(135deg, var(--accent), var(--accent))" }}>
+                              style={{ background: active ? "hsl(var(--success))" : "linear-gradient(135deg, var(--accent), var(--accent))" }}>
                               {slot.teacher.split(" ").map((n) => n[0]).slice(0, 2).join("")}
                             </div>
                           )}
@@ -440,7 +440,7 @@ export default function CoordinatorTimetablePage() {
                         {slot.teacherPhone && (
                           <a href={`tel:${slot.teacherPhone}`}
                             className="flex-shrink-0 text-[11px] font-semibold px-2.5 py-1.5 rounded-lg transition-colors"
-                            style={{ background: active ? "rgba(22,163,74,0.15)" : "var(--bg-secondary)", color: "var(--text-primary)" }}>
+                            style={{ background: active ? "hsl(var(--success) / 0.15)" : "var(--bg-secondary)", color: "var(--text-primary)" }}>
                             Call
                           </a>
                         )}

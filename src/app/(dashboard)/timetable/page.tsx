@@ -636,9 +636,9 @@ export default function TimetablePage() {
                     style={{
                       background:
                         activeSlot.existingEntry.status === "VERIFIED"
-                          ? "rgba(16,185,129,0.08)"
+                          ? "hsl(var(--success) / 0.08)"
                           : activeSlot.existingEntry.status === "FLAGGED"
-                          ? "rgba(239,68,68,0.08)"
+                          ? "hsl(var(--danger) / 0.08)"
                           : "hsl(var(--accent) / 0.08)",
                     }}
                   >
@@ -647,9 +647,9 @@ export default function TimetablePage() {
                       style={{
                         background:
                           activeSlot.existingEntry.status === "VERIFIED"
-                            ? "#10B981"
+                            ? "hsl(var(--success))"
                             : activeSlot.existingEntry.status === "FLAGGED"
-                            ? "#EF4444"
+                            ? "hsl(var(--danger))"
                             : "hsl(var(--accent))",
                       }}
                     />

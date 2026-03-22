@@ -410,7 +410,7 @@ export default function CoordinatorEntriesPage() {
                             {entry.teacher.phone && (
                               <a href={`tel:${entry.teacher.phone}`} onClick={(e) => e.stopPropagation()}
                                 className="flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-lg active:scale-95"
-                                style={{ background: "#EDE9FE", color: "#5B21B6" }}>
+                                style={{ background: "hsl(var(--accent-soft))", color: "hsl(var(--accent-text))" }}>
                                 <Phone className="w-2.5 h-2.5" /> Call
                               </a>
                             )}
@@ -418,7 +418,7 @@ export default function CoordinatorEntriesPage() {
                               href={`/coordinator/announcements?teacherId=${entry.teacher.id}&teacherName=${encodeURIComponent(`${entry.teacher.firstName} ${entry.teacher.lastName}`)}`}
                               onClick={(e) => e.stopPropagation()}
                               className="flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-lg active:scale-95"
-                              style={{ background: "#EDE9FE", color: "#5B21B6" }}>
+                              style={{ background: "hsl(var(--accent-soft))", color: "hsl(var(--accent-text))" }}>
                               <Mail className="w-2.5 h-2.5" /> Mail
                             </Link>
                           </div>
@@ -487,8 +487,8 @@ export default function CoordinatorEntriesPage() {
                   <button key={dow} onClick={() => setSelectedDay(dow)}
                     className="flex-shrink-0 flex flex-col items-center px-4 py-2.5 rounded-2xl transition-all"
                     style={{
-                      background: selectedDay === dow ? "#7C3AED" : "var(--bg-elevated)",
-                      border: `1px solid ${selectedDay === dow ? "#7C3AED" : isToday ? "#A78BFA" : "var(--border-primary)"}`,
+                      background: selectedDay === dow ? "hsl(var(--accent))" : "var(--bg-elevated)",
+                      border: `1px solid ${selectedDay === dow ? "hsl(var(--accent))" : isToday ? "hsl(var(--accent) / 0.6)" : "var(--border-primary)"}`,
                       minWidth: "60px",
                     }}>
                     <span className="text-[10px] font-bold" style={{ color: selectedDay === dow ? "rgba(255,255,255,0.7)" : "var(--text-tertiary)" }}>
@@ -498,7 +498,7 @@ export default function CoordinatorEntriesPage() {
                       {dayDate.getDate()}
                     </span>
                     <span className="w-1.5 h-1.5 rounded-full mt-0.5"
-                      style={{ background: allFilled ? "#4ADE80" : someFilled ? "hsl(var(--accent-glow))" : "transparent" }} />
+                      style={{ background: allFilled ? "hsl(var(--success) / 0.7)" : someFilled ? "hsl(var(--accent-glow))" : "transparent" }} />
                   </button>
                 );
               })}
@@ -537,11 +537,11 @@ export default function CoordinatorEntriesPage() {
                   const isPast = selectedDateStr < todayStr || (selectedDateStr === todayStr && nowMins > slotEndMins);
 
                   const leftBorder = !entry
-                    ? (isPast ? "#EF4444" : "#D1D5DB")
-                    : entry.status === "VERIFIED" ? "#16A34A"
-                    : entry.status === "FLAGGED" ? "#DC2626"
+                    ? (isPast ? "hsl(var(--danger))" : "var(--border-primary)")
+                    : entry.status === "VERIFIED" ? "hsl(var(--success))"
+                    : entry.status === "FLAGGED" ? "hsl(var(--danger))"
                     : isSeen ? "hsl(var(--accent))"
-                    : "#8B5CF6";
+                    : "hsl(var(--accent))";
 
                   const slotCard = (
                     <div className="card p-4" style={{ borderLeft: `3px solid ${leftBorder}` }}>
@@ -565,7 +565,7 @@ export default function CoordinatorEntriesPage() {
                               <StatusBadge status={entry.status} views={entry.views} />
                             ) : (
                               <span className="text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0"
-                                style={{ background: isPast ? "#FEE2E2" : "var(--bg-tertiary)", color: isPast ? "#B91C1C" : "var(--text-quaternary)" }}>
+                                style={{ background: isPast ? "hsl(var(--danger) / 0.1)" : "var(--bg-tertiary)", color: isPast ? "hsl(var(--danger))" : "var(--text-quaternary)" }}>
                                 {isPast ? "No entry" : "Upcoming"}
                               </span>
                             )}
@@ -581,7 +581,7 @@ export default function CoordinatorEntriesPage() {
                                 <a href={`tel:${slot.teacherPhone}`}
                                   onClick={(e) => { e.stopPropagation(); e.preventDefault(); window.location.href = `tel:${slot.teacherPhone!}`; }}
                                   className="flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-lg"
-                                  style={{ background: "#EDE9FE", color: "#5B21B6" }}>
+                                  style={{ background: "hsl(var(--accent-soft))", color: "hsl(var(--accent-text))" }}>
                                   <Phone className="w-2.5 h-2.5" /> Call
                                 </a>
                               )}
@@ -589,7 +589,7 @@ export default function CoordinatorEntriesPage() {
                                 href={`/coordinator/announcements?teacherId=${slot.teacherId}&teacherName=${encodeURIComponent(slot.teacher)}`}
                                 onClick={(e) => e.stopPropagation()}
                                 className="flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-lg"
-                                style={{ background: "#EDE9FE", color: "#5B21B6" }}>
+                                style={{ background: "hsl(var(--accent-soft))", color: "hsl(var(--accent-text))" }}>
                                 <Mail className="w-2.5 h-2.5" /> Mail
                               </Link>
                             </div>

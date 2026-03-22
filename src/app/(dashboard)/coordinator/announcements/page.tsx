@@ -301,7 +301,7 @@ export default function CoordinatorAnnouncementsPage() {
       {/* Header */}
       <div
         className="px-5 pt-10 pb-8 rounded-b-2xl"
-        style={{ background: "linear-gradient(135deg, #4C1D95 0%, #6D28D9 50%, #7C3AED 100%)" }}
+        style={{ background: "linear-gradient(135deg, hsl(var(--accent-strong)), hsl(var(--accent)))" }}
       >
         <div className="max-w-lg mx-auto">
           <Link
@@ -376,9 +376,9 @@ export default function CoordinatorAnnouncementsPage() {
               onClick={() => setSuccess(null)}
               className="mt-6 px-8 py-2.5 rounded-xl text-sm font-semibold transition-all active:scale-[0.97]"
               style={{
-                background: "linear-gradient(135deg, #7C3AED, #6D28D9)",
-                color: "#F5F3FF",
-                boxShadow: "0 2px 8px rgba(124,58,237,0.25)",
+                background: "linear-gradient(135deg, hsl(var(--accent)), hsl(var(--accent-strong)))",
+                color: "hsl(var(--accent-soft))",
+                boxShadow: "0 2px 8px hsl(var(--accent) / 0.25)",
               }}
             >
               Send Another
@@ -453,8 +453,8 @@ export default function CoordinatorAnnouncementsPage() {
               <div
                 className="mt-4 flex items-center gap-2.5 rounded-xl px-3.5 py-3 border"
                 style={{
-                  background: targetTeacherId ? "#F5F3FF" : "var(--bg-secondary)",
-                  borderColor: targetTeacherId ? "#C4B5FD" : "var(--border-secondary)",
+                  background: targetTeacherId ? "hsl(var(--accent-soft))" : "var(--bg-secondary)",
+                  borderColor: targetTeacherId ? "hsl(var(--accent) / 0.4)" : "var(--border-secondary)",
                 }}
               >
                 <Users className="w-4 h-4 text-purple-500 flex-shrink-0" />
@@ -510,9 +510,9 @@ export default function CoordinatorAnnouncementsPage() {
               disabled={sending || !title.trim() || !message.trim()}
               className="w-full mt-4 flex items-center justify-center gap-2 py-3.5 rounded-2xl text-sm font-bold transition-all active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed"
               style={{
-                background: "linear-gradient(135deg, #7C3AED, #6D28D9)",
-                color: "#F5F3FF",
-                boxShadow: "0 2px 8px rgba(124,58,237,0.3)",
+                background: "linear-gradient(135deg, hsl(var(--accent)), hsl(var(--accent-strong)))",
+                color: "hsl(var(--accent-soft))",
+                boxShadow: "0 2px 8px hsl(var(--accent) / 0.3)",
               }}
             >
               {sending ? (
@@ -601,8 +601,8 @@ export default function CoordinatorAnnouncementsPage() {
                 onClick={handleSend}
                 className="flex-1 py-2.5 rounded-xl text-sm font-bold transition-all active:scale-[0.97]"
                 style={{
-                  background: "linear-gradient(135deg, #7C3AED, #6D28D9)",
-                  color: "#F5F3FF",
+                  background: "linear-gradient(135deg, hsl(var(--accent)), hsl(var(--accent-strong)))",
+                  color: "hsl(var(--accent-soft))",
                 }}
               >
                 Send

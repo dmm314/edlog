@@ -177,7 +177,7 @@ export default function CoordinatorEntryReviewPage() {
     return (
       <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
         <div className="px-5 pt-10 pb-8 rounded-b-[2rem]"
-          style={{ background: "linear-gradient(135deg, #4C1D95 0%, #6D28D9 50%, #7C3AED 100%)" }}>
+          style={{ background: "linear-gradient(135deg, hsl(var(--accent-strong)), hsl(var(--accent)))" }}>
           <div className="max-w-lg mx-auto">
             <div className="h-4 w-24 bg-white/15 rounded mb-4 animate-pulse" />
             <div className="h-6 w-48 bg-white/15 rounded mb-2 animate-pulse" />
@@ -202,7 +202,7 @@ export default function CoordinatorEntryReviewPage() {
         <div className="text-center">
           <BookOpen className="w-12 h-12 text-[var(--text-quaternary)] mx-auto mb-3" />
           <p className="text-[var(--text-secondary)] font-semibold">{error || "Entry not found"}</p>
-          <Link href="/coordinator" className="text-sm font-semibold mt-3 inline-block" style={{ color: "#7C3AED" }}>
+          <Link href="/coordinator" className="text-sm font-semibold mt-3 inline-block" style={{ color: "hsl(var(--accent))" }}>
             Back to Coordinator
           </Link>
         </div>
@@ -224,7 +224,7 @@ export default function CoordinatorEntryReviewPage() {
     <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
       {/* Header */}
       <div className="px-5 pt-10 pb-8 rounded-b-[2rem] shadow-elevated relative overflow-hidden"
-        style={{ background: "linear-gradient(135deg, #4C1D95 0%, #6D28D9 50%, #7C3AED 100%)" }}>
+        style={{ background: "linear-gradient(135deg, hsl(var(--accent-strong)), hsl(var(--accent)))" }}>
         <div className="absolute inset-0 pointer-events-none" style={{ opacity: 0.04, backgroundImage: "radial-gradient(circle at 2px 2px, white 1px, transparent 0)", backgroundSize: "20px 20px" }} />
         <div className="max-w-lg mx-auto relative">
           <Link href="/coordinator"

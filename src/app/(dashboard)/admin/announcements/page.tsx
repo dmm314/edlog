@@ -358,7 +358,7 @@ export default function AdminAnnouncementsPage() {
       {/* Header */}
       <div
         className="px-5 pt-10 pb-8 rounded-b-2xl"
-        style={{ background: "linear-gradient(135deg, #0F172A 0%, #1E293B 50%, #334155 100%)" }}
+        style={{ background: "linear-gradient(135deg, hsl(var(--accent-strong)), hsl(var(--accent)))" }}
       >
         <div className="max-w-lg mx-auto">
           <Link
