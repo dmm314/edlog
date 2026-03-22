@@ -88,7 +88,7 @@ export default function CoordinatorTeachersPage() {
             Coordinator
           </Link>
           <div className="flex items-center gap-2 mb-1">
-            <Users className="w-5 h-5 text-violet-300" />
+            <Users className="w-5 h-5 text-[hsl(var(--accent)/0.7)]" />
             <h1 className="text-xl font-bold text-white">Teachers</h1>
           </div>
           <p className="text-white/60 text-sm">
@@ -99,7 +99,7 @@ export default function CoordinatorTeachersPage() {
 
       <div className="px-5 mt-4 max-w-lg mx-auto">
         {error && (
-          <div className="mb-4 bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-4 py-3">
+          <div className="mb-4 bg-[hsl(var(--danger)/0.1)] border border-[hsl(var(--danger)/0.2)] text-[hsl(var(--danger))] text-sm rounded-xl px-4 py-3">
             {error}
           </div>
         )}

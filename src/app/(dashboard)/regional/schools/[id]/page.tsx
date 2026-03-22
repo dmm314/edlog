@@ -87,11 +87,11 @@ export default function SchoolDetailPage() {
   function getStatusBadge(status: string) {
     switch (status) {
       case "ACTIVE":
-        return "bg-green-50 text-green-700 border-green-200";
+        return "bg-[hsl(var(--success)/0.1)] text-[hsl(var(--success))] border-[hsl(var(--success)/0.2)]";
       case "PENDING":
         return "bg-[hsl(var(--accent-soft))] text-[hsl(var(--accent-text))] border-[hsl(var(--accent)/0.2)]";
       case "SUSPENDED":
-        return "bg-red-50 text-red-700 border-red-200";
+        return "bg-[hsl(var(--danger)/0.1)] text-[hsl(var(--danger))] border-[hsl(var(--danger)/0.2)]";
       default:
         return "bg-[var(--bg-tertiary)] text-[var(--text-secondary)] border-[var(--border-primary)]";
     }
@@ -346,8 +346,8 @@ export default function SchoolDetailPage() {
               {school.admin ? (
                 <div className="space-y-2 text-sm">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center">
-                      <span className="text-blue-700 font-bold text-sm">
+                    <div className="w-10 h-10 bg-[hsl(var(--accent-soft))] rounded-full flex items-center justify-center">
+                      <span className="text-[hsl(var(--accent-strong))] font-bold text-sm">
                         {school.admin.name
                           .split(" ")
                           .map((n) => n[0])
@@ -389,7 +389,7 @@ export default function SchoolDetailPage() {
                   {school.subjects.map((s) => (
                     <span
                       key={s.id}
-                      className="text-xs font-medium bg-blue-50 text-blue-700 px-2 py-1 rounded-lg"
+                      className="text-xs font-medium bg-[hsl(var(--accent-soft))] text-[hsl(var(--accent-strong))] px-2 py-1 rounded-lg"
                     >
                       {s.name}
                     </span>
@@ -474,7 +474,7 @@ export default function SchoolDetailPage() {
                       <span
                         className={`flex items-center gap-1 text-[10px] font-medium rounded-full px-2 py-0.5 ${
                           teacher.isVerified
-                            ? "bg-green-50 text-green-700"
+                            ? "bg-[hsl(var(--success)/0.1)] text-[hsl(var(--success))]"
                             : "bg-[hsl(var(--accent-soft))] text-[hsl(var(--accent-text))]"
                         }`}
                       >
@@ -498,7 +498,7 @@ export default function SchoolDetailPage() {
                         {teacher.subjects.map((s) => (
                           <span
                             key={s}
-                            className="text-[10px] font-medium bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded"
+                            className="text-[10px] font-medium bg-[hsl(var(--accent-soft))] text-[hsl(var(--accent))] px-1.5 py-0.5 rounded"
                           >
                             {s}
                           </span>
@@ -506,7 +506,7 @@ export default function SchoolDetailPage() {
                         {teacher.classes.map((c) => (
                           <span
                             key={c}
-                            className="text-[10px] font-medium bg-purple-50 text-purple-600 px-1.5 py-0.5 rounded"
+                            className="text-[10px] font-medium bg-[hsl(var(--accent-soft))] text-[hsl(var(--accent))] px-1.5 py-0.5 rounded"
                           >
                             {c}
                           </span>

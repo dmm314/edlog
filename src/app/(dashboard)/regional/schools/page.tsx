@@ -130,11 +130,11 @@ export default function RegionalSchoolsPage() {
   function getStatusBadge(status: string) {
     switch (status) {
       case "ACTIVE":
-        return "bg-green-50 text-green-700";
+        return "bg-[hsl(var(--success)/0.1)] text-[hsl(var(--success))]";
       case "PENDING":
         return "bg-[hsl(var(--accent-soft))] text-[hsl(var(--accent-text))]";
       case "SUSPENDED":
-        return "bg-red-50 text-red-700";
+        return "bg-[hsl(var(--danger)/0.1)] text-[hsl(var(--danger))]";
       default:
         return "bg-[var(--bg-tertiary)] text-[var(--text-secondary)]";
     }
@@ -241,7 +241,7 @@ export default function RegionalSchoolsPage() {
             {
               label: "Active",
               count: schools.filter((s) => s.status === "ACTIVE").length,
-              color: "bg-green-100 text-green-700",
+              color: "bg-[hsl(var(--success)/0.15)] text-[hsl(var(--success))]",
             },
             {
               label: "Pending",
@@ -251,7 +251,7 @@ export default function RegionalSchoolsPage() {
             {
               label: "Suspended",
               count: schools.filter((s) => s.status === "SUSPENDED").length,
-              color: "bg-red-100 text-red-700",
+              color: "bg-[hsl(var(--danger)/0.15)] text-[hsl(var(--danger))]",
             },
           ].map((item) => (
             <div
@@ -356,7 +356,7 @@ export default function RegionalSchoolsPage() {
                           updateSchoolStatus(e, school.id, "ACTIVE")
                         }
                         disabled={toggling === school.id}
-                        className="flex-1 flex items-center justify-center gap-1.5 rounded-xl py-2 text-xs font-medium transition-colors bg-green-50 text-green-600 hover:bg-green-100"
+                        className="flex-1 flex items-center justify-center gap-1.5 rounded-xl py-2 text-xs font-medium transition-colors bg-[hsl(var(--success)/0.1)] text-[hsl(var(--success))] hover:bg-[hsl(var(--success)/0.15)]"
                       >
                         {toggling === school.id ? (
                           "Approving..."
@@ -374,7 +374,7 @@ export default function RegionalSchoolsPage() {
                           updateSchoolStatus(e, school.id, "SUSPENDED")
                         }
                         disabled={toggling === school.id}
-                        className="flex-1 flex items-center justify-center gap-1.5 rounded-xl py-2 text-xs font-medium transition-colors bg-red-50 text-red-600 hover:bg-red-100"
+                        className="flex-1 flex items-center justify-center gap-1.5 rounded-xl py-2 text-xs font-medium transition-colors bg-[hsl(var(--danger)/0.1)] text-[hsl(var(--danger))] hover:bg-[hsl(var(--danger)/0.15)]"
                       >
                         {toggling === school.id ? (
                           "Suspending..."
@@ -392,7 +392,7 @@ export default function RegionalSchoolsPage() {
                           updateSchoolStatus(e, school.id, "ACTIVE")
                         }
                         disabled={toggling === school.id}
-                        className="flex-1 flex items-center justify-center gap-1.5 rounded-xl py-2 text-xs font-medium transition-colors bg-green-50 text-green-600 hover:bg-green-100"
+                        className="flex-1 flex items-center justify-center gap-1.5 rounded-xl py-2 text-xs font-medium transition-colors bg-[hsl(var(--success)/0.1)] text-[hsl(var(--success))] hover:bg-[hsl(var(--success)/0.15)]"
                       >
                         {toggling === school.id ? (
                           "Activating..."

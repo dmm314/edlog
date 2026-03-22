@@ -100,7 +100,7 @@ export default function RegionalActivityReportPage() {
           entryId={selectedEntryId}
           onClose={() => setSelectedEntryId(null)}
           remarkLabel="Inspector Note"
-          accentClass="from-purple-900 to-purple-800"
+          accentClass="from-[hsl(var(--accent-text))] to-[hsl(var(--accent-strong))]"
         />
       )}
     </>

@@ -159,7 +159,7 @@ export default function EditEntryPage() {
           </div>
         </div>
         <div className="px-5 mt-4 max-w-lg mx-auto">
-          <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-4 py-3">
+          <div className="bg-[hsl(var(--danger)/0.1)] border border-[hsl(var(--danger)/0.2)] text-[hsl(var(--danger))] text-sm rounded-xl px-4 py-3">
             {error || "Entry not found"}
           </div>
         </div>
@@ -200,7 +200,7 @@ export default function EditEntryPage() {
       <div className="px-5 mt-4 max-w-lg mx-auto space-y-4">
         {/* Success message */}
         {success && (
-          <div className="bg-green-50 border border-green-200 text-green-700 text-sm rounded-xl px-4 py-3 flex items-center gap-2">
+          <div className="bg-[hsl(var(--success)/0.1)] border border-[hsl(var(--success)/0.2)] text-[hsl(var(--success))] text-sm rounded-xl px-4 py-3 flex items-center gap-2">
             <Save className="w-4 h-4" />
             Changes saved! Redirecting...
           </div>
@@ -208,7 +208,7 @@ export default function EditEntryPage() {
 
         {/* Error message */}
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-4 py-3 flex items-center gap-2">
+          <div className="bg-[hsl(var(--danger)/0.1)] border border-[hsl(var(--danger)/0.2)] text-[hsl(var(--danger))] text-sm rounded-xl px-4 py-3 flex items-center gap-2">
             <AlertCircle className="w-4 h-4 flex-shrink-0" />
             {error}
           </div>
