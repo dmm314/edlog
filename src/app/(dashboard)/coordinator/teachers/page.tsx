@@ -79,7 +79,7 @@ export default function CoordinatorTeachersPage() {
         style={{ background: "linear-gradient(135deg, hsl(var(--accent-strong)), hsl(var(--accent)))" }}
       >
         <div className="absolute inset-0 pointer-events-none" style={{ opacity: 0.04, backgroundImage: "radial-gradient(circle at 2px 2px, white 1px, transparent 0)", backgroundSize: "20px 20px" }} />
-        <div className="max-w-lg mx-auto relative">
+        <div className="page-shell relative">
           <Link
             href="/coordinator"
             className="inline-flex items-center gap-1.5 text-white/70 hover:text-white text-sm mb-4 transition-colors"
@@ -97,7 +97,7 @@ export default function CoordinatorTeachersPage() {
         </div>
       </div>
 
-      <div className="px-5 mt-4 max-w-lg mx-auto">
+      <div className="page-shell px-5 mt-4">
         {error && (
           <div className="mb-4 bg-[hsl(var(--danger)/0.1)] border border-[hsl(var(--danger)/0.2)] text-[hsl(var(--danger))] text-sm rounded-xl px-4 py-3">
             {error}

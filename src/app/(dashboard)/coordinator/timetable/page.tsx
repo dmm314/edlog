@@ -175,12 +175,12 @@ export default function CoordinatorTimetablePage() {
       <div className="min-h-screen pb-24" style={{ backgroundColor: "hsl(var(--surface-canvas))" }}>
         <div className="px-5 pt-10 pb-6 rounded-b-[2rem]"
           style={{ background: "linear-gradient(135deg, hsl(var(--accent-strong)), hsl(var(--accent)))" }}>
-          <div className="max-w-lg mx-auto">
+          <div className="page-shell">
             <div className="skeleton h-4 w-24 !bg-white/10 mb-4" />
             <div className="skeleton h-7 w-32 !bg-white/15" />
           </div>
         </div>
-        <div className="px-5 mt-4 max-w-lg mx-auto space-y-3">
+        <div className="page-shell px-5 mt-4 space-y-3">
           {[1, 2, 3].map((i) => (
             <div key={i} className="card p-4 animate-pulse flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-[var(--skeleton-base)]" />
@@ -204,7 +204,7 @@ export default function CoordinatorTimetablePage() {
           style={{ background: "linear-gradient(135deg, hsl(var(--accent-strong)), hsl(var(--accent)))" }}>
           <div className="absolute inset-0 pointer-events-none"
             style={{ opacity: 0.04, backgroundImage: "radial-gradient(circle at 2px 2px, white 1px, transparent 0)", backgroundSize: "20px 20px" }} />
-          <div className="max-w-lg mx-auto relative">
+          <div className="page-shell relative">
             <Link href="/coordinator"
               className="inline-flex items-center gap-1.5 text-white/70 hover:text-white text-sm mb-4 transition-colors">
               <ArrowLeft className="w-4 h-4" />
@@ -230,7 +230,7 @@ export default function CoordinatorTimetablePage() {
           </div>
         </div>
 
-        <div className="px-5 mt-4 max-w-lg mx-auto">
+        <div className="page-shell px-5 mt-4">
           {error && (
             <div className="mb-4 bg-[hsl(var(--danger)/0.1)] border border-[hsl(var(--danger)/0.2)] text-[hsl(var(--danger))] text-sm rounded-xl px-4 py-3">
               {error}
@@ -312,7 +312,7 @@ export default function CoordinatorTimetablePage() {
         style={{ background: "linear-gradient(135deg, hsl(var(--accent-strong)), hsl(var(--accent)))" }}>
         <div className="absolute inset-0 pointer-events-none"
           style={{ opacity: 0.04, backgroundImage: "radial-gradient(circle at 2px 2px, white 1px, transparent 0)", backgroundSize: "20px 20px" }} />
-        <div className="max-w-lg mx-auto relative">
+        <div className="page-shell relative">
           <button onClick={() => setSelectedClassId(null)}
             className="inline-flex items-center gap-1.5 text-white/70 hover:text-white text-sm mb-4 transition-colors">
             <ArrowLeft className="w-4 h-4" />
@@ -360,7 +360,7 @@ export default function CoordinatorTimetablePage() {
         </div>
       </div>
 
-      <div className="px-5 mt-4 max-w-lg mx-auto">
+      <div className="page-shell px-5 mt-4">
         {currentDaySlots.length === 0 ? (
           <div className="card p-8 text-center">
             <Calendar className="w-10 h-10 mx-auto mb-3" style={{ color: "var(--text-quaternary)" }} />

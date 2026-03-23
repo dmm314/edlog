@@ -377,7 +377,7 @@ export default function EntryTimetablePage() {
         <div className="bg-gradient-to-br from-[hsl(var(--accent))] via-[hsl(var(--accent))] to-[hsl(var(--accent-strong))] px-5 pt-10 pb-8 rounded-b-[2rem] shadow-elevated relative overflow-hidden">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[hsl(var(--accent)/0.08)] via-transparent to-transparent" />
           <div className="absolute top-0 right-0 w-64 h-64 bg-[var(--accent)]/[0.07] rounded-full -translate-y-1/3 translate-x-1/4 blur-3xl" />
-          <div className="max-w-lg mx-auto relative">
+          <div className="page-shell relative">
             <Link href="/admin" className="inline-flex items-center gap-1.5 text-white/70 hover:text-white text-sm mb-4 transition-colors">
               <ArrowLeft className="w-4 h-4" />Back to Dashboard
             </Link>
@@ -388,7 +388,7 @@ export default function EntryTimetablePage() {
           </div>
         </div>
 
-        <div className="px-5 mt-4 max-w-lg mx-auto space-y-2">
+        <div className="page-shell px-5 mt-4 space-y-2">
           {loading ? (
             <div className="space-y-2">
               {[1, 2, 3, 4].map((i) => (
@@ -515,7 +515,7 @@ export default function EntryTimetablePage() {
       {/* Header */}
       <div className="bg-gradient-to-br from-[hsl(var(--accent))] via-[hsl(var(--accent))] to-[hsl(var(--accent-strong))] px-5 pt-10 pb-8 rounded-b-[2rem] shadow-elevated relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[hsl(var(--accent)/0.08)] via-transparent to-transparent" />
-        <div className="max-w-lg mx-auto relative">
+        <div className="page-shell relative">
           <button onClick={() => { setSelectedClassId(null); setSelectedEntry(null); setSelectedSlot(null); saveAdminETState(null); }}
             className="inline-flex items-center gap-1.5 text-white/70 hover:text-white text-sm mb-4 transition-colors">
             <ArrowLeft className="w-4 h-4" />{expandedLevel || "All Classes"}
@@ -525,7 +525,7 @@ export default function EntryTimetablePage() {
         </div>
       </div>
 
-      <div className="px-5 mt-4 max-w-lg mx-auto space-y-4">
+      <div className="page-shell px-5 mt-4 space-y-4">
         {/* Week Navigation */}
         <div className="card p-3 flex items-center justify-between">
           <button onClick={() => navigateWeek(-1)} className="w-9 h-9 bg-[hsl(var(--surface-tertiary))] rounded-xl flex items-center justify-center hover:bg-[hsl(var(--surface-tertiary))] transition-colors active:scale-95">

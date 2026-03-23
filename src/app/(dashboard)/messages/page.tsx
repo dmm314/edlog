@@ -146,7 +146,7 @@ export default function MessagesPage() {
     <div className="min-h-screen pb-24" style={{ backgroundColor: "hsl(var(--surface-secondary))" }}>
       {/* Header */}
       <div className="bg-gradient-to-br from-[hsl(var(--accent))] to-[hsl(var(--accent-strong))] px-5 pt-10 pb-4 rounded-b-2xl">
-        <div className="max-w-lg mx-auto">
+        <div className="page-shell">
           <div className="flex items-center gap-3 mb-3">
             <button
               onClick={() => history.back()}
@@ -165,7 +165,7 @@ export default function MessagesPage() {
       </div>
 
       {/* Tab bar */}
-      <div className="px-5 max-w-lg mx-auto">
+      <div className="page-shell px-5">
         <div
           className="flex mt-3 rounded-xl overflow-hidden border"
           style={{
@@ -211,7 +211,7 @@ export default function MessagesPage() {
       </div>
 
       {/* Message list */}
-      <div className="px-5 mt-3 max-w-lg mx-auto">
+      <div className="page-shell px-5 mt-3">
         {loading ? (
           <div className="space-y-3">
             {[1, 2, 3].map((i) => (

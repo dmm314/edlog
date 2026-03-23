@@ -303,7 +303,7 @@ export default function ManageTeachersPage() {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[hsl(var(--accent)/0.08)] via-transparent to-transparent" />
         <div className="absolute top-0 right-0 w-64 h-64 rounded-full -translate-y-1/3 translate-x-1/4 blur-3xl" style={{ background: "var(--accent-soft)" }} />
 
-        <div className="max-w-lg mx-auto relative">
+        <div className="page-shell relative">
           <Link
             href="/admin"
             className="inline-flex items-center gap-1.5 text-white/70 hover:text-white text-sm mb-4 transition-colors"
@@ -326,7 +326,7 @@ export default function ManageTeachersPage() {
         </div>
       </div>
 
-      <div className="px-5 mt-4 max-w-lg mx-auto space-y-4">
+      <div className="page-shell px-5 mt-4 space-y-4">
         {/* School Code */}
         <div className="animate-slide-up card p-5 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl to-transparent rounded-bl-3xl -translate-y-4 translate-x-4" style={{ background: "linear-gradient(to bottom left, var(--accent-soft), transparent)" }} />

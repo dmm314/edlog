@@ -29,7 +29,7 @@ export default function CoordinatorReportsLayout({ children }: { children: React
             backgroundSize: "20px 20px",
           }}
         />
-        <div className="max-w-lg mx-auto relative">
+        <div className="page-shell relative">
           <Link
             href="/coordinator"
             className="inline-flex items-center gap-1.5 text-white/70 hover:text-white text-sm mb-4 transition-colors"
@@ -43,7 +43,7 @@ export default function CoordinatorReportsLayout({ children }: { children: React
       </div>
 
       {/* Tab bar */}
-      <div className="sticky top-0 z-10 px-5 pt-3 pb-0 max-w-lg mx-auto" style={{ backgroundColor: "hsl(var(--surface-canvas))" }}>
+      <div className="sticky top-0 z-10 px-5 pt-3 pb-0 page-shell" style={{ backgroundColor: "hsl(var(--surface-canvas))" }}>
         <div
           className="flex gap-1 overflow-x-auto scrollbar-hide"
           style={{ borderBottom: "1px solid var(--border-primary)" }}
@@ -73,7 +73,7 @@ export default function CoordinatorReportsLayout({ children }: { children: React
       </div>
 
       {/* Content */}
-      <div className="px-5 mt-4 max-w-lg mx-auto">{children}</div>
+      <div className="page-shell px-5 mt-4">{children}</div>
     </div>
   );
 }

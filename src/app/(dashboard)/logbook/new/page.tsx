@@ -873,7 +873,7 @@ export default function NewEntryPage() {
             : submittedEntries.classDidNotHold ? "bg-gradient-to-br from-[var(--text-secondary)] to-[var(--text-tertiary)]"
             : "bg-gradient-to-br from-[hsl(var(--success))] to-[hsl(var(--success))]"
         }`}>
-          <div className="max-w-lg lg:max-w-3xl mx-auto text-center">
+          <div className="page-shell text-center">
             <div className="inline-flex items-center justify-center w-20 h-20 bg-white/20 rounded-full mb-4 animate-fade-in">
               {submittedEntries.isDraft ? <Save className="w-12 h-12 text-white" />
                 : submittedEntries.classDidNotHold ? <XCircle className="w-12 h-12 text-white" />
@@ -894,7 +894,7 @@ export default function NewEntryPage() {
           </div>
         </div>
 
-        <div className="px-5 -mt-4 max-w-lg lg:max-w-3xl mx-auto w-full flex-1">
+        <div className="px-5 -mt-4 page-shell w-full flex-1">
           <div className="card overflow-hidden">
             <div className="px-5 py-4" style={{ background: "linear-gradient(135deg, var(--accent), var(--accent-hover))" }}>
               <p className="text-white font-bold text-base">{submittedEntries.subject}</p>
@@ -1156,7 +1156,7 @@ export default function NewEntryPage() {
     <div className="min-h-screen pb-24 bg-[hsl(var(--surface-canvas))]">
       {/* ── Persistent Header ─── */}
       <div className="bg-[hsl(var(--surface-elevated))] border-b border-[hsl(var(--border-primary))]">
-        <div className="max-w-lg lg:max-w-3xl mx-auto px-5 pt-12 pb-5">
+        <div className="page-shell px-5 pt-12 pb-5">
           <div className="flex items-center gap-3 mb-4">
             <button
               onClick={() => step > 0 ? setStep(step - 1) : router.back()}
@@ -1257,7 +1257,7 @@ export default function NewEntryPage() {
       </div>
 
       {/* ── Content ─── */}
-      <div className="px-5 mt-4 max-w-lg lg:max-w-3xl mx-auto">
+      <div className="px-5 mt-4 page-shell">
         {error && (
           <div className="rounded-xl px-4 py-3 mb-4 text-sm flex items-center gap-2 bg-[var(--warning-light)] text-[hsl(var(--warning))] border border-[hsl(var(--warning)/0.2)]">
             <AlertCircle className="w-4 h-4 flex-shrink-0" />

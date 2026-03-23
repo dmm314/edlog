@@ -78,7 +78,7 @@ export default function HODAnnouncementsPage() {
         className="px-5 pt-10 pb-6 rounded-b-2xl"
         style={{ background: "linear-gradient(135deg, hsl(var(--accent-strong)), hsl(var(--accent)))" }}
       >
-        <div className="max-w-lg mx-auto">
+        <div className="page-shell">
           <Link
             href="/hod"
             className="inline-flex items-center gap-1 text-white/70 hover:text-white text-sm mb-3"
@@ -100,7 +100,7 @@ export default function HODAnnouncementsPage() {
         </div>
       </div>
 
-      <div className="px-5 mt-4 max-w-lg mx-auto space-y-4">
+      <div className="page-shell px-5 mt-4 space-y-4">
         {/* Success message */}
         {success !== null && (
           <div className="flex items-center gap-2 bg-green-50 border border-green-200 text-green-700 text-sm rounded-xl px-4 py-3 animate-slide-down">

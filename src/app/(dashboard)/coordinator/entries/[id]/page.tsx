@@ -178,13 +178,13 @@ export default function CoordinatorEntryReviewPage() {
       <div className="min-h-screen pb-24" style={{ backgroundColor: "hsl(var(--surface-secondary))" }}>
         <div className="px-5 pt-10 pb-8 rounded-b-[2rem]"
           style={{ background: "linear-gradient(135deg, hsl(var(--accent-strong)), hsl(var(--accent)))" }}>
-          <div className="max-w-lg mx-auto">
+          <div className="page-shell">
             <div className="h-4 w-24 bg-white/15 rounded mb-4 animate-pulse" />
             <div className="h-6 w-48 bg-white/15 rounded mb-2 animate-pulse" />
             <div className="h-4 w-32 bg-white/10 rounded animate-pulse" />
           </div>
         </div>
-        <div className="px-5 mt-4 max-w-lg mx-auto space-y-3">
+        <div className="page-shell px-5 mt-4 space-y-3">
           {[1, 2, 3].map((i) => (
             <div key={i} className="card p-5 animate-pulse">
               <div className="h-4 bg-[var(--skeleton-base)] rounded w-2/3 mb-3" />
@@ -226,7 +226,7 @@ export default function CoordinatorEntryReviewPage() {
       <div className="px-5 pt-10 pb-8 rounded-b-[2rem] shadow-elevated relative overflow-hidden"
         style={{ background: "linear-gradient(135deg, hsl(var(--accent-strong)), hsl(var(--accent)))" }}>
         <div className="absolute inset-0 pointer-events-none" style={{ opacity: 0.04, backgroundImage: "radial-gradient(circle at 2px 2px, white 1px, transparent 0)", backgroundSize: "20px 20px" }} />
-        <div className="max-w-lg mx-auto relative">
+        <div className="page-shell relative">
           <Link href="/coordinator"
             className="inline-flex items-center gap-1.5 text-white/70 hover:text-white text-sm mb-4 transition-colors">
             <ArrowLeft className="w-4 h-4" />
@@ -262,7 +262,7 @@ export default function CoordinatorEntryReviewPage() {
         </div>
       </div>
 
-      <div className="px-5 mt-4 max-w-lg mx-auto space-y-4">
+      <div className="page-shell px-5 mt-4 space-y-4">
         {/* ── Verification Audit Trail (already reviewed) ── */}
         {alreadyReviewed && (
           <div className="rounded-2xl border overflow-hidden"

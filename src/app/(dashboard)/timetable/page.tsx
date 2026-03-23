@@ -314,7 +314,7 @@ export default function TimetablePage() {
     <div className="min-h-screen pb-24" style={{ backgroundColor: "hsl(var(--surface-secondary))" }}>
       {/* ============ Header ============ */}
       <div className="page-header px-5 pt-10 pb-6 rounded-b-2xl">
-        <div className="mx-auto w-full max-w-6xl">
+        <div className="page-shell">
           <Link
             href="/logbook"
             className="inline-flex items-center gap-1 text-white/70 hover:text-white text-sm mb-3"
@@ -376,7 +376,7 @@ export default function TimetablePage() {
       </div>
 
       {/* ============ Content ============ */}
-      <div className="mx-auto mt-4 w-full max-w-6xl px-5">
+      <div className="page-shell mt-4 px-5">
         {loading ? (
           <TimetableSkeleton />
         ) : error ? (

@@ -144,7 +144,7 @@ export default function RegionalSchoolsPage() {
     <div className="min-h-screen pb-24" style={{ backgroundColor: "hsl(var(--surface-secondary))" }}>
       {/* Header */}
       <div className="bg-gradient-to-br from-[hsl(var(--accent))] to-[hsl(var(--accent-strong))] px-5 pt-10 pb-6 rounded-b-2xl">
-        <div className="mx-auto w-full max-w-6xl">
+        <div className="page-shell">
           <Link
             href="/regional"
             className="inline-flex items-center gap-1 text-white/70 hover:text-white text-sm mb-3"
@@ -160,7 +160,7 @@ export default function RegionalSchoolsPage() {
         </div>
       </div>
 
-      <div className="px-5 mt-4 mx-auto w-full max-w-6xl space-y-4">
+      <div className="px-5 mt-4 page-shell space-y-4">
         {/* Search + Filter button */}
         <div className="flex gap-2">
           <div className="relative flex-1">

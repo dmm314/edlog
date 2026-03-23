@@ -331,7 +331,7 @@ export default function AdminEntriesPage() {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[hsl(var(--accent)/0.08)] via-transparent to-transparent" />
         <div className="absolute top-0 right-0 w-64 h-64 bg-[var(--accent)]/[0.07] rounded-full -translate-y-1/3 translate-x-1/4 blur-3xl" />
 
-        <div className="mx-auto w-full max-w-6xl relative">
+        <div className="page-shell relative">
           <Link
             href="/admin"
             className="inline-flex items-center gap-1.5 text-white/70 hover:text-white text-sm mb-4 transition-colors"
@@ -351,7 +351,7 @@ export default function AdminEntriesPage() {
         </div>
       </div>
 
-      <div className="mx-auto mt-4 w-full max-w-6xl px-5 space-y-4">
+      <div className="page-shell mt-4 px-5 space-y-4">
         {/* Error message */}
         {error && (
           <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-4 py-3 font-medium">

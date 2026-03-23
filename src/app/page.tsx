@@ -69,7 +69,7 @@ export default function LandingPage() {
           }}
         />
 
-        <div className="relative px-5 pt-14 pb-20 max-w-lg mx-auto">
+        <div className="relative px-5 pt-14 pb-20 page-shell">
           {/* Logo */}
           <div className="flex items-center gap-3 mb-12">
             <div
@@ -150,7 +150,7 @@ export default function LandingPage() {
       </div>
 
       {/* ── WHO IT'S FOR ── */}
-      <div className="px-5 py-14 max-w-lg mx-auto">
+      <div className="px-5 py-14 page-shell">
         <p className="text-[10px] font-bold uppercase tracking-[0.2em] mb-2 text-accent-text">Built for everyone</p>
         <h2 className="text-2xl font-extrabold tracking-tight text-content-primary">
           One platform,<br />three powerful roles.
@@ -218,7 +218,7 @@ export default function LandingPage() {
 
       {/* ── FEATURES ── */}
       <div className="px-5 py-14 bg-surface-secondary">
-        <div className="max-w-lg mx-auto">
+        <div className="page-shell">
           <p className="text-[10px] font-bold uppercase tracking-[0.2em] mb-2 text-accent-text">Why Edlog</p>
           <h2 className="text-2xl font-extrabold tracking-tight text-content-primary">
             Everything you need,<br />nothing you don&apos;t.
@@ -246,7 +246,7 @@ export default function LandingPage() {
       </div>
 
       {/* ── HOW IT WORKS ── */}
-      <div className="px-5 py-14 max-w-lg mx-auto">
+      <div className="px-5 py-14 page-shell">
         <p className="text-[10px] font-bold uppercase tracking-[0.2em] mb-2 text-accent-text">How it works</p>
         <h2 className="text-2xl font-extrabold tracking-tight mb-8 text-content-primary">
           Three steps. That&apos;s it.
@@ -290,7 +290,7 @@ export default function LandingPage() {
             backgroundSize: "24px 24px",
           }}
         />
-        <div className="max-w-lg mx-auto text-center relative">
+        <div className="page-shell text-center relative">
           <h2 className="text-2xl font-extrabold text-white tracking-tight">
             Ready to go digital?
           </h2>

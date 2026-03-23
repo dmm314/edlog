@@ -360,7 +360,7 @@ export default function AdminAnnouncementsPage() {
         className="px-5 pt-10 pb-8 rounded-b-2xl"
         style={{ background: "linear-gradient(135deg, hsl(var(--accent-strong)), hsl(var(--accent)))" }}
       >
-        <div className="max-w-lg mx-auto">
+        <div className="page-shell">
           <Link
             href="/admin"
             className="inline-flex items-center gap-1 text-white/70 hover:text-white text-sm mb-4"
@@ -398,7 +398,7 @@ export default function AdminAnnouncementsPage() {
         </div>
       </div>
 
-      <div className="px-5 mt-6 max-w-lg mx-auto space-y-6 desktop-content-form">
+      <div className="page-shell px-5 mt-6 space-y-6 desktop-content-form">
         {/* Error */}
         {error && (
           <div className="flex items-center gap-2 bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-4 py-3">

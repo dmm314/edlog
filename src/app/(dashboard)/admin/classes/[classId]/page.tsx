@@ -496,7 +496,7 @@ export default function ClassDetailPage() {
     <div className="min-h-screen pb-24" style={{ backgroundColor: "hsl(var(--surface-secondary))" }}>
       {/* Header */}
       <div className="bg-gradient-to-br from-[hsl(var(--accent))] to-[hsl(var(--accent-strong))] px-5 pt-10 pb-6 rounded-b-2xl">
-        <div className="max-w-lg mx-auto">
+        <div className="page-shell">
           <Link
             href="/admin/classes"
             className="inline-flex items-center gap-1 text-white/70 hover:text-white text-sm mb-3"
@@ -527,7 +527,7 @@ export default function ClassDetailPage() {
       </div>
 
       {/* Tab Selector */}
-      <div className="px-5 mt-4 max-w-lg mx-auto">
+      <div className="page-shell px-5 mt-4">
         <div className="flex gap-1 bg-[hsl(var(--surface-tertiary))] rounded-xl p-1">
           {(["subjects", "divisions"] as const).map((tab) => (
             <button
@@ -555,7 +555,7 @@ export default function ClassDetailPage() {
         </div>
       </div>
 
-      <div className="px-5 mt-4 max-w-lg mx-auto space-y-4">
+      <div className="page-shell px-5 mt-4 space-y-4">
         {/* Success message */}
         {successMsg && (
           <div className="bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm rounded-xl px-4 py-3 flex items-center gap-2">

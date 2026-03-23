@@ -93,7 +93,7 @@ export default function InvitationsPage() {
       {/* Header */}
       <div className="bg-gradient-to-br from-[hsl(var(--accent))] via-[hsl(var(--accent))] to-[hsl(var(--accent-strong))] px-5 pt-10 pb-8 rounded-b-[2rem] shadow-elevated relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[hsl(var(--accent)/0.08)] via-transparent to-transparent" />
-        <div className="max-w-lg mx-auto relative">
+        <div className="page-shell relative">
           <Link
             href="/logbook"
             className="inline-flex items-center gap-1.5 text-white/70 hover:text-white text-sm mb-4 transition-colors"
@@ -111,7 +111,7 @@ export default function InvitationsPage() {
         </div>
       </div>
 
-      <div className="px-5 mt-4 max-w-lg mx-auto space-y-4">
+      <div className="page-shell px-5 mt-4 space-y-4">
         {message && (
           <div className="bg-[var(--accent-soft)] border border-[var(--border-primary)] text-[var(--accent-text)] text-sm rounded-xl px-4 py-3">
             {message}

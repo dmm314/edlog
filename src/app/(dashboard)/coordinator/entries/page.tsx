@@ -249,7 +249,7 @@ export default function CoordinatorEntriesPage() {
       <div className="px-5 pt-10 pb-6 rounded-b-[2rem] relative overflow-hidden"
         style={{ background: "linear-gradient(135deg, hsl(var(--accent-strong)), hsl(var(--accent)))" }}>
         <div className="absolute inset-0 pointer-events-none" style={{ opacity: 0.04, backgroundImage: "radial-gradient(circle at 2px 2px, white 1px, transparent 0)", backgroundSize: "20px 20px" }} />
-        <div className="max-w-lg mx-auto relative">
+        <div className="page-shell relative">
           <Link href="/coordinator" className="inline-flex items-center gap-1.5 text-white/70 hover:text-white text-sm mb-4 transition-colors">
             <ArrowLeft className="w-4 h-4" />
             Dashboard
@@ -275,7 +275,7 @@ export default function CoordinatorEntriesPage() {
         </div>
       </div>
 
-      <div className="px-5 mt-4 max-w-lg mx-auto space-y-3">
+      <div className="page-shell px-5 mt-4 space-y-3">
 
         {/* ════════════════════ LIST VIEW ════════════════════ */}
         {viewMode === "list" && (
