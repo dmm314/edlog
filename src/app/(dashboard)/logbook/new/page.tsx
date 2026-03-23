@@ -873,7 +873,7 @@ export default function NewEntryPage() {
             : submittedEntries.classDidNotHold ? "bg-gradient-to-br from-[var(--text-secondary)] to-[var(--text-tertiary)]"
             : "bg-gradient-to-br from-[hsl(var(--success))] to-[hsl(var(--success))]"
         }`}>
-          <div className="max-w-lg mx-auto text-center">
+          <div className="max-w-lg lg:max-w-3xl mx-auto text-center">
             <div className="inline-flex items-center justify-center w-20 h-20 bg-white/20 rounded-full mb-4 animate-fade-in">
               {submittedEntries.isDraft ? <Save className="w-12 h-12 text-white" />
                 : submittedEntries.classDidNotHold ? <XCircle className="w-12 h-12 text-white" />
@@ -894,7 +894,7 @@ export default function NewEntryPage() {
           </div>
         </div>
 
-        <div className="px-5 -mt-4 max-w-lg mx-auto w-full flex-1">
+        <div className="px-5 -mt-4 max-w-lg lg:max-w-3xl mx-auto w-full flex-1">
           <div className="card overflow-hidden">
             <div className="px-5 py-4" style={{ background: "linear-gradient(135deg, var(--accent), var(--accent-hover))" }}>
               <p className="text-white font-bold text-base">{submittedEntries.subject}</p>
@@ -1153,29 +1153,26 @@ export default function NewEntryPage() {
 
   // ─── 3-Step Entry Form ──────────────────────────────────────────
   return (
-    <div className="min-h-screen pb-24" style={{ backgroundColor: "hsl(var(--surface-canvas))" }}>
+    <div className="min-h-screen pb-24 bg-[hsl(var(--surface-canvas))]">
       {/* ── Persistent Header ─── */}
-      <div className="bg-[hsl(var(--surface-elevated))] border-b" style={{ borderColor: "var(--border-primary)" }}>
-        <div className="max-w-lg mx-auto px-5 pt-12 pb-5 desktop-content-form">
+      <div className="bg-[hsl(var(--surface-elevated))] border-b border-[hsl(var(--border-primary))]">
+        <div className="max-w-lg lg:max-w-3xl mx-auto px-5 pt-12 pb-5">
           <div className="flex items-center gap-3 mb-4">
             <button
               onClick={() => step > 0 ? setStep(step - 1) : router.back()}
-              className="w-9 h-9 rounded-[12px] flex items-center justify-center transition-colors"
-              style={{ background: "hsl(var(--surface-tertiary))", color: "var(--text-tertiary)" }}
+              className="w-9 h-9 rounded-xl flex items-center justify-center transition-colors bg-[hsl(var(--surface-tertiary))] text-content-tertiary hover:bg-[hsl(var(--surface-canvas))]"
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
-            <h1 className="text-lg font-bold text-[var(--text-primary)] flex-1">
+            <h1 className="text-lg font-bold text-content-primary flex-1">
               New Entry
             </h1>
             <div
-              className={`flex items-center gap-1.5 rounded-full px-3 py-1 border text-xs font-mono font-bold tabular-nums ${
-                seconds > 60 ? "border-[hsl(var(--accent-glow))] text-[hsl(var(--accent-text))]" : ""
+              className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-mono font-bold tabular-nums transition-all ${
+                seconds > 60
+                  ? "border border-[hsl(var(--accent)/0.3)] bg-[hsl(var(--accent-soft))] text-[hsl(var(--accent-text))]"
+                  : "border border-[hsl(var(--border-primary))] text-content-tertiary"
               }`}
-              style={{
-                ...(seconds <= 60 ? { borderColor: "var(--border-primary)", color: "var(--text-tertiary)" } : {}),
-                ...(seconds > 60 ? { background: "var(--accent-soft)" } : {}),
-              }}
             >
               <Clock className="w-3 h-3" />
               {seconds}s
@@ -1183,27 +1180,21 @@ export default function NewEntryPage() {
           </div>
 
           {hasContext && (
-            <div
-              className="flex items-center gap-3 mb-4 animate-slide-up"
-              style={{ background: "linear-gradient(135deg, hsl(var(--accent-soft)), hsl(var(--accent) / 0.2))", borderRadius: "14px", padding: "14px 16px" }}
-            >
+            <div className="flex items-center gap-3 mb-4 animate-slide-up rounded-2xl p-4 bg-[linear-gradient(135deg,hsl(var(--accent-soft)),hsl(var(--accent)/0.18))] border border-[hsl(var(--accent)/0.15)]">
               <div className="flex-1 min-w-0">
-                <p className="text-[10px] font-semibold uppercase" style={{ color: "hsl(var(--accent-text))", letterSpacing: "0.06em" }}>
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-[hsl(var(--accent-text))]">
                   Auto-filled from timetable
                 </p>
-                <p className="text-[15px] font-bold text-[var(--text-primary)] mt-1 truncate">
+                <p className="text-[15px] font-bold text-content-primary mt-1 truncate">
                   {contextSubjectName} — {contextClassName}
                 </p>
-                <p className="text-xs font-mono mt-0.5 text-[var(--text-secondary)]">
+                <p className="text-xs font-mono mt-0.5 text-content-secondary">
                   {selectedDayName}
                   {contextSlot && ` \u00B7 ${contextSlot.periodLabel} \u00B7 ${contextSlot.startTime}\u2013${contextSlot.endTime}`}
                   {hasMultiSlots && ` (+${selectedSlotIds.length - 1} more)`}
                 </p>
               </div>
-              <div
-                className="flex items-center justify-center flex-shrink-0"
-                style={{ width: "44px", height: "44px", borderRadius: "14px", background: "rgba(255,255,255,0.5)", color: "hsl(var(--accent-strong))" }}
-              >
+              <div className="flex items-center justify-center flex-shrink-0 w-11 h-11 rounded-xl bg-[hsl(var(--surface-elevated)/0.7)] text-[hsl(var(--accent-strong))] backdrop-blur-sm">
                 <Zap className="w-5 h-5" />
               </div>
             </div>
@@ -1220,9 +1211,9 @@ export default function NewEntryPage() {
               });
               if (unendedSlot) {
                 return (
-                  <div className="flex items-center gap-2 mb-3 animate-slide-up" style={{ background: "hsl(var(--accent-soft))", border: "1px solid hsl(var(--accent) / 0.2)", borderRadius: "12px", padding: "12px" }}>
-                    <Clock className="w-4 h-4 flex-shrink-0" style={{ color: "hsl(var(--accent-text))" }} />
-                    <p className="text-xs font-medium" style={{ color: "hsl(var(--accent-text))" }}>
+                  <div className="flex items-center gap-2 mb-3 animate-slide-up rounded-xl p-3 bg-[hsl(var(--accent-soft))] border border-[hsl(var(--accent)/0.2)]">
+                    <Clock className="w-4 h-4 flex-shrink-0 text-[hsl(var(--accent-text))]" />
+                    <p className="text-xs font-medium text-[hsl(var(--accent-text))]">
                       This period hasn&apos;t ended yet. You can save as draft now and submit after {unendedSlot.endTime}.
                     </p>
                   </div>
@@ -1232,34 +1223,43 @@ export default function NewEntryPage() {
             return null;
           })()}
 
-          <div className="flex gap-1">
-            {STEP_LABELS.map((label, i) => (
-              <div key={label} className="flex-1 flex flex-col items-center gap-1.5">
-                <div
-                  className="h-1 w-full rounded-full transition-all duration-300"
-                  style={{
-                    background: i <= step
-                      ? "linear-gradient(90deg, var(--accent), var(--accent-warm))"
-                      : "hsl(var(--surface-tertiary))",
-                  }}
-                />
-                <span
-                  className={`text-[11px] ${
-                    i === step ? "font-bold text-[var(--text-primary)]" : "font-medium text-[var(--text-tertiary)]"
-                  }`}
+          {/* Step progress — pill-style indicator */}
+          <div className="flex items-center gap-2">
+            {STEP_LABELS.map((label, i) => {
+              const isActive = i === step;
+              const isDone = i < step;
+              return (
+                <button
+                  key={label}
+                  type="button"
+                  onClick={() => { if (isDone) setStep(i); }}
+                  className={`flex-1 flex flex-col items-center gap-1.5 transition-all ${isDone ? "cursor-pointer" : "cursor-default"}`}
                 >
-                  {label}
-                </span>
-              </div>
-            ))}
+                  <div className="relative h-1.5 w-full rounded-full overflow-hidden bg-[hsl(var(--surface-tertiary))]">
+                    <div
+                      className="absolute inset-y-0 left-0 rounded-full transition-all duration-500 ease-out"
+                      style={{
+                        width: isDone ? "100%" : isActive ? "50%" : "0%",
+                        background: "linear-gradient(90deg, hsl(var(--accent)), hsl(var(--accent-strong)))",
+                      }}
+                    />
+                  </div>
+                  <span className={`text-[11px] transition-colors ${
+                    isActive ? "font-bold text-content-primary" : isDone ? "font-semibold text-[hsl(var(--accent-text))]" : "font-medium text-content-tertiary"
+                  }`}>
+                    {label}
+                  </span>
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>
 
       {/* ── Content ─── */}
-      <div className="px-5 mt-4 max-w-lg mx-auto desktop-content-form">
+      <div className="px-5 mt-4 max-w-lg lg:max-w-3xl mx-auto">
         {error && (
-          <div className="rounded-xl px-4 py-3 mb-4 text-sm flex items-center gap-2" style={{ background: "var(--warning-light)", color: "var(--warning)" }}>
+          <div className="rounded-xl px-4 py-3 mb-4 text-sm flex items-center gap-2 bg-[var(--warning-light)] text-[hsl(var(--warning))] border border-[hsl(var(--warning)/0.2)]">
             <AlertCircle className="w-4 h-4 flex-shrink-0" />
             {error}
             <button onClick={() => setError("")} className="ml-auto font-semibold underline text-xs">Dismiss</button>
@@ -1267,7 +1267,7 @@ export default function NewEntryPage() {
         )}
 
         {draftSaved && (
-          <div className="rounded-xl px-4 py-3 mb-4 text-sm flex items-center gap-2" style={{ background: "var(--accent-soft)", color: "var(--accent-text)" }}>
+          <div className="rounded-xl px-4 py-3 mb-4 text-sm flex items-center gap-2 bg-[hsl(var(--accent-soft))] text-[hsl(var(--accent-text))] border border-[hsl(var(--accent)/0.2)]">
             <Save className="w-4 h-4" />
             Draft saved! You can complete this entry later.
           </div>
@@ -1395,28 +1395,27 @@ export default function NewEntryPage() {
                 {subjectId && !classDidNotHold && modules.length > 0 && (
                   <div id="module-list-section">
                     <div className="flex items-center gap-2 mb-3">
-                      <p className="text-[13px] text-[var(--text-tertiary)]">Select the module you taught:</p>
+                      <p className="text-sm font-semibold text-content-primary">Select the module you taught</p>
                       <HelpHint text="Select the module (unit/chapter) your lesson was part of. Topics will auto-populate based on this." position="right" createdAt={userCreatedAt} />
                     </div>
-                    <div className="flex flex-col gap-2">
+                    <div className="grid gap-2 lg:grid-cols-2">
                       {modules.map((mod, i) => {
                         const topicCount = topicsForModuleCount(mod);
                         return (
                           <button key={mod} type="button"
                             onClick={() => { setModuleName(mod); setSelectedTopicIds([]); setStep(1); }}
-                            className="flex items-center gap-3.5 p-4 border text-left transition-all active:scale-[0.98] hover:-translate-y-0.5"
-                            style={{ borderColor: "var(--border-primary)", background: "hsl(var(--surface-elevated))", boxShadow: "var(--shadow-card)", borderRadius: "16px" }}>
-                            <div className="w-10 h-10 flex items-center justify-center text-base font-bold flex-shrink-0"
-                              style={{ background: "linear-gradient(135deg, hsl(var(--accent-soft)), hsl(var(--accent) / 0.2))", color: "hsl(var(--accent-text))", borderRadius: "12px" }}>
+                            className="card flex items-center gap-3.5 p-4 text-left transition-all active:scale-[0.98] hover:-translate-y-0.5 group motion-safe:animate-slide-up"
+                            style={{ animationDelay: `${i * 50}ms` }}>
+                            <div className="w-10 h-10 flex items-center justify-center text-base font-bold flex-shrink-0 rounded-xl bg-[linear-gradient(135deg,hsl(var(--accent-soft)),hsl(var(--accent)/0.2))] text-[hsl(var(--accent-text))]">
                               {i + 1}
                             </div>
                             <div className="flex-1 min-w-0">
-                              <p className="text-[15px] font-semibold text-[var(--text-primary)] truncate">{mod}</p>
+                              <p className="text-[15px] font-semibold text-content-primary truncate group-hover:text-[hsl(var(--accent-text))] transition-colors">{mod}</p>
                               {topicCount > 0 && (
-                                <p className="text-xs text-[var(--text-tertiary)]">{topicCount} topics</p>
+                                <p className="text-xs text-content-tertiary">{topicCount} topics</p>
                               )}
                             </div>
-                            <ChevronRight className="w-4 h-4 text-[var(--text-quaternary)]" />
+                            <ChevronRight className="w-4 h-4 text-content-tertiary group-hover:translate-x-0.5 transition-transform" />
                           </button>
                         );
                       })}
@@ -1562,17 +1561,21 @@ export default function NewEntryPage() {
 
             {/* ══ STEP 2 — Details & Submit ══ */}
             {step === 2 && (
-              <div className="space-y-4 animate-slide-in-right">
-                <div className="border" style={{ background: "hsl(var(--surface-elevated))", borderColor: "var(--border-primary)", borderRadius: "16px", padding: "16px" }}>
+              <div className="space-y-4 animate-slide-in-right lg:grid lg:grid-cols-[1fr_320px] lg:gap-6 lg:space-y-0">
+              {/* Left column: form fields */}
+              <div className="space-y-4">
+                {/* Entry summary card */}
+                <div className="card rounded-2xl p-4">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-content-tertiary mb-2">Entry Summary</p>
                   {[
                     ["Subject", contextSubjectName],
                     ["Class", contextClassName + (additionalClassIds.length > 0 ? ` (+${additionalClassIds.length})` : "")],
                     ["Module", moduleName || "—"],
                     ["Topic", topicText || selectedTopicIds.map((id) => topicsForModule.find((t) => t.id === id)?.name).filter(Boolean).join(", ") || "—"],
                   ].map(([label, value], idx) => (
-                    <div key={label} className="flex justify-between py-2" style={{ borderBottom: idx < 3 ? "1px solid hsl(var(--surface-tertiary))" : "none" }}>
-                      <span className="text-[13px] text-[var(--text-tertiary)]">{label}</span>
-                      <span className="text-[13px] font-semibold text-[var(--text-primary)] text-right max-w-[60%] truncate">{value}</span>
+                    <div key={label} className={`flex justify-between py-2 ${idx < 3 ? "border-b border-[hsl(var(--surface-tertiary))]" : ""}`}>
+                      <span className="text-[13px] text-content-tertiary">{label}</span>
+                      <span className="text-[13px] font-semibold text-content-primary text-right max-w-[60%] truncate">{value}</span>
                     </div>
                   ))}
                 </div>
@@ -2127,34 +2130,6 @@ export default function NewEntryPage() {
                   </div>
                 )}
 
-                {/* ── Entry Completeness Score ── */}
-                <div className="rounded-2xl px-4 py-3" style={{ background: "hsl(var(--surface-elevated))", border: "1px solid var(--border-primary)" }}>
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-xs font-semibold text-[var(--text-secondary)]">Entry completeness</span>
-                    <span className="text-xs font-bold tabular-nums" style={{ color: completenessScore >= 80 ? "var(--success)" : completenessScore >= 50 ? "var(--accent-text)" : "var(--warning)" }}>
-                      {completenessScore}%
-                    </span>
-                  </div>
-                  <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "hsl(var(--surface-tertiary))" }}>
-                    <div className="h-full rounded-full transition-all duration-500"
-                      style={{
-                        width: `${completenessScore}%`,
-                        background: completenessScore >= 80 ? "var(--success)" : completenessScore >= 50 ? "var(--accent)" : "var(--warning)",
-                      }}
-                    />
-                  </div>
-                  {completenessScore < 80 && (
-                    <p className="text-[11px] mt-1.5" style={{ color: "var(--text-tertiary)" }}>
-                      {[
-                        !notes.trim() && "notes",
-                        !engagementLevel && "engagement",
-                        !studentAttendance && "attendance",
-                        !familyOfSituation && "family of situation",
-                      ].filter(Boolean).slice(0, 3).join(" · ")}
-                    </p>
-                  )}
-                </div>
-
                 <EntrySubmitBar
                   isFormValid={Boolean(isFormValid)}
                   isDraftValid={Boolean(isDraftValid)}
@@ -2167,6 +2142,103 @@ export default function NewEntryPage() {
                   classCount={1 + additionalClassIds.length}
                   onSaveDraft={(e) => handleSubmit(e, true)}
                 />
+              </div>{/* end left column */}
+
+              {/* Right column: live completeness sidebar (desktop only) */}
+              <aside className="hidden lg:block">
+                <div className="sticky top-6 space-y-4">
+                  {/* Completeness ring */}
+                  <div className="card rounded-2xl p-5 text-center">
+                    <div className="relative w-24 h-24 mx-auto mb-3">
+                      <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
+                        <circle cx="50" cy="50" r="42" fill="none" stroke="hsl(var(--surface-tertiary))" strokeWidth="8" />
+                        <circle cx="50" cy="50" r="42" fill="none"
+                          stroke={completenessScore >= 80 ? "hsl(var(--success))" : completenessScore >= 50 ? "hsl(var(--accent))" : "hsl(var(--warning))"}
+                          strokeWidth="8" strokeLinecap="round"
+                          strokeDasharray={`${completenessScore * 2.64} ${264 - completenessScore * 2.64}`}
+                          className="transition-all duration-700"
+                        />
+                      </svg>
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <span className="text-2xl font-bold font-mono text-content-primary">{completenessScore}%</span>
+                      </div>
+                    </div>
+                    <p className="text-sm font-semibold text-content-primary">Entry Completeness</p>
+                    {completenessScore < 80 && (
+                      <p className="text-xs text-content-tertiary mt-1">
+                        Add {[
+                          !notes.trim() && "notes",
+                          !engagementLevel && "engagement",
+                          !studentAttendance && "attendance",
+                          !familyOfSituation && "family of situation",
+                        ].filter(Boolean).slice(0, 2).join(", ")} to improve
+                      </p>
+                    )}
+                    {completenessScore >= 80 && (
+                      <p className="text-xs text-[hsl(var(--success))] font-medium mt-1">Looking great!</p>
+                    )}
+                  </div>
+
+                  {/* Quick checklist */}
+                  <div className="card rounded-2xl p-4">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-content-tertiary mb-3">Checklist</p>
+                    <div className="space-y-2">
+                      {[
+                        { done: !!moduleName, label: "Module selected" },
+                        { done: selectedTopicIds.length > 0 || !!topicText.trim(), label: "Topic entered" },
+                        { done: Object.keys(selectedObjectives).length > 0, label: "Learning objectives" },
+                        { done: !!familyOfSituation, label: "Family of situation" },
+                        { done: !!notes.trim(), label: "Notes added" },
+                        { done: !!studentAttendance, label: "Attendance recorded" },
+                        { done: !!engagementLevel, label: "Engagement level" },
+                      ].map((item) => (
+                        <div key={item.label} className="flex items-center gap-2">
+                          <div className={`w-4 h-4 rounded-md flex items-center justify-center flex-shrink-0 ${
+                            item.done ? "bg-[hsl(var(--success))]" : "border border-[hsl(var(--border-strong))]"
+                          }`}>
+                            {item.done && <Check className="w-2.5 h-2.5 text-white" />}
+                          </div>
+                          <span className={`text-xs ${item.done ? "text-content-secondary line-through" : "text-content-primary"}`}>
+                            {item.label}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </aside>
+
+              {/* Mobile completeness bar (shown only on mobile) */}
+              <div className="lg:hidden">
+                <div className="card rounded-2xl px-4 py-3">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-xs font-semibold text-content-secondary">Entry completeness</span>
+                    <span className={`text-xs font-bold tabular-nums ${
+                      completenessScore >= 80 ? "text-[hsl(var(--success))]" : completenessScore >= 50 ? "text-[hsl(var(--accent-text))]" : "text-[hsl(var(--warning))]"
+                    }`}>
+                      {completenessScore}%
+                    </span>
+                  </div>
+                  <div className="h-1.5 rounded-full overflow-hidden bg-[hsl(var(--surface-tertiary))]">
+                    <div className="h-full rounded-full transition-all duration-500"
+                      style={{
+                        width: `${completenessScore}%`,
+                        background: completenessScore >= 80 ? "hsl(var(--success))" : completenessScore >= 50 ? "hsl(var(--accent))" : "hsl(var(--warning))",
+                      }}
+                    />
+                  </div>
+                  {completenessScore < 80 && (
+                    <p className="text-[11px] mt-1.5 text-content-tertiary">
+                      {[
+                        !notes.trim() && "notes",
+                        !engagementLevel && "engagement",
+                        !studentAttendance && "attendance",
+                        !familyOfSituation && "family of situation",
+                      ].filter(Boolean).slice(0, 3).join(" · ")}
+                    </p>
+                  )}
+                </div>
+              </div>
               </div>
             )}
           </form>
