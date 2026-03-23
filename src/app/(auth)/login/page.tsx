@@ -5,8 +5,18 @@ export default function LoginPage() {
   return (
     <Suspense
       fallback={
-        <div className="flex min-h-screen items-center justify-center bg-[hsl(var(--surface-canvas))]">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-[hsl(var(--accent))] border-t-transparent" />
+        // Fallback uses same soft-gray bg as LoginForm to avoid FOUC flash
+        <div
+          className="flex min-h-screen items-center justify-center"
+          style={{ background: "hsl(var(--surface-canvas))" }}
+        >
+          <div
+            className="h-8 w-8 animate-spin rounded-full border-4"
+            style={{
+              borderColor: "#0866FF",
+              borderTopColor: "transparent",
+            }}
+          />
         </div>
       }
     >

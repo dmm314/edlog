@@ -1,4 +1,4 @@
-# EDLOG DESIGN SPECIFICATION — v5.0 (Elite Functional Minimal)
+# EDLOG DESIGN SPECIFICATION — v5.1 (Elite Functional Minimal)
 
 ## DESIGN PHILOSOPHY
 
@@ -245,6 +245,82 @@ Clean, functional display:
 | < 640px | Single column, full-width | Bottom nav (5 tabs) | Stacked cards |
 | 640–1024px | Wider cards, 2-column | Bottom nav | Scrollable table |
 | > 1024px | Sidebar + main content | Side nav | Full table |
+
+
+## LOGIN PAGE & PUBLIC HOMEPAGE — v5.1 Standard
+
+### Philosophy
+
+Both the public homepage (`/`) and the login page (`/login`) follow the same
+"standard modern login" pattern used by Facebook, WhatsApp, and Notion in 2026:
+earned blue on a calm neutral canvas, centered white card, no pure-white pages.
+
+### Background
+
+| Surface     | Light mode              | Dark mode             |
+|-------------|-------------------------|-----------------------|
+| Page canvas | `hsl(220 14% 96%)`      | `hsl(220 10% 8%)`     |
+| Card        | `#FFFFFF`               | `hsl(220 8% 12%)`     |
+
+Never use `background: white` on the full page. The canvas must always be a
+step off-white (light gray) so the card pops with genuine contrast.
+
+### Sign-In Button (THE rule)
+
+```
+background: #0866FF   ← hardcoded, not a CSS variable
+color:      #FFFFFF   ← always white text
+min-height: 48px      ← 44px touch target + breathing room
+```
+
+**Why hardcoded?** Older Android WebViews (Tecno/Infinix phones, Chrome < 65)
+may not resolve `hsl(space-separated)` CSS Level 4 syntax reliably. Hardcoding
+`#0866FF` guarantees the button is always blue with white text — no FOUC, no
+white-on-white, no contrast failure in either light or dark mode.
+
+### Homepage Layout
+
+```
+[sticky header: logo left | Sign In button right (#0866FF)]
+[hero card: blue gradient contained in rounded-2xl card]
+  ├─ "New · Smart timetabling" pill
+  ├─ H1 headline (white text)
+  ├─ Tagline (white/60 text)
+  └─ [Sign In — white bg #0866FF text] [Get Started — ghost]
+[stats row: 60s / 40+ / 100% — neutral white card]
+[role cards: Teacher, School Admin, Regional Inspector]
+[features grid: 2-col, neutral cards on secondary bg]
+[how it works: 3-step list]
+[final CTA: blue gradient section — second earned-color moment]
+[footer: neutral]
+```
+
+### Login Page Layout
+
+```
+[centered column, max-w-[400px]]
+  ├─ Logo: #0866FF icon + "Edlog" wordmark + "Sign in to your account"
+  ├─ [optional success / error banners]
+  ├─ Email input (input-field class)
+  ├─ Password input + show/hide toggle
+  ├─ [Sign In button: #0866FF bg, #FFFFFF text, 48px height]
+  └─ "Don't have an account? Get Started"
+[register option cards below: Teacher / School Admin / Regional Inspector]
+```
+
+### Earned-Color on Login & Homepage
+
+Blue (`#0866FF`) appears ONLY on:
+1. Logo icon background
+2. The Sign In / primary CTA button (always blue, always pops)
+3. Section label micro-text (e.g. "BUILT FOR EVERYONE")
+4. Role card icons that map to the accent (Teacher role)
+5. Hero card and final CTA section background gradient
+6. Step number bubbles (gradient)
+
+Everything else is neutral surfaces (`surface-canvas`, `surface-elevated`,
+`border-primary`, `text-primary/secondary/tertiary`). The blue button stands
+out because everything around it is neutral — that IS the earned color working.
 
 
 ## PERFORMANCE
