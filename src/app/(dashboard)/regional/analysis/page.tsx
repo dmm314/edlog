@@ -84,7 +84,7 @@ export default function RegionalAnalysisPage() {
       {/* Header */}
       <div className="bg-gradient-to-br from-[hsl(var(--accent-text))] via-[hsl(var(--accent-strong))] to-[hsl(var(--accent))] px-5 pt-10 pb-8 rounded-b-[2rem] shadow-elevated relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[hsl(var(--accent)/0.2)] via-transparent to-transparent" />
-        <div className="max-w-lg mx-auto relative">
+        <div className="max-w-lg lg:max-w-4xl mx-auto relative">
           <Link
             href="/regional"
             className="inline-flex items-center gap-1.5 text-white/70 hover:text-white text-sm mb-4 transition-colors"
@@ -102,7 +102,7 @@ export default function RegionalAnalysisPage() {
         </div>
       </div>
 
-      <div className="px-5 mt-4 max-w-lg mx-auto space-y-4">
+      <div className="px-5 mt-4 max-w-lg lg:max-w-4xl mx-auto space-y-4">
         {/* Tab switcher */}
         <div className="flex bg-[hsl(var(--surface-elevated))] rounded-xl border border-[var(--border-primary)] p-1">
           {[

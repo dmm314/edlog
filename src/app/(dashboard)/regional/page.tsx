@@ -58,7 +58,7 @@ export default function RegionalDashboardPage() {
     return (
       <div className="min-h-screen pb-24 bg-[hsl(var(--surface-canvas))]">
         <div className="border-b border-[hsl(var(--border-primary))] bg-[hsl(var(--surface-elevated))] px-5 pt-8 pb-6">
-          <div className="max-w-lg mx-auto">
+          <div className="max-w-lg lg:max-w-4xl mx-auto">
             <div className="flex items-center gap-1.5 mb-1">
               <span className="role-dot role-dot-regional" />
               <p className="text-xs font-medium text-content-tertiary">Regional Inspector</p>
@@ -68,7 +68,7 @@ export default function RegionalDashboardPage() {
             </h1>
           </div>
         </div>
-        <div className="px-5 mt-4 max-w-lg mx-auto">
+        <div className="px-5 mt-4 max-w-lg lg:max-w-4xl mx-auto">
           <div className="grid grid-cols-2 gap-3">
             {[1, 2, 3, 4].map((i) => (
               <div key={i} className="card p-4 animate-pulse">
@@ -91,7 +91,7 @@ export default function RegionalDashboardPage() {
     <div className="min-h-screen pb-24 bg-[hsl(var(--surface-canvas))]">
       {/* Header — clean functional bar */}
       <div className="border-b border-[hsl(var(--border-primary))] bg-[hsl(var(--surface-elevated))] px-5 pt-8 pb-6">
-        <div className="max-w-lg mx-auto">
+        <div className="max-w-lg lg:max-w-4xl mx-auto">
           <div data-tour="regional-welcome" className="flex items-start justify-between">
             <div>
               <div className="flex items-center gap-1.5 mb-1">
@@ -107,7 +107,7 @@ export default function RegionalDashboardPage() {
         </div>
       </div>
 
-      <div className="px-5 mt-4 max-w-lg mx-auto space-y-4 desktop-content">
+      <div className="px-5 mt-4 max-w-lg lg:max-w-4xl mx-auto space-y-4 desktop-content">
         {/* Pending schools alert */}
         {stats && stats.pendingSchools > 0 && (
           <Link

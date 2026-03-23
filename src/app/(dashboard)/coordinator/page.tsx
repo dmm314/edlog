@@ -218,7 +218,7 @@ export default function CoordinatorDashboardPage() {
     return (
       <div className="min-h-screen pb-24 bg-[hsl(var(--surface-canvas))]">
         <div className="border-b border-[hsl(var(--border-primary))] bg-[hsl(var(--surface-elevated))] px-5 pt-8 pb-6">
-          <div className="max-w-lg mx-auto">
+          <div className="max-w-lg lg:max-w-4xl mx-auto">
             <div className="skeleton h-4 w-24 mb-2" />
             <div className="skeleton h-7 w-44 mb-5" />
             <div className="flex gap-2">
@@ -231,7 +231,7 @@ export default function CoordinatorDashboardPage() {
             </div>
           </div>
         </div>
-        <div className="px-5 mt-4 max-w-lg mx-auto space-y-4">
+        <div className="px-5 mt-4 max-w-lg lg:max-w-4xl mx-auto space-y-4">
           <div className="grid grid-cols-2 gap-3">
             {[1, 2, 3, 4].map((i) => (
               <div key={i} className="card p-4">
@@ -261,7 +261,7 @@ export default function CoordinatorDashboardPage() {
     <div className="min-h-screen pb-24 bg-[hsl(var(--surface-canvas))]">
       {/* ── HEADER — Clean functional bar ── */}
       <div className="border-b border-[hsl(var(--border-primary))] bg-[hsl(var(--surface-elevated))] px-5 pt-8 pb-6">
-        <div className="max-w-lg mx-auto">
+        <div className="max-w-lg lg:max-w-4xl mx-auto">
           <div data-tour="coordinator-welcome" className="flex items-start justify-between">
             <div>
               <div className="flex items-center gap-1.5 mb-1">
@@ -297,7 +297,7 @@ export default function CoordinatorDashboardPage() {
         </div>
       </div>
 
-      <div className="px-5 mt-4 max-w-lg mx-auto space-y-4 desktop-content">
+      <div className="px-5 mt-4 max-w-lg lg:max-w-4xl mx-auto space-y-4 desktop-content">
         {/* Mode switch banner for dual-role users */}
         {hasTeachingAssignments && (
           <div data-tour="coordinator-mode-switch" className="flex items-center gap-3 px-3 py-2.5 rounded-xl animate-fade-in"
