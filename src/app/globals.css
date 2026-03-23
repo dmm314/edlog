@@ -14,6 +14,7 @@
     --accent-strong: 224 86% 40%;
     --accent-text: 224 86% 42%;
     --accent-muted: 217 60% 92%;
+    --accent-glow: 224 86% 48%;
 
     /* ─ Neutral surfaces ─ */
     --surface-canvas: 220 14% 96%;
@@ -28,15 +29,19 @@
     --text-secondary: 220 9% 46%;
     --text-tertiary: 220 4% 55%;
     --text-inverse: 0 0% 100%;
+    --text-quaternary: 220 4% 64%;
 
     /* ─ Borders (pure neutral) ─ */
     --border-primary: 220 13% 91%;
+    --border-secondary: 220 9% 94%;
     --border-muted: 220 4% 92%;
     --border-strong: 220 6% 78%;
 
     /* ─ Status colors ─ */
     --success: 160 84% 39%;
+    --success-light: hsl(160 84% 39% / 0.1);
     --warning: 38 92% 50%;
+    --warning-light: hsl(38 92% 50% / 0.1);
     --danger: 0 72% 51%;
     --info: 199 89% 48%;
 
@@ -95,6 +100,7 @@
     --accent-strong: 217 100% 58%;
     --accent-text: 217 92% 72%;
     --accent-muted: 217 40% 18%;
+    --accent-glow: 217 92% 72%;
 
     /* ─ Dark surfaces (near-black, minimal blue tint) ─ */
     --surface-canvas: 220 10% 8%;
@@ -109,15 +115,19 @@
     --text-secondary: 220 6% 64%;
     --text-tertiary: 220 4% 46%;
     --text-inverse: 220 10% 8%;
+    --text-quaternary: 220 4% 38%;
 
     /* ─ Borders ─ */
     --border-primary: 220 8% 20%;
+    --border-secondary: 220 6% 18%;
     --border-muted: 220 6% 16%;
     --border-strong: 220 8% 28%;
 
     /* ─ Status ─ */
     --success: 160 84% 45%;
+    --success-light: hsl(160 84% 45% / 0.15);
     --warning: 38 92% 55%;
+    --warning-light: hsl(38 92% 55% / 0.15);
     --danger: 0 72% 62%;
     --info: 199 89% 55%;
 

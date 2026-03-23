@@ -92,44 +92,40 @@ export default function AdminDashboardPage() {
   // Loading skeleton
   if (loading) {
     return (
-      <div className="min-h-screen pb-24 bg-[hsl(var(--surface-canvas))]">
+      <div className="page-shell space-y-4 pt-4 lg:space-y-5">
         {/* Admin header skeleton */}
-        <div className="px-5 pt-8 pb-6 border-b border-[hsl(var(--border-primary))] bg-[hsl(var(--surface-elevated))]">
-          <div className="mx-auto w-full max-w-6xl relative">
-            <div className="skeleton h-4 w-24 mb-2" />
-            <div className="skeleton h-7 w-44 mb-5" />
-            <div className="flex gap-2">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="flex-1 rounded-[14px] p-3 bg-[hsl(var(--surface-secondary))] border border-[hsl(var(--border-muted))]">
-                  <div className="skeleton h-7 w-12 mx-auto mb-1" />
-                  <div className="skeleton h-2 w-16 mx-auto" />
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-        <div className="mx-auto mt-4 w-full max-w-6xl px-5 space-y-4 desktop-content">
-          <div className="grid grid-cols-2 gap-3">
-            {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="card p-4">
-                <div className="skeleton h-10 w-10 rounded-xl mb-3" />
-                <div className="skeleton h-4 w-20 mb-1" />
-                <div className="skeleton h-3 w-14" />
-              </div>
-            ))}
-          </div>
-          <div className="card p-5">
-            <div className="skeleton h-4 w-32 mb-4" />
+        <section className="section-card">
+          <div className="skeleton h-4 w-24 mb-2" />
+          <div className="skeleton h-7 w-44 mb-5" />
+          <div className="flex gap-2">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="flex items-center gap-3 py-2.5">
-                <div className="skeleton h-9 w-9 rounded-full" />
-                <div className="flex-1">
-                  <div className="skeleton h-3 w-24 mb-2" />
-                  <div className="skeleton h-1.5 w-full rounded-full" />
-                </div>
+              <div key={i} className="flex-1 rounded-xl p-3 bg-[hsl(var(--surface-secondary))] border border-[hsl(var(--border-muted))]">
+                <div className="skeleton h-7 w-12 mx-auto mb-1" />
+                <div className="skeleton h-2 w-16 mx-auto" />
               </div>
             ))}
           </div>
+        </section>
+        <div className="grid grid-cols-2 gap-3">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="card p-4">
+              <div className="skeleton h-10 w-10 rounded-xl mb-3" />
+              <div className="skeleton h-4 w-20 mb-1" />
+              <div className="skeleton h-3 w-14" />
+            </div>
+          ))}
+        </div>
+        <div className="card p-5">
+          <div className="skeleton h-4 w-32 mb-4" />
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="flex items-center gap-3 py-2.5">
+              <div className="skeleton h-9 w-9 rounded-full" />
+              <div className="flex-1">
+                <div className="skeleton h-3 w-24 mb-2" />
+                <div className="skeleton h-1.5 w-full rounded-full" />
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     );
@@ -144,284 +140,228 @@ export default function AdminDashboardPage() {
   const vpBreakdown = stats?.vpBreakdown ?? [];
 
   return (
-    <div className="min-h-screen pb-24 bg-[hsl(var(--surface-canvas))]">
-      {/* ── HEADER — Clean functional bar ── */}
-      <div className="border-b border-[hsl(var(--border-primary))] bg-[hsl(var(--surface-elevated))] px-5 pt-8 pb-6">
-        <div className="mx-auto w-full max-w-6xl">
-          <div data-tour="admin-welcome" className="flex items-start justify-between">
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <span className="role-dot role-dot-admin" />
-                <p className="text-xs font-medium text-content-tertiary">School Admin</p>
-                {school && (
-                  <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold ${school.status === "ACTIVE" ? "bg-[hsl(var(--success)/0.1)] text-[hsl(var(--success))]" : "bg-[hsl(var(--surface-tertiary))] text-content-tertiary"}`}>
-                    {school.status === "ACTIVE" ? "Active" : school.status}
-                  </span>
-                )}
-              </div>
-              <h1 className="text-xl font-bold text-content-primary tracking-tight">
-                {school?.name || "Admin Dashboard"}
-              </h1>
+    <div className="page-shell space-y-4 pt-4 lg:space-y-5">
+      {/* ── HEADER — section-card ── */}
+      <section className="section-card">
+        <div data-tour="admin-welcome" className="flex items-start justify-between">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="role-dot role-dot-admin" />
+              <p className="text-xs font-medium text-content-tertiary">School Admin</p>
+              {school && (
+                <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold ${school.status === "ACTIVE" ? "bg-[hsl(var(--success)/0.1)] text-[hsl(var(--success))]" : "bg-[hsl(var(--surface-tertiary))] text-content-tertiary"}`}>
+                  {school.status === "ACTIVE" ? "Active" : school.status}
+                </span>
+              )}
             </div>
-            <NotificationBell />
+            <h1 className="text-xl font-bold text-content-primary tracking-tight">
+              {school?.name || "Admin Dashboard"}
+            </h1>
           </div>
+          <NotificationBell />
+        </div>
 
-          {/* 3 stat pods */}
-          <div data-tour="admin-stats" className="mt-4 flex gap-2">
-            {[
-              { value: stats?.totalTeachers ?? 0, label: "Teachers" },
-              { value: stats?.entriesThisWeek ?? 0, label: "This week" },
-              { value: `${complianceRate}%`, label: "Compliance", hint: "The percentage of expected entries submitted across your school this month." },
-            ].map((stat) => (
-              <div
-                key={stat.label}
-                className="relative flex-1 rounded-xl border border-[hsl(var(--border-muted))] bg-[hsl(var(--surface-secondary))] p-3 text-center"
-              >
-                {stat.hint && (
-                  <HelpHint text={stat.hint} position="bottom" createdAt={userCreatedAt} className="absolute -top-1 -right-1 z-10" />
-                )}
-                <p className="text-xl font-bold tabular-nums text-content-primary">
-                  {stat.value}
-                </p>
-                <p className="mt-1 text-[10px] font-medium text-content-tertiary">
-                  {stat.label}
-                </p>
-              </div>
-            ))}
+        {/* 3 stat pods */}
+        <div data-tour="admin-stats" className="mt-4 flex gap-2">
+          {[
+            { value: stats?.totalTeachers ?? 0, label: "Teachers" },
+            { value: stats?.entriesThisWeek ?? 0, label: "This week" },
+            { value: `${complianceRate}%`, label: "Compliance", hint: "The percentage of expected entries submitted across your school this month." },
+          ].map((stat) => (
+            <div
+              key={stat.label}
+              className="relative flex-1 rounded-xl border border-[hsl(var(--border-muted))] bg-[hsl(var(--surface-secondary))] p-3 text-center"
+            >
+              {stat.hint && (
+                <HelpHint text={stat.hint} position="bottom" createdAt={userCreatedAt} className="absolute -top-1 -right-1 z-10" />
+              )}
+              <p className="text-xl font-bold tabular-nums text-content-primary">
+                {stat.value}
+              </p>
+              <p className="mt-1 text-[10px] font-medium text-content-tertiary">
+                {stat.label}
+              </p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Error */}
+      {error && (
+        <div className="animate-slide-down rounded-xl border border-[hsl(var(--danger)/0.3)] bg-[hsl(var(--danger)/0.06)] px-4 py-3 flex items-center gap-2 text-sm font-medium text-[hsl(var(--danger))]">
+          <AlertTriangle className="w-4 h-4 flex-shrink-0" />
+          <span className="flex-1">{error}</span>
+        </div>
+      )}
+
+      {/* Pending teacher approvals alert */}
+      {stats && (stats.pendingTeachers ?? 0) > 0 && (
+        <Link
+          href="/admin/teachers"
+          className="animate-slide-up flex items-center gap-3.5 card p-4 border-l-4 border-l-[hsl(var(--accent))] hover:shadow-card-hover active:scale-[0.98] transition-all duration-200 group"
+        >
+          <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 bg-[hsl(var(--accent-soft))]">
+            <AlertTriangle className="w-5 h-5 text-[hsl(var(--accent))]" />
           </div>
+          <div className="flex-1">
+            <p className="text-sm font-bold text-content-primary">
+              {stats.pendingTeachers} teacher{(stats.pendingTeachers ?? 0) > 1 ? "s" : ""} awaiting approval
+            </p>
+            <p className="text-xs text-content-tertiary mt-0.5">Tap to review and approve</p>
+          </div>
+          <ChevronRight className="w-4 h-4 text-content-tertiary group-hover:translate-x-0.5 transition-transform" />
+        </Link>
+      )}
+
+      {/* ── QUICK ACTIONS — 2×3 grid ── */}
+      <div data-tour="admin-quick-actions" className="animate-slide-up animation-delay-150">
+        <h3 className="text-xs font-bold uppercase tracking-widest text-content-tertiary mb-3 px-1">
+          Quick Actions
+        </h3>
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-2">
+          {[
+            {
+              href: "/admin/entries",
+              icon: CheckCircle2,
+              label: "Entry Overview",
+              count: "View all entries",
+              gradient: "hsl(var(--accent-soft))",
+              iconColor: "hsl(var(--accent-strong))",
+            },
+            {
+              href: "/admin/timetable",
+              icon: Calendar,
+              label: "Timetable",
+              count: "Manage schedule",
+              gradient: "hsl(var(--success) / 0.1)",
+              iconColor: "hsl(var(--success))",
+            },
+            {
+              href: "/admin/reports",
+              icon: BarChart3,
+              label: "Reports",
+              count: "Analytics & export",
+              gradient: "hsl(var(--accent-soft))",
+              iconColor: "hsl(var(--accent-strong))",
+            },
+            {
+              href: "/admin/teachers",
+              icon: Users,
+              label: "Teachers",
+              count: `${stats?.totalTeachers ?? 0} active`,
+              gradient: "hsl(var(--danger) / 0.08)",
+              iconColor: "hsl(var(--danger))",
+            },
+            {
+              href: "/admin/classes",
+              icon: BookOpen,
+              label: "Manage Classes",
+              count: "Add & organise classes",
+              gradient: "hsl(var(--accent-soft))",
+              iconColor: "hsl(var(--accent))",
+            },
+            {
+              href: "/admin/subjects",
+              icon: Layers,
+              label: "Assign Subjects",
+              count: "Subjects per class",
+              gradient: "hsl(var(--success) / 0.08)",
+              iconColor: "hsl(var(--success))",
+            },
+          ].map((action) => {
+            const Icon = action.icon;
+            return (
+              <Link
+                key={action.href}
+                href={action.href}
+                className="rounded-2xl p-4 transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.97] cursor-pointer"
+                style={{ background: action.gradient }}
+              >
+                <div className="mb-2.5" style={{ color: action.iconColor }}>
+                  <Icon className="w-[18px] h-[18px]" />
+                </div>
+                <p className="text-sm font-bold text-content-primary">{action.label}</p>
+                <p className="mt-0.5 text-xs text-content-secondary">{action.count}</p>
+              </Link>
+            );
+          })}
         </div>
       </div>
 
-      <div className="mx-auto mt-4 w-full max-w-6xl px-5 space-y-4 desktop-content">
-        {/* Error */}
-        {error && (
-          <div className="animate-slide-down bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-4 py-3 flex items-center gap-2 font-medium"
-            style={{ background: "var(--warning-light)", borderColor: "var(--warning)", color: "var(--warning)" }}>
-            <AlertTriangle className="w-4 h-4 flex-shrink-0" />
-            <span className="flex-1">{error}</span>
+      {/* ── MANAGE VPs ── */}
+      <Link
+        href="/admin/coordinators"
+        className="animate-slide-up animation-delay-175 flex items-center justify-between card p-4 border border-[hsl(var(--accent)/0.2)] bg-[hsl(var(--accent-soft))] group active:scale-[0.98] transition-all duration-200 relative"
+      >
+        <HelpHint text="Assign Vice Principals to manage entry verification for each class level." position="left" createdAt={userCreatedAt} className="absolute top-3 right-3 z-10" />
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-[hsl(var(--accent)/0.12)]">
+            <Shield className="w-5 h-5 text-[hsl(var(--accent-strong))]" />
           </div>
-        )}
-
-        {/* Pending teacher approvals alert */}
-        {stats && (stats.pendingTeachers ?? 0) > 0 && (
-          <Link
-            href="/admin/teachers"
-            className="animate-slide-up flex items-center gap-3.5 card p-4 border-l-4 hover:shadow-card-hover active:scale-[0.98] transition-all duration-200 group"
-            style={{ borderLeftColor: "var(--accent)" }}
-          >
-            <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "var(--accent-soft)" }}>
-              <AlertTriangle className="w-5 h-5" style={{ color: "var(--accent)" }} />
-            </div>
-            <div className="flex-1">
-              <p className="text-sm font-bold text-[var(--text-primary)]">
-                {stats.pendingTeachers} teacher{(stats.pendingTeachers ?? 0) > 1 ? "s" : ""} awaiting approval
-              </p>
-              <p className="text-xs text-[var(--text-tertiary)] mt-0.5">Tap to review and approve</p>
-            </div>
-            <ChevronRight className="w-4 h-4 text-[var(--text-quaternary)] group-hover:translate-x-0.5 transition-transform" />
-          </Link>
-        )}
-
-        {/* ── QUICK ACTIONS — 2×2 gradient grid ── */}
-        <div data-tour="admin-quick-actions" className="animate-slide-up animation-delay-150">
-          <h3 className="text-xs font-bold uppercase tracking-widest text-[var(--text-tertiary)] mb-3 px-1">
-            Quick Actions
-          </h3>
-          <div className="grid grid-cols-2 lg:grid-cols-3" style={{ gap: "8px" }}>
-            {[
-              {
-                href: "/admin/entries",
-                icon: CheckCircle2,
-                label: "Entry Overview",
-                count: "View all entries",
-                gradient: "hsl(var(--accent-soft))",
-                iconColor: "hsl(var(--accent-strong))",
-              },
-              {
-                href: "/admin/timetable",
-                icon: Calendar,
-                label: "Timetable",
-                count: "Manage schedule",
-                gradient: "hsl(var(--success) / 0.1)",
-                iconColor: "hsl(var(--success))",
-              },
-              {
-                href: "/admin/reports",
-                icon: BarChart3,
-                label: "Reports",
-                count: "Analytics & export",
-                gradient: "hsl(var(--accent-soft))",
-                iconColor: "hsl(var(--accent-strong))",
-              },
-              {
-                href: "/admin/teachers",
-                icon: Users,
-                label: "Teachers",
-                count: `${stats?.totalTeachers ?? 0} active`,
-                gradient: "hsl(var(--danger) / 0.08)",
-                iconColor: "hsl(var(--danger))",
-              },
-              {
-                href: "/admin/classes",
-                icon: BookOpen,
-                label: "Manage Classes",
-                count: "Add & organise classes",
-                gradient: "hsl(var(--accent-soft))",
-                iconColor: "hsl(var(--accent))",
-              },
-              {
-                href: "/admin/subjects",
-                icon: Layers,
-                label: "Assign Subjects",
-                count: "Subjects per class",
-                gradient: "hsl(var(--success) / 0.08)",
-                iconColor: "hsl(var(--success))",
-              },
-            ].map((action) => {
-              const Icon = action.icon;
-              return (
-                <Link
-                  key={action.href}
-                  href={action.href}
-                  className="p-4 transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.97] cursor-pointer"
-                  style={{ background: action.gradient, borderRadius: "16px" }}
-                >
-                  <div className="mb-2.5" style={{ color: action.iconColor }}>
-                    <Icon style={{ width: "18px", height: "18px" }} />
-                  </div>
-                  <p style={{ fontFamily: "var(--font-body)", fontSize: "14px", fontWeight: 700, color: "var(--text-primary)" }}>{action.label}</p>
-                  <p className="mt-0.5" style={{ fontSize: "12px", color: "var(--text-secondary)" }}>{action.count}</p>
-                </Link>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* ── MANAGE VPs ── */}
-        <Link
-          href="/admin/coordinators"
-          className="animate-slide-up animation-delay-175 flex items-center justify-between p-4 group active:scale-[0.98] transition-all duration-200 relative"
-          style={{
-            background: "hsl(var(--accent-soft))",
-            border: "1px solid hsl(var(--accent) / 0.2)",
-            borderRadius: "16px",
-          }}
-        >
-          <HelpHint text="Assign Vice Principals to manage entry verification for each class level." position="left" createdAt={userCreatedAt} className="absolute top-3 right-3 z-10" />
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "hsl(var(--accent) / 0.12)" }}>
-              <Shield className="w-5 h-5" style={{ color: "hsl(var(--accent-strong))" }} />
-            </div>
-            <div>
-              <span style={{ fontFamily: "var(--font-body)", fontSize: 14, fontWeight: 700, color: "hsl(var(--accent-text))" }}>
-                Manage VPs
-              </span>
-              <span className="block" style={{ fontFamily: "var(--font-body)", fontSize: 12, color: "hsl(var(--accent-strong))" }}>
-                Level Coordinators — assign per class level
-              </span>
-            </div>
-          </div>
-          <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" style={{ color: "hsl(var(--accent))" }} />
-        </Link>
-
-        {/* ── SEND ANNOUNCEMENT ── */}
-        <Link
-          href="/admin/announcements"
-          className="animate-slide-up animation-delay-175 flex items-center justify-between p-4 group active:scale-[0.98] transition-all duration-200 relative"
-          style={{
-            background: "hsl(var(--accent-soft))",
-            border: "1px solid hsl(var(--accent) / 0.2)",
-            borderRadius: "16px",
-          }}
-        >
-          <HelpHint text="Send a message to all teachers at your school. They'll see it in their notifications." position="left" createdAt={userCreatedAt} className="absolute top-3 right-3 z-10" />
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[hsl(var(--accent-soft))] flex items-center justify-center">
-              <Megaphone className="w-5 h-5 text-[hsl(var(--accent-strong))]" />
-            </div>
-            <div>
-              <span style={{ fontFamily: "var(--font-body)", fontSize: 14, fontWeight: 700, color: "hsl(var(--accent-text))" }}>
-                Send Announcement
-              </span>
-              <span className="block" style={{ fontFamily: "var(--font-body)", fontSize: 12, color: "hsl(var(--accent-text))" }}>
-                Broadcast to all teachers
-              </span>
-            </div>
-          </div>
-          <ChevronRight className="w-4 h-4 text-[hsl(var(--accent-glow))] group-hover:translate-x-0.5 transition-transform" />
-        </Link>
-
-        {/* ── REPORTS LINK ── */}
-        <Link
-          href="/admin/reports/teachers"
-          className="animate-slide-up animation-delay-175 flex items-center justify-between p-4 group active:scale-[0.98] transition-all duration-200"
-          style={{
-            background: "hsl(var(--surface-elevated))",
-            border: "1px solid var(--border-primary)",
-            borderRadius: "16px",
-            boxShadow: "var(--shadow-card)",
-          }}
-        >
-          <div className="flex items-center gap-3">
-            <BarChart3 className="w-5 h-5 text-[var(--accent-text)]" />
-            <span style={{ fontFamily: "var(--font-body)", fontSize: 14, fontWeight: 600, color: "var(--text-primary)" }}>
-              View detailed reports
+          <div>
+            <span className="text-sm font-bold text-[hsl(var(--accent-text))]">
+              Manage VPs
+            </span>
+            <span className="block text-xs text-[hsl(var(--accent-strong))]">
+              Level Coordinators — assign per class level
             </span>
           </div>
-          <ChevronRight className="w-4 h-4 text-[var(--text-quaternary)] group-hover:translate-x-0.5 transition-transform" />
-        </Link>
+        </div>
+        <ChevronRight className="w-4 h-4 text-[hsl(var(--accent))] group-hover:translate-x-0.5 transition-transform" />
+      </Link>
 
-        {/* ── TEACHER ACTIVITY ── */}
-        {topTeachers.length > 0 && (
-          <div
-            data-tour="admin-teacher-activity"
-            className="animate-slide-up animation-delay-225 border"
-            style={{ background: "hsl(var(--surface-elevated))", borderColor: "var(--border-primary)", borderRadius: "20px", padding: "18px" }}
-          >
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <h3 style={{ fontFamily: "var(--font-body)", fontSize: "14px", fontWeight: 700, color: "var(--text-primary)" }}>
-                  Teacher Activity
-                </h3>
-                <HelpHint text="Teachers sorted by logging activity. Those logging least appear first so you can follow up." position="left" createdAt={userCreatedAt} />
-              </div>
-              <Link href="/admin/teachers" className="text-xs font-semibold hover:underline" style={{ color: "var(--accent-text)" }}>
-                View all →
-              </Link>
-            </div>
-            <div className="space-y-1">
-              {topTeachers.map((t) => {
-                const name = `${t.firstName} ${t.lastName}`;
-                const expectedPerWeek = t.periodsPerWeek || Math.max(t.subjects.length * 3, 5);
-                return (
-                  <TeacherActivityRow
-                    key={t.id}
-                    name={name}
-                    initials={`${t.firstName[0]}${t.lastName[0]}`}
-                    entriesLogged={t.entriesThisWeek}
-                    entriesExpected={expectedPerWeek}
-                  />
-                );
-              })}
-            </div>
+      {/* ── SEND ANNOUNCEMENT ── */}
+      <Link
+        href="/admin/announcements"
+        className="animate-slide-up animation-delay-175 flex items-center justify-between card p-4 border border-[hsl(var(--accent)/0.2)] bg-[hsl(var(--accent-soft))] group active:scale-[0.98] transition-all duration-200 relative"
+      >
+        <HelpHint text="Send a message to all teachers at your school. They'll see it in their notifications." position="left" createdAt={userCreatedAt} className="absolute top-3 right-3 z-10" />
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-[hsl(var(--accent-soft))] flex items-center justify-center">
+            <Megaphone className="w-5 h-5 text-[hsl(var(--accent-strong))]" />
           </div>
-        )}
+          <div>
+            <span className="text-sm font-bold text-[hsl(var(--accent-text))]">
+              Send Announcement
+            </span>
+            <span className="block text-xs text-[hsl(var(--accent-text))]">
+              Broadcast to all teachers
+            </span>
+          </div>
+        </div>
+        <ChevronRight className="w-4 h-4 text-[hsl(var(--accent-glow))] group-hover:translate-x-0.5 transition-transform" />
+      </Link>
 
+      {/* ── REPORTS LINK ── */}
+      <Link
+        href="/admin/reports/teachers"
+        className="animate-slide-up animation-delay-175 flex items-center justify-between card p-4 group active:scale-[0.98] transition-all duration-200"
+      >
+        <div className="flex items-center gap-3">
+          <BarChart3 className="w-5 h-5 text-[hsl(var(--accent-text))]" />
+          <span className="text-sm font-semibold text-content-primary">
+            View detailed reports
+          </span>
+        </div>
+        <ChevronRight className="w-4 h-4 text-content-tertiary group-hover:translate-x-0.5 transition-transform" />
+      </Link>
+
+      {/* ── TWO-COLUMN: Verification Status + Teacher Activity ── */}
+      <div className="lg:grid lg:grid-cols-2 lg:gap-5 space-y-4 lg:space-y-0">
         {/* ── VERIFICATION STATUS ── */}
-        <div
-          className="animate-slide-up animation-delay-300 border"
-          style={{ background: "hsl(var(--surface-elevated))", borderColor: "var(--border-primary)", borderRadius: "20px", padding: "18px" }}
+        <section
+          className="section-card animate-slide-up animation-delay-300"
         >
           <div className="flex items-center justify-between mb-4">
-            <h3 style={{ fontFamily: "var(--font-body)", fontSize: "14px", fontWeight: 700, color: "var(--text-primary)" }}>
+            <h3 className="text-sm font-bold text-content-primary">
               Verification Status
             </h3>
-            <Link href="/admin/entries" className="text-xs font-semibold" style={{ color: "var(--accent-text)" }}>
+            <Link href="/admin/entries" className="text-xs font-semibold text-[hsl(var(--accent-text))]">
               View all →
             </Link>
           </div>
 
-          <div className="grid grid-cols-2 gap-2 mb-4 lg:grid-cols-4">
+          <div className="grid grid-cols-2 gap-2 mb-4 lg:grid-cols-2">
             {[
               { label: "This month", value: entriesThisMonth, color: "hsl(var(--text-primary))", bg: "hsl(var(--surface-secondary))", hint: "All entries submitted this month." },
               { label: "Verified by VPs", value: `${verifiedThisMonth} (${verificationRate}%)`, color: "hsl(var(--success))", bg: "hsl(var(--success) / 0.08)", hint: "Entries already reviewed by level coordinators." },
@@ -431,15 +371,15 @@ export default function AdminDashboardPage() {
               <div key={s.label} className="rounded-xl p-3" style={{ background: s.bg }}>
                 <p className="text-lg font-bold tabular-nums" style={{ color: s.color }}>{s.value}</p>
                 <p className="text-[10px] font-semibold mt-0.5 uppercase tracking-[0.16em]" style={{ color: s.color, opacity: 0.7 }}>{s.label}</p>
-                <p className="mt-1 text-[11px]" style={{ color: "var(--text-tertiary)" }}>{s.hint}</p>
+                <p className="mt-1 text-[11px] text-content-tertiary">{s.hint}</p>
               </div>
             ))}
           </div>
 
           {/* Per-VP breakdown */}
           {vpBreakdown.length > 0 ? (
-            <div className="space-y-3" style={{ borderTop: "1px solid var(--border-secondary)", paddingTop: "12px" }}>
-              <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--text-tertiary)" }}>
+            <div className="space-y-3 border-t border-[hsl(var(--border-secondary))] pt-3">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-content-tertiary">
                 Level Coordinators (VPs)
               </p>
               {vpBreakdown.map((coord) => {
@@ -448,17 +388,17 @@ export default function AdminDashboardPage() {
                   : 0;
 
                 return (
-                  <div key={coord.id} className="rounded-2xl border p-3" style={{ borderColor: "var(--border-secondary)", background: "hsl(var(--surface-canvas))" }}>
+                  <div key={coord.id} className="rounded-2xl border border-[hsl(var(--border-secondary))] bg-[hsl(var(--surface-canvas))] p-3">
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0 flex-1">
-                        <p className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>
+                        <p className="text-sm font-semibold text-content-primary">
                           {coord.name}
                         </p>
-                        <p className="text-[11px]" style={{ color: "var(--text-tertiary)" }}>
+                        <p className="text-[11px] text-content-tertiary">
                           {coord.title} · {coord.levels.join(", ")}
                         </p>
                       </div>
-                      <span className="rounded-full px-2 py-0.5 text-[10px] font-semibold" style={{ background: "hsl(var(--accent-soft))", color: "hsl(var(--accent-strong))" }}>
+                      <span className="rounded-full px-2 py-0.5 text-[10px] font-semibold bg-[hsl(var(--accent-soft))] text-[hsl(var(--accent-strong))]">
                         {coordRate}% reviewed
                       </span>
                     </div>
@@ -480,58 +420,93 @@ export default function AdminDashboardPage() {
               })}
             </div>
           ) : (
-            <div className="rounded-xl p-3 text-center" style={{ background: "hsl(var(--accent) / 0.06)", border: "1px solid hsl(var(--accent) / 0.15)" }}>
-              <p className="text-xs font-semibold" style={{ color: "hsl(var(--accent-text))" }}>No VPs assigned yet</p>
-              <Link href="/admin/coordinators" className="text-xs font-bold underline mt-1 block" style={{ color: "hsl(var(--accent-strong))" }}>
+            <div className="rounded-xl p-3 text-center bg-[hsl(var(--accent)/0.06)] border border-[hsl(var(--accent)/0.15)]">
+              <p className="text-xs font-semibold text-[hsl(var(--accent-text))]">No VPs assigned yet</p>
+              <Link href="/admin/coordinators" className="text-xs font-bold underline mt-1 block text-[hsl(var(--accent-strong))]">
                 Set up Level Coordinators →
               </Link>
             </div>
           )}
-        </div>
+        </section>
 
-        {/* ── ENTRIES BY WEEK CHART ── */}
-        {stats && stats.entriesByWeek.length > 0 && (
-          <div className="animate-slide-up animation-delay-375 card p-5">
-            <div className="flex items-center gap-2 mb-4">
-              <BarChart3 className="w-4 h-4 text-[var(--accent-text)]" />
-              <h3 className="text-sm font-bold text-[var(--text-primary)]">
-                Entries per Week
-              </h3>
+        {/* ── TEACHER ACTIVITY ── */}
+        {topTeachers.length > 0 && (
+          <section
+            data-tour="admin-teacher-activity"
+            className="section-card animate-slide-up animation-delay-225"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <h3 className="text-sm font-bold text-content-primary">
+                  Teacher Activity
+                </h3>
+                <HelpHint text="Teachers sorted by logging activity. Those logging least appear first so you can follow up." position="left" createdAt={userCreatedAt} />
+              </div>
+              <Link href="/admin/teachers" className="text-xs font-semibold text-[hsl(var(--accent-text))] hover:underline">
+                View all →
+              </Link>
             </div>
-            <div className="flex items-end gap-2.5 h-28">
-              {stats.entriesByWeek.map((w, i) => {
-                const maxCount = Math.max(
-                  ...stats.entriesByWeek.map((x) => x.count)
-                );
-                const height = maxCount > 0 ? (w.count / maxCount) * 100 : 0;
+            <div className="space-y-1">
+              {topTeachers.map((t) => {
+                const name = `${t.firstName} ${t.lastName}`;
+                const expectedPerWeek = t.periodsPerWeek || Math.max(t.subjects.length * 3, 5);
                 return (
-                  <div
-                    key={w.week}
-                    className="flex-1 flex flex-col items-center gap-1.5 group"
-                  >
-                    <span className="text-[11px] font-mono text-[var(--text-secondary)] font-bold opacity-0 group-hover:opacity-100 transition-opacity duration-200 tabular-nums">
-                      {w.count}
-                    </span>
-                    <div
-                      className="w-full rounded-lg transition-all duration-700 animate-progress-fill"
-                      style={{
-                        height: `${Math.max(height, 8)}%`,
-                        animationDelay: `${i * 100}ms`,
-                        background: `linear-gradient(180deg, var(--accent), var(--accent-hover))`,
-                        opacity: 0.7 + (height / 100) * 0.3,
-                      }}
-                    />
-                    <span className="text-[10px] text-[var(--text-tertiary)] font-semibold font-mono">
-                      W{w.week.split("-W")[1]}
-                    </span>
-                  </div>
+                  <TeacherActivityRow
+                    key={t.id}
+                    name={name}
+                    initials={`${t.firstName[0]}${t.lastName[0]}`}
+                    entriesLogged={t.entriesThisWeek}
+                    entriesExpected={expectedPerWeek}
+                  />
                 );
               })}
             </div>
-          </div>
+          </section>
         )}
-
       </div>
+
+      {/* ── ENTRIES BY WEEK CHART ── */}
+      {stats && stats.entriesByWeek.length > 0 && (
+        <section className="section-card animate-slide-up animation-delay-375">
+          <div className="flex items-center gap-2 mb-4">
+            <BarChart3 className="w-4 h-4 text-[hsl(var(--accent-text))]" />
+            <h3 className="text-sm font-bold text-content-primary">
+              Entries per Week
+            </h3>
+          </div>
+          <div className="flex items-end gap-2.5 h-28">
+            {stats.entriesByWeek.map((w, i) => {
+              const maxCount = Math.max(
+                ...stats.entriesByWeek.map((x) => x.count)
+              );
+              const height = maxCount > 0 ? (w.count / maxCount) * 100 : 0;
+              return (
+                <div
+                  key={w.week}
+                  className="flex-1 flex flex-col items-center gap-1.5 group"
+                >
+                  <span className="text-[11px] font-mono text-content-secondary font-bold opacity-0 group-hover:opacity-100 transition-opacity duration-200 tabular-nums">
+                    {w.count}
+                  </span>
+                  <div
+                    className="w-full rounded-lg transition-all duration-700 animate-progress-fill"
+                    style={{
+                      height: `${Math.max(height, 8)}%`,
+                      animationDelay: `${i * 100}ms`,
+                      background: `linear-gradient(180deg, var(--accent), var(--accent-hover))`,
+                      opacity: 0.7 + (height / 100) * 0.3,
+                    }}
+                  />
+                  <span className="text-[10px] text-content-tertiary font-semibold font-mono">
+                    W{w.week.split("-W")[1]}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      )}
+
       <OnboardingTour steps={ADMIN_TOUR} tourKey="admin" />
     </div>
   );
