@@ -268,7 +268,7 @@ export default function RegionalDashboardPage() {
             <section className="section-card animate-fade-slide-in" style={{ animationDelay: "240ms" }}>
               <h3 className="text-sm font-semibold text-content-primary mb-3">Data &amp; Reports</h3>
               <div className="space-y-1">
-                {dataReportsLinks.map((link, i) => (
+                {dataReportsLinks.map((link) => (
                   <Link
                     key={link.href}
                     href={link.href}
@@ -297,7 +297,7 @@ export default function RegionalDashboardPage() {
             <section className="section-card animate-fade-slide-in" style={{ animationDelay: "320ms" }}>
               <h3 className="text-sm font-semibold text-content-primary mb-3">Management</h3>
               <div className="space-y-1">
-                {managementLinks.map((link, i) => (
+                {managementLinks.map((link) => (
                   <Link
                     key={link.href}
                     href={link.href}
