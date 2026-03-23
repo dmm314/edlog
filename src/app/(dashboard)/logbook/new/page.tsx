@@ -2156,7 +2156,7 @@ export default function NewEntryPage() {
                 </div>
 
                 <EntrySubmitBar
-                  isFormValid={isFormValid}
+                  isFormValid={Boolean(isFormValid)}
                   isDraftValid={Boolean(isDraftValid)}
                   submitting={submitting}
                   savingDraft={savingDraft}
