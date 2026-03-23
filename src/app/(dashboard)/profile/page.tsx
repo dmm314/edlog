@@ -386,7 +386,15 @@ export default function ProfilePage() {
     return localStorage.getItem("edlog-hints-dismissed") !== "true";
   });
 
-  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
+    personalInfo: true,
+    mySchools: true,
+    assignments: true,
+    schoolProfile: true,
+    adminPersonal: true,
+    regionOverview: true,
+    regionalPersonal: true,
+  });
   const [editingSection, setEditingSection] = useState<string | null>(null);
   const [editPhone, setEditPhone] = useState("");
   const [editDob, setEditDob] = useState("");
@@ -628,10 +636,10 @@ export default function ProfilePage() {
             className="rounded-2xl p-3 animate-fade-slide-in"
             style={{
               backgroundColor: activeMode === "coordinator" ? "hsl(var(--accent) / 0.06)" : "hsl(var(--surface-elevated))",
-              border: `1px solid ${activeMode === "coordinator" ? "hsl(var(--accent) / 0.22)" : "var(--border-primary)"}`,
+              border: `1px solid ${activeMode === "coordinator" ? "hsl(var(--accent) / 0.22)" : "hsl(var(--border-primary))"}`,
             }}
           >
-            <p className="text-[10px] font-bold uppercase tracking-widest mb-2" style={{ color: "var(--text-tertiary)" }}>
+            <p className="text-[10px] font-bold uppercase tracking-widest mb-2 text-content-tertiary">
               Switch portal
             </p>
             <div className="flex gap-1.5">
@@ -645,11 +653,11 @@ export default function ProfilePage() {
                   className="flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all"
                   style={{
                     background: activeMode === mode
-                      ? mode === "coordinator" ? "hsl(var(--accent))" : "var(--accent)"
+                      ? "hsl(var(--accent))"
                       : "hsl(var(--surface-tertiary))",
-                    color: activeMode === mode ? "white" : "var(--text-tertiary)",
+                    color: activeMode === mode ? "white" : "hsl(var(--text-tertiary))",
                     boxShadow: activeMode === mode
-                      ? mode === "coordinator" ? "0 2px 8px hsl(var(--accent) / 0.35)" : "0 2px 8px hsl(var(--accent) / 0.35)"
+                      ? "0 2px 8px hsl(var(--accent) / 0.35)"
                       : "none",
                   }}
                 >
