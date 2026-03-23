@@ -143,9 +143,9 @@ export default function MessagesPage() {
   const groupedMessages = groupMessagesByDate(messages);
 
   return (
-    <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
+    <div className="min-h-screen pb-24" style={{ backgroundColor: "hsl(var(--surface-secondary))" }}>
       {/* Header */}
-      <div className="bg-gradient-to-br from-[var(--header-from)] to-[var(--header-to)] px-5 pt-10 pb-4 rounded-b-2xl">
+      <div className="bg-gradient-to-br from-[hsl(var(--accent))] to-[hsl(var(--accent-strong))] px-5 pt-10 pb-4 rounded-b-2xl">
         <div className="max-w-lg mx-auto">
           <div className="flex items-center gap-3 mb-3">
             <button
@@ -169,7 +169,7 @@ export default function MessagesPage() {
         <div
           className="flex mt-3 rounded-xl overflow-hidden border"
           style={{
-            background: "var(--bg-elevated)",
+            background: "hsl(var(--surface-elevated))",
             borderColor: "var(--border-primary)",
           }}
         >
@@ -226,7 +226,7 @@ export default function MessagesPage() {
           <div className="text-center py-16">
             <div
               className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"
-              style={{ background: "var(--bg-elevated)" }}
+              style={{ background: "hsl(var(--surface-elevated))" }}
             >
               <Megaphone className="w-8 h-8 text-[var(--text-quaternary)]" />
             </div>
@@ -276,8 +276,8 @@ export default function MessagesPage() {
                         className="card p-4 transition-all"
                         style={{
                           background: !msg.isRead
-                            ? "var(--accent-light)"
-                            : "var(--bg-elevated)",
+                            ? "var(--accent-soft)"
+                            : "hsl(var(--surface-elevated))",
                           borderColor: !msg.isRead
                             ? "var(--accent)"
                             : "var(--border-primary)",

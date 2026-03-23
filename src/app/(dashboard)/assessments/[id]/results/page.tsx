@@ -247,7 +247,7 @@ export default function AssessmentResultsPage() {
         <Link
           href="/assessments"
           className="w-9 h-9 rounded-xl flex items-center justify-center"
-          style={{ background: "var(--bg-tertiary)" }}
+          style={{ background: "hsl(var(--surface-tertiary))" }}
         >
           <ArrowLeft className="w-5 h-5" style={{ color: "var(--text-primary)" }} />
         </Link>
@@ -289,7 +289,7 @@ export default function AssessmentResultsPage() {
                   key={t.id}
                   className="text-xs px-2 py-0.5 rounded-full"
                   style={{
-                    background: "var(--bg-tertiary)",
+                    background: "hsl(var(--surface-tertiary))",
                     color: "var(--text-secondary)",
                   }}
                 >
@@ -404,7 +404,7 @@ export default function AssessmentResultsPage() {
                 min={1}
                 className="w-full rounded-xl px-3 py-2.5 text-sm"
                 style={{
-                  background: "var(--bg-elevated)",
+                  background: "hsl(var(--surface-elevated))",
                   color: "var(--text-primary)",
                   border: "1px solid var(--border-primary)",
                 }}
@@ -424,7 +424,7 @@ export default function AssessmentResultsPage() {
                   min={0}
                   className="w-full rounded-xl px-3 py-2.5 text-sm"
                   style={{
-                    background: "var(--bg-elevated)",
+                    background: "hsl(var(--surface-elevated))",
                     color: "var(--text-primary)",
                     border: `1px solid ${genderMismatch ? "hsl(var(--accent-text))" : "var(--border-primary)"}`,
                   }}
@@ -441,7 +441,7 @@ export default function AssessmentResultsPage() {
                   min={0}
                   className="w-full rounded-xl px-3 py-2.5 text-sm"
                   style={{
-                    background: "var(--bg-elevated)",
+                    background: "hsl(var(--surface-elevated))",
                     color: "var(--text-primary)",
                     border: `1px solid ${genderMismatch ? "hsl(var(--accent-text))" : "var(--border-primary)"}`,
                   }}
@@ -466,7 +466,7 @@ export default function AssessmentResultsPage() {
                 min={0}
                 className="w-full rounded-xl px-3 py-2.5 text-sm"
                 style={{
-                  background: "var(--bg-elevated)",
+                  background: "hsl(var(--surface-elevated))",
                   color: "var(--text-primary)",
                   border: "1px solid var(--border-primary)",
                 }}
@@ -486,7 +486,7 @@ export default function AssessmentResultsPage() {
                   min={0}
                   className="w-full rounded-xl px-3 py-2.5 text-sm"
                   style={{
-                    background: "var(--bg-elevated)",
+                    background: "hsl(var(--surface-elevated))",
                     color: "var(--text-primary)",
                     border: `1px solid ${genderPassedMismatch ? "hsl(var(--accent-text))" : "var(--border-primary)"}`,
                   }}
@@ -503,7 +503,7 @@ export default function AssessmentResultsPage() {
                   min={0}
                   className="w-full rounded-xl px-3 py-2.5 text-sm"
                   style={{
-                    background: "var(--bg-elevated)",
+                    background: "hsl(var(--surface-elevated))",
                     color: "var(--text-primary)",
                     border: `1px solid ${genderPassedMismatch ? "hsl(var(--accent-text))" : "var(--border-primary)"}`,
                   }}
@@ -531,7 +531,7 @@ export default function AssessmentResultsPage() {
                   step="0.5"
                   className="w-full rounded-xl px-3 py-2.5 text-sm"
                   style={{
-                    background: "var(--bg-elevated)",
+                    background: "hsl(var(--surface-elevated))",
                     color: "var(--text-primary)",
                     border: "1px solid var(--border-primary)",
                   }}
@@ -550,7 +550,7 @@ export default function AssessmentResultsPage() {
                   step="0.5"
                   className="w-full rounded-xl px-3 py-2.5 text-sm"
                   style={{
-                    background: "var(--bg-elevated)",
+                    background: "hsl(var(--surface-elevated))",
                     color: "var(--text-primary)",
                     border: "1px solid var(--border-primary)",
                   }}
@@ -570,7 +570,7 @@ export default function AssessmentResultsPage() {
                   placeholder="Auto if empty"
                   className="w-full rounded-xl px-3 py-2.5 text-sm"
                   style={{
-                    background: "var(--bg-elevated)",
+                    background: "hsl(var(--surface-elevated))",
                     color: "var(--text-primary)",
                     border: "1px solid var(--border-primary)",
                   }}
@@ -606,7 +606,7 @@ export default function AssessmentResultsPage() {
             }}
             className="w-full py-3 rounded-xl text-sm font-semibold"
             style={{
-              background: "var(--bg-tertiary)",
+              background: "hsl(var(--surface-tertiary))",
               color: "var(--text-primary)",
             }}
           >

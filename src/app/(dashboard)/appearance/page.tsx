@@ -183,7 +183,7 @@ export default function AppearancePage() {
 
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-white/70">Display & motion</p>
-            <h1 className="mt-2 font-display text-3xl font-semibold text-white">Dynamic intensity</h1>
+            <h1 className="mt-2 text-3xl font-semibold text-white">Dynamic intensity</h1>
             <p className="mt-2 max-w-sm text-sm text-white/76">
               Tune the adaptive blue-cyan energy so Edlog feels alive without ever getting noisy.
             </p>
@@ -268,7 +268,7 @@ export default function AppearancePage() {
                 )}
               >
                 <span className={cn("flex h-12 w-12 items-center justify-center rounded-2xl", active ? "bg-[linear-gradient(135deg,hsl(var(--accent-soft)),hsl(var(--accent-glow)/0.24))] text-[hsl(var(--accent-text))]" : "bg-[hsl(var(--surface-secondary))] text-content-tertiary")}>
-                  <Icon className={cn("h-5 w-5", active && option.id === "vibrant" && "motion-safe:animate-live-pulse")} />
+                  <Icon className={cn("h-5 w-5", active && option.id === "vibrant" && "motion-safe:animate-fade-in")} />
                 </span>
                 <span className="min-w-0 flex-1">
                   <span className="block text-sm font-bold text-content-primary">{option.label}</span>

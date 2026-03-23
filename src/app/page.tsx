@@ -78,7 +78,7 @@ export default function LandingPage() {
               <BookOpen className="w-5 h-5 text-white" />
             </div>
             <span
-              className="text-white font-bold text-lg tracking-tight font-display"
+              className="text-white font-bold text-lg tracking-tight"
             >
               Edlog
             </span>
@@ -92,7 +92,7 @@ export default function LandingPage() {
             </div>
 
             <h1
-              className="text-[2.5rem] leading-[1.1] font-extrabold text-white tracking-tight font-display"
+              className="text-[2.5rem] leading-[1.1] font-extrabold text-white tracking-tight"
             >
               The logbook<br />
               teachers actually use.
@@ -152,7 +152,7 @@ export default function LandingPage() {
       {/* ── WHO IT'S FOR ── */}
       <div className="px-5 py-14 max-w-lg mx-auto">
         <p className="text-[10px] font-bold uppercase tracking-[0.2em] mb-2 text-accent-text">Built for everyone</p>
-        <h2 className="text-2xl font-extrabold tracking-tight text-content-primary font-display">
+        <h2 className="text-2xl font-extrabold tracking-tight text-content-primary">
           One platform,<br />three powerful roles.
         </h2>
         <p className="text-sm mt-2 leading-relaxed text-content-tertiary">
@@ -220,7 +220,7 @@ export default function LandingPage() {
       <div className="px-5 py-14 bg-surface-secondary">
         <div className="max-w-lg mx-auto">
           <p className="text-[10px] font-bold uppercase tracking-[0.2em] mb-2 text-accent-text">Why Edlog</p>
-          <h2 className="text-2xl font-extrabold tracking-tight text-content-primary font-display">
+          <h2 className="text-2xl font-extrabold tracking-tight text-content-primary">
             Everything you need,<br />nothing you don&apos;t.
           </h2>
 
@@ -248,7 +248,7 @@ export default function LandingPage() {
       {/* ── HOW IT WORKS ── */}
       <div className="px-5 py-14 max-w-lg mx-auto">
         <p className="text-[10px] font-bold uppercase tracking-[0.2em] mb-2 text-accent-text">How it works</p>
-        <h2 className="text-2xl font-extrabold tracking-tight mb-8 text-content-primary font-display">
+        <h2 className="text-2xl font-extrabold tracking-tight mb-8 text-content-primary">
           Three steps. That&apos;s it.
         </h2>
 
@@ -291,7 +291,7 @@ export default function LandingPage() {
           }}
         />
         <div className="max-w-lg mx-auto text-center relative">
-          <h2 className="text-2xl font-extrabold text-white tracking-tight font-display">
+          <h2 className="text-2xl font-extrabold text-white tracking-tight">
             Ready to go digital?
           </h2>
           <p className="text-white/50 text-sm mt-2 leading-relaxed max-w-xs mx-auto">
@@ -322,7 +322,7 @@ export default function LandingPage() {
           <div className="w-6 h-6 rounded-lg flex items-center justify-center bg-accent-soft">
             <BookOpen className="w-3.5 h-3.5 text-accent-text" />
           </div>
-          <span className="font-semibold text-sm text-content-tertiary font-display">Edlog</span>
+          <span className="font-semibold text-sm text-content-tertiary">Edlog</span>
         </div>
         <p className="text-xs text-content-tertiary">
           Built by Darren Monyongo &amp; Brayan Lontchi

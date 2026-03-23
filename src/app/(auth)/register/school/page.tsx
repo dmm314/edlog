@@ -156,7 +156,7 @@ export default function SchoolRegisterPage() {
     <div
       className="min-h-screen pb-8 relative"
       style={{
-        background: "linear-gradient(135deg, var(--header-from) 0%, var(--header-via) 50%, var(--header-to) 100%)",
+        background: "linear-gradient(135deg, hsl(var(--accent)) 0%, hsl(var(--accent)) 50%, hsl(var(--accent-strong)) 100%)",
       }}
     >
       {/* Dot pattern overlay */}
@@ -176,7 +176,7 @@ export default function SchoolRegisterPage() {
               style={{ background: "linear-gradient(135deg, var(--accent), var(--accent-hover))" }}>
               <BookOpen className="w-4.5 h-4.5 text-white" />
             </div>
-            <span className="text-white font-bold text-base" style={{ fontFamily: "var(--font-display)" }}>Edlog</span>
+            <span className="text-white font-bold text-base">Edlog</span>
           </Link>
 
           <div className="flex items-center gap-3 mb-4">
@@ -184,7 +184,7 @@ export default function SchoolRegisterPage() {
               <Shield className="w-5 h-5" style={{ color: "hsl(var(--success))" }} />
             </div>
             <div>
-              <h1 className="text-2xl font-extrabold text-white tracking-tight" style={{ fontFamily: "var(--font-display)" }}>
+              <h1 className="text-2xl font-extrabold text-white tracking-tight">
                 Register Your School
               </h1>
               <p className="text-sm mt-0.5 text-white/70" style={{ fontFamily: "var(--font-body)" }}>
@@ -211,7 +211,7 @@ export default function SchoolRegisterPage() {
         <div
           className="p-6"
           style={{
-            background: "var(--bg-elevated)",
+            background: "hsl(var(--surface-elevated))",
             border: "1px solid var(--border-primary)",
             borderRadius: "16px",
             boxShadow: "var(--shadow-elevated)",
@@ -229,7 +229,7 @@ export default function SchoolRegisterPage() {
               <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
                 Your unique school code has been generated. Share this code with your teachers so they can register.
               </p>
-              <div className="rounded-xl p-4" style={{ background: "var(--bg-secondary)", border: "2px dashed var(--border-primary)" }}>
+              <div className="rounded-xl p-4" style={{ background: "hsl(var(--surface-secondary))", border: "2px dashed var(--border-primary)" }}>
                 <p className="text-xs mb-1" style={{ color: "var(--text-tertiary)" }}>Your School Code</p>
                 <p className="text-2xl font-bold tracking-wider" style={{ fontFamily: "var(--font-mono)", color: "var(--text-primary)" }}>{registeredCode}</p>
               </div>
@@ -239,7 +239,7 @@ export default function SchoolRegisterPage() {
               >
                 {codeCopied ? "Copied!" : "Copy Code"}
               </button>
-              <div className="text-xs rounded-lg p-3" style={{ background: "var(--accent-light)", color: "var(--accent-text)" }}>
+              <div className="text-xs rounded-lg p-3" style={{ background: "var(--accent-soft)", color: "var(--accent-text)" }}>
                 Save this code! Your account is pending regional admin approval. You can sign in once approved.
               </div>
               <button onClick={() => router.push("/login?registered=true")} className="btn-primary">
@@ -459,7 +459,7 @@ export default function SchoolRegisterPage() {
                   type="button"
                   onClick={handleBack}
                   className="flex items-center justify-center gap-2 py-3 px-4 font-semibold rounded-[14px] active:scale-[0.97] transition-all duration-[80ms] flex-1"
-                  style={{ background: "var(--bg-tertiary)", color: "var(--text-secondary)" }}
+                  style={{ background: "hsl(var(--surface-tertiary))", color: "var(--text-secondary)" }}
                 >
                   <ChevronLeft className="w-5 h-5" /> Back
                 </button>

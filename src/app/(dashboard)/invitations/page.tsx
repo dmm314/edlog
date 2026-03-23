@@ -89,9 +89,9 @@ export default function InvitationsPage() {
   const active = memberships.filter((m) => m.status === "ACTIVE");
 
   return (
-    <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
+    <div className="min-h-screen pb-24" style={{ backgroundColor: "hsl(var(--surface-secondary))" }}>
       {/* Header */}
-      <div className="bg-gradient-to-br from-[var(--header-from)] via-[var(--header-via)] to-[var(--header-to)] px-5 pt-10 pb-8 rounded-b-[2rem] shadow-elevated relative overflow-hidden">
+      <div className="bg-gradient-to-br from-[hsl(var(--accent))] via-[hsl(var(--accent))] to-[hsl(var(--accent-strong))] px-5 pt-10 pb-8 rounded-b-[2rem] shadow-elevated relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[hsl(var(--accent)/0.08)] via-transparent to-transparent" />
         <div className="max-w-lg mx-auto relative">
           <Link
@@ -113,7 +113,7 @@ export default function InvitationsPage() {
 
       <div className="px-5 mt-4 max-w-lg mx-auto space-y-4">
         {message && (
-          <div className="bg-[var(--accent-light)] border border-[var(--border-primary)] text-[var(--accent-text)] text-sm rounded-xl px-4 py-3">
+          <div className="bg-[var(--accent-soft)] border border-[var(--border-primary)] text-[var(--accent-text)] text-sm rounded-xl px-4 py-3">
             {message}
           </div>
         )}
@@ -174,7 +174,7 @@ export default function InvitationsPage() {
                         <button
                           onClick={() => handleRespond(m.id, "decline")}
                           disabled={responding === m.id}
-                          className="flex-1 flex items-center justify-center gap-1.5 bg-[var(--bg-tertiary)] hover:bg-[var(--bg-secondary)] text-[var(--text-secondary)] text-sm font-semibold py-2.5 rounded-xl transition-colors active:scale-[0.98]"
+                          className="flex-1 flex items-center justify-center gap-1.5 bg-[hsl(var(--surface-tertiary))] hover:bg-[hsl(var(--surface-secondary))] text-[var(--text-secondary)] text-sm font-semibold py-2.5 rounded-xl transition-colors active:scale-[0.98]"
                         >
                           <X className="w-4 h-4" />
                           Decline
@@ -221,7 +221,7 @@ export default function InvitationsPage() {
                               {m.school.name}
                             </h4>
                             {m.isPrimary && (
-                              <span className="text-[9px] font-bold bg-[var(--accent-light)] text-[var(--accent-text)] px-1.5 py-0.5 rounded border border-[var(--border-secondary)] flex-shrink-0">
+                              <span className="text-[9px] font-bold bg-[var(--accent-soft)] text-[var(--accent-text)] px-1.5 py-0.5 rounded border border-[var(--border-secondary)] flex-shrink-0">
                                 PRIMARY
                               </span>
                             )}

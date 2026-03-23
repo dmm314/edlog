@@ -72,7 +72,7 @@ export default function CoordinatorTeachersPage() {
   const levelSummary = coordinator?.levels.join(", ") || "";
 
   return (
-    <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-primary)" }}>
+    <div className="min-h-screen pb-24" style={{ backgroundColor: "hsl(var(--surface-canvas))" }}>
       {/* Header */}
       <div
         className="px-5 pt-10 pb-8 rounded-b-[2rem] relative overflow-hidden"

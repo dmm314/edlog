@@ -307,8 +307,8 @@ export default function TimetableManagementPage() {
   // ─── CLASS LIST VIEW ──────────────────────────────────
   if (!selectedClassId) {
     return (
-      <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
-        <div className="bg-gradient-to-br from-[var(--header-from)] to-[var(--header-to)] px-5 pt-10 pb-6 rounded-b-2xl">
+      <div className="min-h-screen pb-24" style={{ backgroundColor: "hsl(var(--surface-secondary))" }}>
+        <div className="bg-gradient-to-br from-[hsl(var(--accent))] to-[hsl(var(--accent-strong))] px-5 pt-10 pb-6 rounded-b-2xl">
           <div className="max-w-lg mx-auto">
             <Link
               href="/admin"
@@ -357,7 +357,7 @@ export default function TimetableManagementPage() {
                 <button
                   key={cls.id}
                   onClick={() => setSelectedClassId(cls.id)}
-                  className="card p-4 w-full text-left flex items-center justify-between hover:bg-[var(--bg-tertiary)] transition-colors"
+                  className="card p-4 w-full text-left flex items-center justify-between hover:bg-[hsl(var(--surface-tertiary))] transition-colors"
                 >
                   <div>
                     <h4 className="font-semibold text-[var(--text-primary)] text-sm">
@@ -394,9 +394,9 @@ export default function TimetableManagementPage() {
 
   // ─── CLASS TIMETABLE VIEW ─────────────────────────────
   return (
-    <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
+    <div className="min-h-screen pb-24" style={{ backgroundColor: "hsl(var(--surface-secondary))" }}>
       {/* Header */}
-      <div className="bg-gradient-to-br from-[var(--header-from)] to-[var(--header-to)] px-5 pt-10 pb-6 rounded-b-2xl">
+      <div className="bg-gradient-to-br from-[hsl(var(--accent))] to-[hsl(var(--accent-strong))] px-5 pt-10 pb-6 rounded-b-2xl">
         <div className="max-w-lg mx-auto">
           <button
             onClick={() => {
@@ -421,7 +421,7 @@ export default function TimetableManagementPage() {
             {classAssignments.length > 0 && (
               <button
                 onClick={() => setShowForm(!showForm)}
-                className="flex items-center gap-1.5 bg-[var(--bg-elevated)]/10 hover:bg-[var(--bg-elevated)]/20 text-white text-sm rounded-lg px-3 py-1.5"
+                className="flex items-center gap-1.5 bg-[hsl(var(--surface-elevated))]/10 hover:bg-[hsl(var(--surface-elevated))]/20 text-white text-sm rounded-lg px-3 py-1.5"
               >
                 {showForm ? (
                   <>
@@ -577,10 +577,10 @@ export default function TimetableManagementPage() {
                           selected
                             ? "border-[var(--accent)] text-[var(--text-primary)]"
                             : disabled
-                            ? "border-[var(--border-secondary)] bg-[var(--bg-tertiary)] text-[var(--text-quaternary)] cursor-not-allowed"
-                            : "border-[var(--border-primary)] bg-[var(--bg-elevated)] text-[var(--text-secondary)] hover:border-[var(--border-primary)]"
+                            ? "border-[var(--border-secondary)] bg-[hsl(var(--surface-tertiary))] text-[var(--text-quaternary)] cursor-not-allowed"
+                            : "border-[var(--border-primary)] bg-[hsl(var(--surface-elevated))] text-[var(--text-secondary)] hover:border-[var(--border-primary)]"
                         }`}
-                        style={selected ? { background: "var(--accent-light)" } : undefined}
+                        style={selected ? { background: "var(--accent-soft)" } : undefined}
                       >
                         <span className="font-semibold">{p.label}</span>
                         <span className="block text-[10px] mt-0.5 opacity-70">
@@ -609,7 +609,7 @@ export default function TimetableManagementPage() {
             <div className="overflow-x-auto">
               <table className="w-full text-xs">
                 <thead>
-                  <tr className="bg-[var(--bg-tertiary)] border-b border-[var(--border-secondary)]">
+                  <tr className="bg-[hsl(var(--surface-tertiary))] border-b border-[var(--border-secondary)]">
                     <th className="px-2 py-2.5 text-left text-[var(--text-tertiary)] font-medium w-16">
                       Period
                     </th>
@@ -646,7 +646,7 @@ export default function TimetableManagementPage() {
                             className="px-1 py-1.5 align-top"
                           >
                             {slot ? (
-                              <div className={`${slot.jointWith && slot.jointWith.length > 0 ? "bg-[hsl(var(--accent-soft))] border-[hsl(var(--accent)/0.2)]" : "border-[var(--accent-muted)]"} border rounded-lg p-1.5 relative group`} style={!(slot.jointWith && slot.jointWith.length > 0) ? { background: "var(--accent-light)" } : undefined}>
+                              <div className={`${slot.jointWith && slot.jointWith.length > 0 ? "bg-[hsl(var(--accent-soft))] border-[hsl(var(--accent)/0.2)]" : "border-[var(--accent-muted)]"} border rounded-lg p-1.5 relative group`} style={!(slot.jointWith && slot.jointWith.length > 0) ? { background: "var(--accent-soft)" } : undefined}>
                                 <p className={`font-medium text-[10px] leading-tight truncate ${slot.jointWith && slot.jointWith.length > 0 ? "text-[hsl(var(--accent-text))]" : "text-[var(--text-primary)]"}`}>
                                   {slot.subject}
                                 </p>
@@ -706,7 +706,7 @@ export default function TimetableManagementPage() {
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
-                          <span className="text-xs font-medium text-[var(--accent-text)] px-2 py-0.5 rounded-full" style={{ background: "var(--accent-light)" }}>
+                          <span className="text-xs font-medium text-[var(--accent-text)] px-2 py-0.5 rounded-full" style={{ background: "var(--accent-soft)" }}>
                             {slot.periodLabel}
                           </span>
                           <span className="text-xs text-[var(--text-tertiary)]">

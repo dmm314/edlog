@@ -114,7 +114,7 @@ function getStatusBg(status: string) {
   switch (status) {
     case "VERIFIED": return "bg-[hsl(var(--success)/0.1)] border-[hsl(var(--success)/0.2)] text-[hsl(var(--success))]";
     case "FLAGGED": return "bg-[hsl(var(--danger)/0.1)] border-[hsl(var(--danger)/0.2)] text-[hsl(var(--danger))]";
-    case "DRAFT": return "bg-[var(--bg-tertiary)] border-[var(--border-primary)] text-[var(--text-secondary)]";
+    case "DRAFT": return "bg-[hsl(var(--surface-tertiary))] border-[var(--border-primary)] text-[var(--text-secondary)]";
     default: return "bg-[hsl(var(--accent-soft))] border-[hsl(var(--accent)/0.2)] text-[hsl(var(--accent))]";
   }
 }
@@ -373,8 +373,8 @@ export default function EntryTimetablePage() {
   // ─── CLASS LIST VIEW ───
   if (!selectedClassId) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-[var(--bg-secondary)] to-[var(--bg-tertiary)] pb-24">
-        <div className="bg-gradient-to-br from-[var(--header-from)] via-[var(--header-via)] to-[var(--header-to)] px-5 pt-10 pb-8 rounded-b-[2rem] shadow-elevated relative overflow-hidden">
+      <div className="min-h-screen bg-gradient-to-b from-[hsl(var(--surface-secondary))] to-[hsl(var(--surface-tertiary))] pb-24">
+        <div className="bg-gradient-to-br from-[hsl(var(--accent))] via-[hsl(var(--accent))] to-[hsl(var(--accent-strong))] px-5 pt-10 pb-8 rounded-b-[2rem] shadow-elevated relative overflow-hidden">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[hsl(var(--accent)/0.08)] via-transparent to-transparent" />
           <div className="absolute top-0 right-0 w-64 h-64 bg-[var(--accent)]/[0.07] rounded-full -translate-y-1/3 translate-x-1/4 blur-3xl" />
           <div className="max-w-lg mx-auto relative">
@@ -511,9 +511,9 @@ export default function EntryTimetablePage() {
 
   // ─── ENTRY TIMETABLE GRID VIEW ───
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[var(--bg-secondary)] to-[var(--bg-tertiary)] pb-24">
+    <div className="min-h-screen bg-gradient-to-b from-[hsl(var(--surface-secondary))] to-[hsl(var(--surface-tertiary))] pb-24">
       {/* Header */}
-      <div className="bg-gradient-to-br from-[var(--header-from)] via-[var(--header-via)] to-[var(--header-to)] px-5 pt-10 pb-8 rounded-b-[2rem] shadow-elevated relative overflow-hidden">
+      <div className="bg-gradient-to-br from-[hsl(var(--accent))] via-[hsl(var(--accent))] to-[hsl(var(--accent-strong))] px-5 pt-10 pb-8 rounded-b-[2rem] shadow-elevated relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[hsl(var(--accent)/0.08)] via-transparent to-transparent" />
         <div className="max-w-lg mx-auto relative">
           <button onClick={() => { setSelectedClassId(null); setSelectedEntry(null); setSelectedSlot(null); saveAdminETState(null); }}
@@ -528,7 +528,7 @@ export default function EntryTimetablePage() {
       <div className="px-5 mt-4 max-w-lg mx-auto space-y-4">
         {/* Week Navigation */}
         <div className="card p-3 flex items-center justify-between">
-          <button onClick={() => navigateWeek(-1)} className="w-9 h-9 bg-[var(--bg-tertiary)] rounded-xl flex items-center justify-center hover:bg-[var(--bg-tertiary)] transition-colors active:scale-95">
+          <button onClick={() => navigateWeek(-1)} className="w-9 h-9 bg-[hsl(var(--surface-tertiary))] rounded-xl flex items-center justify-center hover:bg-[hsl(var(--surface-tertiary))] transition-colors active:scale-95">
             <ChevronLeft className="w-5 h-5 text-[var(--text-secondary)]" />
           </button>
           <div className="text-center flex-1">
@@ -542,7 +542,7 @@ export default function EntryTimetablePage() {
               <p className="text-[11px] text-[var(--accent-text)] font-semibold mt-0.5">Current Week</p>
             )}
           </div>
-          <button onClick={() => navigateWeek(1)} className="w-9 h-9 bg-[var(--bg-tertiary)] rounded-xl flex items-center justify-center hover:bg-[var(--bg-tertiary)] transition-colors active:scale-95">
+          <button onClick={() => navigateWeek(1)} className="w-9 h-9 bg-[hsl(var(--surface-tertiary))] rounded-xl flex items-center justify-center hover:bg-[hsl(var(--surface-tertiary))] transition-colors active:scale-95">
             <ChevronRight className="w-5 h-5 text-[var(--text-secondary)]" />
           </button>
         </div>
@@ -568,7 +568,7 @@ export default function EntryTimetablePage() {
           <div className="card overflow-hidden">
             <button
               onClick={() => setUnfilledOpen(!unfilledOpen)}
-              className="w-full flex items-center gap-3 p-3.5 hover:bg-[var(--bg-tertiary)] transition-colors text-left"
+              className="w-full flex items-center gap-3 p-3.5 hover:bg-[hsl(var(--surface-tertiary))] transition-colors text-left"
             >
               {unfilledOpen ? (
                 <FolderOpen className="w-5 h-5 text-[hsl(var(--accent))] flex-shrink-0" />
@@ -644,8 +644,8 @@ export default function EntryTimetablePage() {
             <div className="overflow-x-auto">
               <table className="w-full text-[10px]">
                 <thead>
-                  <tr className="bg-[var(--bg-tertiary)]/80 border-b border-[var(--border-secondary)]">
-                    <th className="px-1.5 py-2.5 text-left text-[var(--text-tertiary)] font-semibold w-[52px] sticky left-0 bg-[var(--bg-tertiary)]/80 z-10">
+                  <tr className="bg-[hsl(var(--surface-tertiary))]/80 border-b border-[var(--border-secondary)]">
+                    <th className="px-1.5 py-2.5 text-left text-[var(--text-tertiary)] font-semibold w-[52px] sticky left-0 bg-[hsl(var(--surface-tertiary))]/80 z-10">
                       Period
                     </th>
                     {DAYS.map((day) => {
@@ -666,7 +666,7 @@ export default function EntryTimetablePage() {
                 <tbody>
                   {periods.map((period) => (
                     <tr key={period.periodNum} className="border-b border-[var(--border-secondary)] last:border-0">
-                      <td className="px-1.5 py-1 align-top sticky left-0 bg-[var(--bg-elevated)] z-10">
+                      <td className="px-1.5 py-1 align-top sticky left-0 bg-[hsl(var(--surface-elevated))] z-10">
                         <div className="font-semibold text-[var(--text-secondary)] text-[11px]">P{period.periodNum}</div>
                         <div className="text-[9px] text-[var(--text-tertiary)] whitespace-nowrap">{period.startTime}</div>
                       </td>
@@ -682,7 +682,7 @@ export default function EntryTimetablePage() {
                         if (!slot && !entry) {
                           return (
                             <td key={day.value} className="px-0.5 py-1 align-top">
-                              <div className={`h-[42px] rounded-lg border border-dashed ${isToday ? "border-[var(--accent)]/30" : "border-[var(--border-secondary)]"}`} style={isToday ? { background: "color-mix(in srgb, var(--accent-light) 30%, transparent)" } : undefined} />
+                              <div className={`h-[42px] rounded-lg border border-dashed ${isToday ? "border-[var(--accent)]/30" : "border-[var(--border-secondary)]"}`} style={isToday ? { background: "color-mix(in srgb, var(--accent-soft) 30%, transparent)" } : undefined} />
                             </td>
                           );
                         }
@@ -696,7 +696,7 @@ export default function EntryTimetablePage() {
                                 className={`w-full min-h-[42px] rounded-lg border p-1 text-left transition-all hover:shadow-sm active:scale-95 relative ${
                                   entry
                                     ? `${getSubjectBgLight(colorIdx)}`
-                                    : `border-[var(--border-primary)] bg-[var(--bg-tertiary)] ${isToday ? "border-[var(--accent)]/30" : ""}`
+                                    : `border-[var(--border-primary)] bg-[hsl(var(--surface-tertiary))] ${isToday ? "border-[var(--accent)]/30" : ""}`
                                 }`}
                               >
                                 <p className={`font-bold truncate leading-tight ${entry ? getSubjectText(colorIdx) : "text-[var(--text-tertiary)]"}`}>
@@ -710,7 +710,7 @@ export default function EntryTimetablePage() {
                                   <div className={`absolute top-0.5 right-0.5 w-2 h-2 rounded-full ${getStatusColor(entry.status)}`} />
                                 )}
                                 {!entry && (
-                                  <div className="absolute top-0.5 right-0.5 w-2 h-2 rounded-full bg-[var(--bg-tertiary)]" />
+                                  <div className="absolute top-0.5 right-0.5 w-2 h-2 rounded-full bg-[hsl(var(--surface-tertiary))]" />
                                 )}
                               </button>
                             </td>
@@ -756,7 +756,7 @@ export default function EntryTimetablePage() {
                 <span>Flagged</span>
               </div>
               <div className="flex items-center gap-1.5 text-[10px] text-[var(--text-tertiary)]">
-                <div className="w-2.5 h-2.5 rounded-full bg-[var(--bg-tertiary)]" />
+                <div className="w-2.5 h-2.5 rounded-full bg-[hsl(var(--surface-tertiary))]" />
                 <span>Empty</span>
               </div>
             </div>
@@ -766,13 +766,13 @@ export default function EntryTimetablePage() {
         {/* Entry Detail Modal */}
         {(selectedEntry || selectedSlot) && (
           <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 backdrop-blur-sm" onClick={() => { setSelectedEntry(null); setSelectedSlot(null); }}>
-            <div className="w-full max-w-lg bg-[var(--bg-elevated)] rounded-t-3xl shadow-2xl max-h-[85vh] overflow-y-auto animate-slide-up" onClick={(e) => e.stopPropagation()}>
-              <div className="sticky top-0 bg-[var(--bg-elevated)] z-10 px-5 pt-4 pb-3 border-b border-[var(--border-secondary)] flex items-center justify-between">
+            <div className="w-full max-w-lg bg-[hsl(var(--surface-elevated))] rounded-t-3xl shadow-2xl max-h-[85vh] overflow-y-auto animate-slide-up" onClick={(e) => e.stopPropagation()}>
+              <div className="sticky top-0 bg-[hsl(var(--surface-elevated))] z-10 px-5 pt-4 pb-3 border-b border-[var(--border-secondary)] flex items-center justify-between">
                 <h3 className="text-base font-bold text-[var(--text-primary)]">
                   {selectedEntry ? "Entry Details" : "Slot Details"}
                 </h3>
                 <button onClick={() => { setSelectedEntry(null); setSelectedSlot(null); }}
-                  className="w-8 h-8 bg-[var(--bg-tertiary)] rounded-xl flex items-center justify-center hover:bg-[var(--bg-secondary)] transition-colors">
+                  className="w-8 h-8 bg-[hsl(var(--surface-tertiary))] rounded-xl flex items-center justify-center hover:bg-[hsl(var(--surface-secondary))] transition-colors">
                   <X className="w-4 h-4 text-[var(--text-tertiary)]" />
                 </button>
               </div>
@@ -818,7 +818,7 @@ export default function EntryTimetablePage() {
                     {/* Topic */}
                     {selectedEntry.topicText && (
                       <div className="flex items-start gap-3">
-                        <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5" style={{ background: "var(--accent-light)" }}>
+                        <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5" style={{ background: "var(--accent-soft)" }}>
                           <BookOpen className="w-3.5 h-3.5 text-[var(--accent-text)]" />
                         </div>
                         <div>
@@ -882,13 +882,13 @@ export default function EntryTimetablePage() {
                     {(selectedEntry.studentAttendance !== null || selectedEntry.engagementLevel) && (
                       <div className="grid grid-cols-2 gap-3">
                         {selectedEntry.studentAttendance !== null && (
-                          <div className="bg-[var(--bg-tertiary)] rounded-xl p-3 border border-[var(--border-secondary)]">
+                          <div className="bg-[hsl(var(--surface-tertiary))] rounded-xl p-3 border border-[var(--border-secondary)]">
                             <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-tertiary)]">Attendance</p>
                             <p className="text-sm font-bold text-[var(--text-secondary)] mt-0.5">{selectedEntry.studentAttendance} students</p>
                           </div>
                         )}
                         {selectedEntry.engagementLevel && (
-                          <div className="bg-[var(--bg-tertiary)] rounded-xl p-3 border border-[var(--border-secondary)]">
+                          <div className="bg-[hsl(var(--surface-tertiary))] rounded-xl p-3 border border-[var(--border-secondary)]">
                             <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-tertiary)]">Engagement</p>
                             <p className={`text-sm font-bold mt-0.5 ${
                               selectedEntry.engagementLevel === "HIGH" ? "text-[hsl(var(--success))]" :
@@ -903,7 +903,7 @@ export default function EntryTimetablePage() {
                   </div>
                 ) : selectedSlot ? (
                   <div className="text-center py-6">
-                    <div className="w-14 h-14 bg-[var(--bg-tertiary)] rounded-2xl flex items-center justify-center mx-auto mb-3">
+                    <div className="w-14 h-14 bg-[hsl(var(--surface-tertiary))] rounded-2xl flex items-center justify-center mx-auto mb-3">
                       <Calendar className="w-7 h-7 text-[var(--text-quaternary)]" />
                     </div>
                     <p className="text-[var(--text-secondary)] font-semibold">No entry submitted</p>

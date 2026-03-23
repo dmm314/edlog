@@ -155,9 +155,9 @@ export default function ManageClassesPage() {
     form.level === "Lower Sixth" || form.level === "Upper Sixth";
 
   return (
-    <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
+    <div className="min-h-screen pb-24" style={{ backgroundColor: "hsl(var(--surface-secondary))" }}>
       {/* Header */}
-      <div className="bg-gradient-to-br from-[var(--header-from)] to-[var(--header-to)] px-5 pt-10 pb-6 rounded-b-2xl">
+      <div className="bg-gradient-to-br from-[hsl(var(--accent))] to-[hsl(var(--accent-strong))] px-5 pt-10 pb-6 rounded-b-2xl">
         <div className="max-w-lg mx-auto">
           <Link
             href="/admin"
@@ -179,7 +179,7 @@ export default function ManageClassesPage() {
                 setShowForm(!showForm);
                 setError("");
               }}
-              className="flex items-center gap-1.5 bg-[var(--bg-elevated)]/10 hover:bg-[var(--bg-elevated)]/20 text-white text-sm rounded-lg px-3 py-1.5"
+              className="flex items-center gap-1.5 bg-[hsl(var(--surface-elevated))]/10 hover:bg-[hsl(var(--surface-elevated))]/20 text-white text-sm rounded-lg px-3 py-1.5"
             >
               <Plus className="w-4 h-4" />
               Add Class
@@ -272,7 +272,7 @@ export default function ManageClassesPage() {
 
             {/* Preview */}
             {form.level && (
-              <div className="bg-[var(--bg-tertiary)] rounded-lg px-3 py-2">
+              <div className="bg-[hsl(var(--surface-tertiary))] rounded-lg px-3 py-2">
                 <p className="text-xs text-[var(--text-tertiary)]">Preview</p>
                 <p className="font-semibold text-[var(--text-primary)]">
                   {form.level}

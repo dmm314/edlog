@@ -196,7 +196,7 @@ export default function NewAssessmentPage() {
                   setTopicsNote("");
                 }}
                 className="text-sm font-semibold px-4 py-2 rounded-xl"
-                style={{ background: "var(--bg-tertiary)", color: "var(--text-primary)" }}
+                style={{ background: "hsl(var(--surface-tertiary))", color: "var(--text-primary)" }}
               >
                 Log Another
               </button>
@@ -224,7 +224,7 @@ export default function NewAssessmentPage() {
         <Link
           href="/assessments"
           className="w-9 h-9 rounded-xl flex items-center justify-center"
-          style={{ background: "var(--bg-tertiary)" }}
+          style={{ background: "hsl(var(--surface-tertiary))" }}
         >
           <ArrowLeft className="w-5 h-5" style={{ color: "var(--text-primary)" }} />
         </Link>
@@ -257,7 +257,7 @@ export default function NewAssessmentPage() {
             onChange={(e) => setClassId(e.target.value)}
             className="w-full rounded-xl px-3 py-2.5 text-sm"
             style={{
-              background: "var(--bg-elevated)",
+              background: "hsl(var(--surface-elevated))",
               color: "var(--text-primary)",
               border: "1px solid var(--border-primary)",
               fontFamily: "var(--font-body)",
@@ -283,7 +283,7 @@ export default function NewAssessmentPage() {
             disabled={!classId}
             className="w-full rounded-xl px-3 py-2.5 text-sm"
             style={{
-              background: "var(--bg-elevated)",
+              background: "hsl(var(--surface-elevated))",
               color: "var(--text-primary)",
               border: "1px solid var(--border-primary)",
               fontFamily: "var(--font-body)",
@@ -312,7 +312,7 @@ export default function NewAssessmentPage() {
             maxLength={100}
             className="w-full rounded-xl px-3 py-2.5 text-sm"
             style={{
-              background: "var(--bg-elevated)",
+              background: "hsl(var(--surface-elevated))",
               color: "var(--text-primary)",
               border: "1px solid var(--border-primary)",
               fontFamily: "var(--font-body)",
@@ -332,7 +332,7 @@ export default function NewAssessmentPage() {
                 onClick={() => setType(t.value)}
                 className="text-xs font-semibold px-3 py-1.5 rounded-full transition-all"
                 style={{
-                  background: type === t.value ? "var(--accent)" : "var(--bg-tertiary)",
+                  background: type === t.value ? "var(--accent)" : "hsl(var(--surface-tertiary))",
                   color: type === t.value ? "hsl(var(--text-inverse))" : "var(--text-secondary)",
                 }}
               >
@@ -354,7 +354,7 @@ export default function NewAssessmentPage() {
             max={new Date().toISOString().split("T")[0]}
             className="w-full rounded-xl px-3 py-2.5 text-sm"
             style={{
-              background: "var(--bg-elevated)",
+              background: "hsl(var(--surface-elevated))",
               color: "var(--text-primary)",
               border: "1px solid var(--border-primary)",
               fontFamily: "var(--font-body)",
@@ -376,7 +376,7 @@ export default function NewAssessmentPage() {
               max={1000}
               className="w-full rounded-xl px-3 py-2.5 text-sm"
               style={{
-                background: "var(--bg-elevated)",
+                background: "hsl(var(--surface-elevated))",
                 color: "var(--text-primary)",
                 border: "1px solid var(--border-primary)",
                 fontFamily: "var(--font-body)",
@@ -395,7 +395,7 @@ export default function NewAssessmentPage() {
               max={totalMarks}
               className="w-full rounded-xl px-3 py-2.5 text-sm"
               style={{
-                background: "var(--bg-elevated)",
+                background: "hsl(var(--surface-elevated))",
                 color: "var(--text-primary)",
                 border: "1px solid var(--border-primary)",
                 fontFamily: "var(--font-body)",
@@ -425,7 +425,7 @@ export default function NewAssessmentPage() {
                     }
                     className="text-xs font-medium px-3 py-1.5 rounded-full transition-all"
                     style={{
-                      background: selected ? "var(--accent)" : "var(--bg-tertiary)",
+                      background: selected ? "var(--accent)" : "hsl(var(--surface-tertiary))",
                       color: selected ? "hsl(var(--text-inverse))" : "var(--text-secondary)",
                     }}
                   >
@@ -453,7 +453,7 @@ export default function NewAssessmentPage() {
             rows={2}
             className="w-full rounded-xl px-3 py-2.5 text-sm resize-none"
             style={{
-              background: "var(--bg-elevated)",
+              background: "hsl(var(--surface-elevated))",
               color: "var(--text-primary)",
               border: "1px solid var(--border-primary)",
               fontFamily: "var(--font-body)",

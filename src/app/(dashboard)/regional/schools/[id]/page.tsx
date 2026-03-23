@@ -93,7 +93,7 @@ export default function SchoolDetailPage() {
       case "SUSPENDED":
         return "bg-[hsl(var(--danger)/0.1)] text-[hsl(var(--danger))] border-[hsl(var(--danger)/0.2)]";
       default:
-        return "bg-[var(--bg-tertiary)] text-[var(--text-secondary)] border-[var(--border-primary)]";
+        return "bg-[hsl(var(--surface-tertiary))] text-[var(--text-secondary)] border-[var(--border-primary)]";
     }
   }
 
@@ -129,11 +129,11 @@ export default function SchoolDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
-        <div className="bg-gradient-to-br from-[var(--header-from)] to-[var(--header-to)] px-5 pt-10 pb-6 rounded-b-2xl">
+      <div className="min-h-screen pb-24" style={{ backgroundColor: "hsl(var(--surface-secondary))" }}>
+        <div className="bg-gradient-to-br from-[hsl(var(--accent))] to-[hsl(var(--accent-strong))] px-5 pt-10 pb-6 rounded-b-2xl">
           <div className="max-w-lg mx-auto">
-            <div className="h-4 bg-[var(--bg-elevated)]/20 rounded w-1/3 mb-4" />
-            <div className="h-6 bg-[var(--bg-elevated)]/20 rounded w-2/3" />
+            <div className="h-4 bg-[hsl(var(--surface-elevated))]/20 rounded w-1/3 mb-4" />
+            <div className="h-6 bg-[hsl(var(--surface-elevated))]/20 rounded w-2/3" />
           </div>
         </div>
         <div className="px-5 mt-4 max-w-lg mx-auto space-y-4">
@@ -150,8 +150,8 @@ export default function SchoolDetailPage() {
 
   if (!school) {
     return (
-      <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
-        <div className="bg-gradient-to-br from-[var(--header-from)] to-[var(--header-to)] px-5 pt-10 pb-6 rounded-b-2xl">
+      <div className="min-h-screen pb-24" style={{ backgroundColor: "hsl(var(--surface-secondary))" }}>
+        <div className="bg-gradient-to-br from-[hsl(var(--accent))] to-[hsl(var(--accent-strong))] px-5 pt-10 pb-6 rounded-b-2xl">
           <div className="max-w-lg mx-auto">
             <Link
               href="/regional/schools"
@@ -174,9 +174,9 @@ export default function SchoolDetailPage() {
   const classGroups = groupClassesByLevel(school.classes);
 
   return (
-    <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
+    <div className="min-h-screen pb-24" style={{ backgroundColor: "hsl(var(--surface-secondary))" }}>
       {/* Header */}
-      <div className="bg-gradient-to-br from-[var(--header-from)] to-[var(--header-to)] px-5 pt-10 pb-6 rounded-b-2xl">
+      <div className="bg-gradient-to-br from-[hsl(var(--accent))] to-[hsl(var(--accent-strong))] px-5 pt-10 pb-6 rounded-b-2xl">
         <div className="max-w-lg mx-auto">
           <Link
             href="/regional/schools"
@@ -186,7 +186,7 @@ export default function SchoolDetailPage() {
             Back to Schools
           </Link>
           <div className="flex items-start gap-3">
-            <div className="w-12 h-12 bg-[var(--bg-elevated)]/10 rounded-xl flex items-center justify-center flex-shrink-0">
+            <div className="w-12 h-12 bg-[hsl(var(--surface-elevated))]/10 rounded-xl flex items-center justify-center flex-shrink-0">
               <Building2 className="w-6 h-6 text-white" />
             </div>
             <div className="flex-1 min-w-0">
@@ -242,14 +242,14 @@ export default function SchoolDetailPage() {
 
       {/* Tab Selector */}
       <div className="px-5 mt-4 max-w-lg mx-auto">
-        <div className="flex gap-1 bg-[var(--bg-tertiary)] rounded-xl p-1">
+        <div className="flex gap-1 bg-[hsl(var(--surface-tertiary))] rounded-xl p-1">
           {(["overview", "classes", "teachers"] as const).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
               className={`flex-1 rounded-lg py-2 text-xs font-medium capitalize transition-colors ${
                 activeTab === tab
-                  ? "bg-[var(--bg-elevated)] text-[var(--text-primary)] shadow-sm"
+                  ? "bg-[hsl(var(--surface-elevated))] text-[var(--text-primary)] shadow-sm"
                   : "text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]"
               }`}
             >
@@ -309,7 +309,7 @@ export default function SchoolDetailPage() {
               {school.principalName ? (
                 <div className="space-y-2 text-sm">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: "var(--accent-light)" }}>
+                    <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: "var(--accent-soft)" }}>
                       <span className="text-[var(--accent-text)] font-bold text-sm">
                         {school.principalName
                           .split(" ")

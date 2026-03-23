@@ -104,7 +104,7 @@ function CompletenessBar({ score }: { score: number }) {
   const color = score >= 80 ? "hsl(var(--success))" : score >= 60 ? "hsl(var(--accent))" : "hsl(var(--danger))";
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-      <div style={{ flex: 1, height: 6, background: "var(--bg-tertiary)", borderRadius: 3, overflow: "hidden" }}>
+      <div style={{ flex: 1, height: 6, background: "hsl(var(--surface-tertiary))", borderRadius: 3, overflow: "hidden" }}>
         <div style={{ width: `${score}%`, height: "100%", background: color, borderRadius: 3, transition: "width 0.5s ease" }} />
       </div>
       <span style={{ fontFamily: "var(--font-mono)", fontSize: 12, fontWeight: 700, color, minWidth: 36 }}>{score}%</span>
@@ -206,7 +206,7 @@ export function EntryDetailModal({
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
 
       {/* Panel */}
-      <div className="relative w-full max-w-lg bg-[var(--bg-elevated)] rounded-t-2xl sm:rounded-2xl shadow-2xl max-h-[92vh] overflow-y-auto animate-slide-up">
+      <div className="relative w-full max-w-lg bg-[hsl(var(--surface-elevated))] rounded-t-2xl sm:rounded-2xl shadow-2xl max-h-[92vh] overflow-y-auto animate-slide-up">
 
         {/* Close */}
         <button
@@ -324,7 +324,7 @@ export function EntryDetailModal({
                   { label: "Engagement", value: entry.engagementLevel },
                   { label: "Attendance", value: entry.studentAttendance != null ? `${entry.studentAttendance} students` : null },
                 ].filter((i) => i.value).map((item) => (
-                  <div key={item.label} className="rounded-lg py-1.5 px-2.5 bg-[var(--bg-tertiary)]">
+                  <div key={item.label} className="rounded-lg py-1.5 px-2.5 bg-[hsl(var(--surface-tertiary))]">
                     <p className="text-[9px] text-[var(--text-tertiary)] font-medium">{item.label}</p>
                     <p className="text-xs font-bold text-[var(--text-primary)]">{item.value}</p>
                   </div>
@@ -396,7 +396,7 @@ export function EntryDetailModal({
                 <MessageSquare className="w-4 h-4 text-[var(--text-tertiary)]" />
                 <h3 className="text-sm font-bold text-[var(--text-primary)]">Remarks</h3>
                 {entry.remarks.length > 0 && (
-                  <span className="text-[10px] font-bold bg-[var(--bg-tertiary)] text-[var(--text-tertiary)] px-1.5 py-0.5 rounded-full">
+                  <span className="text-[10px] font-bold bg-[hsl(var(--surface-tertiary))] text-[var(--text-tertiary)] px-1.5 py-0.5 rounded-full">
                     {entry.remarks.length}
                   </span>
                 )}
@@ -436,7 +436,7 @@ export function EntryDetailModal({
 
               {/* Add remark */}
               {remarkLabel && (
-                <div className="px-5 py-3 border-t border-[var(--border-secondary)] bg-[var(--bg-tertiary)]">
+                <div className="px-5 py-3 border-t border-[var(--border-secondary)] bg-[hsl(var(--surface-tertiary))]">
                   <label className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-tertiary)] flex items-center gap-1 mb-2">
                     <FileText className="w-3 h-3" />
                     {remarkLabel}
@@ -449,7 +449,7 @@ export function EntryDetailModal({
                       placeholder="Leave an observation..."
                       maxLength={1000}
                       rows={2}
-                      className="flex-1 bg-[var(--bg-elevated)] border border-[var(--border-primary)] rounded-xl px-3 py-2 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-quaternary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-transparent resize-none"
+                      className="flex-1 bg-[hsl(var(--surface-elevated))] border border-[var(--border-primary)] rounded-xl px-3 py-2 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-quaternary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-transparent resize-none"
                     />
                     <button
                       onClick={sendRemark}

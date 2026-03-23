@@ -24,7 +24,7 @@ function FeedList({ entries }: { entries: EntryWithRelations[] }) {
   return (
     <section className="space-y-3">
       {entries.slice(0, 8).map((entry, index) => (
-        <EntryCard key={entry.id} entry={entry} priority={index === 0 ? "vibrant" : "default"} />
+        <EntryCard key={entry.id} entry={entry} priority={index === 0 ? "live" : "default"} />
       ))}
     </section>
   );

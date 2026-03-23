@@ -118,9 +118,9 @@ export default function MyAssignmentsPage() {
   }
 
   return (
-    <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
+    <div className="min-h-screen pb-24" style={{ backgroundColor: "hsl(var(--surface-secondary))" }}>
       {/* Header */}
-      <div className="bg-gradient-to-br from-[var(--header-from)] to-[var(--header-to)] px-5 pt-10 pb-6 rounded-b-2xl">
+      <div className="bg-gradient-to-br from-[hsl(var(--accent))] to-[hsl(var(--accent-strong))] px-5 pt-10 pb-6 rounded-b-2xl">
         <div className="max-w-lg mx-auto">
           <Link
             href="/logbook"
@@ -130,7 +130,7 @@ export default function MyAssignmentsPage() {
             Back to Logbook
           </Link>
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-[var(--bg-elevated)]/10 rounded-xl flex items-center justify-center">
+            <div className="w-10 h-10 bg-[hsl(var(--surface-elevated))]/10 rounded-xl flex items-center justify-center">
               <GraduationCap className="w-5 h-5 text-white" />
             </div>
             <div>
@@ -154,7 +154,7 @@ export default function MyAssignmentsPage() {
               placeholder="Filter by class or subject..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-4 py-2.5 bg-[var(--bg-elevated)] border border-[var(--border-primary)] rounded-xl text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-transparent"
+              className="w-full pl-9 pr-4 py-2.5 bg-[hsl(var(--surface-elevated))] border border-[var(--border-primary)] rounded-xl text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-transparent"
             />
           </div>
         )}
@@ -189,9 +189,9 @@ export default function MyAssignmentsPage() {
                   {/* Folder header — clickable */}
                   <button
                     onClick={() => toggleLevel(group.level)}
-                    className="w-full flex items-center gap-3 p-4 text-left hover:bg-[var(--bg-tertiary)] transition-colors"
+                    className="w-full flex items-center gap-3 p-4 text-left hover:bg-[hsl(var(--surface-tertiary))] transition-colors"
                   >
-                    <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "var(--accent-light)" }}>
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "var(--accent-soft)" }}>
                       <Folder className="w-5 h-5 text-[var(--accent-text)]" />
                     </div>
                     <div className="flex-1 min-w-0">
@@ -223,14 +223,14 @@ export default function MyAssignmentsPage() {
                         <Link
                           key={a.id}
                           href={`/logbook/new?classId=${a.class.id}&subjectId=${a.subject.id}`}
-                          className={`block p-4 hover:bg-[var(--bg-tertiary)] transition-colors ${
+                          className={`block p-4 hover:bg-[hsl(var(--surface-tertiary))] transition-colors ${
                             idx > 0 ? "border-t border-[var(--border-secondary)]" : ""
                           }`}
                         >
                           <div className="flex items-start justify-between">
                             <div>
                               <div className="flex items-center gap-2 mb-1">
-                                <span className="text-xs font-bold text-[var(--text-primary)] px-2 py-0.5 rounded" style={{ background: "var(--accent-light)" }}>
+                                <span className="text-xs font-bold text-[var(--text-primary)] px-2 py-0.5 rounded" style={{ background: "var(--accent-soft)" }}>
                                   {a.subject.name}
                                 </span>
                                 <span className="text-xs font-medium bg-purple-50 text-purple-700 px-2 py-0.5 rounded">

@@ -50,7 +50,7 @@ function CoverageCell({ row }: { row: SchoolCoverageRow }) {
           width: "100%",
           height: 6,
           borderRadius: 9999,
-          background: "var(--bg-tertiary)",
+          background: "hsl(var(--surface-tertiary))",
           overflow: "hidden",
         }}
       >
@@ -205,7 +205,7 @@ export default function SchoolComparisonPage() {
         <div
           style={{
             flex: 1,
-            background: "var(--bg-elevated)",
+            background: "hsl(var(--surface-elevated))",
             border: "1px solid var(--border-primary)",
             borderRadius: 16,
             padding: "12px 16px",
@@ -237,7 +237,7 @@ export default function SchoolComparisonPage() {
         <div
           style={{
             flex: 1,
-            background: "var(--bg-elevated)",
+            background: "hsl(var(--surface-elevated))",
             border: "1px solid var(--border-primary)",
             borderRadius: 16,
             padding: "12px 16px",
@@ -274,7 +274,7 @@ export default function SchoolComparisonPage() {
       {!bothSelected ? (
         <div
           style={{
-            background: "var(--bg-elevated)",
+            background: "hsl(var(--surface-elevated))",
             border: "1px solid var(--border-primary)",
             borderRadius: 16,
             padding: "64px 24px",

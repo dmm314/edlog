@@ -17,7 +17,7 @@ function StatCard({ label, value, icon: Icon, trend, iconBg, iconColor }: StatCa
         <div
           className="flex h-10 w-10 shrink-0 items-center justify-center"
           style={{
-            backgroundColor: iconBg || "var(--accent-light)",
+            backgroundColor: iconBg || "var(--accent-soft)",
             borderRadius: "var(--radius-sm)",
           }}
         >

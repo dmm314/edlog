@@ -172,7 +172,7 @@ export default function CoordinatorTimetablePage() {
   // ─── Loading skeleton ───
   if (loading) {
     return (
-      <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-primary)" }}>
+      <div className="min-h-screen pb-24" style={{ backgroundColor: "hsl(var(--surface-canvas))" }}>
         <div className="px-5 pt-10 pb-6 rounded-b-[2rem]"
           style={{ background: "linear-gradient(135deg, hsl(var(--accent-strong)), hsl(var(--accent)))" }}>
           <div className="max-w-lg mx-auto">
@@ -198,7 +198,7 @@ export default function CoordinatorTimetablePage() {
   // ─── CLASS PICKER view ───
   if (selectedClassId === null) {
     return (
-      <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-primary)" }}>
+      <div className="min-h-screen pb-24" style={{ backgroundColor: "hsl(var(--surface-canvas))" }}>
         {/* Header */}
         <div className="px-5 pt-10 pb-6 rounded-b-[2rem] relative overflow-hidden"
           style={{ background: "linear-gradient(135deg, hsl(var(--accent-strong)), hsl(var(--accent)))" }}>
@@ -306,7 +306,7 @@ export default function CoordinatorTimetablePage() {
   const currentDaySlots = slotsByDay[selectedDay] || [];
 
   return (
-    <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-primary)" }}>
+    <div className="min-h-screen pb-24" style={{ backgroundColor: "hsl(var(--surface-canvas))" }}>
       {/* Header */}
       <div className="px-5 pt-10 pb-6 rounded-b-[2rem] relative overflow-hidden"
         style={{ background: "linear-gradient(135deg, hsl(var(--accent-strong)), hsl(var(--accent)))" }}>
@@ -379,7 +379,7 @@ export default function CoordinatorTimetablePage() {
                 <div key={slot.id}
                   className="rounded-2xl border overflow-hidden transition-all"
                   style={{
-                    background: active ? "hsl(var(--success) / 0.08)" : "var(--bg-elevated)",
+                    background: active ? "hsl(var(--success) / 0.08)" : "hsl(var(--surface-elevated))",
                     borderColor: active ? "hsl(var(--success) / 0.3)" : "var(--border-primary)",
                     boxShadow: active ? "0 0 0 2px hsl(var(--success) / 0.2)" : undefined,
                   }}>
@@ -440,7 +440,7 @@ export default function CoordinatorTimetablePage() {
                         {slot.teacherPhone && (
                           <a href={`tel:${slot.teacherPhone}`}
                             className="flex-shrink-0 text-[11px] font-semibold px-2.5 py-1.5 rounded-lg transition-colors"
-                            style={{ background: active ? "hsl(var(--success) / 0.15)" : "var(--bg-secondary)", color: "var(--text-primary)" }}>
+                            style={{ background: active ? "hsl(var(--success) / 0.15)" : "hsl(var(--surface-secondary))", color: "var(--text-primary)" }}>
                             Call
                           </a>
                         )}

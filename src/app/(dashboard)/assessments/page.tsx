@@ -89,7 +89,7 @@ export default function AssessmentsPage() {
       <div style={{ padding: "16px 16px 0" }}>
         <div
           className="flex rounded-xl p-1"
-          style={{ background: "var(--bg-tertiary)" }}
+          style={{ background: "hsl(var(--surface-tertiary))" }}
         >
           {(["upcoming", "completed"] as const).map((t) => (
             <button
@@ -98,7 +98,7 @@ export default function AssessmentsPage() {
               className="flex-1 text-sm font-semibold py-2 rounded-lg transition-all"
               style={{
                 fontFamily: "var(--font-body)",
-                background: tab === t ? "var(--bg-primary)" : "transparent",
+                background: tab === t ? "hsl(var(--surface-canvas))" : "transparent",
                 color: tab === t ? "var(--text-primary)" : "var(--text-tertiary)",
                 boxShadow: tab === t ? "var(--shadow-sm)" : "none",
               }}
@@ -125,7 +125,7 @@ export default function AssessmentsPage() {
           <div className="text-center py-16">
             <div
               className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4"
-              style={{ background: "var(--bg-tertiary)" }}
+              style={{ background: "hsl(var(--surface-tertiary))" }}
             >
               <BookOpen className="w-8 h-8" style={{ color: "var(--text-tertiary)" }} />
             </div>
@@ -221,7 +221,7 @@ export default function AssessmentsPage() {
                     style={{
                       background: overdue
                         ? "hsl(var(--accent-soft))"
-                        : "var(--accent-light)",
+                        : "var(--accent-soft)",
                     }}
                   >
                     {overdue ? (

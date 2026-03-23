@@ -22,7 +22,7 @@ export function ReportStatCards({ stats }: { stats: StatCard[] }) {
           style={{
             flex: "1 0 0",
             minWidth: 100,
-            background: "var(--bg-elevated)",
+            background: "hsl(var(--surface-elevated))",
             border: "1px solid var(--border-primary)",
             borderRadius: 14,
             padding: 14,

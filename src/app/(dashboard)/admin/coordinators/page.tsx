@@ -239,7 +239,7 @@ export default function CoordinatorsPage() {
   }
 
   return (
-    <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-primary)" }}>
+    <div className="min-h-screen pb-24" style={{ backgroundColor: "hsl(var(--surface-canvas))" }}>
       {/* Header */}
       <div
         className="px-5 pt-10 pb-8 rounded-b-[2rem] relative overflow-hidden"
@@ -282,7 +282,7 @@ export default function CoordinatorsPage() {
             <p className="text-xs text-[var(--text-tertiary)] mb-3">
               Share these credentials securely with the VP:
             </p>
-            <div className="bg-[var(--bg-tertiary)] rounded-xl p-3 space-y-1.5 text-sm font-mono">
+            <div className="bg-[hsl(var(--surface-tertiary))] rounded-xl p-3 space-y-1.5 text-sm font-mono">
               <p><span className="text-[var(--text-tertiary)]">Email:</span> <span className="text-[var(--text-primary)] font-bold">{newCredentials.email}</span></p>
               <p><span className="text-[var(--text-tertiary)]">Password:</span> <span className="text-[var(--text-primary)] font-bold">{newCredentials.password}</span></p>
               {newCredentials.teacherCode && (
@@ -379,7 +379,7 @@ export default function CoordinatorsPage() {
                   {isExpanded && (
                     <div
                       className="border-t px-4 pt-4 pb-4 space-y-4"
-                      style={{ borderColor: "var(--border-secondary)", background: "var(--bg-tertiary)" }}
+                      style={{ borderColor: "var(--border-secondary)", background: "hsl(var(--surface-tertiary))" }}
                     >
                       {/* If assigned, show deactivate option */}
                       {coord && (
@@ -409,7 +409,7 @@ export default function CoordinatorsPage() {
                       )}
 
                       {/* Tabs */}
-                      <div className="flex gap-1 bg-[var(--bg-secondary)] rounded-xl p-1">
+                      <div className="flex gap-1 bg-[hsl(var(--surface-secondary))] rounded-xl p-1">
                         {(["existing", "new"] as const).map((tab) => (
                           <button
                             key={tab}
@@ -419,7 +419,7 @@ export default function CoordinatorsPage() {
                             }}
                             className="flex-1 py-1.5 rounded-lg text-xs font-bold transition-all"
                             style={{
-                              background: assignTab === tab ? "var(--bg-elevated)" : "transparent",
+                              background: assignTab === tab ? "hsl(var(--surface-elevated))" : "transparent",
                               color: assignTab === tab ? "var(--text-primary)" : "var(--text-tertiary)",
                               boxShadow: assignTab === tab ? "var(--shadow-card)" : "none",
                             }}
@@ -593,7 +593,7 @@ export default function CoordinatorsPage() {
                 </p>
                 <p className="text-[10px] text-emerald-600 uppercase font-semibold">VPs Assigned</p>
               </div>
-              <div className="bg-[var(--bg-tertiary)] rounded-xl p-3 text-center">
+              <div className="bg-[hsl(var(--surface-tertiary))] rounded-xl p-3 text-center">
                 <p className="text-xl font-black text-[var(--text-secondary)]">
                   {LEVELS.length - coordinators.filter((c) => c.isActive).length}
                 </p>

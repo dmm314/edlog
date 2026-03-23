@@ -72,9 +72,9 @@ export default function RegistrationCodesPage() {
   const expired = codes.filter((c) => c.isExpired && !c.isUsed);
 
   return (
-    <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
+    <div className="min-h-screen pb-24" style={{ backgroundColor: "hsl(var(--surface-secondary))" }}>
       {/* Header */}
-      <div className="bg-gradient-to-br from-[var(--header-from)] to-[var(--header-to)] px-5 pt-10 pb-6 rounded-b-2xl">
+      <div className="bg-gradient-to-br from-[hsl(var(--accent))] to-[hsl(var(--accent-strong))] px-5 pt-10 pb-6 rounded-b-2xl">
         <div className="max-w-lg mx-auto">
           <Link
             href="/regional"
@@ -95,7 +95,7 @@ export default function RegistrationCodesPage() {
             <button
               onClick={handleGenerate}
               disabled={generating}
-              className="flex items-center gap-1.5 bg-[var(--bg-elevated)]/10 hover:bg-[var(--bg-elevated)]/20 text-white text-sm rounded-lg px-3 py-1.5"
+              className="flex items-center gap-1.5 bg-[hsl(var(--surface-elevated))]/10 hover:bg-[hsl(var(--surface-elevated))]/20 text-white text-sm rounded-lg px-3 py-1.5"
             >
               <Plus className="w-4 h-4" />
               {generating ? "..." : "Generate"}
@@ -119,7 +119,7 @@ export default function RegistrationCodesPage() {
               Used
             </p>
           </div>
-          <div className="flex-1 rounded-xl px-3 py-2 text-center bg-[var(--bg-tertiary)] text-[var(--text-secondary)]">
+          <div className="flex-1 rounded-xl px-3 py-2 text-center bg-[hsl(var(--surface-tertiary))] text-[var(--text-secondary)]">
             <p className="text-lg font-bold">{expired.length}</p>
             <p className="text-[10px] font-medium uppercase tracking-wide">
               Expired
@@ -164,7 +164,7 @@ export default function RegistrationCodesPage() {
                 key={code.id}
                 className={`card p-4 ${
                   code.isUsed
-                    ? "bg-[var(--bg-tertiary)]"
+                    ? "bg-[hsl(var(--surface-tertiary))]"
                     : code.isExpired
                     ? "bg-[hsl(var(--danger)/0.05)]"
                     : ""

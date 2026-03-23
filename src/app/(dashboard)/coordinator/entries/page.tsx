@@ -129,7 +129,7 @@ function StatusBadge({ status, views }: { status: string; views?: { viewerRole: 
     );
   }
   return (
-    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0" style={{ background: "var(--bg-tertiary)", color: "var(--text-tertiary)" }}>
+    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0" style={{ background: "hsl(var(--surface-tertiary))", color: "var(--text-tertiary)" }}>
       {status}
     </span>
   );
@@ -244,7 +244,7 @@ export default function CoordinatorEntriesPage() {
   }
 
   return (
-    <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-primary)" }}>
+    <div className="min-h-screen pb-24" style={{ backgroundColor: "hsl(var(--surface-canvas))" }}>
       {/* ── Header ── */}
       <div className="px-5 pt-10 pb-6 rounded-b-[2rem] relative overflow-hidden"
         style={{ background: "linear-gradient(135deg, hsl(var(--accent-strong)), hsl(var(--accent)))" }}>
@@ -294,7 +294,7 @@ export default function CoordinatorEntriesPage() {
                 Search
               </button>
               <button onClick={() => setShowFilters(!showFilters)} className="relative px-3 py-2.5 rounded-xl active:scale-95 transition-all"
-                style={{ background: showFilters || hasActiveFilters ? "hsl(var(--accent-soft))" : "var(--bg-elevated)", border: "1px solid var(--border-primary)", color: hasActiveFilters ? "hsl(var(--accent-text))" : "var(--text-secondary)" }}>
+                style={{ background: showFilters || hasActiveFilters ? "hsl(var(--accent-soft))" : "hsl(var(--surface-elevated))", border: "1px solid var(--border-primary)", color: hasActiveFilters ? "hsl(var(--accent-text))" : "var(--text-secondary)" }}>
                 <Filter className="w-4 h-4" />
                 {hasActiveFilters && <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full text-white flex items-center justify-center" style={{ background: "hsl(var(--accent))", fontSize: "8px" }}>●</span>}
               </button>
@@ -435,13 +435,13 @@ export default function CoordinatorEntriesPage() {
               <div className="flex items-center justify-between py-2">
                 <button onClick={() => setOffset(Math.max(0, offset - PAGE_SIZE))} disabled={offset === 0}
                   className="flex items-center gap-1.5 text-sm font-semibold px-3 py-2 rounded-xl disabled:opacity-40"
-                  style={{ background: "var(--bg-elevated)", color: "var(--text-secondary)", border: "1px solid var(--border-primary)" }}>
+                  style={{ background: "hsl(var(--surface-elevated))", color: "var(--text-secondary)", border: "1px solid var(--border-primary)" }}>
                   <ChevronLeft className="w-4 h-4" /> Prev
                 </button>
                 <p className="text-xs text-[var(--text-tertiary)]">Page {currentPage} of {totalPages}</p>
                 <button onClick={() => setOffset(offset + PAGE_SIZE)} disabled={offset + PAGE_SIZE >= total}
                   className="flex items-center gap-1.5 text-sm font-semibold px-3 py-2 rounded-xl disabled:opacity-40"
-                  style={{ background: "var(--bg-elevated)", color: "var(--text-secondary)", border: "1px solid var(--border-primary)" }}>
+                  style={{ background: "hsl(var(--surface-elevated))", color: "var(--text-secondary)", border: "1px solid var(--border-primary)" }}>
                   Next <ChevronRight className="w-4 h-4" />
                 </button>
               </div>
@@ -456,7 +456,7 @@ export default function CoordinatorEntriesPage() {
             <div className="flex items-center justify-between">
               <button onClick={() => { const d = new Date(weekStart); d.setDate(d.getDate() - 7); setWeekStart(d); }}
                 className="p-2.5 rounded-xl active:scale-90 transition-all"
-                style={{ background: "var(--bg-elevated)", border: "1px solid var(--border-primary)" }}>
+                style={{ background: "hsl(var(--surface-elevated))", border: "1px solid var(--border-primary)" }}>
                 <ChevronLeft className="w-4 h-4 text-[var(--text-secondary)]" />
               </button>
               <div className="text-center">
@@ -467,7 +467,7 @@ export default function CoordinatorEntriesPage() {
               </div>
               <button onClick={() => { const d = new Date(weekStart); d.setDate(d.getDate() + 7); setWeekStart(d); }}
                 className="p-2.5 rounded-xl active:scale-90 transition-all"
-                style={{ background: "var(--bg-elevated)", border: "1px solid var(--border-primary)" }}>
+                style={{ background: "hsl(var(--surface-elevated))", border: "1px solid var(--border-primary)" }}>
                 <ChevronRight className="w-4 h-4 text-[var(--text-secondary)]" />
               </button>
             </div>
@@ -487,7 +487,7 @@ export default function CoordinatorEntriesPage() {
                   <button key={dow} onClick={() => setSelectedDay(dow)}
                     className="flex-shrink-0 flex flex-col items-center px-4 py-2.5 rounded-2xl transition-all"
                     style={{
-                      background: selectedDay === dow ? "hsl(var(--accent))" : "var(--bg-elevated)",
+                      background: selectedDay === dow ? "hsl(var(--accent))" : "hsl(var(--surface-elevated))",
                       border: `1px solid ${selectedDay === dow ? "hsl(var(--accent))" : isToday ? "hsl(var(--accent) / 0.6)" : "var(--border-primary)"}`,
                       minWidth: "60px",
                     }}>
@@ -565,7 +565,7 @@ export default function CoordinatorEntriesPage() {
                               <StatusBadge status={entry.status} views={entry.views} />
                             ) : (
                               <span className="text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0"
-                                style={{ background: isPast ? "hsl(var(--danger) / 0.1)" : "var(--bg-tertiary)", color: isPast ? "hsl(var(--danger))" : "var(--text-quaternary)" }}>
+                                style={{ background: isPast ? "hsl(var(--danger) / 0.1)" : "hsl(var(--surface-tertiary))", color: isPast ? "hsl(var(--danger))" : "var(--text-quaternary)" }}>
                                 {isPast ? "No entry" : "Upcoming"}
                               </span>
                             )}

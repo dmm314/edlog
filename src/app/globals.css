@@ -2,61 +2,48 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ─── ELITE FUNCTIONAL MINIMAL DESIGN SYSTEM v5.0 ─── */
+/* ─── EDLOG DESIGN SYSTEM v6.0 ─── */
 /* Neutral surfaces. Color only on tabs, buttons, status. */
 
 @layer base {
   :root,
   .light {
-    /* ─ Single accent: Facebook blue #0866FF ─ */
-    --accent: 217 100% 51%;
+    /* ─ Primary: Blue 600 #1A56DB ─ */
+    --accent: 224 86% 48%;
     --accent-soft: 217 92% 95%;
-    --accent-strong: 217 100% 44%;
-    --accent-text: 217 100% 42%;
-    --accent-glow: 217 100% 51%;
+    --accent-strong: 224 86% 40%;
+    --accent-text: 224 86% 42%;
     --accent-muted: 217 60% 92%;
 
-    /* ─ Neutral surfaces (Facebook-clean) ─ */
-    --surface-canvas: 220 5% 96%;
-    --surface-primary: 220 5% 96%;
+    /* ─ Neutral surfaces ─ */
+    --surface-canvas: 220 14% 96%;
+    --surface-primary: 220 14% 96%;
     --surface-secondary: 0 0% 100%;
-    --surface-tertiary: 220 5% 91%;
+    --surface-tertiary: 220 13% 91%;
     --surface-elevated: 0 0% 100%;
     --surface-float: 0 0% 100%;
 
     /* ─ Text hierarchy ─ */
     --text-primary: 220 14% 10%;
-    --text-secondary: 220 6% 38%;
+    --text-secondary: 220 9% 46%;
     --text-tertiary: 220 4% 55%;
     --text-inverse: 0 0% 100%;
 
     /* ─ Borders (pure neutral) ─ */
-    --border-primary: 220 6% 88%;
+    --border-primary: 220 13% 91%;
     --border-muted: 220 4% 92%;
     --border-strong: 220 6% 78%;
 
     /* ─ Status colors ─ */
-    --success: 152 69% 40%;
+    --success: 160 84% 39%;
     --warning: 38 92% 50%;
-    --danger: 0 84% 60%;
+    --danger: 0 72% 51%;
     --info: 199 89% 48%;
 
-    /* ─ Legacy bridge variables ─ */
-    --bg-primary: #F0F2F5;
-    --bg-secondary: #FFFFFF;
-    --bg-tertiary: #E4E6EB;
-    --bg-elevated: #FFFFFF;
-    --bg-inset: #F0F2F5;
-
-    /* ─ Header (accent gradient for contrast with white text) ─ */
-    --header-bg: hsl(217 100% 51%);
-    --header-text: #FFFFFF;
-    --header-text-muted: rgba(255, 255, 255, 0.7);
-    --header-from: hsl(217 100% 48%);
-    --header-via: hsl(217 100% 51%);
-    --header-to: hsl(220 100% 58%);
-    --header-overlay: rgba(255, 255, 255, 0.04);
-    --header-accent: rgba(255, 255, 255, 0.12);
+    /* ─ Header (flat white, no gradient) ─ */
+    --header-bg: #FFFFFF;
+    --header-text: hsl(220 14% 10%);
+    --header-text-muted: hsl(220 4% 55%);
 
     /* ─ Shadows (neutral, no accent tint) ─ */
     --shadow-card: 0 1px 3px 0 rgba(0, 0, 0, 0.06), 0 1px 2px -1px rgba(0, 0, 0, 0.06);
@@ -65,17 +52,17 @@
 
     /* ─ Navigation ─ */
     --nav-bg: rgba(255, 255, 255, 0.96);
-    --nav-border: hsl(220 6% 88% / 0.7);
+    --nav-border: hsl(220 13% 91% / 0.7);
     --nav-text: hsl(220 4% 55%);
-    --nav-text-active: hsl(217 100% 51%);
+    --nav-text-active: hsl(224 86% 48%);
 
     /* ─ Inputs ─ */
     --input-bg: #FFFFFF;
-    --input-border: hsl(220 6% 88%);
-    --input-focus-ring: hsl(217 100% 51% / 0.15);
+    --input-border: hsl(220 13% 91%);
+    --input-focus-ring: hsl(224 86% 48% / 0.15);
 
     /* ─ Skeleton ─ */
-    --skeleton-base: hsl(220 5% 91%);
+    --skeleton-base: hsl(220 14% 91%);
     --skeleton-highlight: rgba(255, 255, 255, 0.6);
 
     /* ─ Timing ─ */
@@ -84,9 +71,6 @@
     --transition-micro: 80ms;
     --transition-slow: 300ms;
     --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
-    --ease-spring: ease-out;
-    --ease-fluid: ease-out;
-    --max-mobile-width: 480px;
 
     /* ─ Radius ─ */
     --radius-sm: 8px;
@@ -99,7 +83,7 @@
     --role-regional: 210 100% 30%;
     --role-coordinator: 270 60% 45%;
     --role-admin: 215 20% 40%;
-    --role-teacher: 217 100% 51%;
+    --role-teacher: 224 86% 48%;
 
     color-scheme: light;
   }
@@ -110,7 +94,6 @@
     --accent-soft: 217 50% 16%;
     --accent-strong: 217 100% 58%;
     --accent-text: 217 92% 72%;
-    --accent-glow: 217 92% 66%;
     --accent-muted: 217 40% 18%;
 
     /* ─ Dark surfaces (near-black, minimal blue tint) ─ */
@@ -118,7 +101,7 @@
     --surface-primary: 220 10% 8%;
     --surface-secondary: 220 8% 12%;
     --surface-tertiary: 220 6% 16%;
-    --surface-elevated: 220 8% 13%;
+    --surface-elevated: 220 8% 12%;
     --surface-float: 220 8% 15%;
 
     /* ─ Text ─ */
@@ -133,27 +116,15 @@
     --border-strong: 220 8% 28%;
 
     /* ─ Status ─ */
-    --success: 152 69% 45%;
+    --success: 160 84% 45%;
     --warning: 38 92% 55%;
-    --danger: 0 84% 62%;
+    --danger: 0 72% 62%;
     --info: 199 89% 55%;
 
-    /* ─ Legacy bridge ─ */
-    --bg-primary: hsl(220 10% 8%);
-    --bg-secondary: hsl(220 8% 12%);
-    --bg-tertiary: hsl(220 6% 16%);
-    --bg-elevated: hsl(220 8% 13%);
-    --bg-inset: hsl(220 10% 8%);
-
-    /* ─ Header ─ */
-    --header-bg: hsl(217 80% 32%);
+    /* ─ Header (flat dark surface, no gradient) ─ */
+    --header-bg: hsl(220 10% 8%);
     --header-text: hsl(220 8% 96%);
-    --header-text-muted: rgba(255, 255, 255, 0.65);
-    --header-from: hsl(217 80% 28%);
-    --header-via: hsl(217 70% 32%);
-    --header-to: hsl(220 60% 38%);
-    --header-overlay: rgba(255, 255, 255, 0.03);
-    --header-accent: rgba(255, 255, 255, 0.08);
+    --header-text-muted: hsl(220 4% 46%);
 
     /* ─ Shadows ─ */
     --shadow-card: 0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 1px 2px -1px rgba(0, 0, 0, 0.2);
@@ -232,7 +203,6 @@
     border-radius: 12px;
   }
 
-  .font-display { font-family: var(--font-display), Georgia, serif; }
   .font-mono { font-family: var(--font-mono), "JetBrains Mono", monospace; }
 
   .dashboard-shell {
@@ -256,10 +226,6 @@
     .dashboard-content {
       min-height: 100vh;
       padding: 1rem 1.5rem 2rem;
-    }
-    /* Expand narrow mobile containers to fill desktop space */
-    .dashboard-content .max-w-lg {
-      max-width: 100% !important;
     }
   }
 
@@ -293,7 +259,7 @@
   /* ─── PAGE LAYOUT ─── */
   .page-shell {
     @apply w-full px-4 pb-28 pt-5;
-    max-width: 32rem;
+    max-width: 40rem;
     margin-left: auto;
     margin-right: auto;
   }
@@ -311,14 +277,14 @@
 
   .page-header {
     background: var(--header-bg);
-    border-bottom: none;
+    border-bottom: 1px solid hsl(var(--border-primary));
   }
 
   /* ─── CARDS — Clean neutral ─── */
   .card {
     position: relative;
     overflow: hidden;
-    border-radius: var(--radius-lg);
+    border-radius: var(--radius-md);
     background: hsl(var(--surface-elevated));
     border: 1px solid hsl(var(--border-primary));
     box-shadow: var(--shadow-card);
@@ -342,23 +308,6 @@
     .section-card { padding: 1.5rem; }
   }
 
-  .live-card {
-    border-color: hsl(var(--accent) / 0.3);
-  }
-
-  /* ─── Glass panels (simplified) ─── */
-  .glass-panel {
-    background: hsl(var(--surface-elevated));
-    border: 1px solid hsl(var(--border-primary));
-    box-shadow: var(--shadow-card);
-  }
-
-  .glass-nav {
-    background: var(--nav-bg);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-  }
-
   /* ─── BUTTONS ─── */
   .btn-primary, .btn-secondary, .btn-ghost, .btn-danger, .btn-success {
     position: relative;
@@ -375,7 +324,7 @@
   .btn-primary {
     color: #FFFFFF;
     background: hsl(var(--accent));
-    box-shadow: 0 1px 3px hsl(var(--accent) / 0.2);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   }
   .btn-primary:hover:not(:disabled) {
     opacity: 0.92;
@@ -537,14 +486,6 @@
     border-radius: var(--radius-lg);
     background: hsl(var(--surface-elevated));
     border: 1px solid hsl(var(--border-primary));
-  }
-
-  /* ─── STORY PILLS ─── */
-  .story-pill {
-    @apply inline-flex items-center gap-3 rounded-pill px-4 py-3;
-    background: hsl(var(--surface-elevated));
-    border: 1px solid hsl(var(--border-primary));
-    min-width: 168px;
   }
 
   /* ─── FEED GRID ─── */

@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { DM_Sans, Fraunces, JetBrains_Mono } from "next/font/google";
+import { DM_Sans, JetBrains_Mono } from "next/font/google";
 import { SessionProvider } from "next-auth/react";
 import { ToastProvider } from "@/components/ui/Toast";
 import { ThemeProvider } from "@/components/ThemeProvider";
@@ -9,12 +9,6 @@ const bodyFont = DM_Sans({
   subsets: ["latin"],
   display: "swap",
   variable: "--font-body",
-});
-
-const displayFont = Fraunces({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-display",
 });
 
 const monoFont = JetBrains_Mono({
@@ -53,13 +47,13 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${bodyFont.variable} ${displayFont.variable} ${monoFont.variable}`}
+      className={`${bodyFont.variable} ${monoFont.variable}`}
     >
       <head>
         <link rel="apple-touch-icon" href="/icon-192.png" />
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var root=document.documentElement;var t=localStorage.getItem('edlog-theme');var intensity=localStorage.getItem('edlog-dynamic-intensity')==='calm'?'calm':'vibrant';root.dataset.intensity=intensity;if(t==='dark'||t==='night'){root.classList.add('dark')}else if(t==='light'){root.classList.add('light')}else if(window.matchMedia('(prefers-color-scheme:dark)').matches){root.classList.add('dark')}else{root.classList.add('light')}}catch(e){}})()`,
+            __html: `(function(){try{var root=document.documentElement;var t=localStorage.getItem('edlog-theme');if(t==='dark'||t==='night'){root.classList.add('dark')}else if(t==='light'){root.classList.add('light')}else if(window.matchMedia('(prefers-color-scheme:dark)').matches){root.classList.add('dark')}else{root.classList.add('light')}}catch(e){}})()`,
           }}
         />
       </head>

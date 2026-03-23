@@ -25,14 +25,14 @@ function SuccessOverlay({
 
   return (
     <div
-      className="fixed inset-0 z-[200] flex items-center justify-center bg-[var(--bg-primary)]"
+      className="fixed inset-0 z-[200] flex items-center justify-center bg-[hsl(var(--surface-canvas))]"
       onClick={onDismiss}
     >
       <div className="text-center px-6 animate-scale-in">
-        <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-5 animate-spring-bounce" style={{ backgroundColor: "var(--success-light)" }}>
+        <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-5 animate-fade-in" style={{ backgroundColor: "var(--success-light)" }}>
           <CheckCircle className="w-10 h-10" style={{ color: "var(--success)" }} />
         </div>
-        <h2 className="text-2xl font-bold font-display text-[var(--text-primary)]">
+        <h2 className="text-2xl font-bold text-[var(--text-primary)]">
           {title}
         </h2>
         {subtitle && (

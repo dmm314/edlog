@@ -268,7 +268,7 @@ export default function CoordinatorDashboardPage() {
                 <span className="role-dot role-dot-coordinator" />
                 <p className="text-xs font-medium text-content-tertiary">{coordinator.title}</p>
               </div>
-              <h1 className="font-display text-xl font-bold tracking-tight text-content-primary">
+              <h1 className="text-xl font-bold tracking-tight text-content-primary">
                 {coordinator.schoolName || "Coordinator Portal"}
               </h1>
               <p className="text-xs text-content-tertiary mt-0.5">
@@ -301,13 +301,13 @@ export default function CoordinatorDashboardPage() {
         {/* Mode switch banner for dual-role users */}
         {hasTeachingAssignments && (
           <div data-tour="coordinator-mode-switch" className="flex items-center gap-3 px-3 py-2.5 rounded-xl animate-fade-in"
-            style={{ background: "var(--bg-elevated)", border: "1px solid var(--border-primary)" }}>
+            style={{ background: "hsl(var(--surface-elevated))", border: "1px solid var(--border-primary)" }}>
             <p className="flex-1 text-xs font-medium" style={{ color: "var(--text-tertiary)" }}>
               You&apos;re in Coordinator mode
             </p>
             <button onClick={() => switchMode("teacher")}
               className="text-xs font-bold px-3 py-1.5 rounded-lg transition-all active:scale-95"
-              style={{ background: "var(--bg-tertiary)", color: "var(--text-secondary)" }}>
+              style={{ background: "hsl(var(--surface-tertiary))", color: "var(--text-secondary)" }}>
               Teacher mode →
             </button>
           </div>
@@ -316,7 +316,7 @@ export default function CoordinatorDashboardPage() {
         {/* ── TODAY'S SCHEDULE ── always visible on weekdays when slots exist */}
         {todaySlots.length > 0 && (
           <div className="animate-slide-up animation-delay-100 rounded-2xl overflow-hidden border"
-            style={{ background: "var(--bg-elevated)", borderColor: liveCount > 0 ? "hsl(var(--success) / 0.35)" : "var(--border-primary)" }}>
+            style={{ background: "hsl(var(--surface-elevated))", borderColor: liveCount > 0 ? "hsl(var(--success) / 0.35)" : "var(--border-primary)" }}>
             {/* Header */}
             <div className="px-4 pt-3.5 pb-2.5 flex items-center gap-2"
               style={{ borderBottom: `1px solid ${liveCount > 0 ? "hsl(var(--success) / 0.2)" : "var(--border-secondary)"}` }}>
@@ -351,7 +351,7 @@ export default function CoordinatorDashboardPage() {
                         className="w-8 h-8 rounded-xl object-cover flex-shrink-0" />
                     ) : (
                       <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 text-[10px] font-black"
-                        style={{ background: isLive ? "hsl(var(--success))" : isDone ? "var(--bg-tertiary)" : "var(--accent)", color: isDone ? "var(--text-tertiary)" : "white" }}>
+                        style={{ background: isLive ? "hsl(var(--success))" : isDone ? "hsl(var(--surface-tertiary))" : "var(--accent)", color: isDone ? "var(--text-tertiary)" : "white" }}>
                         <span>
                           {slot.teacher.split(" ").map((n) => n[0]).slice(0, 2).join("")}
                         </span>
@@ -478,7 +478,7 @@ export default function CoordinatorDashboardPage() {
         {/* ── TEACHER ACTIVITY ── */}
         {topTeachers.length > 0 && (
           <div className="animate-slide-up animation-delay-225 border"
-            style={{ background: "var(--bg-elevated)", borderColor: "var(--border-primary)", borderRadius: "20px", padding: "18px" }}>
+            style={{ background: "hsl(var(--surface-elevated))", borderColor: "var(--border-primary)", borderRadius: "20px", padding: "18px" }}>
             <div className="flex items-center justify-between mb-4">
               <h3 style={{ fontSize: "14px", fontWeight: 700, color: "var(--text-primary)" }}>
                 Teacher Activity
@@ -507,7 +507,7 @@ export default function CoordinatorDashboardPage() {
         {/* ── PENDING VERIFICATION ── */}
         {pendingEntries.length > 0 && (
           <div data-tour="coordinator-pending" className="animate-slide-up animation-delay-300 border"
-            style={{ background: "var(--bg-elevated)", borderColor: "var(--border-primary)", borderRadius: "20px", padding: "18px" }}>
+            style={{ background: "hsl(var(--surface-elevated))", borderColor: "var(--border-primary)", borderRadius: "20px", padding: "18px" }}>
             <div className="flex items-center justify-between mb-3">
               <h3 style={{ fontSize: "14px", fontWeight: 700, color: "var(--text-primary)" }}>
                 Pending Verification

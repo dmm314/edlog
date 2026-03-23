@@ -211,8 +211,8 @@ export default function EntryDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
-        <div className="bg-gradient-to-br from-[var(--header-from)] via-[var(--header-via)] to-[var(--header-to)] px-5 pt-10 pb-8 rounded-b-[2rem]">
+      <div className="min-h-screen pb-24" style={{ backgroundColor: "hsl(var(--surface-secondary))" }}>
+        <div className="bg-gradient-to-br from-[hsl(var(--accent))] via-[hsl(var(--accent))] to-[hsl(var(--accent-strong))] px-5 pt-10 pb-8 rounded-b-[2rem]">
           <div className="max-w-lg mx-auto">
             <div className="h-4 w-24 bg-white/15 rounded mb-4 animate-pulse" />
             <div className="h-6 w-48 bg-white/15 rounded mb-2 animate-pulse" />
@@ -233,7 +233,7 @@ export default function EntryDetailPage() {
 
   if (error || !entry) {
     return (
-      <div className="min-h-screen flex items-center justify-center pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
+      <div className="min-h-screen flex items-center justify-center pb-24" style={{ backgroundColor: "hsl(var(--surface-secondary))" }}>
         <div className="text-center">
           <BookOpen className="w-12 h-12 text-[var(--text-quaternary)] mx-auto mb-3" />
           <p className="text-[var(--text-secondary)] font-semibold">{error || "Entry not found"}</p>
@@ -273,7 +273,7 @@ export default function EntryDetailPage() {
         );
       case "DRAFT":
         return (
-          <span className="text-[10px] font-bold bg-[var(--bg-tertiary)] text-[var(--text-tertiary)] px-2 py-0.5 rounded-full border border-[var(--border-secondary)]">
+          <span className="text-[10px] font-bold bg-[hsl(var(--surface-tertiary))] text-[var(--text-tertiary)] px-2 py-0.5 rounded-full border border-[var(--border-secondary)]">
             Draft
           </span>
         );
@@ -286,13 +286,13 @@ export default function EntryDetailPage() {
           );
         }
         return (
-          <span className="text-[10px] font-bold bg-[var(--bg-tertiary)] text-[var(--text-tertiary)] px-2 py-0.5 rounded-full border border-[var(--border-secondary)]">
+          <span className="text-[10px] font-bold bg-[hsl(var(--surface-tertiary))] text-[var(--text-tertiary)] px-2 py-0.5 rounded-full border border-[var(--border-secondary)]">
             Pending
           </span>
         );
       default:
         return (
-          <span className="text-[10px] font-bold bg-[var(--bg-tertiary)] text-[var(--text-tertiary)] px-2 py-0.5 rounded-full border border-[var(--border-secondary)]">
+          <span className="text-[10px] font-bold bg-[hsl(var(--surface-tertiary))] text-[var(--text-tertiary)] px-2 py-0.5 rounded-full border border-[var(--border-secondary)]">
             Pending
           </span>
         );
@@ -300,9 +300,9 @@ export default function EntryDetailPage() {
   }
 
   return (
-    <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
+    <div className="min-h-screen pb-24" style={{ backgroundColor: "hsl(var(--surface-secondary))" }}>
       {/* Header */}
-      <div className="bg-gradient-to-br from-[var(--header-from)] via-[var(--header-via)] to-[var(--header-to)] px-5 pt-10 pb-8 rounded-b-[2rem] shadow-elevated relative overflow-hidden">
+      <div className="bg-gradient-to-br from-[hsl(var(--accent))] via-[hsl(var(--accent))] to-[hsl(var(--accent-strong))] px-5 pt-10 pb-8 rounded-b-[2rem] shadow-elevated relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[hsl(var(--accent)/0.08)] via-transparent to-transparent" />
         <div className="max-w-lg mx-auto relative">
           <Link
@@ -402,7 +402,7 @@ export default function EntryDetailPage() {
           {/* Module */}
           {(entry.moduleName || entry.topics?.some((t) => t.moduleName)) && (
             <div className="flex items-start gap-3">
-              <div className="w-7 h-7 bg-[var(--bg-tertiary)] rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+              <div className="w-7 h-7 bg-[hsl(var(--surface-tertiary))] rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
                 <GraduationCap className="w-3.5 h-3.5 text-[var(--text-tertiary)]" />
               </div>
               <div>
@@ -416,7 +416,7 @@ export default function EntryDetailPage() {
 
           {/* Duration & Timetable */}
           <div className="flex items-start gap-3">
-            <div className="w-7 h-7 bg-[var(--bg-tertiary)] rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+            <div className="w-7 h-7 bg-[hsl(var(--surface-tertiary))] rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
               <Clock className="w-3.5 h-3.5 text-[var(--text-tertiary)]" />
             </div>
             <div>
@@ -435,7 +435,7 @@ export default function EntryDetailPage() {
           {/* Notes */}
           {entry.notes && (
             <div className="flex items-start gap-3">
-              <div className="w-7 h-7 bg-[var(--bg-tertiary)] rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+              <div className="w-7 h-7 bg-[hsl(var(--surface-tertiary))] rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
                 <FileText className="w-3.5 h-3.5 text-[var(--text-tertiary)]" />
               </div>
               <div>
@@ -448,7 +448,7 @@ export default function EntryDetailPage() {
           {/* Objectives */}
           {entry.objectives && (
             <div className="flex items-start gap-3">
-              <div className="w-7 h-7 bg-[var(--bg-tertiary)] rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+              <div className="w-7 h-7 bg-[hsl(var(--surface-tertiary))] rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
                 <PenTool className="w-3.5 h-3.5 text-[var(--text-tertiary)]" />
               </div>
               <div>
@@ -462,7 +462,7 @@ export default function EntryDetailPage() {
           {(entry.studentAttendance !== null || entry.engagementLevel) && (
             <div className="flex gap-3">
               {entry.studentAttendance !== null && (
-                <div className="flex-1 bg-[var(--bg-tertiary)] rounded-xl p-3 border border-[var(--border-secondary)]">
+                <div className="flex-1 bg-[hsl(var(--surface-tertiary))] rounded-xl p-3 border border-[var(--border-secondary)]">
                   <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-tertiary)]">Attendance</p>
                   <p className="text-sm font-bold text-[var(--text-secondary)] mt-0.5">
                     <Users className="w-3.5 h-3.5 inline mr-1 text-[var(--text-tertiary)]" />
@@ -471,7 +471,7 @@ export default function EntryDetailPage() {
                 </div>
               )}
               {entry.engagementLevel && (
-                <div className="flex-1 bg-[var(--bg-tertiary)] rounded-xl p-3 border border-[var(--border-secondary)]">
+                <div className="flex-1 bg-[hsl(var(--surface-tertiary))] rounded-xl p-3 border border-[var(--border-secondary)]">
                   <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-tertiary)]">Engagement</p>
                   <p className={`text-sm font-bold mt-0.5 ${
                     entry.engagementLevel === "HIGH" ? "text-[hsl(var(--success))]" :
@@ -493,7 +493,7 @@ export default function EntryDetailPage() {
               Remarks
             </h3>
             {remarks.length > 0 && (
-              <span className="text-[10px] font-bold bg-[var(--bg-tertiary)] text-[var(--text-tertiary)] px-1.5 py-0.5 rounded-full">
+              <span className="text-[10px] font-bold bg-[hsl(var(--surface-tertiary))] text-[var(--text-tertiary)] px-1.5 py-0.5 rounded-full">
                 {remarks.length}
               </span>
             )}
@@ -540,7 +540,7 @@ export default function EntryDetailPage() {
 
           {/* Add remark input */}
           {canRemark && (
-            <div className="px-4 py-3 border-t border-[var(--border-secondary)] bg-[var(--bg-tertiary)]">
+            <div className="px-4 py-3 border-t border-[var(--border-secondary)] bg-[hsl(var(--surface-tertiary))]">
               {remarkError && (
                 <p className="text-xs text-[hsl(var(--danger))] mb-2">{remarkError}</p>
               )}
@@ -551,7 +551,7 @@ export default function EntryDetailPage() {
                   placeholder="Add a remark..."
                   maxLength={1000}
                   rows={2}
-                  className="flex-1 bg-[var(--bg-elevated)] border border-[var(--border-primary)] rounded-xl px-3 py-2 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-quaternary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-transparent resize-none"
+                  className="flex-1 bg-[hsl(var(--surface-elevated))] border border-[var(--border-primary)] rounded-xl px-3 py-2 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-quaternary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-transparent resize-none"
                 />
                 <button
                   onClick={sendRemark}
