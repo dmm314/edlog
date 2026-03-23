@@ -56,6 +56,11 @@ enum TeacherSchoolStatus {
   REMOVED
 }
 
+enum Language {
+  EN
+  FR
+}
+
 // ── USERS & AUTH ─────────────────────────────────────────
 
 model User {
@@ -73,6 +78,12 @@ model User {
   photoUrl     String?
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
+
+  // Enhanced profile fields (v2.0)
+  qualifications    String[]          // e.g., ['DIPES I', 'BSc Physics']
+  yearsOfExperience Int?
+  matricule         String?           // Government employee ID
+  preferredLanguage Language @default(EN) // For bilingual support
 
   // School relationship (primary school, for TEACHER and SCHOOL_ADMIN)
   school        School?        @relation("SchoolTeachers", fields: [schoolId], references: [id])
@@ -107,6 +118,9 @@ model User {
 
   // Entry views (seen tracking)
   entryViews EntryView[]
+
+  // Audit trail
+  auditLogs AuditLog[]
 
   @@index([schoolId, role])
 }
@@ -203,6 +217,8 @@ model School {
   hods             HeadOfDepartment[]
   assessments      Assessment[]
   levelCoordinators LevelCoordinator[]
+  academicYears    AcademicYear[]
+  entries          LogbookEntry[]      @relation("SchoolEntries")
 }
 
 // ── PERIOD SCHEDULE (school-wide bell times) ─────────────
@@ -374,6 +390,7 @@ model TeacherAssignment {
   @@index([teacherId])
   @@index([schoolId])
   @@index([teacherId, schoolId])
+  @@index([schoolId, classId])
 }
 
 model TimetableSlot {
@@ -412,11 +429,27 @@ model LogbookEntry {
   createdAt         DateTime         @default(now())
   updatedAt         DateTime         @updatedAt
 
+  // Academic year & term scoping (v2.0)
+  academicYearId    String?
+  academicYear      AcademicYear?    @relation(fields: [academicYearId], references: [id])
+  termId            String?
+  term              Term?            @relation(fields: [termId], references: [id])
+  weekNumber        Int?             // 1-indexed within term, for weekly reports
+
+  // Class did not hold (v2.0)
+  classDidNotHold       Boolean      @default(false)
+  classDidNotHoldReason String?      // Required when classDidNotHold is true
+
+  // Offline support tracking (v2.0)
+  offlineCreatedAt  DateTime?        // When entry was created offline, null if created online
+
   // Relations
   teacherId       String
   teacher         User              @relation(fields: [teacherId], references: [id])
   classId         String
   class           Class             @relation(fields: [classId], references: [id])
+  schoolId        String?
+  school          School?           @relation("SchoolEntries", fields: [schoolId], references: [id])
   assignmentId    String?
   assignment      TeacherAssignment? @relation(fields: [assignmentId], references: [id])
   timetableSlotId String?
@@ -457,6 +490,78 @@ model LogbookEntry {
 
   @@index([teacherId, date])
   @@index([classId, date])
+  @@index([schoolId, date, status])
+  @@index([teacherId, academicYearId, termId])
+}
+
+// ── ACADEMIC YEAR & TERMS ────────────────────────────────
+
+model AcademicYear {
+  id        String   @id @default(cuid())
+  name      String   // e.g., '2025/2026'
+  startDate DateTime
+  endDate   DateTime
+  isActive  Boolean  @default(false)
+  schoolId  String
+  school    School   @relation(fields: [schoolId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  terms   Term[]
+  entries LogbookEntry[]
+  assessments Assessment[]
+
+  @@unique([schoolId, name])
+  @@index([schoolId, isActive])
+}
+
+model Term {
+  id             String       @id @default(cuid())
+  academicYearId String
+  academicYear   AcademicYear @relation(fields: [academicYearId], references: [id])
+  name           String       // 'First Term', 'Second Term', 'Third Term'
+  number         Int          // 1, 2, or 3
+  startDate      DateTime
+  endDate        DateTime
+  createdAt      DateTime     @default(now())
+
+  entries LogbookEntry[]
+
+  @@unique([academicYearId, number])
+  @@index([academicYearId])
+}
+
+// ── AUDIT LOG ────────────────────────────────────────────
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  entityType String   // 'LogbookEntry', 'Assessment', 'User', etc.
+  entityId   String
+  action     String   // 'CREATED', 'VERIFIED', 'FLAGGED', 'EDITED', 'DELETED', 'STATUS_CHANGED'
+  actorId    String
+  actor      User     @relation(fields: [actorId], references: [id])
+  actorRole  String   // Role at time of action
+  metadata   Json?    // Additional context (e.g., { previousStatus, newStatus })
+  createdAt  DateTime @default(now())
+
+  @@index([entityType, entityId])
+  @@index([actorId])
+  @@index([createdAt])
+}
+
+// ── DRAFT ENTRIES ────────────────────────────────────────
+
+model DraftEntry {
+  id          String   @id @default(cuid())
+  teacherId   String
+  formData    Json     // Partial form state as JSON blob
+  slotId      String?  // Optional timetable slot reference
+  lastSavedAt DateTime @default(now())
+  expiresAt   DateTime // Auto-cleanup stale drafts
+  createdAt   DateTime @default(now())
+
+  @@index([teacherId])
+  @@index([expiresAt])
 }
 
 // ── ASSESSMENTS ─────────────────────────────────────────
@@ -473,6 +578,10 @@ model Assessment {
   school        School   @relation(fields: [schoolId], references: [id])
 
   assignmentId  String?
+
+  // Academic year scoping (v2.0)
+  academicYearId String?
+  academicYear   AcademicYear? @relation(fields: [academicYearId], references: [id])
 
   title         String            // "First Sequence Test", "Mock Exam", "Class Test 3"
   type          String            // "sequence_test", "class_test", "assignment", "mock_exam", "exam"
@@ -511,6 +620,7 @@ model Assessment {
   @@index([teacherId, classId])
   @@index([schoolId, date])
   @@index([classId, subjectId])
+  @@index([schoolId, academicYearId, type])
 }
 
 // ── NOTIFICATIONS ────────────────────────────────────────

@@ -2,6 +2,7 @@ export type Role = "TEACHER" | "SCHOOL_ADMIN" | "REGIONAL_ADMIN";
 export type EntryStatus = "DRAFT" | "SUBMITTED" | "VERIFIED" | "FLAGGED";
 export type EngagementLevel = "LOW" | "MEDIUM" | "HIGH";
 export type SchoolStatus = "PENDING" | "ACTIVE" | "SUSPENDED";
+export type Language = "EN" | "FR";
 
 export interface SessionUser {
   id: string;
@@ -168,4 +169,90 @@ export interface RegionalStats {
     entryCount: number;
     complianceRate: number;
   }[];
+}
+
+// ── v2.0 Types ───────────────────────────────────────────
+
+export interface AcademicYearData {
+  id: string;
+  name: string;
+  startDate: string;
+  endDate: string;
+  isActive: boolean;
+  terms: TermData[];
+}
+
+export interface TermData {
+  id: string;
+  name: string;
+  number: number;
+  startDate: string;
+  endDate: string;
+}
+
+export interface AuditLogEntry {
+  id: string;
+  entityType: string;
+  entityId: string;
+  action: string;
+  actorId: string;
+  actorRole: string;
+  metadata: Record<string, unknown> | null;
+  createdAt: string;
+  actor?: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    role: string;
+  };
+}
+
+export interface DraftEntryData {
+  id: string;
+  teacherId: string;
+  formData: Record<string, unknown>;
+  slotId: string | null;
+  lastSavedAt: string;
+  expiresAt: string;
+}
+
+/** Standardized API response for success */
+export interface ApiResponse<T> {
+  data: T;
+  meta?: {
+    total: number;
+    page: number;
+    pageSize: number;
+  };
+}
+
+/** Standardized API response for errors */
+export interface ApiError {
+  error: string;
+  code: string;
+  details?: Record<string, string[]>;
+}
+
+/** Teacher's timetable slot with entry status */
+export interface SlotWithStatus {
+  id: string;
+  dayOfWeek: number;
+  startTime: string;
+  endTime: string;
+  periodLabel: string;
+  assignment: {
+    id: string;
+    subject: { id: string; name: string; code: string };
+    class: { id: string; name: string; abbreviation: string | null; level: string };
+  };
+  status: "logged" | "current" | "upcoming" | "missed";
+  entryId?: string;
+}
+
+/** Compliance calculation result */
+export interface ComplianceData {
+  entriesSubmitted: number;
+  expectedEntries: number;
+  rate: number; // 0-100
+  period: "week" | "term" | "year";
 }
