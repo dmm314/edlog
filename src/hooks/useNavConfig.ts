@@ -4,7 +4,6 @@ import { usePathname } from "next/navigation";
 import {
   Home,
   Plus,
-  Clock,
   User,
   Shield,
   Globe,
