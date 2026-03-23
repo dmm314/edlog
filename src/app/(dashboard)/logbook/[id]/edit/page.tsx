@@ -147,7 +147,7 @@ export default function EditEntryPage() {
     return (
       <div className="min-h-screen pb-24" style={{ backgroundColor: "hsl(var(--surface-secondary))" }}>
         <div className="bg-gradient-to-br from-[hsl(var(--accent))] to-[hsl(var(--accent-strong))] px-5 pt-10 pb-6 rounded-b-2xl">
-          <div className="max-w-lg mx-auto">
+          <div className="page-shell">
             <Link
               href="/logbook"
               className="inline-flex items-center gap-1 text-white/70 hover:text-white text-sm mb-3"
@@ -158,7 +158,7 @@ export default function EditEntryPage() {
             <h1 className="text-xl font-bold text-white">Edit Entry</h1>
           </div>
         </div>
-        <div className="px-5 mt-4 max-w-lg mx-auto">
+        <div className="page-shell px-5 mt-4">
           <div className="bg-[hsl(var(--danger)/0.1)] border border-[hsl(var(--danger)/0.2)] text-[hsl(var(--danger))] text-sm rounded-xl px-4 py-3">
             {error || "Entry not found"}
           </div>
@@ -177,7 +177,7 @@ export default function EditEntryPage() {
     <div className="min-h-screen pb-24" style={{ backgroundColor: "hsl(var(--surface-secondary))" }}>
       {/* Header */}
       <div className="bg-gradient-to-br from-[hsl(var(--accent))] to-[hsl(var(--accent-strong))] px-5 pt-10 pb-6 rounded-b-2xl">
-        <div className="max-w-lg mx-auto">
+        <div className="page-shell">
           <Link
             href="/logbook"
             className="inline-flex items-center gap-1 text-white/70 hover:text-white text-sm mb-3"
@@ -197,7 +197,7 @@ export default function EditEntryPage() {
         </div>
       </div>
 
-      <div className="px-5 mt-4 max-w-lg mx-auto space-y-4">
+      <div className="page-shell px-5 mt-4 space-y-4">
         {/* Success message */}
         {success && (
           <div className="bg-[hsl(var(--success)/0.1)] border border-[hsl(var(--success)/0.2)] text-[hsl(var(--success))] text-sm rounded-xl px-4 py-3 flex items-center gap-2">

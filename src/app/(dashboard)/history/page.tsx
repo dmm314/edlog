@@ -303,7 +303,7 @@ export default function HistoryPage() {
     return (
       <div className="min-h-screen pb-24" style={{ backgroundColor: "hsl(var(--surface-secondary))" }}>
         <div className="page-header px-5 pt-10 pb-8 rounded-b-3xl">
-          <div className="max-w-lg mx-auto">
+          <div className="page-shell">
             <div className="flex items-center gap-3 mb-1">
               <FolderOpen className="w-6 h-6 text-white" />
               <h1 className="text-xl font-bold text-white">My Entries</h1>
@@ -312,7 +312,7 @@ export default function HistoryPage() {
           </div>
         </div>
 
-        <div className="px-5 mt-5 max-w-lg mx-auto">
+        <div className="px-5 mt-5 page-shell">
           {loading ? (
             <div className="space-y-3">
               {[1, 2, 3].map((i) => (
@@ -370,7 +370,7 @@ export default function HistoryPage() {
     return (
       <div className="min-h-screen pb-24" style={{ backgroundColor: "hsl(var(--surface-secondary))" }}>
         <div className="page-header px-5 pt-10 pb-8 rounded-b-3xl">
-          <div className="max-w-lg mx-auto">
+          <div className="page-shell">
             <button onClick={goBack} className="flex items-center gap-1.5 text-white/70 hover:text-white text-sm mb-3 transition-colors">
               <ArrowLeft className="w-4 h-4" />
               Back to Levels
@@ -380,7 +380,7 @@ export default function HistoryPage() {
           </div>
         </div>
 
-        <div className="px-5 mt-5 max-w-lg mx-auto">
+        <div className="px-5 mt-5 page-shell">
           {classesForLevel.length === 0 ? (
             <div className="text-center py-12">
               <p className="text-[var(--text-tertiary)]">No classes found</p>
@@ -426,7 +426,7 @@ export default function HistoryPage() {
     <div className="min-h-screen pb-24" style={{ backgroundColor: "hsl(var(--surface-secondary))" }}>
       {/* Header */}
       <div className="page-header px-5 pt-10 pb-5 rounded-b-3xl">
-        <div className="max-w-lg mx-auto">
+        <div className="page-shell">
           <button onClick={goBack} className="flex items-center gap-1.5 text-white/70 hover:text-white text-sm mb-3 transition-colors">
             <ArrowLeft className="w-4 h-4" />
             Back to {selectedLevel}
@@ -439,7 +439,7 @@ export default function HistoryPage() {
       </div>
 
       {/* Week Navigation */}
-      <div className="px-5 mt-4 max-w-lg mx-auto">
+      <div className="px-5 mt-4 page-shell">
         <div className="card p-3 flex items-center justify-between">
           <button onClick={goToPrevWeek} className="p-2 rounded-lg hover:bg-[hsl(var(--surface-tertiary))] transition-colors">
             <ChevronLeft className="w-5 h-5 text-[var(--text-secondary)]" />
@@ -462,7 +462,7 @@ export default function HistoryPage() {
       </div>
 
       {/* Timetable Grid */}
-      <div className="px-5 mt-4 max-w-lg mx-auto">
+      <div className="px-5 mt-4 page-shell">
         {loadingTimetable ? (
           <div className="card p-4">
             <div className="space-y-3">

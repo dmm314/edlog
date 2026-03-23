@@ -118,7 +118,7 @@ export default function NotificationsPage() {
     <div className="min-h-screen pb-24" style={{ backgroundColor: "hsl(var(--surface-secondary))" }}>
       {/* Header */}
       <div className="bg-gradient-to-br from-[hsl(var(--accent))] via-[hsl(var(--accent))] to-[hsl(var(--accent-strong))] px-5 pt-10 pb-6 rounded-b-2xl">
-        <div className="max-w-lg mx-auto">
+        <div className="page-shell">
           <div className="flex items-center justify-between mb-3">
             <button
               onClick={() => history.back()}
@@ -145,7 +145,7 @@ export default function NotificationsPage() {
         </div>
       </div>
 
-      <div className="px-5 mt-4 max-w-lg mx-auto">
+      <div className="page-shell px-5 mt-4">
         {/* View Announcements link */}
         <Link
           href="/messages"

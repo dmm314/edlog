@@ -215,7 +215,7 @@ export default function NewAssessmentPage() {
   }
 
   return (
-    <div className="desktop-content-form" style={{ paddingBottom: 100 }}>
+    <div className="page-shell desktop-content-form" style={{ paddingBottom: 100 }}>
       {/* Header */}
       <div
         className="flex items-center gap-3"

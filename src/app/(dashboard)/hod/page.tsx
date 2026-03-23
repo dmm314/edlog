@@ -197,12 +197,12 @@ export default function HODDashboard() {
     return (
       <div className="min-h-screen pb-24" style={{ backgroundColor: "hsl(var(--surface-secondary))" }}>
         <div className="bg-gradient-to-br from-[hsl(var(--accent))] via-[hsl(var(--accent))] to-[hsl(var(--accent-strong))] px-5 pt-10 pb-8 rounded-b-[2rem]">
-          <div className="max-w-lg mx-auto">
+          <div className="page-shell">
             <div className="h-6 w-40 bg-[hsl(var(--surface-elevated))]/15 rounded mb-2 animate-pulse" />
             <div className="h-4 w-28 bg-[hsl(var(--surface-elevated))]/10 rounded animate-pulse" />
           </div>
         </div>
-        <div className="px-5 mt-4 max-w-lg mx-auto space-y-3">
+        <div className="page-shell px-5 mt-4 space-y-3">
           {[1, 2, 3].map((i) => (
             <div key={i} className="card p-5 animate-pulse">
               <div className="h-10 bg-[var(--skeleton-base)] rounded mb-3" />
@@ -243,7 +243,7 @@ export default function HODDashboard() {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[hsl(var(--accent-strong)/0.2)] via-transparent to-transparent" />
         <div className="absolute top-0 right-0 w-64 h-64 bg-[hsl(var(--accent-soft))]0/[0.07] rounded-full -translate-y-1/3 translate-x-1/4 blur-3xl" />
 
-        <div className="max-w-lg mx-auto relative">
+        <div className="page-shell relative">
           <Link
             href="/logbook"
             className="inline-flex items-center gap-1.5 text-white/70 hover:text-white text-sm mb-4 transition-colors"
@@ -278,7 +278,7 @@ export default function HODDashboard() {
         </div>
       </div>
 
-      <div className="px-5 mt-4 max-w-lg mx-auto space-y-4">
+      <div className="page-shell px-5 mt-4 space-y-4">
         {/* Stats grid */}
         <div className="grid grid-cols-2 gap-3">
           <div className="card p-4">

@@ -156,7 +156,7 @@ function SkeletonBanner() {
   return (
     <div className="animate-pulse">
       <div className="w-full" style={{ height: 140, backgroundColor: "hsl(var(--surface-tertiary))" }} />
-      <div className="max-w-lg mx-auto px-5 -mt-11 flex flex-col items-center">
+      <div className="page-shell px-5 -mt-11 flex flex-col items-center">
         <div className="w-[88px] h-[88px] rounded-full" style={{ backgroundColor: "var(--skeleton-base)", border: "4px solid hsl(var(--surface-canvas))" }} />
         <div className="h-5 rounded w-40 mt-3" style={{ backgroundColor: "var(--skeleton-base)" }} />
         <div className="h-3 rounded w-48 mt-2" style={{ backgroundColor: "var(--skeleton-base)" }} />
@@ -559,7 +559,7 @@ export default function ProfilePage() {
           </div>
 
           {/* Avatar + identity block */}
-          <div className="max-w-lg mx-auto px-5 -mt-11 flex flex-col items-center">
+          <div className="page-shell px-5 -mt-11 flex flex-col items-center">
             <div className="relative">
               {profile?.photoUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -628,7 +628,7 @@ export default function ProfilePage() {
       )}
 
       {/* ══ CONTENT ══ */}
-      <div className="px-4 mt-5 max-w-lg mx-auto flex flex-col gap-2.5">
+      <div className="px-4 mt-5 page-shell flex flex-col gap-2.5">
 
         {/* ── Mode switcher (dual-role teachers) ── */}
         {isCoordinator && hasTeachingAssignments && !loading && (

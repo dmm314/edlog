@@ -101,7 +101,7 @@ export default function TeacherDetailPage() {
       <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100/50 pb-24">
         <div className="bg-gradient-to-br from-[hsl(var(--accent))] via-[hsl(var(--accent))] to-[hsl(var(--accent-strong))] px-5 pt-10 pb-16 rounded-b-[2rem] shadow-elevated relative overflow-hidden">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[hsl(var(--accent)/0.08)] via-transparent to-transparent" />
-          <div className="max-w-lg mx-auto relative">
+          <div className="page-shell relative">
             <div className="skeleton h-4 w-28 !bg-[hsl(var(--surface-elevated))]/10 mb-4" />
             <div className="flex items-center gap-4">
               <div className="skeleton w-16 h-16 rounded-2xl !bg-[hsl(var(--surface-elevated))]/10" />
@@ -112,7 +112,7 @@ export default function TeacherDetailPage() {
             </div>
           </div>
         </div>
-        <div className="px-5 -mt-6 max-w-lg mx-auto space-y-3">
+        <div className="page-shell px-5 -mt-6 space-y-3">
           {[1, 2, 3].map((i) => (
             <div key={i} className="card p-5 animate-pulse">
               <div className="h-4 bg-[var(--skeleton-base)] rounded w-1/2 mb-2" />
@@ -129,7 +129,7 @@ export default function TeacherDetailPage() {
       <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100/50 pb-24">
         <div className="bg-gradient-to-br from-[hsl(var(--accent))] via-[hsl(var(--accent))] to-[hsl(var(--accent-strong))] px-5 pt-10 pb-8 rounded-b-[2rem] shadow-elevated relative overflow-hidden">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[hsl(var(--accent)/0.08)] via-transparent to-transparent" />
-          <div className="max-w-lg mx-auto relative">
+          <div className="page-shell relative">
             <Link
               href="/admin/teachers"
               className="inline-flex items-center gap-1.5 text-white/70 hover:text-white text-sm mb-3 transition-colors"
@@ -155,7 +155,7 @@ export default function TeacherDetailPage() {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[hsl(var(--accent)/0.08)] via-transparent to-transparent" />
         <div className="absolute top-0 right-0 w-64 h-64 bg-[var(--accent)]/[0.07] rounded-full -translate-y-1/3 translate-x-1/4 blur-3xl" />
 
-        <div className="max-w-lg mx-auto relative">
+        <div className="page-shell relative">
           <Link
             href="/admin/teachers"
             className="inline-flex items-center gap-1.5 text-white/70 hover:text-white text-sm mb-5 transition-colors"
@@ -219,7 +219,7 @@ export default function TeacherDetailPage() {
         </div>
       </div>
 
-      <div className="px-5 -mt-6 max-w-lg mx-auto space-y-4">
+      <div className="page-shell px-5 -mt-6 space-y-4">
         {/* Stats row */}
         <div className="animate-slide-up grid grid-cols-3 gap-3">
           <div className="card p-3.5 text-center">
