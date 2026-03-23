@@ -11,7 +11,7 @@ export default function DivisionsRedirectPage() {
   }, [router]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: "var(--bg-secondary)" }}>
+    <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: "hsl(var(--surface-secondary))" }}>
       <p className="text-[var(--text-tertiary)] text-sm">
         Redirecting to Classes...
       </p>

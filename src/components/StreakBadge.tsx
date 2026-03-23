@@ -23,7 +23,7 @@ function StreakBadge({ days, className = "" }: StreakBadgeProps) {
       }}
     >
       <div
-        className="flex items-center justify-center text-white flex-shrink-0 animate-spring-bounce"
+        className="flex items-center justify-center text-white flex-shrink-0 animate-fade-in"
         style={{
           width: "36px",
           height: "36px",

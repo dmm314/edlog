@@ -195,11 +195,11 @@ export default function HODDashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
-        <div className="bg-gradient-to-br from-[var(--header-from)] via-[var(--header-via)] to-[var(--header-to)] px-5 pt-10 pb-8 rounded-b-[2rem]">
+      <div className="min-h-screen pb-24" style={{ backgroundColor: "hsl(var(--surface-secondary))" }}>
+        <div className="bg-gradient-to-br from-[hsl(var(--accent))] via-[hsl(var(--accent))] to-[hsl(var(--accent-strong))] px-5 pt-10 pb-8 rounded-b-[2rem]">
           <div className="max-w-lg mx-auto">
-            <div className="h-6 w-40 bg-[var(--bg-elevated)]/15 rounded mb-2 animate-pulse" />
-            <div className="h-4 w-28 bg-[var(--bg-elevated)]/10 rounded animate-pulse" />
+            <div className="h-6 w-40 bg-[hsl(var(--surface-elevated))]/15 rounded mb-2 animate-pulse" />
+            <div className="h-4 w-28 bg-[hsl(var(--surface-elevated))]/10 rounded animate-pulse" />
           </div>
         </div>
         <div className="px-5 mt-4 max-w-lg mx-auto space-y-3">
@@ -216,7 +216,7 @@ export default function HODDashboard() {
 
   if (!stats) {
     return (
-      <div className="min-h-screen flex items-center justify-center pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
+      <div className="min-h-screen flex items-center justify-center pb-24" style={{ backgroundColor: "hsl(var(--surface-secondary))" }}>
         <div className="text-center">
           <Crown className="w-12 h-12 text-[var(--text-quaternary)] mx-auto mb-3" />
           <p className="text-[var(--text-secondary)] font-semibold">
@@ -237,9 +237,9 @@ export default function HODDashboard() {
   }
 
   return (
-    <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
+    <div className="min-h-screen pb-24" style={{ backgroundColor: "hsl(var(--surface-secondary))" }}>
       {/* Header */}
-      <div className="bg-gradient-to-br from-[var(--header-from)] via-[var(--header-via)] to-[var(--header-to)] px-5 pt-10 pb-8 rounded-b-[2rem] shadow-elevated relative overflow-hidden">
+      <div className="bg-gradient-to-br from-[hsl(var(--accent))] via-[hsl(var(--accent))] to-[hsl(var(--accent-strong))] px-5 pt-10 pb-8 rounded-b-[2rem] shadow-elevated relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[hsl(var(--accent-strong)/0.2)] via-transparent to-transparent" />
         <div className="absolute top-0 right-0 w-64 h-64 bg-[hsl(var(--accent-soft))]0/[0.07] rounded-full -translate-y-1/3 translate-x-1/4 blur-3xl" />
 
@@ -264,7 +264,7 @@ export default function HODDashboard() {
             {stats.hodSubjects.map((s) => (
               <span
                 key={s.id}
-                className="text-[10px] font-bold bg-[var(--bg-elevated)]/10 text-white px-2.5 py-1 rounded-lg"
+                className="text-[10px] font-bold bg-[hsl(var(--surface-elevated))]/10 text-white px-2.5 py-1 rounded-lg"
               >
                 {s.name}
                 {s.divisions && s.divisions.length > 0 && (
@@ -354,7 +354,7 @@ export default function HODDashboard() {
         </Link>
 
         {/* Tab switcher */}
-        <div className="flex bg-[var(--bg-elevated)] rounded-xl border border-[var(--border-primary)] p-1">
+        <div className="flex bg-[hsl(var(--surface-elevated))] rounded-xl border border-[var(--border-primary)] p-1">
           <button
             onClick={() => setActiveTab("overview")}
             className={`flex-1 text-center text-sm font-semibold py-2.5 rounded-lg transition-all ${
@@ -391,7 +391,7 @@ export default function HODDashboard() {
                   <select
                     value={overviewClassFilter}
                     onChange={(e) => setOverviewClassFilter(e.target.value)}
-                    className="text-xs bg-[var(--bg-tertiary)] border border-[var(--border-primary)] rounded-lg px-2 py-1.5 text-[var(--text-secondary)] flex-1"
+                    className="text-xs bg-[hsl(var(--surface-tertiary))] border border-[var(--border-primary)] rounded-lg px-2 py-1.5 text-[var(--text-secondary)] flex-1"
                   >
                     <option value="">All classes</option>
                     {overviewClassOptions.map((c) => (
@@ -426,10 +426,10 @@ export default function HODDashboard() {
                             i === 0
                               ? "bg-[hsl(var(--accent-soft))] text-[hsl(var(--accent-text))]"
                               : i === 1
-                              ? "bg-[var(--bg-tertiary)] text-[var(--text-secondary)]"
+                              ? "bg-[hsl(var(--surface-tertiary))] text-[var(--text-secondary)]"
                               : i === 2
                               ? "bg-orange-100 text-orange-700"
-                              : "bg-[var(--bg-tertiary)] text-[var(--text-tertiary)]"
+                              : "bg-[hsl(var(--surface-tertiary))] text-[var(--text-tertiary)]"
                           }`}
                         >
                           {i + 1}
@@ -447,7 +447,7 @@ export default function HODDashboard() {
                         </span>
                       </div>
                     </div>
-                    <div className="h-1.5 bg-[var(--bg-tertiary)] rounded-full mt-2 ml-8 overflow-hidden">
+                    <div className="h-1.5 bg-[hsl(var(--surface-tertiary))] rounded-full mt-2 ml-8 overflow-hidden">
                       <div
                         className="h-full bg-gradient-to-r from-[hsl(var(--accent))] to-[hsl(var(--accent-glow))] rounded-full transition-all"
                         style={{ width: `${Math.max(pct, 3)}%` }}
@@ -458,7 +458,7 @@ export default function HODDashboard() {
                         {displayClasses.map((c, ci) => (
                           <span
                             key={ci}
-                            className="text-[9px] bg-[var(--bg-tertiary)] text-[var(--text-tertiary)] px-1.5 py-0.5 rounded font-medium"
+                            className="text-[9px] bg-[hsl(var(--surface-tertiary))] text-[var(--text-tertiary)] px-1.5 py-0.5 rounded font-medium"
                           >
                             {c.className}{c.division ? ` · ${c.division}` : ""}
                           </span>
@@ -661,7 +661,7 @@ export default function HODDashboard() {
                                       ? "bg-green-50 text-green-700"
                                       : entry.status === "FLAGGED"
                                       ? "bg-red-50 text-red-700"
-                                      : "bg-[var(--bg-tertiary)] text-[var(--text-tertiary)]"
+                                      : "bg-[hsl(var(--surface-tertiary))] text-[var(--text-tertiary)]"
                                   }`}
                                 >
                                   {entry.status.charAt(0) +
@@ -792,7 +792,7 @@ export default function HODDashboard() {
                                         placeholder="e.g., Consider using the PhET simulation for forces..."
                                         maxLength={1000}
                                         rows={2}
-                                        className="flex-1 bg-[var(--bg-elevated)] border border-[var(--border-primary)] rounded-xl px-3 py-2 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-quaternary)] focus:outline-none focus:ring-2 focus:ring-[hsl(var(--accent))] focus:border-transparent resize-none"
+                                        className="flex-1 bg-[hsl(var(--surface-elevated))] border border-[var(--border-primary)] rounded-xl px-3 py-2 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-quaternary)] focus:outline-none focus:ring-2 focus:ring-[hsl(var(--accent))] focus:border-transparent resize-none"
                                       />
                                       <button
                                         onClick={() => sendHodRemark(entry.id)}

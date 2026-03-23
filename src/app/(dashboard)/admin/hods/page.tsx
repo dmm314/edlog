@@ -146,7 +146,7 @@ export default function HODsPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100/50 pb-24">
       {/* Header */}
-      <div className="bg-gradient-to-br from-[var(--header-from)] via-[var(--header-via)] to-[var(--header-to)] px-5 pt-10 pb-8 rounded-b-[2rem] shadow-elevated relative overflow-hidden">
+      <div className="bg-gradient-to-br from-[hsl(var(--accent))] via-[hsl(var(--accent))] to-[hsl(var(--accent-strong))] px-5 pt-10 pb-8 rounded-b-[2rem] shadow-elevated relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[hsl(var(--accent)/0.08)] via-transparent to-transparent" />
         <div className="max-w-lg mx-auto relative">
           <Link
@@ -171,7 +171,7 @@ export default function HODsPage() {
                 setShowForm(!showForm);
                 setError("");
               }}
-              className="flex items-center gap-1.5 bg-[var(--bg-elevated)]/10 hover:bg-[var(--bg-elevated)]/20 text-white text-sm rounded-lg px-3 py-1.5 transition-colors"
+              className="flex items-center gap-1.5 bg-[hsl(var(--surface-elevated))]/10 hover:bg-[hsl(var(--surface-elevated))]/20 text-white text-sm rounded-lg px-3 py-1.5 transition-colors"
             >
               <Plus className="w-4 h-4" />
               Assign
@@ -341,7 +341,7 @@ export default function HODsPage() {
                           {hod.subject.name}
                         </span>
                         {(teacherCountBySubject[hod.subject.id] || 0) > 0 && (
-                          <span className="text-[10px] font-medium bg-[var(--bg-tertiary)] text-[var(--text-tertiary)] px-2 py-0.5 rounded-md border border-[var(--border-primary)] flex items-center gap-1">
+                          <span className="text-[10px] font-medium bg-[hsl(var(--surface-tertiary))] text-[var(--text-tertiary)] px-2 py-0.5 rounded-md border border-[var(--border-primary)] flex items-center gap-1">
                             <Users className="w-3 h-3" />
                             {teacherCountBySubject[hod.subject.id]} assigned
                           </span>
@@ -388,7 +388,7 @@ export default function HODsPage() {
                   HODs Assigned
                 </p>
               </div>
-              <div className="bg-[var(--bg-tertiary)] rounded-xl p-3 text-center">
+              <div className="bg-[hsl(var(--surface-tertiary))] rounded-xl p-3 text-center">
                 <p className="text-xl font-black text-[var(--text-secondary)]">
                   {subjects.length - hods.length}
                 </p>

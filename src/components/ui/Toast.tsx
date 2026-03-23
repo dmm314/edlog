@@ -56,7 +56,7 @@ function ToastProvider({ children }: { children: React.ReactNode }) {
             key={t.id}
             className="pointer-events-auto flex items-center gap-3 w-full max-w-sm px-4 py-3 shadow-elevated animate-slide-up"
             style={{
-              background: "var(--bg-elevated)",
+              background: "hsl(var(--surface-elevated))",
               border: "1px solid var(--border-primary)",
               borderRadius: "var(--radius-base)",
             }}

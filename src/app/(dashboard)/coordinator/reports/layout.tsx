@@ -15,7 +15,7 @@ export default function CoordinatorReportsLayout({ children }: { children: React
   const pathname = usePathname();
 
   return (
-    <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-primary)" }}>
+    <div className="min-h-screen pb-24" style={{ backgroundColor: "hsl(var(--surface-canvas))" }}>
       {/* Header */}
       <div
         className="px-5 pt-10 pb-6 rounded-b-[2rem] relative overflow-hidden"
@@ -43,7 +43,7 @@ export default function CoordinatorReportsLayout({ children }: { children: React
       </div>
 
       {/* Tab bar */}
-      <div className="sticky top-0 z-10 px-5 pt-3 pb-0 max-w-lg mx-auto" style={{ backgroundColor: "var(--bg-primary)" }}>
+      <div className="sticky top-0 z-10 px-5 pt-3 pb-0 max-w-lg mx-auto" style={{ backgroundColor: "hsl(var(--surface-canvas))" }}>
         <div
           className="flex gap-1 overflow-x-auto scrollbar-hide"
           style={{ borderBottom: "1px solid var(--border-primary)" }}

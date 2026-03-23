@@ -309,7 +309,7 @@ export default function AdminEntriesPage() {
         );
       case "DRAFT":
         return (
-          <span className="inline-flex items-center gap-1 text-[10px] font-bold bg-[var(--bg-tertiary)] text-[var(--text-tertiary)] px-2 py-0.5 rounded-full border border-[var(--border-secondary)]">
+          <span className="inline-flex items-center gap-1 text-[10px] font-bold bg-[hsl(var(--surface-tertiary))] text-[var(--text-tertiary)] px-2 py-0.5 rounded-full border border-[var(--border-secondary)]">
             Draft
           </span>
         );
@@ -327,7 +327,7 @@ export default function AdminEntriesPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100/50 pb-24">
       {/* Header */}
-      <div className="bg-gradient-to-br from-[var(--header-from)] via-[var(--header-via)] to-[var(--header-to)] px-5 pt-10 pb-8 rounded-b-[2rem] shadow-elevated relative overflow-hidden">
+      <div className="bg-gradient-to-br from-[hsl(var(--accent))] via-[hsl(var(--accent))] to-[hsl(var(--accent-strong))] px-5 pt-10 pb-8 rounded-b-[2rem] shadow-elevated relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[hsl(var(--accent)/0.08)] via-transparent to-transparent" />
         <div className="absolute top-0 right-0 w-64 h-64 bg-[var(--accent)]/[0.07] rounded-full -translate-y-1/3 translate-x-1/4 blur-3xl" />
 
@@ -404,7 +404,7 @@ export default function AdminEntriesPage() {
               placeholder="Search entries..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 bg-[var(--bg-elevated)] border border-[var(--border-primary)] rounded-xl text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-transparent shadow-sm transition-all"
+              className="w-full pl-10 pr-4 py-2.5 bg-[hsl(var(--surface-elevated))] border border-[var(--border-primary)] rounded-xl text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-transparent shadow-sm transition-all"
             />
           </div>
           <button
@@ -412,9 +412,9 @@ export default function AdminEntriesPage() {
             className={`flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl text-sm font-semibold border transition-all active:scale-95 shadow-sm ${
               hasActiveFilters
                 ? "border-[var(--accent)] text-[var(--accent-text)]"
-                : "bg-[var(--bg-elevated)] border-[var(--border-primary)] text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)]"
+                : "bg-[hsl(var(--surface-elevated))] border-[var(--border-primary)] text-[var(--text-secondary)] hover:bg-[hsl(var(--surface-tertiary))]"
             }`}
-            style={hasActiveFilters ? { background: "var(--accent-light)" } : undefined}
+            style={hasActiveFilters ? { background: "var(--accent-soft)" } : undefined}
           >
             <Filter className="w-4 h-4" />
             {activeFilterCount > 0 && (
@@ -543,7 +543,7 @@ export default function AdminEntriesPage() {
                             <span className="text-[10px] font-bold bg-blue-50 text-blue-700 px-2 py-0.5 rounded-md border border-blue-100">
                               {subjectName}
                             </span>
-                            <span className="text-[10px] font-semibold bg-[var(--bg-tertiary)] text-[var(--text-secondary)] px-2 py-0.5 rounded-md border border-[var(--border-secondary)]">
+                            <span className="text-[10px] font-semibold bg-[hsl(var(--surface-tertiary))] text-[var(--text-secondary)] px-2 py-0.5 rounded-md border border-[var(--border-secondary)]">
                               {entry.class?.name || "N/A"}
                             </span>
                             {getStatusBadge(entry.status)}
@@ -567,7 +567,7 @@ export default function AdminEntriesPage() {
                             </div>
                           </div>
                         </div>
-                        <div className="flex-shrink-0 mt-1 w-6 h-6 bg-[var(--bg-tertiary)] rounded-lg flex items-center justify-center">
+                        <div className="flex-shrink-0 mt-1 w-6 h-6 bg-[hsl(var(--surface-tertiary))] rounded-lg flex items-center justify-center">
                           {isExpanded ? (
                             <ChevronUp className="w-4 h-4 text-[var(--text-tertiary)]" />
                           ) : (
@@ -583,7 +583,7 @@ export default function AdminEntriesPage() {
                         <div className="pt-4 space-y-3.5">
                           {/* Topic */}
                           <div className="flex items-start gap-3">
-                            <div className="w-7 h-7 bg-[var(--bg-tertiary)] rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+                            <div className="w-7 h-7 bg-[hsl(var(--surface-tertiary))] rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
                               <Layers className="w-3.5 h-3.5 text-[var(--text-tertiary)]" />
                             </div>
                             <div>
@@ -595,7 +595,7 @@ export default function AdminEntriesPage() {
                           {/* Module */}
                           {(entry.moduleName || entry.topics?.some((t) => t.moduleName)) && (
                             <div className="flex items-start gap-3">
-                              <div className="w-7 h-7 bg-[var(--bg-tertiary)] rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+                              <div className="w-7 h-7 bg-[hsl(var(--surface-tertiary))] rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
                                 <GraduationCap className="w-3.5 h-3.5 text-[var(--text-tertiary)]" />
                               </div>
                               <div>
@@ -609,7 +609,7 @@ export default function AdminEntriesPage() {
 
                           {/* Duration */}
                           <div className="flex items-start gap-3">
-                            <div className="w-7 h-7 bg-[var(--bg-tertiary)] rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+                            <div className="w-7 h-7 bg-[hsl(var(--surface-tertiary))] rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
                               <Clock className="w-3.5 h-3.5 text-[var(--text-tertiary)]" />
                             </div>
                             <div>
@@ -628,7 +628,7 @@ export default function AdminEntriesPage() {
                           {/* Notes */}
                           {entry.notes && (
                             <div className="flex items-start gap-3">
-                              <div className="w-7 h-7 bg-[var(--bg-tertiary)] rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+                              <div className="w-7 h-7 bg-[hsl(var(--surface-tertiary))] rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
                                 <FileText className="w-3.5 h-3.5 text-[var(--text-tertiary)]" />
                               </div>
                               <div>
@@ -641,7 +641,7 @@ export default function AdminEntriesPage() {
                           {/* Objectives */}
                           {entry.objectives && (
                             <div className="flex items-start gap-3">
-                              <div className="w-7 h-7 bg-[var(--bg-tertiary)] rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+                              <div className="w-7 h-7 bg-[hsl(var(--surface-tertiary))] rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
                                 <PenTool className="w-3.5 h-3.5 text-[var(--text-tertiary)]" />
                               </div>
                               <div>
@@ -657,7 +657,7 @@ export default function AdminEntriesPage() {
                           {(entry.studentAttendance !== null || entry.engagementLevel) && (
                             <div className="flex gap-3">
                               {entry.studentAttendance !== null && (
-                                <div className="flex-1 bg-[var(--bg-tertiary)] rounded-xl p-3 border border-[var(--border-secondary)]">
+                                <div className="flex-1 bg-[hsl(var(--surface-tertiary))] rounded-xl p-3 border border-[var(--border-secondary)]">
                                   <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-tertiary)]">Attendance</p>
                                   <p className="text-sm font-bold text-[var(--text-secondary)] mt-0.5">
                                     <Users className="w-3.5 h-3.5 inline mr-1 text-[var(--text-tertiary)]" />
@@ -666,7 +666,7 @@ export default function AdminEntriesPage() {
                                 </div>
                               )}
                               {entry.engagementLevel && (
-                                <div className="flex-1 bg-[var(--bg-tertiary)] rounded-xl p-3 border border-[var(--border-secondary)]">
+                                <div className="flex-1 bg-[hsl(var(--surface-tertiary))] rounded-xl p-3 border border-[var(--border-secondary)]">
                                   <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-tertiary)]">Engagement</p>
                                   <p className={`text-sm font-bold mt-0.5 ${
                                     entry.engagementLevel === "HIGH" ? "text-emerald-600" :
@@ -683,7 +683,7 @@ export default function AdminEntriesPage() {
                           <div className="flex items-center gap-2 pt-3 border-t border-[var(--border-secondary)]">
                             <Link
                               href={`/logbook/${entry.id}`}
-                              className="flex items-center justify-center gap-1.5 text-sm font-semibold rounded-xl px-3 py-2.5 transition-all border border-[var(--border-primary)] bg-[var(--bg-elevated)] text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)] active:scale-[0.98]"
+                              className="flex items-center justify-center gap-1.5 text-sm font-semibold rounded-xl px-3 py-2.5 transition-all border border-[var(--border-primary)] bg-[hsl(var(--surface-elevated))] text-[var(--text-secondary)] hover:bg-[hsl(var(--surface-tertiary))] active:scale-[0.98]"
                             >
                               <FileText className="w-4 h-4" />
                               View
@@ -692,7 +692,7 @@ export default function AdminEntriesPage() {
                             {/* Admin remark button (always visible) */}
                             <button
                               onClick={() => { setRemarkModal({ entryId: entry.id }); setRemarkText(""); }}
-                              className="flex items-center justify-center gap-1.5 text-sm font-semibold rounded-xl px-3 py-2.5 transition-all border border-[var(--border-primary)] bg-[var(--bg-elevated)] text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)] active:scale-[0.98]"
+                              className="flex items-center justify-center gap-1.5 text-sm font-semibold rounded-xl px-3 py-2.5 transition-all border border-[var(--border-primary)] bg-[hsl(var(--surface-elevated))] text-[var(--text-secondary)] hover:bg-[hsl(var(--surface-tertiary))] active:scale-[0.98]"
                             >
                               <PenTool className="w-4 h-4" />
                               Observe
@@ -750,7 +750,7 @@ export default function AdminEntriesPage() {
                 <button
                   onClick={loadMore}
                   disabled={loadingMore}
-                  className="w-full bg-[var(--bg-elevated)] border border-[var(--border-primary)] text-[var(--text-secondary)] font-semibold rounded-xl flex items-center justify-center gap-2 py-3.5 shadow-sm hover:shadow-md hover:bg-[var(--bg-tertiary)] transition-all active:scale-[0.98]"
+                  className="w-full bg-[hsl(var(--surface-elevated))] border border-[var(--border-primary)] text-[var(--text-secondary)] font-semibold rounded-xl flex items-center justify-center gap-2 py-3.5 shadow-sm hover:shadow-md hover:bg-[hsl(var(--surface-tertiary))] transition-all active:scale-[0.98]"
                 >
                   {loadingMore ? (
                     <>
@@ -770,7 +770,7 @@ export default function AdminEntriesPage() {
       {/* Admin Remark Modal (observation only — no status change) */}
       {remarkModal && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-end justify-center sm:items-center">
-          <div className="bg-[var(--bg-elevated)] rounded-t-2xl sm:rounded-2xl w-full max-w-md p-5 space-y-4 animate-slide-up shadow-elevated">
+          <div className="bg-[hsl(var(--surface-elevated))] rounded-t-2xl sm:rounded-2xl w-full max-w-md p-5 space-y-4 animate-slide-up shadow-elevated">
             <div>
               <h3 className="text-base font-bold text-[var(--text-primary)]">Add Admin Observation</h3>
               <p className="text-xs text-[var(--text-tertiary)] mt-1">
@@ -791,7 +791,7 @@ export default function AdminEntriesPage() {
             <div className="flex gap-2">
               <button
                 onClick={() => setRemarkModal(null)}
-                className="flex-1 py-2.5 text-sm font-semibold text-[var(--text-tertiary)] rounded-xl border border-[var(--border-primary)] hover:bg-[var(--bg-tertiary)] transition-all"
+                className="flex-1 py-2.5 text-sm font-semibold text-[var(--text-tertiary)] rounded-xl border border-[var(--border-primary)] hover:bg-[hsl(var(--surface-tertiary))] transition-all"
               >
                 Cancel
               </button>

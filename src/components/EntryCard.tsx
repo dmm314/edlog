@@ -1,107 +1,116 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { Heart, MessageCircle, Share2, ThumbsUp } from "lucide-react";
-import type { EntryWithRelations } from "@/types";
+import { useMemo } from "react";
+import { CheckCheck, CircleAlert, Clock3, MessageSquareText, Sparkles } from "lucide-react";
+import type { EntryStatus, EntryWithRelations } from "@/types";
+import { formatDateShort, formatTime } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 
 interface EntryCardProps {
   entry: EntryWithRelations;
-  priority?: "default" | "vibrant";
-  onOpen?: (entryId: string) => void;
+  priority?: "default" | "live" | "calm";
+  onClick?: () => void;
 }
 
-function formatAgo(date: string | Date) {
-  const now = Date.now();
-  const then = new Date(date).getTime();
-  const diff = Math.max(1, Math.floor((now - then) / 1000));
-  if (diff < 60) return `${diff}s`;
-  if (diff < 3600) return `${Math.floor(diff / 60)}m`;
-  if (diff < 86400) return `${Math.floor(diff / 3600)}h`;
-  return `${Math.floor(diff / 86400)}d`;
-}
+const statusConfig: Record<
+  EntryStatus,
+  {
+    label: string;
+    icon: typeof Sparkles;
+    chipClass: string;
+    description: string;
+  }
+> = {
+  DRAFT: {
+    label: "Draft",
+    icon: Clock3,
+    chipClass: "badge-draft",
+    description: "Still refining this lesson.",
+  },
+  SUBMITTED: {
+    label: "Submitted",
+    icon: Sparkles,
+    chipClass: "badge-submitted",
+    description: "Submitted and ready for review.",
+  },
+  VERIFIED: {
+    label: "Verified",
+    icon: CheckCheck,
+    chipClass: "badge-verified",
+    description: "Verified and safely in the record.",
+  },
+  FLAGGED: {
+    label: "Flagged",
+    icon: CircleAlert,
+    chipClass: "badge-flagged",
+    description: "Needs a quick correction.",
+  },
+};
 
-function getInitials(value: string) {
-  return value
-    .split(" ")
-    .map((p) => p[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
-}
+export function EntryCard({ entry, priority = "default", onClick }: EntryCardProps) {
+  const status = statusConfig[entry.status];
 
-export function EntryCard({ entry, priority = "default", onOpen }: EntryCardProps) {
-  const [liked, setLiked] = useState(false);
-  const isInteractive = Boolean(onOpen);
-  const [heartBurst, setHeartBurst] = useState(false);
+  const topic = entry.topics?.[0]?.name || entry.topicText || "Topic to review";
+  const moduleName = entry.topics?.[0]?.moduleName || entry.moduleName || "Teaching log";
+  const subjectName = entry.topics?.[0]?.subject?.name || entry.assignment?.subject?.name || "Subject";
+  const timestamp = useMemo(() => `${formatDateShort(entry.date)} • ${formatTime(entry.date)}`, [entry.date]);
 
-  const meta = useMemo(() => {
-    const topic = entry.topics?.[0];
-    const subjectName = topic?.subject?.name ?? "General";
-    const className = entry.class?.name ?? "Class";
-    const topicText = topic?.moduleName ? `${topic.moduleName}: ${topic.name}` : topic?.name ?? "Lesson notes";
-    return { subjectName, className, topicText };
-  }, [entry]);
-
-  const triggerLike = () => {
-    setLiked((prev) => !prev);
-    setHeartBurst(true);
-    window.setTimeout(() => setHeartBurst(false), 380);
-  };
+  const StatusIcon = status.icon;
 
   return (
-  <article
-      className={`relative overflow-hidden rounded-xl border border-border p-4 shadow-card transition-transform duration-200 bg-surface-elevated ${isInteractive ? "active:scale-[0.99] cursor-pointer" : ""} ${priority === "vibrant" ? "ring-1 ring-accent/30" : ""}`}
-      onDoubleClick={triggerLike}
-      role={isInteractive ? "button" : undefined}
-      tabIndex={isInteractive ? 0 : undefined}
-      onClick={() => onOpen?.(entry.id)}
-      onKeyDown={(event) => {
-        if (!isInteractive) return;
-        if (event.key === "Enter" || event.key === " ") {
-          event.preventDefault();
-          onOpen?.(entry.id);
-        }
-      }}
-    >
-      {heartBurst && (
-        <Heart className="pointer-events-none absolute left-1/2 top-1/2 z-10 h-14 w-14 -translate-x-1/2 -translate-y-1/2 fill-red-500 text-red-500 animate-spring-bounce" />
+    <button
+      type="button"
+      onClick={onClick}
+      className={cn(
+        "w-full rounded-xl border bg-[hsl(var(--surface-elevated))] p-4 text-left shadow-card transition-shadow hover:shadow-elevated",
+        priority === "live" && "border-[hsl(var(--accent)/0.3)]",
+        priority !== "live" && "border-[hsl(var(--border-primary))]",
+        priority === "calm" && "opacity-80",
       )}
-
-        <header className="mb-3 flex items-start gap-3">
-        <div className="flex h-11 w-11 items-center justify-center rounded-full text-xs font-bold text-white" style={{ background: "linear-gradient(135deg, hsl(var(--accent-strong)), hsl(var(--accent)))" }}>
-          {getInitials(meta.subjectName)}
+    >
+      <div className="flex items-start gap-3">
+        {/* Status icon */}
+        <div
+          className={cn(
+            "flex h-10 w-10 shrink-0 items-center justify-center rounded-lg",
+            entry.status === "VERIFIED" && "bg-[hsl(var(--success)/0.1)] text-[hsl(var(--success))]",
+            entry.status === "FLAGGED" && "bg-[hsl(var(--danger)/0.08)] text-[hsl(var(--danger))]",
+            entry.status === "SUBMITTED" && "bg-[hsl(var(--accent-soft))] text-[hsl(var(--accent-text))]",
+            entry.status === "DRAFT" && "bg-[hsl(var(--surface-tertiary))] text-[hsl(var(--text-tertiary))]",
+          )}
+        >
+          <StatusIcon className="h-5 w-5" />
         </div>
+
         <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-semibold text-content-primary">{meta.subjectName}</p>
-          <p className="truncate text-xs text-content-secondary">{meta.className} • {formatAgo(entry.createdAt)}</p>
-        </div>
-      </header>
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <p className="truncate text-xs font-medium text-content-secondary">{subjectName}</p>
+              <h3 className="mt-0.5 line-clamp-2 text-sm font-semibold text-content-primary">{topic}</h3>
+            </div>
+            <span className={status.chipClass}>{status.label}</span>
+          </div>
 
-      <div className="space-y-2">
-        <p className="line-clamp-2 text-sm font-semibold text-content-primary">{meta.topicText}</p>
-        {entry.notes && <p className="line-clamp-3 text-sm text-content-secondary">{entry.notes}</p>}
-      </div>
-    <footer className="mt-4 border-t border-border pt-3">
-        <div className="grid grid-cols-3 gap-2 text-xs text-content-secondary">
-          <button
-            type="button"
-            onClick={(event) => {
-              event.stopPropagation();
-              triggerLike();
-            }}
-            className={`inline-flex min-h-11 items-center justify-center gap-1 rounded-full transition ${liked ? "bg-accent-soft text-accent-text" : "hover:bg-surface-secondary"}`}
-          >
-            {liked ? <Heart className="h-4 w-4 fill-current" /> : <ThumbsUp className="h-4 w-4" />} React
-          </button>
-          <button type="button" className="inline-flex min-h-11 items-center justify-center gap-1 rounded-full hover:bg-surface-secondary">
-            <MessageCircle className="h-4 w-4" /> Note
-          </button>
-          <button type="button" className="inline-flex min-h-11 items-center justify-center gap-1 rounded-full hover:bg-surface-secondary">
-            <Share2 className="h-4 w-4" /> Share
-          </button>
+          <p className="mt-1.5 text-xs font-medium uppercase tracking-[0.1em] text-[hsl(var(--accent-text))]">
+            {moduleName}
+          </p>
+          <p className="mt-1.5 line-clamp-2 text-sm text-content-secondary">{entry.notes || status.description}</p>
         </div>
-      </footer>
-    </article>
+      </div>
+
+      {/* Footer */}
+      <div className="mt-3 flex items-center justify-between gap-3 border-t border-[hsl(var(--border-muted))] pt-3">
+        <div className="min-w-0">
+          <p className="truncate text-xs font-medium text-content-tertiary">{entry.class.name}</p>
+          <p className="font-mono text-[11px] text-content-tertiary">{timestamp}</p>
+        </div>
+
+        <span className="inline-flex items-center gap-1 rounded-full bg-[hsl(var(--surface-tertiary))] px-2 py-0.5 text-[11px] font-medium text-content-tertiary">
+          <MessageSquareText className="h-3 w-3" />
+          {entry.notes ? "Notes" : "No notes"}
+        </span>
+      </div>
+    </button>
   );
 }
 

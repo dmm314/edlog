@@ -31,34 +31,20 @@ import Link from "next/link";
 import dynamic from "next/dynamic";
 import { getFamilyOfSituation } from "@/lib/family-of-situation";
 import { HelpHint } from "@/components/HelpHint";
+import { SlotSelector } from "@/components/domain/SlotSelector";
+import { EntrySubmitBar } from "@/components/domain/EntrySubmitBar";
 
 const SignaturePad = dynamic(
   () => import("@/components/SignaturePad").then((mod) => mod.SignaturePad),
   {
     ssr: false,
     loading: () => (
-      <div className="h-24 border-2 border-dashed rounded-xl flex items-center justify-center text-sm" style={{ borderColor: "var(--border-primary)", background: "var(--bg-elevated)", color: "var(--text-tertiary)" }}>
+      <div className="h-24 border-2 border-dashed rounded-xl flex items-center justify-center text-sm" style={{ borderColor: "var(--border-primary)", background: "hsl(var(--surface-elevated))", color: "var(--text-tertiary)" }}>
         Loading signature pad...
       </div>
     ),
   }
 );
-
-function shortClassName(name: string): string {
-  const lower = name.toLowerCase();
-  if (lower.startsWith("form ")) {
-    return name.replace(/^Form\s+/i, "").replace(/\s+/g, "");
-  }
-  if (lower.includes("lower sixth")) {
-    const section = name.replace(/lower\s+sixth\s*/i, "").trim();
-    return `L6${section}`;
-  }
-  if (lower.includes("upper sixth")) {
-    const section = name.replace(/upper\s+sixth\s*/i, "").trim();
-    return `U6${section}`;
-  }
-  return name.length > 4 ? name.slice(-3).trim() : name;
-}
 
 interface TimetableSlot {
   id: string;
@@ -881,19 +867,19 @@ export default function NewEntryPage() {
   // ─── Success Screen ─────────────────────────────────────────────
   if (success && submittedEntries) {
     return (
-      <div className="min-h-screen flex flex-col" style={{ backgroundColor: "var(--bg-primary)" }}>
+      <div className="min-h-screen flex flex-col" style={{ backgroundColor: "hsl(var(--surface-canvas))" }}>
         <div className={`px-5 pt-12 pb-8 rounded-b-3xl ${
           submittedEntries.isDraft ? "bg-gradient-to-br from-[hsl(var(--accent-strong))] to-[hsl(var(--accent))]"
             : submittedEntries.classDidNotHold ? "bg-gradient-to-br from-[var(--text-secondary)] to-[var(--text-tertiary)]"
             : "bg-gradient-to-br from-[hsl(var(--success))] to-[hsl(var(--success))]"
         }`}>
           <div className="max-w-lg mx-auto text-center">
-            <div className="inline-flex items-center justify-center w-20 h-20 bg-white/20 rounded-full mb-4 animate-spring-bounce">
+            <div className="inline-flex items-center justify-center w-20 h-20 bg-white/20 rounded-full mb-4 animate-fade-in">
               {submittedEntries.isDraft ? <Save className="w-12 h-12 text-white" />
                 : submittedEntries.classDidNotHold ? <XCircle className="w-12 h-12 text-white" />
                 : <CheckCircle className="w-12 h-12 text-white" />}
             </div>
-            <h1 className="text-2xl font-bold font-display text-white">
+            <h1 className="text-2xl font-bold text-white">
               {submittedEntries.isDraft ? "Draft Saved!"
                 : submittedEntries.classDidNotHold ? "Period Marked"
                 : submittedEntries.periods.length > 1 ? `${submittedEntries.periods.length} Entries Logged!`
@@ -917,7 +903,7 @@ export default function NewEntryPage() {
             <div className="p-5 space-y-0 divide-y" style={{ borderColor: "var(--border-secondary)" }}>
               {submittedEntries.isDraft && (
                 <div className="pb-3">
-                  <div className="rounded-xl px-3 py-2 text-sm flex items-center gap-2" style={{ background: "var(--accent-light)", color: "var(--accent-text)" }}>
+                  <div className="rounded-xl px-3 py-2 text-sm flex items-center gap-2" style={{ background: "var(--accent-soft)", color: "var(--accent-text)" }}>
                     <Save className="w-4 h-4" />
                     Saved as draft — complete this entry later
                   </div>
@@ -925,7 +911,7 @@ export default function NewEntryPage() {
               )}
               {submittedEntries.classDidNotHold && (
                 <div className="pb-3">
-                  <div className="rounded-xl px-3 py-2 text-sm flex items-center gap-2" style={{ background: "var(--bg-tertiary)", color: "var(--text-secondary)" }}>
+                  <div className="rounded-xl px-3 py-2 text-sm flex items-center gap-2" style={{ background: "hsl(var(--surface-tertiary))", color: "var(--text-secondary)" }}>
                     <XCircle className="w-4 h-4" />
                     Marked as &ldquo;Class Did Not Hold&rdquo;
                   </div>
@@ -934,7 +920,7 @@ export default function NewEntryPage() {
               {!submittedEntries.classDidNotHold && (
                 <div className="pb-3">
                   <div className="flex items-start gap-3">
-                    <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5" style={{ background: "var(--accent-light)" }}>
+                    <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5" style={{ background: "var(--accent-soft)" }}>
                       <Layers className="w-4 h-4" style={{ color: "var(--accent-text)" }} />
                     </div>
                     <div className="flex-1 min-w-0">
@@ -981,7 +967,7 @@ export default function NewEntryPage() {
                         { icon: Clock, label: "Time", value: p.time },
                         { icon: Clock, label: "Duration", value: p.duration },
                       ].map((cell) => (
-                        <div key={cell.label} className="text-center rounded-xl py-2.5 px-2" style={{ background: "var(--bg-tertiary)" }}>
+                        <div key={cell.label} className="text-center rounded-xl py-2.5 px-2" style={{ background: "hsl(var(--surface-tertiary))" }}>
                           <cell.icon className="w-4 h-4 mx-auto mb-1 text-[var(--text-tertiary)]" />
                           <p className="text-[10px] text-[var(--text-tertiary)] font-medium">{cell.label}</p>
                           <p className="text-xs font-bold text-[var(--text-primary)]">{cell.value}</p>
@@ -996,7 +982,7 @@ export default function NewEntryPage() {
                   <p className="text-[10px] font-semibold uppercase tracking-widest text-[var(--text-tertiary)] mb-2">Classes</p>
                   <div className="flex flex-wrap gap-1.5">
                     {submittedEntries.classNames.map((cn, i) => (
-                      <span key={i} className="text-xs font-semibold px-2.5 py-1 rounded-lg border" style={{ background: "var(--accent-light)", color: "var(--accent-text)", borderColor: "var(--accent)" }}>{cn}</span>
+                      <span key={i} className="text-xs font-semibold px-2.5 py-1 rounded-lg border" style={{ background: "var(--accent-soft)", color: "var(--accent-text)", borderColor: "var(--accent)" }}>{cn}</span>
                     ))}
                   </div>
                 </div>
@@ -1005,13 +991,13 @@ export default function NewEntryPage() {
                 <div className="py-3">
                   <div className="grid grid-cols-2 gap-3">
                     {submittedEntries.attendance && (
-                      <div className="text-center rounded-xl py-2.5 px-2" style={{ background: "var(--bg-tertiary)" }}>
+                      <div className="text-center rounded-xl py-2.5 px-2" style={{ background: "hsl(var(--surface-tertiary))" }}>
                         <p className="text-[10px] text-[var(--text-tertiary)] font-medium">Attendance</p>
                         <p className="text-xs font-bold text-[var(--text-primary)]">{submittedEntries.attendance}</p>
                       </div>
                     )}
                     {submittedEntries.engagement && (
-                      <div className="text-center rounded-xl py-2.5 px-2" style={{ background: "var(--bg-tertiary)" }}>
+                      <div className="text-center rounded-xl py-2.5 px-2" style={{ background: "hsl(var(--surface-tertiary))" }}>
                         <p className="text-[10px] text-[var(--text-tertiary)] font-medium">Engagement</p>
                         <p className="text-xs font-bold text-[var(--text-primary)]">
                           {submittedEntries.engagement.charAt(0) + submittedEntries.engagement.slice(1).toLowerCase()}
@@ -1027,13 +1013,13 @@ export default function NewEntryPage() {
                   <p className="text-[10px] font-semibold uppercase tracking-widest text-[var(--text-tertiary)]">CBA Details</p>
                   <div className="flex flex-wrap gap-2">
                     {submittedEntries.familyOfSituation && (
-                      <div className="rounded-xl py-2 px-3" style={{ background: "var(--bg-tertiary)" }}>
+                      <div className="rounded-xl py-2 px-3" style={{ background: "hsl(var(--surface-tertiary))" }}>
                         <p className="text-[10px] text-[var(--text-tertiary)]">Family of Situation</p>
                         <p className="text-xs font-semibold text-[var(--text-primary)]">{submittedEntries.familyOfSituation}</p>
                       </div>
                     )}
                     {submittedEntries.lessonMode !== "physical" && (
-                      <div className="rounded-xl py-2 px-3" style={{ background: "var(--bg-tertiary)" }}>
+                      <div className="rounded-xl py-2 px-3" style={{ background: "hsl(var(--surface-tertiary))" }}>
                         <p className="text-[10px] text-[var(--text-tertiary)]">Lesson Mode</p>
                         <p className="text-xs font-semibold text-[var(--text-primary)]">{submittedEntries.lessonMode.charAt(0).toUpperCase() + submittedEntries.lessonMode.slice(1)}</p>
                       </div>
@@ -1047,7 +1033,7 @@ export default function NewEntryPage() {
                       </div>
                     )}
                     {submittedEntries.integrationActivity && (
-                      <div className="rounded-xl py-2 px-3" style={{ background: "var(--bg-tertiary)" }}>
+                      <div className="rounded-xl py-2 px-3" style={{ background: "hsl(var(--surface-tertiary))" }}>
                         <p className="text-[10px] text-[var(--text-tertiary)]">Integration</p>
                         <p className="text-xs font-semibold text-[var(--text-primary)]">Learners are able to {submittedEntries.integrationActivity}</p>
                       </div>
@@ -1061,7 +1047,7 @@ export default function NewEntryPage() {
                   <p className="text-[10px] font-semibold uppercase tracking-widest text-[var(--text-tertiary)]">Assignment</p>
                   <div className="flex flex-wrap gap-2">
                     {submittedEntries.assignmentGiven && (
-                      <div className="rounded-xl py-2 px-3" style={{ background: "var(--accent-light)" }}>
+                      <div className="rounded-xl py-2 px-3" style={{ background: "var(--accent-soft)" }}>
                         <p className="text-[10px]" style={{ color: "var(--accent-text)" }}>Given</p>
                         <p className="text-xs font-semibold" style={{ color: "var(--accent-text)" }}>
                           {submittedEntries.assignmentDetails || "Yes"}
@@ -1110,7 +1096,7 @@ export default function NewEntryPage() {
                       placeholder="How did the lesson go? Any notes for yourself?"
                       maxLength={1000}
                       rows={2}
-                      className="w-full bg-[var(--bg-elevated)] border border-[var(--border-primary)] rounded-xl px-3 py-2 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-quaternary)] focus:outline-none focus:ring-2 focus:ring-[hsl(var(--success))] focus:border-transparent resize-none"
+                      className="w-full bg-[hsl(var(--surface-elevated))] border border-[var(--border-primary)] rounded-xl px-3 py-2 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-quaternary)] focus:outline-none focus:ring-2 focus:ring-[hsl(var(--success))] focus:border-transparent resize-none"
                     />
                     <div className="flex items-center justify-between">
                       <p className="text-[10px] text-[var(--text-quaternary)]">
@@ -1167,15 +1153,15 @@ export default function NewEntryPage() {
 
   // ─── 3-Step Entry Form ──────────────────────────────────────────
   return (
-    <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-primary)" }}>
+    <div className="min-h-screen pb-24" style={{ backgroundColor: "hsl(var(--surface-canvas))" }}>
       {/* ── Persistent Header ─── */}
-      <div className="bg-[var(--bg-elevated)] border-b" style={{ borderColor: "var(--border-primary)" }}>
+      <div className="bg-[hsl(var(--surface-elevated))] border-b" style={{ borderColor: "var(--border-primary)" }}>
         <div className="max-w-lg mx-auto px-5 pt-12 pb-5 desktop-content-form">
           <div className="flex items-center gap-3 mb-4">
             <button
               onClick={() => step > 0 ? setStep(step - 1) : router.back()}
               className="w-9 h-9 rounded-[12px] flex items-center justify-center transition-colors"
-              style={{ background: "var(--bg-tertiary)", color: "var(--text-tertiary)" }}
+              style={{ background: "hsl(var(--surface-tertiary))", color: "var(--text-tertiary)" }}
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
@@ -1188,7 +1174,7 @@ export default function NewEntryPage() {
               }`}
               style={{
                 ...(seconds <= 60 ? { borderColor: "var(--border-primary)", color: "var(--text-tertiary)" } : {}),
-                ...(seconds > 60 ? { background: "var(--accent-light)" } : {}),
+                ...(seconds > 60 ? { background: "var(--accent-soft)" } : {}),
               }}
             >
               <Clock className="w-3 h-3" />
@@ -1254,7 +1240,7 @@ export default function NewEntryPage() {
                   style={{
                     background: i <= step
                       ? "linear-gradient(90deg, var(--accent), var(--accent-warm))"
-                      : "var(--bg-tertiary)",
+                      : "hsl(var(--surface-tertiary))",
                   }}
                 />
                 <span
@@ -1281,7 +1267,7 @@ export default function NewEntryPage() {
         )}
 
         {draftSaved && (
-          <div className="rounded-xl px-4 py-3 mb-4 text-sm flex items-center gap-2" style={{ background: "var(--accent-light)", color: "var(--accent-text)" }}>
+          <div className="rounded-xl px-4 py-3 mb-4 text-sm flex items-center gap-2" style={{ background: "var(--accent-soft)", color: "var(--accent-text)" }}>
             <Save className="w-4 h-4" />
             Draft saved! You can complete this entry later.
           </div>
@@ -1318,75 +1304,16 @@ export default function NewEntryPage() {
                   {isWeekend && <p className="text-xs mt-1" style={{ color: "var(--warning)" }}>Weekend — select a weekday</p>}
                 </div>
 
-                {!loadingSlots && timetableSlots.length > 0 && (
-                  <div>
-                    <label className="label-field flex items-center gap-1.5">
-                      <Calendar className="w-3.5 h-3.5" style={{ color: "var(--accent-text)" }} />
-                      {selectedDayName} Schedule — Tap to Fill
-                    </label>
-                    <p className="text-[11px] text-[var(--text-tertiary)] mb-2">Select up to 4 periods (same subject and level)</p>
-                    <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-hide">
-                      {timetableSlots.map((slot) => {
-                        const periodMatch = slot.periodLabel.match(/\d+/);
-                        const periodNum = periodMatch ? parseInt(periodMatch[0]) : null;
-                        const isAlreadyFilled = filledSlotIds.has(slot.id) || (periodNum !== null && filledPeriods.has(periodNum));
-                        const isToday = date === new Date().toISOString().split("T")[0];
-                        const now = new Date();
-                        const [slotEndH, slotEndM] = slot.endTime.split(":").map(Number);
-                        const periodNotEnded = isToday && (now.getHours() * 60 + now.getMinutes()) < (slotEndH * 60 + slotEndM);
-                        const isSelected = selectedSlotIds.includes(slot.id);
-                        const canAdd = (selectedSlotIds.length < 4 || isSelected) && !isAlreadyFilled && !periodNotEnded;
-                        const isCompatible = selectedSlotIds.length === 0 || isSelected ||
-                          (selectedSlotsData.length > 0 &&
-                            slot.assignment.subjectId === selectedSlotsData[0].assignment.subjectId &&
-                            slot.assignment.classLevel === selectedSlotsData[0].assignment.classLevel);
-                        const incompatibleReason = !isCompatible && selectedSlotsData.length > 0
-                          ? (slot.assignment.subjectId !== selectedSlotsData[0].assignment.subjectId ? "Different subject" : "Different level")
-                          : null;
-                        return (
-                          <button key={slot.id} type="button" onClick={() => !isAlreadyFilled && !periodNotEnded && handleSlotToggle(slot)} disabled={isAlreadyFilled || periodNotEnded}
-                            className={`flex-shrink-0 rounded-2xl border-2 px-3 py-2.5 text-left transition-all relative ${
-                              isAlreadyFilled || periodNotEnded ? "opacity-60 cursor-not-allowed" : isSelected ? "shadow-sm" : !canAdd || !isCompatible ? "opacity-40" : "hover:border-[var(--text-quaternary)]"
-                            }`}
-                            style={{
-                              borderColor: isAlreadyFilled ? "var(--success)" : isSelected ? "var(--accent)" : "var(--border-primary)",
-                              background: isAlreadyFilled ? "var(--success-light)" : isSelected ? "var(--accent-light)" : "var(--bg-elevated)",
-                            }}>
-                            {isAlreadyFilled && (
-                              <div className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full flex items-center justify-center shadow-sm" style={{ background: "var(--success)" }}>
-                                <Check className="w-3 h-3 text-white" />
-                              </div>
-                            )}
-                            {isSelected && !isAlreadyFilled && (
-                              <div className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full flex items-center justify-center shadow-sm" style={{ background: "var(--accent)" }}>
-                                <Check className="w-3 h-3 text-white" />
-                              </div>
-                            )}
-                            <p className="text-xs font-bold text-[var(--text-primary)]">{slot.periodLabel}</p>
-                            <p className="text-[10px] text-[var(--text-tertiary)] mt-0.5 font-mono">{slot.startTime} - {slot.endTime}</p>
-                            <p className="text-[11px] font-semibold mt-1.5" style={{ color: "var(--accent-text)" }}>{slot.assignment.subjectName}</p>
-                            <p className="text-[10px] text-[var(--text-tertiary)]">{shortClassName(slot.assignment.className)}</p>
-                            {isAlreadyFilled && <p className="text-[9px] font-bold mt-1" style={{ color: "var(--success)" }}>Already filled</p>}
-                            {periodNotEnded && !isAlreadyFilled && (
-                              <p className="text-[9px] font-bold mt-1 flex items-center gap-0.5" style={{ color: "hsl(var(--accent-text))" }}>
-                                <Clock className="w-2.5 h-2.5" />
-                                Available at {slot.endTime}
-                              </p>
-                            )}
-                            {incompatibleReason && !isAlreadyFilled && !periodNotEnded && (
-                              <p className="text-[9px] font-medium mt-1" style={{ color: "var(--text-quaternary)" }}>{incompatibleReason}</p>
-                            )}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
-                {loadingSlots && (
-                  <div className="flex gap-2">
-                    {[1, 2].map((i) => (<div key={i} className="flex-shrink-0 w-28 h-20 rounded-xl skeleton" />))}
-                  </div>
-                )}
+                <SlotSelector
+                  date={date}
+                  slots={timetableSlots}
+                  selectedSlotIds={selectedSlotIds}
+                  filledSlotIds={filledSlotIds}
+                  filledPeriods={filledPeriods}
+                  selectedDayName={selectedDayName}
+                  loading={loadingSlots}
+                  onSlotToggle={handleSlotToggle}
+                />
 
                 {selectedSlotIds.length === 0 && !loadingSlots && (
                   <div>
@@ -1424,11 +1351,11 @@ export default function NewEntryPage() {
                   <div className="grid grid-cols-2 gap-3">
                     <div>
                       <label className="label-field">Class</label>
-                      <div className="input-field flex items-center text-sm" style={{ background: "var(--bg-tertiary)", color: "var(--text-secondary)" }}>{contextClassName || "—"}</div>
+                      <div className="input-field flex items-center text-sm" style={{ background: "hsl(var(--surface-tertiary))", color: "var(--text-secondary)" }}>{contextClassName || "—"}</div>
                     </div>
                     <div>
                       <label className="label-field">Subject</label>
-                      <div className="input-field flex items-center text-sm" style={{ background: "var(--bg-tertiary)", color: "var(--text-secondary)" }}>{contextSubjectName || "—"}</div>
+                      <div className="input-field flex items-center text-sm" style={{ background: "hsl(var(--surface-tertiary))", color: "var(--text-secondary)" }}>{contextSubjectName || "—"}</div>
                     </div>
                   </div>
                 )}
@@ -1437,7 +1364,7 @@ export default function NewEntryPage() {
                   <div>
                     <label className="label-field">Subject <span style={{ color: "var(--warning)" }}>*</span></label>
                     {subjectsForClass.length === 1 ? (
-                      <div className="input-field flex items-center" style={{ background: "var(--bg-tertiary)", color: "var(--text-secondary)" }}>{subjectsForClass[0].name}</div>
+                      <div className="input-field flex items-center" style={{ background: "hsl(var(--surface-tertiary))", color: "var(--text-secondary)" }}>{subjectsForClass[0].name}</div>
                     ) : (
                       <select value={assignmentId || subjectId} onChange={(e) => handleSubjectChange(e.target.value)} className="input-field" required>
                         <option value="">Select subject</option>
@@ -1452,10 +1379,10 @@ export default function NewEntryPage() {
                     className="w-full text-left flex items-center gap-3 px-4 py-3 rounded-2xl border-2 transition-all"
                     style={{
                       borderColor: classDidNotHold ? "var(--warning)" : "var(--border-primary)",
-                      background: classDidNotHold ? "var(--warning-light)" : "var(--bg-elevated)",
+                      background: classDidNotHold ? "var(--warning-light)" : "hsl(var(--surface-elevated))",
                     }}>
                     <div className="w-5 h-5 rounded-md border-2 flex items-center justify-center flex-shrink-0"
-                      style={{ borderColor: classDidNotHold ? "var(--warning)" : "var(--border-primary)", background: classDidNotHold ? "var(--warning)" : "var(--bg-elevated)" }}>
+                      style={{ borderColor: classDidNotHold ? "var(--warning)" : "var(--border-primary)", background: classDidNotHold ? "var(--warning)" : "hsl(var(--surface-elevated))" }}>
                       {classDidNotHold && <Check className="w-3 h-3 text-white" />}
                     </div>
                     <div>
@@ -1478,8 +1405,8 @@ export default function NewEntryPage() {
                           <button key={mod} type="button"
                             onClick={() => { setModuleName(mod); setSelectedTopicIds([]); setStep(1); }}
                             className="flex items-center gap-3.5 p-4 border text-left transition-all active:scale-[0.98] hover:-translate-y-0.5"
-                            style={{ borderColor: "var(--border-primary)", background: "var(--bg-elevated)", boxShadow: "var(--shadow-card)", borderRadius: "16px" }}>
-                            <div className="w-10 h-10 flex items-center justify-center font-display text-base font-bold flex-shrink-0"
+                            style={{ borderColor: "var(--border-primary)", background: "hsl(var(--surface-elevated))", boxShadow: "var(--shadow-card)", borderRadius: "16px" }}>
+                            <div className="w-10 h-10 flex items-center justify-center text-base font-bold flex-shrink-0"
                               style={{ background: "linear-gradient(135deg, hsl(var(--accent-soft)), hsl(var(--accent) / 0.2))", color: "hsl(var(--accent-text))", borderRadius: "12px" }}>
                               {i + 1}
                             </div>
@@ -1528,7 +1455,7 @@ export default function NewEntryPage() {
                   {topicsForModule.length > 0 ? "Additional notes on topic (optional)" : "What topic did you cover?"}
                 </p>
 
-                <div className="border overflow-hidden" style={{ borderColor: "var(--border-primary)", background: "var(--bg-elevated)", borderRadius: "16px" }}>
+                <div className="border overflow-hidden" style={{ borderColor: "var(--border-primary)", background: "hsl(var(--surface-elevated))", borderRadius: "16px" }}>
                   <input id="topic-input-field" value={topicText} onChange={(e) => setTopicText(e.target.value.slice(0, 300))}
                     placeholder="e.g. Laws of reflection, image formation..."
                     className="w-full px-4 py-3.5 border-none outline-none text-[15px] bg-transparent"
@@ -1560,7 +1487,7 @@ export default function NewEntryPage() {
                             }}
                             className="text-sm transition-all"
                             style={{
-                              background: isSel ? "var(--accent-light)" : "var(--bg-elevated)",
+                              background: isSel ? "var(--accent-soft)" : "hsl(var(--surface-elevated))",
                               border: isSel ? "1px solid var(--accent)" : "1px solid var(--border-primary)",
                               color: isSel ? "var(--accent-text)" : "var(--text-secondary)",
                               borderRadius: "12px",
@@ -1606,7 +1533,7 @@ export default function NewEntryPage() {
                             className="text-xs font-semibold px-3 py-2 rounded-xl border-2 transition-all"
                             style={{
                               borderColor: isSel ? "var(--accent)" : "var(--border-primary)",
-                              background: isSel ? "var(--accent-light)" : "var(--bg-elevated)",
+                              background: isSel ? "var(--accent-soft)" : "hsl(var(--surface-elevated))",
                               color: isSel ? "var(--accent-text)" : "var(--text-secondary)",
                             }}>
                             {isSel && <Check className="w-3 h-3 inline mr-1 -mt-0.5" />}
@@ -1622,7 +1549,7 @@ export default function NewEntryPage() {
                   disabled={!topicText.trim() && selectedTopicIds.length === 0}
                   className="w-full font-bold text-[15px] transition-all active:scale-[0.98] disabled:opacity-40"
                   style={{
-                    background: (topicText.trim() || selectedTopicIds.length > 0) ? "linear-gradient(135deg, var(--accent), var(--accent-hover))" : "var(--bg-tertiary)",
+                    background: (topicText.trim() || selectedTopicIds.length > 0) ? "linear-gradient(135deg, var(--accent), var(--accent-hover))" : "hsl(var(--surface-tertiary))",
                     color: (topicText.trim() || selectedTopicIds.length > 0) ? "white" : "var(--text-tertiary)",
                     boxShadow: (topicText.trim() || selectedTopicIds.length > 0) ? "var(--shadow-accent)" : "none",
                     padding: "16px",
@@ -1636,14 +1563,14 @@ export default function NewEntryPage() {
             {/* ══ STEP 2 — Details & Submit ══ */}
             {step === 2 && (
               <div className="space-y-4 animate-slide-in-right">
-                <div className="border" style={{ background: "var(--bg-elevated)", borderColor: "var(--border-primary)", borderRadius: "16px", padding: "16px" }}>
+                <div className="border" style={{ background: "hsl(var(--surface-elevated))", borderColor: "var(--border-primary)", borderRadius: "16px", padding: "16px" }}>
                   {[
                     ["Subject", contextSubjectName],
                     ["Class", contextClassName + (additionalClassIds.length > 0 ? ` (+${additionalClassIds.length})` : "")],
                     ["Module", moduleName || "—"],
                     ["Topic", topicText || selectedTopicIds.map((id) => topicsForModule.find((t) => t.id === id)?.name).filter(Boolean).join(", ") || "—"],
                   ].map(([label, value], idx) => (
-                    <div key={label} className="flex justify-between py-2" style={{ borderBottom: idx < 3 ? "1px solid var(--bg-tertiary)" : "none" }}>
+                    <div key={label} className="flex justify-between py-2" style={{ borderBottom: idx < 3 ? "1px solid hsl(var(--surface-tertiary))" : "none" }}>
                       <span className="text-[13px] text-[var(--text-tertiary)]">{label}</span>
                       <span className="text-[13px] font-semibold text-[var(--text-primary)] text-right max-w-[60%] truncate">{value}</span>
                     </div>
@@ -1671,7 +1598,7 @@ export default function NewEntryPage() {
                           if (autoFamilyOfSit) { setFamilyOfSituation(autoFamilyOfSit); setFamilyOfSitEditing(false); }
                         }}
                           className="text-xs font-medium px-3 rounded-xl"
-                          style={{ color: "var(--accent-text)", background: "var(--accent-light)" }}>
+                          style={{ color: "var(--accent-text)", background: "var(--accent-soft)" }}>
                           Back
                         </button>
                       </div>
@@ -1718,7 +1645,7 @@ export default function NewEntryPage() {
                     <div className="relative group">
                       <Info className="w-3.5 h-3.5 text-[var(--text-tertiary)] cursor-help" />
                       <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 hidden group-hover:block w-48 text-[11px] rounded-lg px-3 py-2 z-10"
-                        style={{ background: "var(--bg-elevated)", border: "1px solid var(--border-primary)", color: "var(--text-secondary)", boxShadow: "var(--shadow-card)" }}>
+                        style={{ background: "hsl(var(--surface-elevated))", border: "1px solid var(--border-primary)", color: "var(--text-secondary)", boxShadow: "var(--shadow-card)" }}>
                         What can learners demonstrate after this lesson?
                       </div>
                     </div>
@@ -1728,7 +1655,7 @@ export default function NewEntryPage() {
                   </p>
 
                   {metadataObjectives.length > 0 ? (
-                    <div className="rounded-2xl border overflow-hidden" style={{ borderColor: "var(--border-primary)", background: "var(--bg-elevated)" }}>
+                    <div className="rounded-2xl border overflow-hidden" style={{ borderColor: "var(--border-primary)", background: "hsl(var(--surface-elevated))" }}>
                       <div className="max-h-[200px] overflow-y-auto">
                         {metadataObjectives.map((obj) => {
                           const isSelected = obj in selectedObjectives;
@@ -1751,7 +1678,7 @@ export default function NewEntryPage() {
                                 className="w-5 h-5 rounded-md border-2 flex items-center justify-center flex-shrink-0 transition-colors"
                                 style={{
                                   borderColor: isSelected ? "var(--accent)" : "var(--border-primary)",
-                                  background: isSelected ? "var(--accent)" : "var(--bg-elevated)",
+                                  background: isSelected ? "var(--accent)" : "hsl(var(--surface-elevated))",
                                 }}
                               >
                                 {isSelected && <Check className="w-3 h-3 text-white" />}
@@ -1829,12 +1756,12 @@ export default function NewEntryPage() {
                       </div>
                     </div>
                   ) : loadingMetadata ? (
-                    <div className="rounded-2xl border px-4 py-3 animate-pulse" style={{ borderColor: "var(--border-primary)", background: "var(--bg-elevated)" }}>
-                      <div className="h-3 rounded w-3/4 mb-2" style={{ backgroundColor: "var(--bg-tertiary)" }} />
-                      <div className="h-3 rounded w-1/2" style={{ backgroundColor: "var(--bg-tertiary)" }} />
+                    <div className="rounded-2xl border px-4 py-3 animate-pulse" style={{ borderColor: "var(--border-primary)", background: "hsl(var(--surface-elevated))" }}>
+                      <div className="h-3 rounded w-3/4 mb-2" style={{ backgroundColor: "hsl(var(--surface-tertiary))" }} />
+                      <div className="h-3 rounded w-1/2" style={{ backgroundColor: "hsl(var(--surface-tertiary))" }} />
                     </div>
                   ) : (
-                    <div className="rounded-2xl border overflow-hidden" style={{ borderColor: "var(--border-primary)", background: "var(--bg-elevated)" }}>
+                    <div className="rounded-2xl border overflow-hidden" style={{ borderColor: "var(--border-primary)", background: "hsl(var(--surface-elevated))" }}>
                       <div className="max-h-[200px] overflow-y-auto">
                         {[
                           "identify and name measuring instruments",
@@ -1863,7 +1790,7 @@ export default function NewEntryPage() {
                                 className="w-5 h-5 rounded-md border-2 flex items-center justify-center flex-shrink-0 transition-colors"
                                 style={{
                                   borderColor: isSelected ? "var(--accent)" : "var(--border-primary)",
-                                  background: isSelected ? "var(--accent)" : "var(--bg-elevated)",
+                                  background: isSelected ? "var(--accent)" : "hsl(var(--surface-elevated))",
                                 }}
                               >
                                 {isSelected && <Check className="w-3 h-3 text-white" />}
@@ -1950,7 +1877,7 @@ export default function NewEntryPage() {
                             <button key={lvl} type="button" onClick={() => setIntegrationLevel(integrationLevel === lvl ? "" : lvl)}
                               className="flex-1 py-2 text-xs font-semibold transition-all"
                               style={{
-                                background: integrationLevel === lvl ? "var(--accent-light)" : "var(--bg-tertiary)",
+                                background: integrationLevel === lvl ? "var(--accent-soft)" : "hsl(var(--surface-tertiary))",
                                 color: integrationLevel === lvl ? "var(--accent-text)" : "var(--text-tertiary)",
                                 borderRadius: "10px",
                               }}>
@@ -1966,7 +1893,7 @@ export default function NewEntryPage() {
                             <button key={val} type="button" onClick={() => setIntegrationStatus(integrationStatus === val ? "" : val)}
                               className="flex-1 py-2 text-xs font-semibold transition-all"
                               style={{
-                                background: integrationStatus === val ? "var(--accent-light)" : "var(--bg-tertiary)",
+                                background: integrationStatus === val ? "var(--accent-soft)" : "hsl(var(--surface-tertiary))",
                                 color: integrationStatus === val ? "var(--accent-text)" : "var(--text-tertiary)",
                                 borderRadius: "10px",
                               }}>
@@ -1985,10 +1912,10 @@ export default function NewEntryPage() {
                     className="w-full text-left flex items-center gap-3 px-4 py-3 rounded-2xl border-2 transition-all"
                     style={{
                       borderColor: bilingualActivity ? "hsl(var(--accent))" : "var(--border-primary)",
-                      background: bilingualActivity ? "hsl(var(--accent-soft))" : "var(--bg-elevated)",
+                      background: bilingualActivity ? "hsl(var(--accent-soft))" : "hsl(var(--surface-elevated))",
                     }}>
                     <div className="w-5 h-5 rounded-md border-2 flex items-center justify-center flex-shrink-0"
-                      style={{ borderColor: bilingualActivity ? "hsl(var(--accent))" : "var(--border-primary)", background: bilingualActivity ? "hsl(var(--accent))" : "var(--bg-elevated)" }}>
+                      style={{ borderColor: bilingualActivity ? "hsl(var(--accent))" : "var(--border-primary)", background: bilingualActivity ? "hsl(var(--accent))" : "hsl(var(--surface-elevated))" }}>
                       {bilingualActivity && <Check className="w-3 h-3 text-white" />}
                     </div>
                     <div className="flex-1">
@@ -2005,7 +1932,7 @@ export default function NewEntryPage() {
                           <button key={val} type="button" onClick={() => setBilingualType(bilingualType === val ? "" : val)}
                             className="text-sm transition-all"
                             style={{
-                              background: bilingualType === val ? "var(--accent-light)" : "var(--bg-elevated)",
+                              background: bilingualType === val ? "var(--accent-soft)" : "hsl(var(--surface-elevated))",
                               border: bilingualType === val ? "1px solid var(--accent)" : "1px solid var(--border-primary)",
                               color: bilingualType === val ? "var(--accent-text)" : "var(--text-secondary)",
                               borderRadius: "12px",
@@ -2035,7 +1962,7 @@ export default function NewEntryPage() {
                       <button key={val} type="button" onClick={() => { setLessonMode(val); if (val === "physical") setDigitalTools([]); }}
                         className="flex-1 py-3 text-sm font-semibold transition-all flex items-center justify-center gap-1.5"
                         style={{
-                          background: lessonMode === val ? "var(--accent-light)" : "var(--bg-tertiary)",
+                          background: lessonMode === val ? "var(--accent-soft)" : "hsl(var(--surface-tertiary))",
                           color: lessonMode === val ? "var(--accent-text)" : "var(--text-tertiary)",
                           borderRadius: "12px",
                         }}>
@@ -2053,7 +1980,7 @@ export default function NewEntryPage() {
                             onClick={() => setDigitalTools((prev) => isSelected ? prev.filter((t) => t !== tool) : [...prev, tool])}
                             className="text-sm transition-all"
                             style={{
-                              background: isSelected ? "var(--accent-light)" : "var(--bg-elevated)",
+                              background: isSelected ? "var(--accent-soft)" : "hsl(var(--surface-elevated))",
                               border: isSelected ? "1px solid var(--accent)" : "1px solid var(--border-primary)",
                               color: isSelected ? "var(--accent-text)" : "var(--text-secondary)",
                               borderRadius: "12px",
@@ -2109,10 +2036,10 @@ export default function NewEntryPage() {
                     className="w-full text-left flex items-center gap-3 px-4 py-3 rounded-2xl border-2 transition-all"
                     style={{
                       borderColor: assignmentGiven ? "var(--accent)" : "var(--border-primary)",
-                      background: assignmentGiven ? "var(--accent-light)" : "var(--bg-elevated)",
+                      background: assignmentGiven ? "var(--accent-soft)" : "hsl(var(--surface-elevated))",
                     }}>
                     <div className="w-5 h-5 rounded-md border-2 flex items-center justify-center flex-shrink-0"
-                      style={{ borderColor: assignmentGiven ? "var(--accent)" : "var(--border-primary)", background: assignmentGiven ? "var(--accent)" : "var(--bg-elevated)" }}>
+                      style={{ borderColor: assignmentGiven ? "var(--accent)" : "var(--border-primary)", background: assignmentGiven ? "var(--accent)" : "hsl(var(--surface-elevated))" }}>
                       {assignmentGiven && <Check className="w-3 h-3 text-white" />}
                     </div>
                     <div className="flex-1">
@@ -2136,7 +2063,7 @@ export default function NewEntryPage() {
                   )}
                 </div>
 
-                <div className="border overflow-hidden" style={{ borderColor: "var(--border-primary)", background: "var(--bg-elevated)", borderRadius: "16px" }}>
+                <div className="border overflow-hidden" style={{ borderColor: "var(--border-primary)", background: "hsl(var(--surface-elevated))", borderRadius: "16px" }}>
                   <textarea value={notes} onChange={(e) => setNotes(e.target.value.slice(0, 500))}
                     placeholder="Optional notes — observations, challenges..." rows={3}
                     className="w-full px-4 py-3.5 border-none outline-none text-sm bg-transparent resize-none"
@@ -2146,7 +2073,7 @@ export default function NewEntryPage() {
                 {/* ── Collapsible Optional Details ── */}
                 <button type="button" onClick={() => setShowOptionalDetails(!showOptionalDetails)}
                   className="w-full text-left flex items-center gap-2 px-4 py-3 rounded-2xl border transition-all"
-                  style={{ borderColor: "var(--border-primary)", background: "var(--bg-elevated)" }}>
+                  style={{ borderColor: "var(--border-primary)", background: "hsl(var(--surface-elevated))" }}>
                   <ChevronDown className={`w-4 h-4 text-[var(--text-tertiary)] transition-transform ${showOptionalDetails ? "rotate-180" : ""}`} />
                   <span className="text-sm font-medium text-[var(--text-secondary)]">
                     Optional details
@@ -2163,7 +2090,7 @@ export default function NewEntryPage() {
                         <p className="text-[11px] font-semibold mb-1.5" style={{ color: "var(--text-tertiary)" }}>Attendance</p>
                         <input type="number" value={studentAttendance} onChange={(e) => setStudentAttendance(e.target.value)}
                           className="w-full text-center py-2.5 text-lg font-bold font-mono bg-transparent"
-                          style={{ background: "var(--bg-tertiary)", color: "var(--text-primary)", borderRadius: "10px" }}
+                          style={{ background: "hsl(var(--surface-tertiary))", color: "var(--text-primary)", borderRadius: "10px" }}
                           placeholder="—" min="0" max="999" />
                       </div>
                       <div className="flex-1 card p-3.5">
@@ -2181,7 +2108,7 @@ export default function NewEntryPage() {
                               <button key={level} type="button" onClick={() => setEngagementLevel(isActive ? "" : level)}
                                 className="flex-1 py-2.5 text-xs font-semibold transition-all"
                                 style={{
-                                  background: isActive ? c.bg : "var(--bg-tertiary)",
+                                  background: isActive ? c.bg : "hsl(var(--surface-tertiary))",
                                   color: isActive ? c.text : "var(--text-tertiary)",
                                   borderRadius: "10px",
                                 }}>
@@ -2201,14 +2128,14 @@ export default function NewEntryPage() {
                 )}
 
                 {/* ── Entry Completeness Score ── */}
-                <div className="rounded-2xl px-4 py-3" style={{ background: "var(--bg-elevated)", border: "1px solid var(--border-primary)" }}>
+                <div className="rounded-2xl px-4 py-3" style={{ background: "hsl(var(--surface-elevated))", border: "1px solid var(--border-primary)" }}>
                   <div className="flex justify-between items-center mb-2">
                     <span className="text-xs font-semibold text-[var(--text-secondary)]">Entry completeness</span>
                     <span className="text-xs font-bold tabular-nums" style={{ color: completenessScore >= 80 ? "var(--success)" : completenessScore >= 50 ? "var(--accent-text)" : "var(--warning)" }}>
                       {completenessScore}%
                     </span>
                   </div>
-                  <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "var(--bg-tertiary)" }}>
+                  <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "hsl(var(--surface-tertiary))" }}>
                     <div className="h-full rounded-full transition-all duration-500"
                       style={{
                         width: `${completenessScore}%`,
@@ -2228,34 +2155,18 @@ export default function NewEntryPage() {
                   )}
                 </div>
 
-                <button type="submit" disabled={!isFormValid || submitting || savingDraft || selectedPeriodNotEnded}
-                  className="w-full font-bold text-base text-white flex items-center justify-center gap-2 transition-all active:scale-[0.97] disabled:opacity-50"
-                  style={{ background: "linear-gradient(135deg, hsl(var(--success)), hsl(var(--success)))", boxShadow: "0 4px 16px -4px hsl(var(--success) / 0.4)", padding: "18px", borderRadius: "16px" }}>
-                  {submitting ? (
-                    <>
-                      <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24" fill="none">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                      </svg>
-                      Submitting...
-                    </>
-                  ) : (
-                    <>
-                      <CheckCircle className="w-5 h-5" />
-                      {hasMultiSlots || hasMultiClass
-                        ? `Submit ${Math.max(selectedSlotIds.length, 1) * (1 + additionalClassIds.length)} Entries`
-                        : "Submit Entry"}
-                    </>
-                  )}
-                </button>
-
-                {isDraftValid && (
-                  <button type="button" onClick={(e) => handleSubmit(e, true)} disabled={savingDraft || submitting}
-                    className="w-full flex items-center justify-center gap-2 font-bold py-3.5 px-6 active:scale-[0.97] transition-all border-2"
-                    style={{ borderColor: "var(--accent)", background: "var(--bg-elevated)", color: "var(--accent-text)", borderRadius: "16px" }}>
-                    {savingDraft ? "Saving Draft..." : <><Save className="w-5 h-5" />Save as Draft</>}
-                  </button>
-                )}
+                <EntrySubmitBar
+                  isFormValid={isFormValid}
+                  isDraftValid={Boolean(isDraftValid)}
+                  submitting={submitting}
+                  savingDraft={savingDraft}
+                  selectedPeriodNotEnded={selectedPeriodNotEnded}
+                  hasMultiSlots={hasMultiSlots}
+                  hasMultiClass={hasMultiClass}
+                  slotCount={selectedSlotIds.length}
+                  classCount={1 + additionalClassIds.length}
+                  onSaveDraft={(e) => handleSubmit(e, true)}
+                />
               </div>
             )}
           </form>

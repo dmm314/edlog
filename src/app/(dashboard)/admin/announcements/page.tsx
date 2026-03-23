@@ -90,7 +90,7 @@ function SentAnnouncementHistory({ announcements }: { announcements: RecentAnnou
     <div
       className="border"
       style={{
-        background: "var(--bg-elevated)",
+        background: "hsl(var(--surface-elevated))",
         borderColor: "var(--border-primary)",
         borderRadius: "16px",
         padding: "18px",
@@ -106,7 +106,7 @@ function SentAnnouncementHistory({ announcements }: { announcements: RecentAnnou
         <span
           className="text-[11px] font-semibold px-2 py-0.5 rounded-full"
           style={{
-            background: "var(--bg-secondary)",
+            background: "hsl(var(--surface-secondary))",
             color: "var(--text-tertiary)",
           }}
         >
@@ -144,7 +144,7 @@ function SentAnnouncementHistory({ announcements }: { announcements: RecentAnnou
                     key={`${group}-${i}`}
                     className="rounded-xl p-3.5 border"
                     style={{
-                      background: "var(--bg-secondary)",
+                      background: "hsl(var(--surface-secondary))",
                       borderColor: "var(--border-secondary)",
                     }}
                   >
@@ -165,7 +165,7 @@ function SentAnnouncementHistory({ announcements }: { announcements: RecentAnnou
                       </div>
                       <div
                         className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg flex-shrink-0"
-                        style={{ background: "var(--bg-elevated)" }}
+                        style={{ background: "hsl(var(--surface-elevated))" }}
                       >
                         <Users className="w-3 h-3 text-[hsl(var(--accent))]" />
                         <span className="text-xs font-bold text-[var(--text-primary)]" style={{ fontFamily: "var(--font-mono)" }}>
@@ -354,7 +354,7 @@ export default function AdminAnnouncementsPage() {
   }
 
   return (
-    <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
+    <div className="min-h-screen pb-24" style={{ backgroundColor: "hsl(var(--surface-secondary))" }}>
       {/* Header */}
       <div
         className="px-5 pt-10 pb-8 rounded-b-2xl"
@@ -412,7 +412,7 @@ export default function AdminAnnouncementsPage() {
           <div
             className="border text-center"
             style={{
-              background: "var(--bg-elevated)",
+              background: "hsl(var(--surface-elevated))",
               borderColor: "var(--border-primary)",
               borderRadius: "16px",
               padding: "40px 24px",
@@ -445,7 +445,7 @@ export default function AdminAnnouncementsPage() {
           <div
             className="border"
             style={{
-              background: "var(--bg-elevated)",
+              background: "hsl(var(--surface-elevated))",
               borderColor: "var(--border-primary)",
               borderRadius: "16px",
               padding: "20px",
@@ -516,7 +516,7 @@ export default function AdminAnnouncementsPage() {
                 className="flex rounded-xl overflow-hidden border"
                 style={{
                   borderColor: "var(--border-primary)",
-                  background: "var(--bg-secondary)",
+                  background: "hsl(var(--surface-secondary))",
                 }}
               >
                 <button
@@ -553,7 +553,7 @@ export default function AdminAnnouncementsPage() {
                   className="mt-3 border rounded-xl overflow-hidden"
                   style={{
                     borderColor: "var(--border-primary)",
-                    background: "var(--bg-secondary)",
+                    background: "hsl(var(--surface-secondary))",
                   }}
                 >
                   {/* Search */}
@@ -623,7 +623,7 @@ export default function AdminAnnouncementsPage() {
                             key={t.id}
                             type="button"
                             onClick={() => toggleTeacher(t.id)}
-                            className="w-full flex items-center gap-2.5 px-3 py-2.5 text-left transition-colors hover:bg-[var(--bg-tertiary)]"
+                            className="w-full flex items-center gap-2.5 px-3 py-2.5 text-left transition-colors hover:bg-[hsl(var(--surface-tertiary))]"
                             style={{
                               borderBottom: "1px solid var(--border-secondary)",
                             }}
@@ -631,7 +631,7 @@ export default function AdminAnnouncementsPage() {
                             <div
                               className="w-5 h-5 rounded-md flex items-center justify-center flex-shrink-0 transition-colors"
                               style={{
-                                background: selected ? "var(--accent)" : "var(--bg-elevated)",
+                                background: selected ? "var(--accent)" : "hsl(var(--surface-elevated))",
                                 border: selected ? "none" : "1.5px solid var(--border-primary)",
                               }}
                             >
@@ -665,7 +665,7 @@ export default function AdminAnnouncementsPage() {
                 <div
                   className="border rounded-xl p-3"
                   style={{
-                    background: "var(--bg-secondary)",
+                    background: "hsl(var(--surface-secondary))",
                     borderColor: "var(--border-secondary)",
                   }}
                 >
@@ -730,7 +730,7 @@ export default function AdminAnnouncementsPage() {
           <div
             className="w-full max-w-sm border"
             style={{
-              background: "var(--bg-elevated)",
+              background: "hsl(var(--surface-elevated))",
               borderColor: "var(--border-primary)",
               borderRadius: "20px",
               padding: "24px",
@@ -756,7 +756,7 @@ export default function AdminAnnouncementsPage() {
             {/* Preview in modal */}
             <div
               className="border rounded-xl p-3 mb-5"
-              style={{ background: "var(--bg-secondary)", borderColor: "var(--border-secondary)" }}
+              style={{ background: "hsl(var(--surface-secondary))", borderColor: "var(--border-secondary)" }}
             >
               <p className="text-sm font-semibold text-[var(--text-primary)]">{title.trim()}</p>
               <p className="text-xs text-[var(--text-secondary)] mt-1 line-clamp-2">{message.trim()}</p>
@@ -767,7 +767,7 @@ export default function AdminAnnouncementsPage() {
                 onClick={() => setShowConfirm(false)}
                 className="flex-1 py-2.5 rounded-xl text-sm font-semibold border transition-colors"
                 style={{
-                  background: "var(--bg-secondary)",
+                  background: "hsl(var(--surface-secondary))",
                   borderColor: "var(--border-primary)",
                   color: "var(--text-secondary)",
                 }}

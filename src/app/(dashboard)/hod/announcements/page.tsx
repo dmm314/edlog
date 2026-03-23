@@ -72,7 +72,7 @@ export default function HODAnnouncementsPage() {
   }
 
   return (
-    <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
+    <div className="min-h-screen pb-24" style={{ backgroundColor: "hsl(var(--surface-secondary))" }}>
       {/* Header */}
       <div
         className="px-5 pt-10 pb-6 rounded-b-2xl"
@@ -122,7 +122,7 @@ export default function HODAnnouncementsPage() {
           <div
             className="border"
             style={{
-              background: "var(--bg-elevated)",
+              background: "hsl(var(--surface-elevated))",
               borderColor: "var(--border-primary)",
               borderRadius: "16px",
               padding: "18px",
@@ -177,7 +177,7 @@ export default function HODAnnouncementsPage() {
                 <div
                   className="border rounded-xl p-3"
                   style={{
-                    background: "var(--bg-secondary)",
+                    background: "hsl(var(--surface-secondary))",
                     borderColor: "var(--border-secondary)",
                   }}
                 >
@@ -234,7 +234,7 @@ export default function HODAnnouncementsPage() {
           <div
             className="w-full max-w-sm border"
             style={{
-              background: "var(--bg-elevated)",
+              background: "hsl(var(--surface-elevated))",
               borderColor: "var(--border-primary)",
               borderRadius: "20px",
               padding: "24px",
@@ -260,7 +260,7 @@ export default function HODAnnouncementsPage() {
             {/* Preview in modal */}
             <div
               className="border rounded-xl p-3 mb-5"
-              style={{ background: "var(--bg-secondary)", borderColor: "var(--border-secondary)" }}
+              style={{ background: "hsl(var(--surface-secondary))", borderColor: "var(--border-secondary)" }}
             >
               <p className="text-sm font-semibold text-[var(--text-primary)]">{title.trim()}</p>
               <p className="text-xs text-[var(--text-secondary)] mt-1 line-clamp-2">{message.trim()}</p>
@@ -271,7 +271,7 @@ export default function HODAnnouncementsPage() {
                 onClick={() => setShowConfirm(false)}
                 className="flex-1 py-2.5 rounded-xl text-sm font-semibold border transition-colors"
                 style={{
-                  background: "var(--bg-secondary)",
+                  background: "hsl(var(--surface-secondary))",
                   borderColor: "var(--border-primary)",
                   color: "var(--text-secondary)",
                 }}

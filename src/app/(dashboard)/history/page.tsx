@@ -105,7 +105,7 @@ function getStatusColor(status: string): string {
     case "VERIFIED": return "border-l-emerald-500 bg-[var(--badge-verified-bg)]";
     case "FLAGGED": return "border-l-red-500 bg-[var(--badge-flagged-bg)]";
     case "SUBMITTED": return "border-l-[hsl(var(--accent))] bg-[var(--badge-submitted-bg)]";
-    default: return "border-l-[var(--text-quaternary)] bg-[var(--bg-tertiary)]";
+    default: return "border-l-[var(--text-quaternary)] bg-[hsl(var(--surface-tertiary))]";
   }
 }
 
@@ -117,7 +117,7 @@ function getLevelColor(level: string): { bg: string; text: string; border: strin
   if (level.includes("5")) return { bg: "bg-rose-50", text: "text-rose-700", border: "border-rose-200" };
   if (level.toLowerCase().includes("lower")) return { bg: "bg-indigo-50", text: "text-indigo-700", border: "border-indigo-200" };
   if (level.toLowerCase().includes("upper")) return { bg: "bg-purple-50", text: "text-purple-700", border: "border-purple-200" };
-  return { bg: "bg-[var(--bg-tertiary)]", text: "text-[var(--text-secondary)]", border: "border-[var(--border-primary)]" };
+  return { bg: "bg-[hsl(var(--surface-tertiary))]", text: "text-[var(--text-secondary)]", border: "border-[var(--border-primary)]" };
 }
 
 const HISTORY_STATE_KEY = "edlog_history_state";
@@ -301,12 +301,12 @@ export default function HistoryPage() {
   // ─── LEVELS VIEW ───
   if (view === "levels") {
     return (
-      <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
+      <div className="min-h-screen pb-24" style={{ backgroundColor: "hsl(var(--surface-secondary))" }}>
         <div className="page-header px-5 pt-10 pb-8 rounded-b-3xl">
           <div className="max-w-lg mx-auto">
             <div className="flex items-center gap-3 mb-1">
               <FolderOpen className="w-6 h-6 text-white" />
-              <h1 className="text-xl font-bold text-white" style={{ fontFamily: "var(--font-display)" }}>My Entries</h1>
+              <h1 className="text-xl font-bold text-white">My Entries</h1>
             </div>
             <p className="text-[var(--header-text-muted)] text-sm" style={{ fontFamily: "var(--font-body)" }}>Browse your logbook entries by class</p>
           </div>
@@ -368,14 +368,14 @@ export default function HistoryPage() {
   if (view === "classes") {
     const lc = getLevelColor(selectedLevel);
     return (
-      <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
+      <div className="min-h-screen pb-24" style={{ backgroundColor: "hsl(var(--surface-secondary))" }}>
         <div className="page-header px-5 pt-10 pb-8 rounded-b-3xl">
           <div className="max-w-lg mx-auto">
             <button onClick={goBack} className="flex items-center gap-1.5 text-white/70 hover:text-white text-sm mb-3 transition-colors">
               <ArrowLeft className="w-4 h-4" />
               Back to Levels
             </button>
-            <h1 className="text-xl font-bold text-white" style={{ fontFamily: "var(--font-display)" }}>{selectedLevel}</h1>
+            <h1 className="text-xl font-bold text-white">{selectedLevel}</h1>
             <p className="text-[var(--header-text-muted)] text-sm mt-0.5" style={{ fontFamily: "var(--font-body)" }}>Select a class to view entries</p>
           </div>
         </div>
@@ -402,12 +402,12 @@ export default function HistoryPage() {
                   <p className="font-bold text-[var(--text-primary)] text-sm" style={{ fontFamily: "var(--font-body)" }}>{cls.name}</p>
                   <div className="flex flex-wrap gap-1 mt-2">
                     {cls.subjects.slice(0, 3).map((s) => (
-                      <span key={s} className="text-[9px] font-semibold bg-[var(--bg-tertiary)] text-[var(--text-tertiary)] rounded-full px-2 py-0.5" style={{ fontFamily: "var(--font-body)" }}>
+                      <span key={s} className="text-[9px] font-semibold bg-[hsl(var(--surface-tertiary))] text-[var(--text-tertiary)] rounded-full px-2 py-0.5" style={{ fontFamily: "var(--font-body)" }}>
                         {s}
                       </span>
                     ))}
                     {cls.subjects.length > 3 && (
-                      <span className="text-[9px] font-semibold bg-[var(--bg-tertiary)] text-[var(--text-tertiary)] rounded-full px-2 py-0.5" style={{ fontFamily: "var(--font-mono)" }}>
+                      <span className="text-[9px] font-semibold bg-[hsl(var(--surface-tertiary))] text-[var(--text-tertiary)] rounded-full px-2 py-0.5" style={{ fontFamily: "var(--font-mono)" }}>
                         +{cls.subjects.length - 3}
                       </span>
                     )}
@@ -423,7 +423,7 @@ export default function HistoryPage() {
 
   // ─── TIMETABLE VIEW ───
   return (
-    <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
+    <div className="min-h-screen pb-24" style={{ backgroundColor: "hsl(var(--surface-secondary))" }}>
       {/* Header */}
       <div className="page-header px-5 pt-10 pb-5 rounded-b-3xl">
         <div className="max-w-lg mx-auto">
@@ -431,7 +431,7 @@ export default function HistoryPage() {
             <ArrowLeft className="w-4 h-4" />
             Back to {selectedLevel}
           </button>
-          <h1 className="text-xl font-bold text-white" style={{ fontFamily: "var(--font-display)" }}>{selectedClassName}</h1>
+          <h1 className="text-xl font-bold text-white">{selectedClassName}</h1>
           <p className="text-[var(--header-text-muted)] text-sm mt-0.5" style={{ fontFamily: "var(--font-body)" }}>
             <span style={{ fontFamily: "var(--font-mono)" }}>{totalEntryCount}</span> {totalEntryCount === 1 ? "entry" : "entries"} this week
           </p>
@@ -441,7 +441,7 @@ export default function HistoryPage() {
       {/* Week Navigation */}
       <div className="px-5 mt-4 max-w-lg mx-auto">
         <div className="card p-3 flex items-center justify-between">
-          <button onClick={goToPrevWeek} className="p-2 rounded-lg hover:bg-[var(--bg-tertiary)] transition-colors">
+          <button onClick={goToPrevWeek} className="p-2 rounded-lg hover:bg-[hsl(var(--surface-tertiary))] transition-colors">
             <ChevronLeft className="w-5 h-5 text-[var(--text-secondary)]" />
           </button>
           <div className="text-center">
@@ -455,7 +455,7 @@ export default function HistoryPage() {
               <p className="text-[10px] text-emerald-600 font-semibold mt-0.5">Current week</p>
             )}
           </div>
-          <button onClick={goToNextWeek} className="p-2 rounded-lg hover:bg-[var(--bg-tertiary)] transition-colors">
+          <button onClick={goToNextWeek} className="p-2 rounded-lg hover:bg-[hsl(var(--surface-tertiary))] transition-colors">
             <ChevronRight className="w-5 h-5 text-[var(--text-secondary)]" />
           </button>
         </div>
@@ -470,7 +470,7 @@ export default function HistoryPage() {
                 <div key={i} className="flex gap-2 animate-pulse">
                   <div className="w-14 h-14 bg-[var(--skeleton-base)] rounded-lg flex-shrink-0" />
                   {[1, 2, 3, 4, 5].map((j) => (
-                    <div key={j} className="flex-1 h-14 bg-[var(--bg-tertiary)] rounded-lg" />
+                    <div key={j} className="flex-1 h-14 bg-[hsl(var(--surface-tertiary))] rounded-lg" />
                   ))}
                 </div>
               ))}
@@ -487,7 +487,7 @@ export default function HistoryPage() {
             {/* Grid */}
             <div className="card overflow-hidden">
               {/* Day Headers */}
-              <div className="grid grid-cols-[56px_repeat(5,1fr)] bg-[var(--bg-tertiary)] border-b border-[var(--border-primary)]">
+              <div className="grid grid-cols-[56px_repeat(5,1fr)] bg-[hsl(var(--surface-tertiary))] border-b border-[var(--border-primary)]">
                 <div className="p-2 text-center">
                   <span className="text-[9px] font-bold uppercase tracking-wider text-[var(--text-tertiary)]">Period</span>
                 </div>
@@ -496,7 +496,7 @@ export default function HistoryPage() {
                   dateForDay.setDate(dateForDay.getDate() + i);
                   const isToday = new Date().toDateString() === dateForDay.toDateString();
                   return (
-                    <div key={day} className={`p-2 text-center ${isToday ? "bg-[var(--accent-light)]" : ""}`}>
+                    <div key={day} className={`p-2 text-center ${isToday ? "bg-[var(--accent-soft)]" : ""}`}>
                       <span className={`text-[10px] font-bold uppercase tracking-wider ${isToday ? "text-[var(--accent-text)]" : "text-[var(--text-tertiary)]"}`}>
                         {day}
                       </span>
@@ -549,7 +549,7 @@ export default function HistoryPage() {
 
                     if (hasSlot) {
                       return (
-                        <div key={dayOfWeek} className={`p-1 m-0.5 rounded-lg bg-[var(--bg-tertiary)] border border-dashed border-[var(--border-primary)] flex flex-col items-center justify-center ${isToday ? "ring-1 ring-[var(--accent-muted)]" : ""}`}>
+                        <div key={dayOfWeek} className={`p-1 m-0.5 rounded-lg bg-[hsl(var(--surface-tertiary))] border border-dashed border-[var(--border-primary)] flex flex-col items-center justify-center ${isToday ? "ring-1 ring-[var(--accent-muted)]" : ""}`}>
                           <span className="text-[8px] font-medium text-[var(--text-tertiary)] text-center">{hasSlot.subject}</span>
                           <span className="text-[7px] text-[var(--text-quaternary)] mt-0.5">No entry</span>
                         </div>
@@ -557,7 +557,7 @@ export default function HistoryPage() {
                     }
 
                     return (
-                      <div key={dayOfWeek} className={`m-0.5 rounded-lg ${isToday ? "bg-[var(--accent-light)]/30" : ""}`} />
+                      <div key={dayOfWeek} className={`m-0.5 rounded-lg ${isToday ? "bg-[var(--accent-soft)]/30" : ""}`} />
                     );
                   })}
                 </div>
@@ -579,7 +579,7 @@ export default function HistoryPage() {
                 <span className="text-[10px] text-[var(--text-tertiary)]">Flagged</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <div className="w-2.5 h-2.5 rounded-sm border border-dashed border-[var(--border-primary)] bg-[var(--bg-tertiary)]" />
+                <div className="w-2.5 h-2.5 rounded-sm border border-dashed border-[var(--border-primary)] bg-[hsl(var(--surface-tertiary))]" />
                 <span className="text-[10px] text-[var(--text-tertiary)]">Empty</span>
               </div>
             </div>
@@ -591,7 +591,7 @@ export default function HistoryPage() {
       {selectedEntry && (
         <div className="fixed inset-0 z-50 flex items-end justify-center">
           <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setSelectedEntry(null)} />
-          <div className="relative w-full max-w-lg bg-[var(--bg-elevated)] rounded-t-3xl shadow-2xl max-h-[85vh] overflow-y-auto animate-slide-up">
+          <div className="relative w-full max-w-lg bg-[hsl(var(--surface-elevated))] rounded-t-3xl shadow-2xl max-h-[85vh] overflow-y-auto animate-slide-up">
             {/* Handle bar */}
             <div className="flex justify-center pt-3 pb-1">
               <div className="w-10 h-1 bg-[var(--text-quaternary)] rounded-full" />
@@ -600,8 +600,8 @@ export default function HistoryPage() {
             {/* Close button */}
             <button
               onClick={() => setSelectedEntry(null)}
-              className="absolute top-3 right-4 p-1.5 rounded-full hover:bg-[var(--bg-tertiary)] transition-colors"
-              style={{ background: "var(--bg-secondary)" }}
+              className="absolute top-3 right-4 p-1.5 rounded-full hover:bg-[hsl(var(--surface-tertiary))] transition-colors"
+              style={{ background: "hsl(var(--surface-secondary))" }}
             >
               <X className="w-4 h-4 text-[var(--text-tertiary)]" />
             </button>
@@ -650,17 +650,17 @@ export default function HistoryPage() {
               {/* Period & Duration */}
               <div className="py-4">
                 <div className="grid grid-cols-3 gap-2.5">
-                  <div className="text-center bg-[var(--bg-tertiary)] rounded-xl py-3 px-2">
+                  <div className="text-center bg-[hsl(var(--surface-tertiary))] rounded-xl py-3 px-2">
                     <Calendar className="w-4 h-4 text-[var(--text-tertiary)] mx-auto mb-1" />
                     <p className="text-[9px] text-[var(--text-tertiary)] font-medium uppercase" style={{ fontFamily: "var(--font-body)" }}>Period</p>
                     <p className="text-xs font-bold text-[var(--text-primary)]" style={{ fontFamily: "var(--font-mono)" }}>P{selectedEntry.period || "—"}</p>
                   </div>
-                  <div className="text-center bg-[var(--bg-tertiary)] rounded-xl py-3 px-2">
+                  <div className="text-center bg-[hsl(var(--surface-tertiary))] rounded-xl py-3 px-2">
                     <BookOpen className="w-4 h-4 text-[var(--text-tertiary)] mx-auto mb-1" />
                     <p className="text-[9px] text-[var(--text-tertiary)] font-medium uppercase" style={{ fontFamily: "var(--font-body)" }}>Duration</p>
                     <p className="text-xs font-bold text-[var(--text-primary)]" style={{ fontFamily: "var(--font-mono)" }}>{selectedEntry.duration} min</p>
                   </div>
-                  <div className="text-center bg-[var(--bg-tertiary)] rounded-xl py-3 px-2">
+                  <div className="text-center bg-[hsl(var(--surface-tertiary))] rounded-xl py-3 px-2">
                     <Clock className="w-4 h-4 text-[var(--text-tertiary)] mx-auto mb-1" />
                     <p className="text-[9px] text-[var(--text-tertiary)] font-medium uppercase" style={{ fontFamily: "var(--font-body)" }}>Day</p>
                     <p className="text-xs font-bold text-[var(--text-primary)]" style={{ fontFamily: "var(--font-body)" }}>{DAY_NAMES_FULL[selectedEntry.dayOfWeek - 1] || "—"}</p>
@@ -673,13 +673,13 @@ export default function HistoryPage() {
                 <div className="py-4">
                   <div className="grid grid-cols-2 gap-2.5">
                     {selectedEntry.studentAttendance !== null && (
-                      <div className="text-center bg-[var(--bg-tertiary)] rounded-xl py-3 px-2">
+                      <div className="text-center bg-[hsl(var(--surface-tertiary))] rounded-xl py-3 px-2">
                         <p className="text-[9px] text-[var(--text-tertiary)] font-medium uppercase" style={{ fontFamily: "var(--font-body)" }}>Attendance</p>
                         <p className="text-sm font-bold text-[var(--text-primary)]"><span style={{ fontFamily: "var(--font-mono)" }}>{selectedEntry.studentAttendance}</span> students</p>
                       </div>
                     )}
                     {selectedEntry.engagementLevel && (
-                      <div className="text-center bg-[var(--bg-tertiary)] rounded-xl py-3 px-2">
+                      <div className="text-center bg-[hsl(var(--surface-tertiary))] rounded-xl py-3 px-2">
                         <p className="text-[9px] text-[var(--text-tertiary)] font-medium uppercase">Engagement</p>
                         <p className="text-sm font-bold text-[var(--text-primary)]">
                           {selectedEntry.engagementLevel.charAt(0) + selectedEntry.engagementLevel.slice(1).toLowerCase()}

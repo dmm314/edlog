@@ -157,7 +157,7 @@ export function OnboardingTour({ steps, tourKey, onComplete }: OnboardingTourPro
       >
         <div
           style={{
-            background: "var(--bg-elevated)",
+            background: "hsl(var(--surface-elevated))",
             borderRadius: "16px",
             padding: "20px",
             boxShadow: "var(--shadow-elevated)",
@@ -263,7 +263,7 @@ export function OnboardingTour({ steps, tourKey, onComplete }: OnboardingTourPro
                       ? "var(--accent)"
                       : i < currentStep
                         ? "var(--accent-muted, hsl(var(--accent-strong)))"
-                        : "var(--bg-tertiary)",
+                        : "hsl(var(--surface-tertiary))",
                   transition: "all 0.2s ease",
                 }}
               />

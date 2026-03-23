@@ -10,19 +10,6 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        brand: {
-          950: "hsl(var(--brand-950) / <alpha-value>)",
-          900: "hsl(var(--brand-900) / <alpha-value>)",
-          800: "hsl(var(--brand-800) / <alpha-value>)",
-          700: "hsl(var(--brand-700) / <alpha-value>)",
-          600: "hsl(var(--brand-600) / <alpha-value>)",
-          500: "hsl(var(--brand-500) / <alpha-value>)",
-          400: "hsl(var(--brand-400) / <alpha-value>)",
-          300: "hsl(var(--brand-300) / <alpha-value>)",
-          200: "hsl(var(--brand-200) / <alpha-value>)",
-          100: "hsl(var(--brand-100) / <alpha-value>)",
-          50: "hsl(var(--brand-50) / <alpha-value>)",
-        },
         surface: {
           canvas: "hsl(var(--surface-canvas) / <alpha-value>)",
           primary: "hsl(var(--surface-primary) / <alpha-value>)",
@@ -57,17 +44,15 @@ const config: Config = {
       },
       fontFamily: {
         sans: ["var(--font-body)", "system-ui", "-apple-system", "sans-serif"],
-        display: ["var(--font-display)", "Georgia", "serif"],
         mono: ["var(--font-mono)", "Courier New", "monospace"],
       },
       fontSize: {
-        xs: ["0.6875rem", { lineHeight: "1rem" }],
-        sm: ["0.8125rem", { lineHeight: "1.25rem" }],
-        base: ["0.9375rem", { lineHeight: "1.5rem" }],
-        lg: ["1.0625rem", { lineHeight: "1.625rem" }],
-        xl: ["1.375rem", { lineHeight: "1.8rem" }],
-        "2xl": ["1.75rem", { lineHeight: "2.1rem" }],
-        "3xl": ["2.25rem", { lineHeight: "2.5rem" }],
+        micro: ["0.6875rem", { lineHeight: "1rem" }],
+        caption: ["0.75rem", { lineHeight: "1rem" }],
+        body: ["0.875rem", { lineHeight: "1.25rem" }],
+        "body-lg": ["1rem", { lineHeight: "1.5rem" }],
+        title: ["1.25rem", { lineHeight: "1.75rem" }],
+        display: ["1.75rem", { lineHeight: "2.25rem" }],
       },
       borderRadius: {
         sm: "8px",
@@ -81,11 +66,8 @@ const config: Config = {
       boxShadow: {
         card: "0 1px 3px 0 rgba(0, 0, 0, 0.06), 0 1px 2px -1px rgba(0, 0, 0, 0.06)",
         "card-hover": "0 4px 12px -2px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.05)",
-        "inner-glow": "inset 0 1px 0 rgba(255, 255, 255, 0.06)",
         elevated: "0 8px 24px -6px rgba(0, 0, 0, 0.1), 0 2px 8px -4px rgba(0, 0, 0, 0.06)",
         float: "0 12px 32px -8px rgba(0, 0, 0, 0.12), 0 4px 12px -4px rgba(0, 0, 0, 0.06)",
-        accent: "0 4px 14px -4px hsl(var(--accent) / 0.3)",
-        success: "0 4px 14px -4px hsl(var(--success) / 0.3)",
       },
       keyframes: {
         "fade-in": {
@@ -110,19 +92,6 @@ const config: Config = {
         "slide-up": "slide-up 0.25s ease-out",
         "scale-in": "scale-in 0.2s ease-out",
         shimmer: "shimmer 1.8s linear infinite",
-        // Legacy compat — resolve to simple fade-in so existing pages compile
-        "spring-bounce": "fade-in 0.2s ease-out",
-        "spring-expand": "fade-in 0.2s ease-out",
-        "live-pulse": "fade-in 0.2s ease-out",
-        "glow-breathe": "none",
-        "heart-pop": "scale-in 0.2s ease-out",
-        "nav-bob": "none",
-        ripple: "fade-in 0.3s ease-out",
-        "ripple-tap": "fade-in 0.3s ease-out",
-        "live-update": "none",
-        "status-verified": "none",
-        "stories-scroll": "none",
-        float: "none",
       },
     },
   },

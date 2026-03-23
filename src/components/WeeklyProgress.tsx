@@ -20,7 +20,7 @@ function WeeklyProgress({ days, totalCompleted, totalPeriods }: WeeklyProgressPr
     <div
       className="border"
       style={{
-        background: "var(--bg-elevated)",
+        background: "hsl(var(--surface-elevated))",
         borderColor: "var(--border-primary)",
         borderRadius: "20px",
         padding: "18px",
@@ -63,7 +63,7 @@ function WeeklyProgress({ days, totalCompleted, totalPeriods }: WeeklyProgressPr
                 style={{
                   height: "48px",
                   borderRadius: "10px",
-                  backgroundColor: isFuture ? "var(--bg-tertiary)" : "var(--bg-tertiary)",
+                  backgroundColor: isFuture ? "hsl(var(--surface-tertiary))" : "hsl(var(--surface-tertiary))",
                 }}
               >
                 {/* Fill bar — animated from bottom */}

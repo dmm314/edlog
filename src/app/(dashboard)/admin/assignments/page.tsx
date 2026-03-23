@@ -217,9 +217,9 @@ export default function AssignmentsPage() {
   const hasSetup = teachers.length > 0 && classes.length > 0 && subjects.length > 0;
 
   return (
-    <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
+    <div className="min-h-screen pb-24" style={{ backgroundColor: "hsl(var(--surface-secondary))" }}>
       {/* Header */}
-      <div className="bg-gradient-to-br from-[var(--header-from)] to-[var(--header-to)] px-5 pt-10 pb-6 rounded-b-2xl">
+      <div className="bg-gradient-to-br from-[hsl(var(--accent))] to-[hsl(var(--accent-strong))] px-5 pt-10 pb-6 rounded-b-2xl">
         <div className="max-w-lg mx-auto">
           <Link
             href="/admin"
@@ -245,7 +245,7 @@ export default function AssignmentsPage() {
                     setShowForm(!showForm);
                     setError("");
                   }}
-                  className="flex items-center gap-1.5 bg-[var(--bg-elevated)]/10 hover:bg-[var(--bg-elevated)]/20 text-white text-sm rounded-lg px-3 py-1.5"
+                  className="flex items-center gap-1.5 bg-[hsl(var(--surface-elevated))]/10 hover:bg-[hsl(var(--surface-elevated))]/20 text-white text-sm rounded-lg px-3 py-1.5"
                 >
                   <Plus className="w-4 h-4" />
                   Assign
@@ -455,13 +455,13 @@ export default function AssignmentsPage() {
                 placeholder="Search assignments..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-4 py-2.5 bg-[var(--bg-elevated)] border border-[var(--border-primary)] rounded-xl text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-transparent"
+                className="w-full pl-9 pr-4 py-2.5 bg-[hsl(var(--surface-elevated))] border border-[var(--border-primary)] rounded-xl text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-transparent"
               />
             </div>
             <select
               value={filterTeacher}
               onChange={(e) => setFilterTeacher(e.target.value)}
-              className="bg-[var(--bg-elevated)] border border-[var(--border-primary)] rounded-xl text-sm text-[var(--text-secondary)] px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
+              className="bg-[hsl(var(--surface-elevated))] border border-[var(--border-primary)] rounded-xl text-sm text-[var(--text-secondary)] px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
             >
               <option value="">All teachers</option>
               {teachers.map((t) => (

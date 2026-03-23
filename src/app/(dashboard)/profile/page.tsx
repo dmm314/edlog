@@ -146,7 +146,7 @@ function getBannerGradient(role: string) {
     case "REGIONAL_ADMIN":
       return "linear-gradient(135deg, #0c1628 0%, #0f172a 50%, #1e3a5f 100%)";
     default:
-      return "linear-gradient(135deg, var(--header-from), var(--header-via), var(--header-to))";
+      return "hsl(var(--accent))";
   }
 }
 
@@ -155,9 +155,9 @@ function getBannerGradient(role: string) {
 function SkeletonBanner() {
   return (
     <div className="animate-pulse">
-      <div className="w-full" style={{ height: 140, backgroundColor: "var(--bg-tertiary)" }} />
+      <div className="w-full" style={{ height: 140, backgroundColor: "hsl(var(--surface-tertiary))" }} />
       <div className="max-w-lg mx-auto px-5 -mt-11 flex flex-col items-center">
-        <div className="w-[88px] h-[88px] rounded-full" style={{ backgroundColor: "var(--skeleton-base)", border: "4px solid var(--bg-primary)" }} />
+        <div className="w-[88px] h-[88px] rounded-full" style={{ backgroundColor: "var(--skeleton-base)", border: "4px solid hsl(var(--surface-canvas))" }} />
         <div className="h-5 rounded w-40 mt-3" style={{ backgroundColor: "var(--skeleton-base)" }} />
         <div className="h-3 rounded w-48 mt-2" style={{ backgroundColor: "var(--skeleton-base)" }} />
       </div>
@@ -167,7 +167,7 @@ function SkeletonBanner() {
 
 function SkeletonCard() {
   return (
-    <div className="rounded-2xl p-4 animate-pulse" style={{ backgroundColor: "var(--bg-elevated)", border: "1px solid var(--border-primary)" }}>
+    <div className="rounded-2xl p-4 animate-pulse" style={{ backgroundColor: "hsl(var(--surface-elevated))", border: "1px solid var(--border-primary)" }}>
       <div className="h-3 rounded w-24 mb-3" style={{ backgroundColor: "var(--skeleton-base)" }} />
       <div className="space-y-2.5">
         <div className="h-3 rounded w-full" style={{ backgroundColor: "var(--skeleton-base)" }} />
@@ -196,7 +196,7 @@ function InfoRow({
     <div className="flex items-center gap-3 py-2.5">
       <div
         className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
-        style={{ background: "var(--bg-tertiary)" }}
+        style={{ background: "hsl(var(--surface-tertiary))" }}
       >
         <span className="flex" style={{ color: "var(--text-tertiary)" }}>{icon}</span>
       </div>
@@ -238,7 +238,7 @@ function SectionCard({
   return (
     <div
       className="rounded-2xl overflow-hidden"
-      style={{ backgroundColor: "var(--bg-elevated)", border: "1px solid var(--border-primary)" }}
+      style={{ backgroundColor: "hsl(var(--surface-elevated))", border: "1px solid var(--border-primary)" }}
     >
       {expandable ? (
         <button
@@ -312,7 +312,7 @@ function QuickLinkRow({
     >
       <div
         className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
-        style={{ background: iconBg || "var(--bg-tertiary)" }}
+        style={{ background: iconBg || "hsl(var(--surface-tertiary))" }}
       >
         <span className="flex" style={{ color: iconBg ? "white" : "var(--text-tertiary)" }}>{icon}</span>
       </div>
@@ -342,7 +342,7 @@ function EditActions({
       {error && (
         <div
           className="text-xs rounded-xl px-3 py-2"
-          style={{ background: "var(--accent-light)", color: "var(--accent-text)", border: "1px solid var(--accent)" }}
+          style={{ background: "var(--accent-soft)", color: "var(--accent-text)", border: "1px solid var(--accent)" }}
         >
           {error}
         </div>
@@ -351,7 +351,7 @@ function EditActions({
         <button
           onClick={onCancel}
           className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-xl transition-colors"
-          style={{ color: "var(--text-secondary)", background: "var(--bg-tertiary)" }}
+          style={{ color: "var(--text-secondary)", background: "hsl(var(--surface-tertiary))" }}
         >
           <X className="w-3.5 h-3.5" /> Cancel
         </button>
@@ -525,7 +525,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen pb-28" style={{ backgroundColor: "var(--bg-secondary)" }}>
+    <div className="min-h-screen pb-28" style={{ backgroundColor: "hsl(var(--surface-secondary))" }}>
 
       {/* ══ BANNER + AVATAR ══ */}
       {loading ? <SkeletonBanner /> : (
@@ -559,17 +559,16 @@ export default function ProfilePage() {
                   src={profile.photoUrl}
                   alt="Profile photo"
                   className="w-[88px] h-[88px] rounded-full object-cover"
-                  style={{ border: "4px solid var(--bg-primary)", boxShadow: "0 4px 16px rgba(0,0,0,0.18)" }}
+                  style={{ border: "4px solid hsl(var(--surface-canvas))", boxShadow: "0 4px 16px rgba(0,0,0,0.18)" }}
                 />
               ) : (
                 <div
                   className="w-[88px] h-[88px] rounded-full flex items-center justify-center text-white text-2xl font-bold"
                   style={{
                     backgroundColor: getInitialsBg(role),
-                    border: "4px solid var(--bg-primary)",
+                    border: "4px solid hsl(var(--surface-canvas))",
                     boxShadow: "0 4px 16px rgba(0,0,0,0.18)",
-                    fontFamily: "var(--font-display)",
-                  }}
+                    }}
                 >
                   {initials.toUpperCase()}
                 </div>
@@ -589,13 +588,13 @@ export default function ProfilePage() {
             <div className="flex items-center gap-2 mt-3 flex-wrap justify-center">
               <h1
                 className="font-bold text-[22px] leading-tight"
-                style={{ color: "var(--text-primary)", fontFamily: "var(--font-display)" }}
+                style={{ color: "var(--text-primary)" }}
               >
                 {displayName}
               </h1>
               <span
                 className="text-[11px] font-semibold px-2.5 py-1 rounded-full"
-                style={{ backgroundColor: "var(--accent-light)", color: "var(--accent-text)" }}
+                style={{ backgroundColor: "var(--accent-soft)", color: "var(--accent-text)" }}
               >
                 {getRoleBadgeLabel(role)}
               </span>
@@ -628,7 +627,7 @@ export default function ProfilePage() {
           <div
             className="rounded-2xl p-3 animate-fade-slide-in"
             style={{
-              backgroundColor: activeMode === "coordinator" ? "hsl(var(--accent) / 0.06)" : "var(--bg-elevated)",
+              backgroundColor: activeMode === "coordinator" ? "hsl(var(--accent) / 0.06)" : "hsl(var(--surface-elevated))",
               border: `1px solid ${activeMode === "coordinator" ? "hsl(var(--accent) / 0.22)" : "var(--border-primary)"}`,
             }}
           >
@@ -647,7 +646,7 @@ export default function ProfilePage() {
                   style={{
                     background: activeMode === mode
                       ? mode === "coordinator" ? "hsl(var(--accent))" : "var(--accent)"
-                      : "var(--bg-tertiary)",
+                      : "hsl(var(--surface-tertiary))",
                     color: activeMode === mode ? "white" : "var(--text-tertiary)",
                     boxShadow: activeMode === mode
                       ? mode === "coordinator" ? "0 2px 8px hsl(var(--accent) / 0.35)" : "0 2px 8px hsl(var(--accent) / 0.35)"
@@ -668,7 +667,7 @@ export default function ProfilePage() {
             {role === "TEACHER" && profile?.teacherStats && (
               <div
                 className="rounded-2xl overflow-hidden animate-fade-slide-in"
-                style={{ backgroundColor: "var(--bg-elevated)", border: "1px solid var(--border-primary)" }}
+                style={{ backgroundColor: "hsl(var(--surface-elevated))", border: "1px solid var(--border-primary)" }}
               >
                 <div className="flex">
                   {[
@@ -734,7 +733,7 @@ export default function ProfilePage() {
             {role === "SCHOOL_ADMIN" && profile?.schoolStats && (
               <div
                 className="rounded-2xl overflow-hidden animate-fade-slide-in"
-                style={{ backgroundColor: "var(--bg-elevated)", border: "1px solid var(--border-primary)" }}
+                style={{ backgroundColor: "hsl(var(--surface-elevated))", border: "1px solid var(--border-primary)" }}
               >
                 <div className="flex">
                   {[
@@ -763,7 +762,7 @@ export default function ProfilePage() {
             {role === "REGIONAL_ADMIN" && profile?.regionStats && (
               <div
                 className="rounded-2xl overflow-hidden animate-fade-slide-in"
-                style={{ backgroundColor: "var(--bg-elevated)", border: "1px solid var(--border-primary)" }}
+                style={{ backgroundColor: "hsl(var(--surface-elevated))", border: "1px solid var(--border-primary)" }}
               >
                 <div className="flex">
                   {[
@@ -802,7 +801,7 @@ export default function ProfilePage() {
                 <div
                   className="relative px-4 py-4"
                   style={{
-                    background: "linear-gradient(135deg, var(--bg-elevated) 0%, hsl(var(--accent) / 0.06) 100%)",
+                    background: "linear-gradient(135deg, hsl(var(--surface-elevated)) 0%, hsl(var(--accent) / 0.06) 100%)",
                   }}
                 >
                   <div className="flex items-start justify-between">
@@ -831,7 +830,7 @@ export default function ProfilePage() {
                       }}
                       className="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl transition-all mt-0.5 flex-shrink-0"
                       style={{
-                        backgroundColor: copiedTC ? "hsl(var(--success) / 0.12)" : "var(--bg-elevated)",
+                        backgroundColor: copiedTC ? "hsl(var(--success) / 0.12)" : "hsl(var(--surface-elevated))",
                         color: copiedTC ? "hsl(var(--success))" : "var(--text-secondary)",
                         border: "1px solid var(--border-primary)",
                       }}
@@ -923,7 +922,7 @@ export default function ProfilePage() {
                   <button
                     onClick={() => setEditingSection("personalInfo")}
                     className="flex items-center gap-1.5 text-xs font-semibold mt-3 px-3 py-1.5 rounded-xl transition-colors"
-                    style={{ color: "var(--accent-text)", background: "var(--accent-light)" }}
+                    style={{ color: "var(--accent-text)", background: "var(--accent-soft)" }}
                   >
                     <Edit3 className="w-3.5 h-3.5" /> Edit info
                   </button>
@@ -941,7 +940,7 @@ export default function ProfilePage() {
                 pendingInvitations.length > 0 ? (
                   <span
                     className="text-[10px] font-bold px-2 py-0.5 rounded-full"
-                    style={{ backgroundColor: "var(--accent-light)", color: "var(--accent-text)" }}
+                    style={{ backgroundColor: "var(--accent-soft)", color: "var(--accent-text)" }}
                   >
                     {pendingInvitations.length} pending
                   </span>
@@ -1023,7 +1022,7 @@ export default function ProfilePage() {
                               <span
                                 key={cls}
                                 className="text-[11px] font-medium px-2 py-0.5 rounded-full"
-                                style={{ background: "var(--bg-tertiary)", color: "var(--text-secondary)" }}
+                                style={{ background: "hsl(var(--surface-tertiary))", color: "var(--text-secondary)" }}
                               >
                                 {cls}
                               </span>
@@ -1098,7 +1097,7 @@ export default function ProfilePage() {
                     )}
                     <div style={{ borderTop: "1px solid var(--border-secondary)" }}>
                       <div className="flex items-center gap-3 py-2.5">
-                        <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: "var(--bg-tertiary)" }}>
+                        <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: "hsl(var(--surface-tertiary))" }}>
                           <CheckCircle className="w-3.5 h-3.5" style={{ color: "var(--text-tertiary)" }} />
                         </div>
                         <div>
@@ -1112,7 +1111,7 @@ export default function ProfilePage() {
                     <button
                       onClick={() => setEditingSection("schoolProfile")}
                       className="flex items-center gap-1.5 text-xs font-semibold mt-2 px-3 py-1.5 rounded-xl transition-colors"
-                      style={{ color: "var(--accent-text)", background: "var(--accent-light)" }}
+                      style={{ color: "var(--accent-text)", background: "var(--accent-soft)" }}
                     >
                       <Edit3 className="w-3.5 h-3.5" /> Edit school info
                     </button>
@@ -1124,7 +1123,7 @@ export default function ProfilePage() {
             {/* Quick Links */}
             <div
               className="rounded-2xl px-4 py-3 animate-fade-slide-in"
-              style={{ backgroundColor: "var(--bg-elevated)", border: "1px solid var(--border-primary)" }}
+              style={{ backgroundColor: "hsl(var(--surface-elevated))", border: "1px solid var(--border-primary)" }}
             >
               <p className="text-[12px] font-semibold uppercase tracking-[0.05em] mb-1" style={{ color: "var(--text-tertiary)" }}>Quick links</p>
               <QuickLinkRow href="/admin/teachers" icon={<Users className="w-4 h-4" />} label="Manage Teachers" />
@@ -1159,7 +1158,7 @@ export default function ProfilePage() {
                   <button
                     onClick={() => setEditingSection("adminPersonal")}
                     className="flex items-center gap-1.5 text-xs font-semibold mt-3 px-3 py-1.5 rounded-xl"
-                    style={{ color: "var(--accent-text)", background: "var(--accent-light)" }}
+                    style={{ color: "var(--accent-text)", background: "var(--accent-soft)" }}
                   >
                     <Edit3 className="w-3.5 h-3.5" /> Edit info
                   </button>
@@ -1207,7 +1206,7 @@ export default function ProfilePage() {
             {/* Quick Links */}
             <div
               className="rounded-2xl px-4 py-3 animate-fade-slide-in"
-              style={{ backgroundColor: "var(--bg-elevated)", border: "1px solid var(--border-primary)" }}
+              style={{ backgroundColor: "hsl(var(--surface-elevated))", border: "1px solid var(--border-primary)" }}
             >
               <p className="text-[12px] font-semibold uppercase tracking-[0.05em] mb-1" style={{ color: "var(--text-tertiary)" }}>Quick links</p>
               <QuickLinkRow href="/regional/schools" icon={<Building2 className="w-4 h-4" />} label="Schools" />
@@ -1264,7 +1263,7 @@ export default function ProfilePage() {
                   <button
                     onClick={() => setEditingSection("regionalPersonal")}
                     className="flex items-center gap-1.5 text-xs font-semibold mt-3 px-3 py-1.5 rounded-xl"
-                    style={{ color: "var(--accent-text)", background: "var(--accent-light)" }}
+                    style={{ color: "var(--accent-text)", background: "var(--accent-soft)" }}
                   >
                     <Edit3 className="w-3.5 h-3.5" /> Edit info
                   </button>
@@ -1278,7 +1277,7 @@ export default function ProfilePage() {
         {!loading && (
           <div
             className="rounded-2xl px-4 py-3 animate-fade-slide-in"
-            style={{ backgroundColor: "var(--bg-elevated)", border: "1px solid var(--border-primary)" }}
+            style={{ backgroundColor: "hsl(var(--surface-elevated))", border: "1px solid var(--border-primary)" }}
           >
             <p className="text-[12px] font-semibold uppercase tracking-[0.05em] mb-1" style={{ color: "var(--text-tertiary)" }}>Settings</p>
 
@@ -1288,7 +1287,7 @@ export default function ProfilePage() {
               className="flex items-center gap-3 py-2.5 group transition-colors"
               style={{ color: "var(--text-primary)" }}
             >
-              <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "var(--bg-tertiary)" }}>
+              <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "hsl(var(--surface-tertiary))" }}>
                 <span className="flex items-center gap-0.5" style={{ color: "var(--text-tertiary)" }}>
                   <Sun className="w-3 h-3" />
                   <Moon className="w-3 h-3" />
@@ -1309,7 +1308,7 @@ export default function ProfilePage() {
                 }}
                 className="w-full flex items-center gap-3 py-2.5 transition-colors text-left"
               >
-                <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "var(--bg-tertiary)" }}>
+                <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "hsl(var(--surface-tertiary))" }}>
                   <HelpCircle className="w-4 h-4" style={{ color: "var(--text-tertiary)" }} />
                 </div>
                 <div className="flex-1 text-left">
@@ -1334,7 +1333,7 @@ export default function ProfilePage() {
                 }}
                 className="w-full flex items-center gap-3 py-2.5 transition-colors text-left"
               >
-                <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "var(--bg-tertiary)" }}>
+                <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "hsl(var(--surface-tertiary))" }}>
                   {hintsVisible
                     ? <EyeOff className="w-4 h-4" style={{ color: "var(--text-tertiary)" }} />
                     : <Eye className="w-4 h-4" style={{ color: "var(--text-tertiary)" }} />
@@ -1351,7 +1350,7 @@ export default function ProfilePage() {
                 <div
                   className="w-10 h-5.5 rounded-full flex-shrink-0 flex items-center transition-all"
                   style={{
-                    background: hintsVisible ? "var(--accent)" : "var(--bg-tertiary)",
+                    background: hintsVisible ? "var(--accent)" : "hsl(var(--surface-tertiary))",
                     padding: "2px",
                     width: 36,
                     height: 20,

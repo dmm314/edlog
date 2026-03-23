@@ -355,9 +355,9 @@ export default function ManageSubjectsPage() {
   }
 
   return (
-    <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
+    <div className="min-h-screen pb-24" style={{ backgroundColor: "hsl(var(--surface-secondary))" }}>
       {/* Header */}
-      <div className="bg-gradient-to-br from-[var(--header-from)] to-[var(--header-to)] px-5 pt-10 pb-6 rounded-b-2xl">
+      <div className="bg-gradient-to-br from-[hsl(var(--accent))] to-[hsl(var(--accent-strong))] px-5 pt-10 pb-6 rounded-b-2xl">
         <div className="max-w-lg mx-auto">
           <Link
             href="/admin"
@@ -409,7 +409,7 @@ export default function ManageSubjectsPage() {
             placeholder="Search subjects..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-4 py-2.5 bg-[var(--bg-elevated)] border border-[var(--border-primary)] rounded-xl text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-transparent"
+            className="w-full pl-9 pr-4 py-2.5 bg-[hsl(var(--surface-elevated))] border border-[var(--border-primary)] rounded-xl text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-transparent"
           />
         </div>
 
@@ -450,9 +450,9 @@ export default function ManageSubjectsPage() {
                         className={`card p-3 flex items-center justify-between transition-colors ${
                           subject.linked
                             ? "border-[var(--border-secondary)]"
-                            : "hover:bg-[var(--bg-tertiary)]"
+                            : "hover:bg-[hsl(var(--surface-tertiary))]"
                         } ${isExpanded ? "rounded-b-none border-b-0" : ""}`}
-                        style={subject.linked ? { background: "var(--accent-light)" } : undefined}
+                        style={subject.linked ? { background: "var(--accent-soft)" } : undefined}
                       >
                         <button
                           onClick={() =>
@@ -483,7 +483,7 @@ export default function ManageSubjectsPage() {
                                 </span>
                               )}
                               {subject.linked && subject.divisions.length === 0 && (
-                                <span className="text-[10px] text-[var(--text-tertiary)] bg-[var(--bg-tertiary)] px-1.5 py-0.5 rounded font-medium">
+                                <span className="text-[10px] text-[var(--text-tertiary)] bg-[hsl(var(--surface-tertiary))] px-1.5 py-0.5 rounded font-medium">
                                   No divisions
                                 </span>
                               )}
@@ -526,7 +526,7 @@ export default function ManageSubjectsPage() {
 
                       {/* Expanded division setup panel */}
                       {isExpanded && (
-                        <div className="bg-[var(--bg-elevated)] border border-t-0 border-[var(--border-primary)] rounded-b-xl p-4 space-y-3">
+                        <div className="bg-[hsl(var(--surface-elevated))] border border-t-0 border-[var(--border-primary)] rounded-b-xl p-4 space-y-3">
                           <div className="flex items-center gap-2">
                             <Users className="w-4 h-4 text-[var(--accent-text)]" />
                             <p className="text-sm font-semibold text-[var(--text-primary)]">
@@ -602,7 +602,7 @@ export default function ManageSubjectsPage() {
                                         t.levels
                                       )
                                     }
-                                    className="text-xs bg-[var(--bg-elevated)] text-blue-700 px-2.5 py-1 rounded-lg font-medium border border-blue-200 hover:bg-blue-100 transition-colors flex items-center gap-1"
+                                    className="text-xs bg-[hsl(var(--surface-elevated))] text-blue-700 px-2.5 py-1 rounded-lg font-medium border border-blue-200 hover:bg-blue-100 transition-colors flex items-center gap-1"
                                   >
                                     <Plus className="w-3 h-3" />
                                     {t.name}
@@ -648,7 +648,7 @@ export default function ManageSubjectsPage() {
                                     className={`text-[10px] font-medium px-2 py-1 rounded-lg border transition-colors ${
                                       newDivLevels.includes(level)
                                         ? "bg-[var(--accent)] text-white border-[var(--accent)]"
-                                        : "bg-[var(--bg-elevated)] text-[var(--text-tertiary)] border-[var(--border-primary)] hover:border-[var(--accent)]"
+                                        : "bg-[hsl(var(--surface-elevated))] text-[var(--text-tertiary)] border-[var(--border-primary)] hover:border-[var(--accent)]"
                                     }`}
                                   >
                                     {level}

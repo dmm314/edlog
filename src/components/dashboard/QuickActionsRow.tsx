@@ -44,7 +44,7 @@ export function QuickActionsRow() {
               href={action.href}
               className={cn(
                 "card group min-w-[148px] snap-start p-3 motion-safe:animate-slide-up",
-                action.pulse && "motion-safe:animate-live-pulse",
+                action.pulse && "motion-safe:animate-fade-in",
               )}
               style={{ animationDelay: `${index * 80}ms` }}
             >

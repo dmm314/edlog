@@ -80,7 +80,7 @@ export default function RegionalAnalysisPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[var(--bg-secondary)] to-[var(--bg-tertiary)] pb-24">
+    <div className="min-h-screen bg-gradient-to-b from-[hsl(var(--surface-secondary))] to-[hsl(var(--surface-tertiary))] pb-24">
       {/* Header */}
       <div className="bg-gradient-to-br from-[hsl(var(--accent-text))] via-[hsl(var(--accent-strong))] to-[hsl(var(--accent))] px-5 pt-10 pb-8 rounded-b-[2rem] shadow-elevated relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[hsl(var(--accent)/0.2)] via-transparent to-transparent" />
@@ -104,7 +104,7 @@ export default function RegionalAnalysisPage() {
 
       <div className="px-5 mt-4 max-w-lg mx-auto space-y-4">
         {/* Tab switcher */}
-        <div className="flex bg-[var(--bg-elevated)] rounded-xl border border-[var(--border-primary)] p-1">
+        <div className="flex bg-[hsl(var(--surface-elevated))] rounded-xl border border-[var(--border-primary)] p-1">
           {[
             { key: "modules" as const, label: "Modules", icon: BookOpen },
             { key: "teachers" as const, label: "Teachers", icon: Users },
@@ -270,7 +270,7 @@ export default function RegionalAnalysisPage() {
                                   {s.teachers.map((t) => (
                                     <span
                                       key={t}
-                                      className="text-[10px] bg-[var(--bg-tertiary)] text-[var(--text-secondary)] px-2 py-0.5 rounded-md"
+                                      className="text-[10px] bg-[hsl(var(--surface-tertiary))] text-[var(--text-secondary)] px-2 py-0.5 rounded-md"
                                     >
                                       {t}
                                     </span>
@@ -341,7 +341,7 @@ export default function RegionalAnalysisPage() {
                             {sub.schools.map((h, i) => (
                               <div
                                 key={i}
-                                className="flex items-center justify-between p-2 bg-[var(--bg-tertiary)] rounded-lg"
+                                className="flex items-center justify-between p-2 bg-[hsl(var(--surface-tertiary))] rounded-lg"
                               >
                                 <div>
                                   <p className="text-sm font-semibold text-[var(--text-primary)]">
@@ -351,7 +351,7 @@ export default function RegionalAnalysisPage() {
                                     {h.email}
                                   </p>
                                 </div>
-                                <span className="text-[10px] font-semibold bg-[var(--bg-elevated)] text-[var(--text-tertiary)] px-2 py-0.5 rounded border border-[var(--border-primary)]">
+                                <span className="text-[10px] font-semibold bg-[hsl(var(--surface-elevated))] text-[var(--text-tertiary)] px-2 py-0.5 rounded border border-[var(--border-primary)]">
                                   {h.school}
                                 </span>
                               </div>

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState, useCallback } from "react";
 import { BottomNav } from "@/components/BottomNav";
 import { SideNav } from "@/components/SideNav";
+import { ModeSwitcher } from "@/components/layout/ModeSwitcher";
 import { CoordinatorModeContext, type PortalMode } from "@/contexts/CoordinatorModeContext";
 
 const PORTAL_MODE_KEY = "edlog-portal-mode";
@@ -95,6 +96,9 @@ export default function DashboardLayout({
     >
       <div className="dashboard-shell min-h-screen bg-[hsl(var(--surface-canvas))]">
         <SideNav role={role} userName={userName} isCoordinator={isCoordinator} activeMode={activeMode} switchMode={switchMode} />
+        {isCoordinator && (
+          <ModeSwitcher activeMode={activeMode} switchMode={switchMode} />
+        )}
         <div className="dashboard-content">
           {children}
         </div>

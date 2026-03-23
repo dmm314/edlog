@@ -137,7 +137,7 @@ export default function EditEntryPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: "var(--bg-secondary)" }}>
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: "hsl(var(--surface-secondary))" }}>
         <Loader2 className="w-6 h-6 animate-spin text-[var(--accent-text)]" />
       </div>
     );
@@ -145,8 +145,8 @@ export default function EditEntryPage() {
 
   if (!entry) {
     return (
-      <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
-        <div className="bg-gradient-to-br from-[var(--header-from)] to-[var(--header-to)] px-5 pt-10 pb-6 rounded-b-2xl">
+      <div className="min-h-screen pb-24" style={{ backgroundColor: "hsl(var(--surface-secondary))" }}>
+        <div className="bg-gradient-to-br from-[hsl(var(--accent))] to-[hsl(var(--accent-strong))] px-5 pt-10 pb-6 rounded-b-2xl">
           <div className="max-w-lg mx-auto">
             <Link
               href="/logbook"
@@ -174,9 +174,9 @@ export default function EditEntryPage() {
   const topicNames = entry.topics?.map((t) => t.name).join(", ") || "—";
 
   return (
-    <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
+    <div className="min-h-screen pb-24" style={{ backgroundColor: "hsl(var(--surface-secondary))" }}>
       {/* Header */}
-      <div className="bg-gradient-to-br from-[var(--header-from)] to-[var(--header-to)] px-5 pt-10 pb-6 rounded-b-2xl">
+      <div className="bg-gradient-to-br from-[hsl(var(--accent))] to-[hsl(var(--accent-strong))] px-5 pt-10 pb-6 rounded-b-2xl">
         <div className="max-w-lg mx-auto">
           <Link
             href="/logbook"
@@ -329,7 +329,7 @@ export default function EditEntryPage() {
               onChange={(e) => setNotes(e.target.value)}
               disabled={!entry.isEditable || minutesLeft <= 0}
               rows={4}
-              className="input-field resize-none disabled:bg-[var(--bg-tertiary)] disabled:cursor-not-allowed"
+              className="input-field resize-none disabled:bg-[hsl(var(--surface-tertiary))] disabled:cursor-not-allowed"
               placeholder="What was covered in this lesson?"
             />
           </div>
@@ -341,7 +341,7 @@ export default function EditEntryPage() {
               onChange={(e) => setObjectives(e.target.value)}
               disabled={!entry.isEditable || minutesLeft <= 0}
               rows={3}
-              className="input-field resize-none disabled:bg-[var(--bg-tertiary)] disabled:cursor-not-allowed"
+              className="input-field resize-none disabled:bg-[hsl(var(--surface-tertiary))] disabled:cursor-not-allowed"
               placeholder="What were the learning objectives?"
             />
           </div>
@@ -355,7 +355,7 @@ export default function EditEntryPage() {
                 onChange={(e) => setAttendance(e.target.value)}
                 disabled={!entry.isEditable || minutesLeft <= 0}
                 min="0"
-                className="input-field disabled:bg-[var(--bg-tertiary)] disabled:cursor-not-allowed"
+                className="input-field disabled:bg-[hsl(var(--surface-tertiary))] disabled:cursor-not-allowed"
                 placeholder="# students"
               />
             </div>
@@ -365,7 +365,7 @@ export default function EditEntryPage() {
                 value={engagement}
                 onChange={(e) => setEngagement(e.target.value)}
                 disabled={!entry.isEditable || minutesLeft <= 0}
-                className="input-field disabled:bg-[var(--bg-tertiary)] disabled:cursor-not-allowed"
+                className="input-field disabled:bg-[hsl(var(--surface-tertiary))] disabled:cursor-not-allowed"
               >
                 <option value="">Select...</option>
                 <option value="LOW">Low</option>

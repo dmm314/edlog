@@ -115,9 +115,9 @@ export default function NotificationsPage() {
   const unreadCount = notifications.filter((n) => !n.isRead).length;
 
   return (
-    <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
+    <div className="min-h-screen pb-24" style={{ backgroundColor: "hsl(var(--surface-secondary))" }}>
       {/* Header */}
-      <div className="bg-gradient-to-br from-[var(--header-from)] via-[var(--header-via)] to-[var(--header-to)] px-5 pt-10 pb-6 rounded-b-2xl">
+      <div className="bg-gradient-to-br from-[hsl(var(--accent))] via-[hsl(var(--accent))] to-[hsl(var(--accent-strong))] px-5 pt-10 pb-6 rounded-b-2xl">
         <div className="max-w-lg mx-auto">
           <div className="flex items-center justify-between mb-3">
             <button
@@ -151,7 +151,7 @@ export default function NotificationsPage() {
           href="/messages"
           className="flex items-center justify-between p-3.5 mb-3 rounded-2xl border active:scale-[0.98] transition-all"
           style={{
-            background: "var(--bg-elevated)",
+            background: "hsl(var(--surface-elevated))",
             borderColor: "var(--border-primary)",
           }}
         >
@@ -198,11 +198,11 @@ export default function NotificationsPage() {
                 <div
                   className={`card p-4 flex gap-3 transition-colors ${
                     !notification.isRead
-                      ? "bg-[var(--bg-secondary)]/50 border-[var(--border-secondary)]"
+                      ? "bg-[hsl(var(--surface-secondary))]/50 border-[var(--border-secondary)]"
                       : ""
                   }`}
                 >
-                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-[var(--bg-tertiary)] flex items-center justify-center mt-0.5">
+                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-[hsl(var(--surface-tertiary))] flex items-center justify-center mt-0.5">
                     {getNotificationIcon(notification.type)}
                   </div>
                   <div className="flex-1 min-w-0">

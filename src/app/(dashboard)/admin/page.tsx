@@ -159,7 +159,7 @@ export default function AdminDashboardPage() {
                   </span>
                 )}
               </div>
-              <h1 className="font-display text-xl font-bold text-content-primary tracking-tight">
+              <h1 className="text-xl font-bold text-content-primary tracking-tight">
                 {school?.name || "Admin Dashboard"}
               </h1>
             </div>
@@ -209,7 +209,7 @@ export default function AdminDashboardPage() {
             className="animate-slide-up flex items-center gap-3.5 card p-4 border-l-4 hover:shadow-card-hover active:scale-[0.98] transition-all duration-200 group"
             style={{ borderLeftColor: "var(--accent)" }}
           >
-            <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "var(--accent-light)" }}>
+            <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "var(--accent-soft)" }}>
               <AlertTriangle className="w-5 h-5" style={{ color: "var(--accent)" }} />
             </div>
             <div className="flex-1">
@@ -227,14 +227,14 @@ export default function AdminDashboardPage() {
           <h3 className="text-xs font-bold uppercase tracking-widest text-[var(--text-tertiary)] mb-3 px-1">
             Quick Actions
           </h3>
-          <div className="grid grid-cols-2 desktop-actions-row" style={{ gap: "8px" }}>
+          <div className="grid grid-cols-2 lg:grid-cols-3" style={{ gap: "8px" }}>
             {[
               {
                 href: "/admin/entries",
                 icon: CheckCircle2,
                 label: "Entry Overview",
                 count: "View all entries",
-                gradient: "linear-gradient(135deg, hsl(var(--accent-soft)), hsl(var(--accent) / 0.15))",
+                gradient: "hsl(var(--accent-soft))",
                 iconColor: "hsl(var(--accent-strong))",
               },
               {
@@ -242,7 +242,7 @@ export default function AdminDashboardPage() {
                 icon: Calendar,
                 label: "Timetable",
                 count: "Manage schedule",
-                gradient: "linear-gradient(135deg, hsl(var(--success) / 0.08), hsl(var(--success) / 0.15))",
+                gradient: "hsl(var(--success) / 0.1)",
                 iconColor: "hsl(var(--success))",
               },
               {
@@ -250,7 +250,7 @@ export default function AdminDashboardPage() {
                 icon: BarChart3,
                 label: "Reports",
                 count: "Analytics & export",
-                gradient: "linear-gradient(135deg, hsl(var(--accent-soft)), hsl(var(--accent) / 0.2))",
+                gradient: "hsl(var(--accent-soft))",
                 iconColor: "hsl(var(--accent-strong))",
               },
               {
@@ -258,7 +258,7 @@ export default function AdminDashboardPage() {
                 icon: Users,
                 label: "Teachers",
                 count: `${stats?.totalTeachers ?? 0} active`,
-                gradient: "linear-gradient(135deg, hsl(var(--danger) / 0.08), hsl(var(--danger) / 0.12))",
+                gradient: "hsl(var(--danger) / 0.08)",
                 iconColor: "hsl(var(--danger))",
               },
               {
@@ -266,7 +266,7 @@ export default function AdminDashboardPage() {
                 icon: BookOpen,
                 label: "Manage Classes",
                 count: "Add & organise classes",
-                gradient: "linear-gradient(135deg, hsl(var(--accent) / 0.06), hsl(var(--accent) / 0.12))",
+                gradient: "hsl(var(--accent-soft))",
                 iconColor: "hsl(var(--accent))",
               },
               {
@@ -274,7 +274,7 @@ export default function AdminDashboardPage() {
                 icon: Layers,
                 label: "Assign Subjects",
                 count: "Subjects per class",
-                gradient: "linear-gradient(135deg, hsl(var(--success) / 0.06), hsl(var(--success) / 0.1))",
+                gradient: "hsl(var(--success) / 0.08)",
                 iconColor: "hsl(var(--success))",
               },
             ].map((action) => {
@@ -302,7 +302,7 @@ export default function AdminDashboardPage() {
           href="/admin/coordinators"
           className="animate-slide-up animation-delay-175 flex items-center justify-between p-4 group active:scale-[0.98] transition-all duration-200 relative"
           style={{
-            background: "linear-gradient(135deg, hsl(var(--accent-soft)), hsl(var(--accent) / 0.12))",
+            background: "hsl(var(--accent-soft))",
             border: "1px solid hsl(var(--accent) / 0.2)",
             borderRadius: "16px",
           }}
@@ -329,7 +329,7 @@ export default function AdminDashboardPage() {
           href="/admin/announcements"
           className="animate-slide-up animation-delay-175 flex items-center justify-between p-4 group active:scale-[0.98] transition-all duration-200 relative"
           style={{
-            background: "linear-gradient(135deg, hsl(var(--accent-soft)), hsl(var(--accent-soft)))",
+            background: "hsl(var(--accent-soft))",
             border: "1px solid hsl(var(--accent) / 0.2)",
             borderRadius: "16px",
           }}
@@ -356,7 +356,7 @@ export default function AdminDashboardPage() {
           href="/admin/reports/teachers"
           className="animate-slide-up animation-delay-175 flex items-center justify-between p-4 group active:scale-[0.98] transition-all duration-200"
           style={{
-            background: "var(--bg-elevated)",
+            background: "hsl(var(--surface-elevated))",
             border: "1px solid var(--border-primary)",
             borderRadius: "16px",
             boxShadow: "var(--shadow-card)",
@@ -376,7 +376,7 @@ export default function AdminDashboardPage() {
           <div
             data-tour="admin-teacher-activity"
             className="animate-slide-up animation-delay-225 border"
-            style={{ background: "var(--bg-elevated)", borderColor: "var(--border-primary)", borderRadius: "20px", padding: "18px" }}
+            style={{ background: "hsl(var(--surface-elevated))", borderColor: "var(--border-primary)", borderRadius: "20px", padding: "18px" }}
           >
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
@@ -410,7 +410,7 @@ export default function AdminDashboardPage() {
         {/* ── VERIFICATION STATUS ── */}
         <div
           className="animate-slide-up animation-delay-300 border"
-          style={{ background: "var(--bg-elevated)", borderColor: "var(--border-primary)", borderRadius: "20px", padding: "18px" }}
+          style={{ background: "hsl(var(--surface-elevated))", borderColor: "var(--border-primary)", borderRadius: "20px", padding: "18px" }}
         >
           <div className="flex items-center justify-between mb-4">
             <h3 style={{ fontFamily: "var(--font-body)", fontSize: "14px", fontWeight: 700, color: "var(--text-primary)" }}>
@@ -448,7 +448,7 @@ export default function AdminDashboardPage() {
                   : 0;
 
                 return (
-                  <div key={coord.id} className="rounded-2xl border p-3" style={{ borderColor: "var(--border-secondary)", background: "var(--bg-primary)" }}>
+                  <div key={coord.id} className="rounded-2xl border p-3" style={{ borderColor: "var(--border-secondary)", background: "hsl(var(--surface-canvas))" }}>
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0 flex-1">
                         <p className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>

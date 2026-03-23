@@ -60,7 +60,7 @@ function StatusBadge({ status }: { status: string }) {
     );
   }
   return (
-    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: "var(--bg-tertiary)", color: "var(--text-tertiary)" }}>
+    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: "hsl(var(--surface-tertiary))", color: "var(--text-tertiary)" }}>
       {status}
     </span>
   );
@@ -153,7 +153,7 @@ export default function CoordinatorReportEntriesPage() {
           onClick={() => setShowFilters(!showFilters)}
           className="relative px-3 py-2.5 rounded-xl transition-all active:scale-95"
           style={{
-            background: showFilters || hasActiveFilters ? "hsl(var(--accent-soft))" : "var(--bg-elevated)",
+            background: showFilters || hasActiveFilters ? "hsl(var(--accent-soft))" : "hsl(var(--surface-elevated))",
             border: "1px solid var(--border-primary)",
             color: hasActiveFilters ? "hsl(var(--accent-text))" : "var(--text-secondary)",
           }}
@@ -286,7 +286,7 @@ export default function CoordinatorReportEntriesPage() {
             onClick={() => setOffset(Math.max(0, offset - PAGE_SIZE))}
             disabled={offset === 0}
             className="flex items-center gap-1.5 text-sm font-semibold px-3 py-2 rounded-xl transition-all disabled:opacity-40"
-            style={{ background: "var(--bg-elevated)", color: "var(--text-secondary)", border: "1px solid var(--border-primary)" }}
+            style={{ background: "hsl(var(--surface-elevated))", color: "var(--text-secondary)", border: "1px solid var(--border-primary)" }}
           >
             <ChevronLeft className="w-4 h-4" /> Prev
           </button>
@@ -295,7 +295,7 @@ export default function CoordinatorReportEntriesPage() {
             onClick={() => setOffset(offset + PAGE_SIZE)}
             disabled={offset + PAGE_SIZE >= total}
             className="flex items-center gap-1.5 text-sm font-semibold px-3 py-2 rounded-xl transition-all disabled:opacity-40"
-            style={{ background: "var(--bg-elevated)", color: "var(--text-secondary)", border: "1px solid var(--border-primary)" }}
+            style={{ background: "hsl(var(--surface-elevated))", color: "var(--text-secondary)", border: "1px solid var(--border-primary)" }}
           >
             Next <ChevronRight className="w-4 h-4" />
           </button>

@@ -113,7 +113,7 @@ export default function RegisterPage() {
     <div
       className="min-h-screen flex flex-col items-center justify-center px-5 py-10 relative"
       style={{
-        background: "linear-gradient(135deg, var(--header-from) 0%, var(--header-via) 50%, var(--header-to) 100%)",
+        background: "linear-gradient(135deg, hsl(var(--accent)) 0%, hsl(var(--accent)) 50%, hsl(var(--accent-strong)) 100%)",
       }}
     >
       {/* Dot pattern overlay */}
@@ -129,7 +129,7 @@ export default function RegisterPage() {
       <div
         className="w-full max-w-[400px] relative z-10 animate-scale-in"
         style={{
-          background: "var(--bg-elevated)",
+          background: "hsl(var(--surface-elevated))",
           borderRadius: "20px",
           padding: "24px",
           boxShadow: "var(--shadow-elevated)",
@@ -148,7 +148,7 @@ export default function RegisterPage() {
           </div>
           <span
             className="font-bold"
-            style={{ fontFamily: "var(--font-display)", fontSize: "24px", fontWeight: 700, color: "var(--text-primary)" }}
+            style={{ fontSize: "24px", fontWeight: 700, color: "var(--text-primary)" }}
           >
             Edlog
           </span>
@@ -160,7 +160,7 @@ export default function RegisterPage() {
             <GraduationCap className="w-4.5 h-4.5" style={{ color: "hsl(var(--accent))" }} />
           </div>
           <div>
-            <h1 className="text-lg font-bold tracking-tight" style={{ fontFamily: "var(--font-display)", color: "var(--text-primary)" }}>
+            <h1 className="text-lg font-bold tracking-tight" style={{ color: "var(--text-primary)" }}>
               Teacher Registration
             </h1>
             <p className="text-xs" style={{ fontFamily: "var(--font-body)", color: "var(--text-tertiary)" }}>
@@ -171,10 +171,10 @@ export default function RegisterPage() {
 
         {/* Step indicator */}
         <div className="flex items-center gap-2 mb-5">
-          <div className="flex-1 h-1 rounded-full overflow-hidden" style={{ backgroundColor: "var(--bg-tertiary)" }}>
+          <div className="flex-1 h-1 rounded-full overflow-hidden" style={{ backgroundColor: "hsl(var(--surface-tertiary))" }}>
             <div className={`h-full rounded-full transition-all duration-300 ${step >= 1 ? "w-full" : "w-0"}`} style={{ backgroundColor: "var(--accent)" }} />
           </div>
-          <div className="flex-1 h-1 rounded-full overflow-hidden" style={{ backgroundColor: "var(--bg-tertiary)" }}>
+          <div className="flex-1 h-1 rounded-full overflow-hidden" style={{ backgroundColor: "hsl(var(--surface-tertiary))" }}>
             <div className={`h-full rounded-full transition-all duration-300 ${step >= 2 ? "w-full" : "w-0"}`} style={{ backgroundColor: "var(--accent)" }} />
           </div>
         </div>
@@ -309,7 +309,7 @@ export default function RegisterPage() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div
               className="rounded-xl p-3.5 flex items-center gap-3"
-              style={{ background: "var(--bg-secondary)", border: "1px solid var(--border-primary)" }}
+              style={{ background: "hsl(var(--surface-secondary))", border: "1px solid var(--border-primary)" }}
             >
               <div
                 className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
@@ -369,7 +369,7 @@ export default function RegisterPage() {
                 onClick={() => { setStep(1); setErrors({}); setServerError(""); }}
                 className="flex items-center justify-center gap-1.5 py-3 px-4 font-semibold rounded-[14px] active:scale-[0.97] transition-all duration-[80ms]"
                 style={{
-                  background: "var(--bg-tertiary)",
+                  background: "hsl(var(--surface-tertiary))",
                   color: "var(--text-secondary)",
                 }}
               >

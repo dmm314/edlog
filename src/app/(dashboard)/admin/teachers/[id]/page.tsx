@@ -57,7 +57,7 @@ function getStatusColor(status: string) {
   switch (status) {
     case "VERIFIED": return "bg-emerald-50 text-emerald-700 border-emerald-100";
     case "FLAGGED": return "bg-red-50 text-red-700 border-red-100";
-    case "DRAFT": return "bg-[var(--bg-tertiary)] text-[var(--text-secondary)] border-[var(--border-secondary)]";
+    case "DRAFT": return "bg-[hsl(var(--surface-tertiary))] text-[var(--text-secondary)] border-[var(--border-secondary)]";
     default: return "bg-blue-50 text-blue-700 border-blue-100";
   }
 }
@@ -99,15 +99,15 @@ export default function TeacherDetailPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100/50 pb-24">
-        <div className="bg-gradient-to-br from-[var(--header-from)] via-[var(--header-via)] to-[var(--header-to)] px-5 pt-10 pb-16 rounded-b-[2rem] shadow-elevated relative overflow-hidden">
+        <div className="bg-gradient-to-br from-[hsl(var(--accent))] via-[hsl(var(--accent))] to-[hsl(var(--accent-strong))] px-5 pt-10 pb-16 rounded-b-[2rem] shadow-elevated relative overflow-hidden">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[hsl(var(--accent)/0.08)] via-transparent to-transparent" />
           <div className="max-w-lg mx-auto relative">
-            <div className="skeleton h-4 w-28 !bg-[var(--bg-elevated)]/10 mb-4" />
+            <div className="skeleton h-4 w-28 !bg-[hsl(var(--surface-elevated))]/10 mb-4" />
             <div className="flex items-center gap-4">
-              <div className="skeleton w-16 h-16 rounded-2xl !bg-[var(--bg-elevated)]/10" />
+              <div className="skeleton w-16 h-16 rounded-2xl !bg-[hsl(var(--surface-elevated))]/10" />
               <div>
-                <div className="skeleton h-6 w-40 !bg-[var(--bg-elevated)]/15 mb-2" />
-                <div className="skeleton h-4 w-24 !bg-[var(--bg-elevated)]/10" />
+                <div className="skeleton h-6 w-40 !bg-[hsl(var(--surface-elevated))]/15 mb-2" />
+                <div className="skeleton h-4 w-24 !bg-[hsl(var(--surface-elevated))]/10" />
               </div>
             </div>
           </div>
@@ -127,7 +127,7 @@ export default function TeacherDetailPage() {
   if (!teacher) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100/50 pb-24">
-        <div className="bg-gradient-to-br from-[var(--header-from)] via-[var(--header-via)] to-[var(--header-to)] px-5 pt-10 pb-8 rounded-b-[2rem] shadow-elevated relative overflow-hidden">
+        <div className="bg-gradient-to-br from-[hsl(var(--accent))] via-[hsl(var(--accent))] to-[hsl(var(--accent-strong))] px-5 pt-10 pb-8 rounded-b-[2rem] shadow-elevated relative overflow-hidden">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[hsl(var(--accent)/0.08)] via-transparent to-transparent" />
           <div className="max-w-lg mx-auto relative">
             <Link
@@ -151,7 +151,7 @@ export default function TeacherDetailPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100/50 pb-24">
       {/* Header with teacher photo */}
-      <div className="bg-gradient-to-br from-[var(--header-from)] via-[var(--header-via)] to-[var(--header-to)] px-5 pt-10 pb-16 rounded-b-[2rem] shadow-elevated relative overflow-hidden">
+      <div className="bg-gradient-to-br from-[hsl(var(--accent))] via-[hsl(var(--accent))] to-[hsl(var(--accent-strong))] px-5 pt-10 pb-16 rounded-b-[2rem] shadow-elevated relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[hsl(var(--accent)/0.08)] via-transparent to-transparent" />
         <div className="absolute top-0 right-0 w-64 h-64 bg-[var(--accent)]/[0.07] rounded-full -translate-y-1/3 translate-x-1/4 blur-3xl" />
 
@@ -181,7 +181,7 @@ export default function TeacherDetailPage() {
                 </div>
               )}
               {teacher.isVerified && (
-                <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-emerald-500 rounded-lg flex items-center justify-center border-2 border-[var(--header-from)] shadow-sm">
+                <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-emerald-500 rounded-lg flex items-center justify-center border-2 border-[hsl(var(--accent))] shadow-sm">
                   <CheckCircle className="w-3.5 h-3.5 text-white" />
                 </div>
               )}
@@ -209,7 +209,7 @@ export default function TeacherDetailPage() {
                   )}
                 </span>
                 {teacher.gender && (
-                  <span className="text-[10px] font-medium bg-[var(--bg-elevated)]/10 text-white/70 rounded-full px-2.5 py-0.5">
+                  <span className="text-[10px] font-medium bg-[hsl(var(--surface-elevated))]/10 text-white/70 rounded-full px-2.5 py-0.5">
                     {teacher.gender === "MALE" ? "Male" : "Female"}
                   </span>
                 )}
@@ -277,12 +277,12 @@ export default function TeacherDetailPage() {
         </div>
 
         {/* Tabs */}
-        <div className="animate-slide-up animation-delay-150 flex gap-1 bg-[var(--bg-tertiary)] rounded-2xl p-1.5 shadow-inner-glow">
+        <div className="animate-slide-up animation-delay-150 flex gap-1 bg-[hsl(var(--surface-tertiary))] rounded-2xl p-1.5 shadow-inner-glow">
           <button
             onClick={() => setTab("entries")}
             className={`flex-1 flex items-center justify-center gap-1.5 rounded-xl px-3 py-2.5 text-sm font-semibold transition-all duration-200 ${
               tab === "entries"
-                ? "bg-[var(--bg-elevated)] text-[var(--text-primary)] shadow-sm"
+                ? "bg-[hsl(var(--surface-elevated))] text-[var(--text-primary)] shadow-sm"
                 : "text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]"
             }`}
           >
@@ -293,7 +293,7 @@ export default function TeacherDetailPage() {
             onClick={() => setTab("assignments")}
             className={`flex-1 flex items-center justify-center gap-1.5 rounded-xl px-3 py-2.5 text-sm font-semibold transition-all duration-200 ${
               tab === "assignments"
-                ? "bg-[var(--bg-elevated)] text-[var(--text-primary)] shadow-sm"
+                ? "bg-[hsl(var(--surface-elevated))] text-[var(--text-primary)] shadow-sm"
                 : "text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]"
             }`}
           >
@@ -326,7 +326,7 @@ export default function TeacherDetailPage() {
                         <span className="text-[10px] font-bold bg-blue-50 text-blue-700 px-2 py-0.5 rounded-md border border-blue-100">
                           {entry.subject}
                         </span>
-                        <span className="text-[10px] font-semibold bg-[var(--bg-tertiary)] text-[var(--text-secondary)] px-2 py-0.5 rounded-md border border-[var(--border-secondary)]">
+                        <span className="text-[10px] font-semibold bg-[hsl(var(--surface-tertiary))] text-[var(--text-secondary)] px-2 py-0.5 rounded-md border border-[var(--border-secondary)]">
                           {entry.className}
                         </span>
                       </div>
@@ -398,11 +398,11 @@ export default function TeacherDetailPage() {
                       </div>
                     </div>
                     <div className="flex items-center gap-4 text-[11px] text-[var(--text-tertiary)]">
-                      <span className="flex items-center gap-1.5 bg-[var(--bg-tertiary)] rounded-lg px-2.5 py-1 border border-[var(--border-secondary)]">
+                      <span className="flex items-center gap-1.5 bg-[hsl(var(--surface-tertiary))] rounded-lg px-2.5 py-1 border border-[var(--border-secondary)]">
                         <BookOpen className="w-3 h-3 text-[var(--accent-text)]" />
                         <span className="font-semibold text-[var(--text-secondary)]">{a.entryCount}</span> entries
                       </span>
-                      <span className="flex items-center gap-1.5 bg-[var(--bg-tertiary)] rounded-lg px-2.5 py-1 border border-[var(--border-secondary)]">
+                      <span className="flex items-center gap-1.5 bg-[hsl(var(--surface-tertiary))] rounded-lg px-2.5 py-1 border border-[var(--border-secondary)]">
                         <Clock className="w-3 h-3 text-[var(--accent-text)]" />
                         <span className="font-semibold text-[var(--text-secondary)]">{a.slotCount}</span> slots
                       </span>

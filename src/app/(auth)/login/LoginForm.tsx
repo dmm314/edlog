@@ -53,9 +53,9 @@ export default function LoginForm() {
 
       if (result?.error) {
         if (result.error === "CredentialsSignin") {
-          setError("Invalid email or password. Please check your credentials and try again.");
+          setError("Incorrect email or password.");
         } else {
-          setError(`Login failed: ${result.error}. Please try again or contact support.`);
+          setError("Could not connect. Check your internet and try again.");
         }
       } else {
         const sessionRes = await fetch("/api/auth/session");
@@ -66,7 +66,7 @@ export default function LoginForm() {
         router.refresh();
       }
     } catch {
-      setError("Something went wrong. Please check your internet connection and try again.");
+      setError("Could not connect. Check your internet and try again.");
     } finally {
       setLoading(false);
     }
@@ -81,7 +81,7 @@ export default function LoginForm() {
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[hsl(var(--accent))]">
             <BookOpen className="h-5 w-5 text-white" />
           </div>
-          <span className="font-display text-2xl font-bold text-[hsl(var(--text-primary))]">
+          <span className="text-2xl font-bold text-[hsl(var(--text-primary))]">
             Edlog
           </span>
         </div>
@@ -96,11 +96,11 @@ export default function LoginForm() {
             <svg className="h-4 w-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
               <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
             </svg>
-            Account created successfully! Please sign in.
+            Account created. Sign in to continue.
           </div>
         )}
 
-        {/* Error messages */}
+        {/* Error banner — above form, clears on typing */}
         {error && (
           <div className="mb-5 flex items-center gap-2 rounded-xl bg-[hsl(var(--danger)/0.08)] px-4 py-3 text-sm text-[hsl(var(--danger))]">
             <AlertCircle className="h-4 w-4 flex-shrink-0" />
@@ -111,12 +111,12 @@ export default function LoginForm() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="mb-1.5 block text-[13px] font-semibold text-[hsl(var(--text-secondary))]">
-              Email Address
+              Email address
             </label>
             <input
               type="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => { setEmail(e.target.value); setError(""); }}
               className="input-field"
               placeholder="you@school.cm"
               required
@@ -132,7 +132,7 @@ export default function LoginForm() {
               <input
                 type={showPassword ? "text" : "password"}
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => { setPassword(e.target.value); setError(""); }}
                 className="input-field pr-12"
                 placeholder="Enter your password"
                 required
@@ -151,7 +151,7 @@ export default function LoginForm() {
           <button
             type="submit"
             disabled={loading || !email || !password}
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-[hsl(var(--accent))] py-3.5 text-base font-semibold text-white shadow-[0_2px_8px_-2px_rgba(8,102,255,0.3)] transition-all duration-[80ms] hover:bg-[hsl(var(--accent-strong))] active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50"
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-[hsl(var(--accent))] py-3.5 text-base font-semibold text-white shadow-card transition-all duration-[80ms] hover:bg-[hsl(var(--accent-strong))] active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50"
           >
             {loading ? (
               <>
@@ -176,49 +176,43 @@ export default function LoginForm() {
         </p>
       </div>
 
-      {/* Registration options */}
-      <div className="relative z-10 mt-6 w-full max-w-[400px]">
-        <p className="mb-3 px-1 text-xs font-semibold uppercase tracking-[0.12em] text-[hsl(var(--text-tertiary))]">
-          New to Edlog? Create an account
-        </p>
+      {/* Registration options — no redundant label */}
+      <div className="relative z-10 mt-6 w-full max-w-[400px] space-y-2">
+        <Link
+          href="/register"
+          className="group flex items-center gap-3.5 rounded-xl border border-[hsl(var(--border-primary))] bg-[hsl(var(--surface-elevated))] p-4 transition-all duration-[80ms] active:scale-[0.98]"
+        >
+          <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-[hsl(var(--accent-soft))]">
+            <GraduationCap className="h-5 w-5 text-[hsl(var(--accent))]" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <h3 className="text-sm font-bold text-[hsl(var(--text-primary))]">Teacher Account</h3>
+            <p className="mt-0.5 text-xs text-[hsl(var(--text-tertiary))]">Join your school with a school code</p>
+          </div>
+          <ChevronRight className="h-[18px] w-[18px] text-[hsl(var(--text-tertiary))] transition-transform group-hover:translate-x-0.5" />
+        </Link>
 
-        <div className="space-y-2">
-          <Link
-            href="/register"
-            className="group flex items-center gap-3.5 rounded-xl border border-[hsl(var(--border-primary))] bg-[hsl(var(--surface-elevated))] p-4 transition-all duration-[80ms] active:scale-[0.98]"
-          >
-            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-[hsl(var(--accent-soft))]">
-              <GraduationCap className="h-5 w-5 text-[hsl(var(--accent))]" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <h3 className="text-sm font-bold text-[hsl(var(--text-primary))]">Teacher Account</h3>
-              <p className="mt-0.5 text-xs text-[hsl(var(--text-tertiary))]">Join your school with a school code</p>
-            </div>
-            <ChevronRight className="h-[18px] w-[18px] text-[hsl(var(--text-tertiary))] transition-transform group-hover:translate-x-0.5" />
-          </Link>
+        <Link
+          href="/register/school"
+          className="group flex items-center gap-3.5 rounded-xl border border-[hsl(var(--border-primary))] bg-[hsl(var(--surface-elevated))] p-4 transition-all duration-[80ms] active:scale-[0.98]"
+        >
+          <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-[hsl(var(--success)/0.1)]">
+            <Shield className="h-5 w-5 text-[hsl(var(--success))]" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <h3 className="text-sm font-bold text-[hsl(var(--text-primary))]">School Admin Account</h3>
+            <p className="mt-0.5 text-xs text-[hsl(var(--text-tertiary))]">Register your school on Edlog</p>
+          </div>
+          <ChevronRight className="h-[18px] w-[18px] text-[hsl(var(--text-tertiary))] transition-transform group-hover:translate-x-0.5" />
+        </Link>
 
-          <Link
-            href="/register/school"
-            className="group flex items-center gap-3.5 rounded-xl border border-[hsl(var(--border-primary))] bg-[hsl(var(--surface-elevated))] p-4 transition-all duration-[80ms] active:scale-[0.98]"
-          >
-            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-[hsl(var(--success)/0.1)]">
-              <Shield className="h-5 w-5 text-[hsl(var(--success))]" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <h3 className="text-sm font-bold text-[hsl(var(--text-primary))]">School Admin Account</h3>
-              <p className="mt-0.5 text-xs text-[hsl(var(--text-tertiary))]">Register your school on Edlog</p>
-            </div>
-            <ChevronRight className="h-[18px] w-[18px] text-[hsl(var(--text-tertiary))] transition-transform group-hover:translate-x-0.5" />
-          </Link>
-
-          <div className="flex items-center gap-3.5 rounded-xl border border-[hsl(var(--border-muted))] bg-[hsl(var(--surface-elevated))] p-4 opacity-50">
-            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-[hsl(var(--info)/0.1)]">
-              <Globe className="h-5 w-5 text-[hsl(var(--info))]" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <h3 className="text-sm font-bold text-[hsl(var(--text-primary))]">Regional Inspector</h3>
-              <p className="mt-0.5 text-xs text-[hsl(var(--text-tertiary))]">Contact your regional office</p>
-            </div>
+        <div className="flex items-center gap-3.5 rounded-xl border border-[hsl(var(--border-muted))] bg-[hsl(var(--surface-elevated))] p-4 opacity-50">
+          <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-[hsl(var(--info)/0.1)]">
+            <Globe className="h-5 w-5 text-[hsl(var(--info))]" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <h3 className="text-sm font-bold text-[hsl(var(--text-primary))]">Regional Inspector</h3>
+            <p className="mt-0.5 text-xs text-[hsl(var(--text-tertiary))]">Contact your regional office</p>
           </div>
         </div>
       </div>

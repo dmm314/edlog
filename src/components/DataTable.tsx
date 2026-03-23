@@ -363,7 +363,7 @@ export function DataTable<T = Record<string, unknown>>({
   return (
     <div
       style={{
-        background: "var(--bg-elevated)",
+        background: "hsl(var(--surface-elevated))",
         border: "1px solid var(--border-primary)",
         borderRadius: 16,
         overflow: "hidden",
@@ -409,7 +409,7 @@ export function DataTable<T = Record<string, unknown>>({
                     right: 0,
                     top: "calc(100% + 4px)",
                     zIndex: 50,
-                    background: "var(--bg-elevated)",
+                    background: "hsl(var(--surface-elevated))",
                     border: "1px solid var(--border-primary)",
                     borderRadius: 12,
                     padding: "8px 4px",
@@ -432,7 +432,7 @@ export function DataTable<T = Record<string, unknown>>({
                         fontSize: 14,
                         color: "var(--text-secondary)",
                       }}
-                      onMouseEnter={(e) => { (e.currentTarget as HTMLLabelElement).style.background = "var(--bg-tertiary)"; }}
+                      onMouseEnter={(e) => { (e.currentTarget as HTMLLabelElement).style.background = "hsl(var(--surface-tertiary))"; }}
                       onMouseLeave={(e) => { (e.currentTarget as HTMLLabelElement).style.background = "transparent"; }}
                     >
                       <input
@@ -698,7 +698,7 @@ export function DataTable<T = Record<string, unknown>>({
                           position: colIndex === 0 ? "sticky" : undefined,
                           left: colIndex === 0 ? 0 : undefined,
                           zIndex: colIndex === 0 ? 2 : 1,
-                          background: "var(--bg-secondary)",
+                          background: "hsl(var(--surface-secondary))",
                         }}
                       >
                         <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
@@ -724,16 +724,16 @@ export function DataTable<T = Record<string, unknown>>({
                       key={rowId != null ? String(rowId) : rowIndex}
                       onClick={onRowClick ? () => onRowClick(row) : undefined}
                       style={{
-                        background: rowIndex % 2 === 0 ? "var(--bg-elevated)" : "var(--bg-secondary)",
+                        background: rowIndex % 2 === 0 ? "hsl(var(--surface-elevated))" : "hsl(var(--surface-secondary))",
                         cursor: onRowClick ? "pointer" : "default",
                         transition: "background var(--transition-fast, 150ms)",
                       }}
                       onMouseEnter={(e) => {
-                        (e.currentTarget as HTMLTableRowElement).style.background = "var(--bg-secondary)";
+                        (e.currentTarget as HTMLTableRowElement).style.background = "hsl(var(--surface-secondary))";
                       }}
                       onMouseLeave={(e) => {
                         (e.currentTarget as HTMLTableRowElement).style.background =
-                          rowIndex % 2 === 0 ? "var(--bg-elevated)" : "var(--bg-secondary)";
+                          rowIndex % 2 === 0 ? "hsl(var(--surface-elevated))" : "hsl(var(--surface-secondary))";
                       }}
                     >
                       {displayColumns.map((col, colIndex) => {

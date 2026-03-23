@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { NotificationBell } from "@/components/NotificationBell";
 import { QuickActionsRow } from "@/components/dashboard/QuickActionsRow";
-import { DynamicEntryCard } from "@/components/DynamicEntryCard";
+import { EntryCard } from "@/components/EntryCard";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { useCoordinatorMode } from "@/contexts/CoordinatorModeContext";
 import type { EntryWithRelations } from "@/types";
@@ -353,7 +353,7 @@ export default function LogbookPage() {
           <div className="flex items-start justify-between gap-3">
             <div className="space-y-1">
               <p className="text-xs font-medium uppercase tracking-[0.1em] text-content-tertiary">{greeting}</p>
-              <h1 className="font-display text-2xl font-bold text-content-primary">{displayName || "Teacher"}</h1>
+              <h1 className="text-2xl font-bold text-content-primary">{displayName || "Teacher"}</h1>
               <div className="flex items-center gap-1.5">
                 <span className="role-dot role-dot-teacher" />
                 <span className="text-xs text-content-tertiary">Teacher</span>
@@ -417,7 +417,7 @@ export default function LogbookPage() {
               <Link
                 key={notice.id}
                 href="/notifications"
-                className="story-pill min-w-[190px] lg:min-w-0"
+                className="inline-flex items-center gap-3 rounded-xl px-4 py-3 bg-[hsl(var(--surface-elevated))] border border-[hsl(var(--border-primary))] min-w-[190px] lg:min-w-0"
               >
                 <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-[hsl(var(--accent-soft))] text-[hsl(var(--accent-text))]">
                   <Sparkles className="h-4 w-4" />
@@ -622,7 +622,7 @@ export default function LogbookPage() {
 
         <div className="feed-grid lg:grid-cols-2 xl:grid-cols-3">
           {feedEntries.length > 0 ? (
-            feedEntries.map((entry, index) => <DynamicEntryCard key={entry.id} entry={entry} priority={index === 0 ? "live" : "default"} />)
+            feedEntries.map((entry, index) => <EntryCard key={entry.id} entry={entry} priority={index === 0 ? "live" : "default"} />)
           ) : (
             <div className="rounded-xl border border-[hsl(var(--border-muted))] bg-[hsl(var(--surface-secondary))] p-5 text-center lg:col-span-full">
               <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[hsl(var(--surface-tertiary))] text-content-tertiary">

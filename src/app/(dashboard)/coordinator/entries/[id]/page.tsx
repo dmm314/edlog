@@ -175,7 +175,7 @@ export default function CoordinatorEntryReviewPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
+      <div className="min-h-screen pb-24" style={{ backgroundColor: "hsl(var(--surface-secondary))" }}>
         <div className="px-5 pt-10 pb-8 rounded-b-[2rem]"
           style={{ background: "linear-gradient(135deg, hsl(var(--accent-strong)), hsl(var(--accent)))" }}>
           <div className="max-w-lg mx-auto">
@@ -198,7 +198,7 @@ export default function CoordinatorEntryReviewPage() {
 
   if (error || !entry) {
     return (
-      <div className="min-h-screen flex items-center justify-center pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
+      <div className="min-h-screen flex items-center justify-center pb-24" style={{ backgroundColor: "hsl(var(--surface-secondary))" }}>
         <div className="text-center">
           <BookOpen className="w-12 h-12 text-[var(--text-quaternary)] mx-auto mb-3" />
           <p className="text-[var(--text-secondary)] font-semibold">{error || "Entry not found"}</p>
@@ -221,7 +221,7 @@ export default function CoordinatorEntryReviewPage() {
   const coordRemark = entry.remarks?.find((r) => r.remarkType === "coordinator_review");
 
   return (
-    <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
+    <div className="min-h-screen pb-24" style={{ backgroundColor: "hsl(var(--surface-secondary))" }}>
       {/* Header */}
       <div className="px-5 pt-10 pb-8 rounded-b-[2rem] shadow-elevated relative overflow-hidden"
         style={{ background: "linear-gradient(135deg, hsl(var(--accent-strong)), hsl(var(--accent)))" }}>
@@ -321,7 +321,7 @@ export default function CoordinatorEntryReviewPage() {
         <div className="card p-4 space-y-3.5">
           {(entry.moduleName || entry.topics?.some((t) => t.moduleName)) && (
             <div className="flex items-start gap-3">
-              <div className="w-7 h-7 bg-[var(--bg-tertiary)] rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+              <div className="w-7 h-7 bg-[hsl(var(--surface-tertiary))] rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
                 <GraduationCap className="w-3.5 h-3.5 text-[var(--text-tertiary)]" />
               </div>
               <div>
@@ -334,7 +334,7 @@ export default function CoordinatorEntryReviewPage() {
           )}
 
           <div className="flex items-start gap-3">
-            <div className="w-7 h-7 bg-[var(--bg-tertiary)] rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+            <div className="w-7 h-7 bg-[hsl(var(--surface-tertiary))] rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
               <Clock className="w-3.5 h-3.5 text-[var(--text-tertiary)]" />
             </div>
             <div>
@@ -352,7 +352,7 @@ export default function CoordinatorEntryReviewPage() {
 
           {entry.notes && (
             <div className="flex items-start gap-3">
-              <div className="w-7 h-7 bg-[var(--bg-tertiary)] rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+              <div className="w-7 h-7 bg-[hsl(var(--surface-tertiary))] rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
                 <FileText className="w-3.5 h-3.5 text-[var(--text-tertiary)]" />
               </div>
               <div>
@@ -364,7 +364,7 @@ export default function CoordinatorEntryReviewPage() {
 
           {entry.objectives && (
             <div className="flex items-start gap-3">
-              <div className="w-7 h-7 bg-[var(--bg-tertiary)] rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+              <div className="w-7 h-7 bg-[hsl(var(--surface-tertiary))] rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
                 <PenTool className="w-3.5 h-3.5 text-[var(--text-tertiary)]" />
               </div>
               <div>
@@ -381,7 +381,7 @@ export default function CoordinatorEntryReviewPage() {
           {(entry.studentAttendance !== null || entry.engagementLevel) && (
             <div className="flex gap-3">
               {entry.studentAttendance !== null && (
-                <div className="flex-1 bg-[var(--bg-tertiary)] rounded-xl p-3 border border-[var(--border-secondary)]">
+                <div className="flex-1 bg-[hsl(var(--surface-tertiary))] rounded-xl p-3 border border-[var(--border-secondary)]">
                   <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-tertiary)]">Attendance</p>
                   <p className="text-sm font-bold text-[var(--text-secondary)] mt-0.5">
                     <Users className="w-3.5 h-3.5 inline mr-1 text-[var(--text-tertiary)]" />
@@ -390,7 +390,7 @@ export default function CoordinatorEntryReviewPage() {
                 </div>
               )}
               {entry.engagementLevel && (
-                <div className="flex-1 bg-[var(--bg-tertiary)] rounded-xl p-3 border border-[var(--border-secondary)]">
+                <div className="flex-1 bg-[hsl(var(--surface-tertiary))] rounded-xl p-3 border border-[var(--border-secondary)]">
                   <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-tertiary)]">Engagement</p>
                   <p className={`text-sm font-bold mt-0.5 ${
                     entry.engagementLevel === "HIGH" ? "text-[hsl(var(--success))]" :
@@ -501,7 +501,7 @@ export default function CoordinatorEntryReviewPage() {
         {/* View indicator — show to coordinators when entry is still submitted */}
         {!alreadyReviewed && !done && (
           <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl"
-            style={{ background: "var(--bg-elevated)", border: "1px solid var(--border-secondary)" }}>
+            style={{ background: "hsl(var(--surface-elevated))", border: "1px solid var(--border-secondary)" }}>
             <Eye className="w-3.5 h-3.5 flex-shrink-0" style={{ color: "hsl(var(--accent))" }} />
             <p className="text-xs text-[var(--text-tertiary)]">
               This entry has been marked as <span className="font-semibold text-[var(--text-secondary)]">seen by you</span>.
@@ -515,7 +515,7 @@ export default function CoordinatorEntryReviewPage() {
             <div className="px-4 py-3 border-b border-[var(--border-secondary)] flex items-center gap-2">
               <MessageSquare className="w-4 h-4 text-[var(--text-tertiary)]" />
               <h3 className="text-sm font-bold text-[var(--text-primary)]">Remarks</h3>
-              <span className="text-[10px] font-bold bg-[var(--bg-tertiary)] text-[var(--text-tertiary)] px-1.5 py-0.5 rounded-full">
+              <span className="text-[10px] font-bold bg-[hsl(var(--surface-tertiary))] text-[var(--text-tertiary)] px-1.5 py-0.5 rounded-full">
                 {entry.remarks.length}
               </span>
             </div>
@@ -528,7 +528,7 @@ export default function CoordinatorEntryReviewPage() {
                     </span>
                     <span className="text-[10px] font-bold px-1.5 py-0.5 rounded"
                       style={{
-                        background: r.remarkType === "coordinator_review" ? "hsl(var(--accent-soft))" : "var(--bg-tertiary)",
+                        background: r.remarkType === "coordinator_review" ? "hsl(var(--accent-soft))" : "hsl(var(--surface-tertiary))",
                         color: r.remarkType === "coordinator_review" ? "hsl(var(--accent-text))" : "var(--text-tertiary)",
                       }}>
                       {r.remarkType === "coordinator_review" ? "VP Review" : r.remarkType.replace(/_/g, " ")}

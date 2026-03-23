@@ -14,7 +14,7 @@ export default function DashboardError({
   }, [error]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-6" style={{ backgroundColor: "var(--bg-primary)" }}>
+    <div className="min-h-screen flex items-center justify-center px-6" style={{ backgroundColor: "hsl(var(--surface-canvas))" }}>
       <div className="text-center max-w-sm">
         <div className="w-16 h-16 rounded-2xl bg-red-50 flex items-center justify-center mx-auto mb-4">
           <svg className="w-8 h-8 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -47,7 +47,7 @@ export default function DashboardError({
             onClick={() => window.location.href = "/"}
             className="px-5 py-2.5 rounded-xl text-sm font-semibold border transition-all active:scale-[0.97]"
             style={{
-              background: "var(--bg-elevated)",
+              background: "hsl(var(--surface-elevated))",
               borderColor: "var(--border-primary)",
               color: "var(--text-secondary)",
             }}

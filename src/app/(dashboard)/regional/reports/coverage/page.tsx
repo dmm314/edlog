@@ -51,7 +51,7 @@ function CoverageCell({ row }: { row: CoverageRow }) {
           width: 64,
           height: 4,
           borderRadius: 9999,
-          background: "var(--bg-tertiary)",
+          background: "hsl(var(--surface-tertiary))",
           overflow: "hidden",
         }}
       >
@@ -178,8 +178,8 @@ export default function RegionalCoverageReportPage() {
               ? "1px solid var(--accent)"
               : "1px solid var(--border-primary)",
             background: showGapsOnly
-              ? "var(--accent-light)"
-              : "var(--bg-tertiary)",
+              ? "var(--accent-soft)"
+              : "hsl(var(--surface-tertiary))",
             color: showGapsOnly
               ? "var(--accent-text)"
               : "var(--text-secondary)",

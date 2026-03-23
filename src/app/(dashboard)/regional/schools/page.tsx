@@ -136,14 +136,14 @@ export default function RegionalSchoolsPage() {
       case "SUSPENDED":
         return "bg-[hsl(var(--danger)/0.1)] text-[hsl(var(--danger))]";
       default:
-        return "bg-[var(--bg-tertiary)] text-[var(--text-secondary)]";
+        return "bg-[hsl(var(--surface-tertiary))] text-[var(--text-secondary)]";
     }
   }
 
   return (
-    <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
+    <div className="min-h-screen pb-24" style={{ backgroundColor: "hsl(var(--surface-secondary))" }}>
       {/* Header */}
-      <div className="bg-gradient-to-br from-[var(--header-from)] to-[var(--header-to)] px-5 pt-10 pb-6 rounded-b-2xl">
+      <div className="bg-gradient-to-br from-[hsl(var(--accent))] to-[hsl(var(--accent-strong))] px-5 pt-10 pb-6 rounded-b-2xl">
         <div className="max-w-lg mx-auto">
           <Link
             href="/regional"
@@ -170,7 +170,7 @@ export default function RegionalSchoolsPage() {
               placeholder="Search by school name or code..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-4 py-2.5 bg-[var(--bg-elevated)] border border-[var(--border-primary)] rounded-xl text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-transparent"
+              className="w-full pl-9 pr-4 py-2.5 bg-[hsl(var(--surface-elevated))] border border-[var(--border-primary)] rounded-xl text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-transparent"
             />
           </div>
           <button
@@ -178,9 +178,9 @@ export default function RegionalSchoolsPage() {
             className={`flex items-center gap-1.5 px-3 py-2.5 rounded-xl text-sm font-medium border transition-colors ${
               hasActiveFilters
                 ? "border-[var(--accent-muted)] text-[var(--accent-text)]"
-                : "bg-[var(--bg-elevated)] border-[var(--border-primary)] text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)]"
+                : "bg-[hsl(var(--surface-elevated))] border-[var(--border-primary)] text-[var(--text-secondary)] hover:bg-[hsl(var(--surface-tertiary))]"
             }`}
-            style={hasActiveFilters ? { background: "var(--accent-light)" } : undefined}
+            style={hasActiveFilters ? { background: "var(--accent-soft)" } : undefined}
           >
             <Filter className="w-4 h-4" />
             {hasActiveFilters && (

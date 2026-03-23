@@ -171,11 +171,11 @@ export default function RegionalAnnouncementsPage() {
   }
 
   return (
-    <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
+    <div className="min-h-screen pb-24" style={{ backgroundColor: "hsl(var(--surface-secondary))" }}>
       {/* Header */}
       <div
         className="px-5 pt-10 pb-6 rounded-b-2xl"
-        style={{ background: "linear-gradient(135deg, var(--header-from) 0%, var(--header-via) 50%, var(--header-to) 100%)" }}
+        style={{ background: "linear-gradient(135deg, hsl(var(--accent)) 0%, hsl(var(--accent)) 50%, hsl(var(--accent-strong)) 100%)" }}
       >
         <div className="max-w-lg mx-auto">
           <Link
@@ -228,7 +228,7 @@ export default function RegionalAnnouncementsPage() {
         <div
           className="border"
           style={{
-            background: "var(--bg-elevated)",
+            background: "hsl(var(--surface-elevated))",
             borderColor: "var(--border-primary)",
             borderRadius: "16px",
             padding: "18px",
@@ -247,7 +247,7 @@ export default function RegionalAnnouncementsPage() {
                 key={opt.value}
                 className="flex items-start gap-3 p-3 rounded-xl cursor-pointer transition-colors"
                 style={{
-                  background: targetMode === opt.value ? "hsl(var(--success) / 0.08)" : "var(--bg-secondary)",
+                  background: targetMode === opt.value ? "hsl(var(--success) / 0.08)" : "hsl(var(--surface-secondary))",
                   border: targetMode === opt.value ? "1px solid hsl(var(--success) / 0.3)" : "1px solid var(--border-secondary)",
                 }}
               >
@@ -335,7 +335,7 @@ export default function RegionalAnnouncementsPage() {
                             setSelectedTeacher(t);
                             setTeacherResults([]);
                           }}
-                          className="w-full text-left p-2.5 rounded-xl hover:bg-[var(--bg-secondary)] transition-colors"
+                          className="w-full text-left p-2.5 rounded-xl hover:bg-[hsl(var(--surface-secondary))] transition-colors"
                         >
                           <p className="text-sm font-medium text-[var(--text-primary)]">{t.name}</p>
                           <p className="text-xs text-[var(--text-tertiary)]">{t.schoolName}</p>
@@ -357,7 +357,7 @@ export default function RegionalAnnouncementsPage() {
           <div
             className="border"
             style={{
-              background: "var(--bg-elevated)",
+              background: "hsl(var(--surface-elevated))",
               borderColor: "var(--border-primary)",
               borderRadius: "16px",
               padding: "18px",
@@ -411,7 +411,7 @@ export default function RegionalAnnouncementsPage() {
                 </p>
                 <div
                   className="border rounded-xl p-3"
-                  style={{ background: "var(--bg-secondary)", borderColor: "var(--border-secondary)" }}
+                  style={{ background: "hsl(var(--surface-secondary))", borderColor: "var(--border-secondary)" }}
                 >
                   <p className="text-sm font-semibold text-[var(--text-primary)]" style={{ fontFamily: "var(--font-body)" }}>
                     {title.trim() || "Untitled"}
@@ -462,7 +462,7 @@ export default function RegionalAnnouncementsPage() {
           <div
             className="border"
             style={{
-              background: "var(--bg-elevated)",
+              background: "hsl(var(--surface-elevated))",
               borderColor: "var(--border-primary)",
               borderRadius: "16px",
               padding: "18px",
@@ -508,7 +508,7 @@ export default function RegionalAnnouncementsPage() {
           <div
             className="w-full max-w-sm border"
             style={{
-              background: "var(--bg-elevated)",
+              background: "hsl(var(--surface-elevated))",
               borderColor: "var(--border-primary)",
               borderRadius: "20px",
               padding: "24px",
@@ -539,7 +539,7 @@ export default function RegionalAnnouncementsPage() {
             {/* Preview in modal */}
             <div
               className="border rounded-xl p-3 mb-5"
-              style={{ background: "var(--bg-secondary)", borderColor: "var(--border-secondary)" }}
+              style={{ background: "hsl(var(--surface-secondary))", borderColor: "var(--border-secondary)" }}
             >
               <p className="text-sm font-semibold text-[var(--text-primary)]">{title.trim()}</p>
               <p className="text-xs text-[var(--text-secondary)] mt-1 line-clamp-2">{message.trim()}</p>
@@ -550,7 +550,7 @@ export default function RegionalAnnouncementsPage() {
                 onClick={() => setShowConfirm(false)}
                 className="flex-1 py-2.5 rounded-xl text-sm font-semibold border transition-colors"
                 style={{
-                  background: "var(--bg-secondary)",
+                  background: "hsl(var(--surface-secondary))",
                   borderColor: "var(--border-primary)",
                   color: "var(--text-secondary)",
                 }}

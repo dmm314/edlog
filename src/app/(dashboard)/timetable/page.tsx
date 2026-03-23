@@ -151,7 +151,7 @@ function getEntryForSlotOnDate(
 function TimetableSkeleton() {
   return (
     <div className="card overflow-hidden">
-      <div className="grid grid-cols-[48px_repeat(5,1fr)] bg-[var(--bg-tertiary)]">
+      <div className="grid grid-cols-[48px_repeat(5,1fr)] bg-[hsl(var(--surface-tertiary))]">
         <div className="p-2" />
         {[1, 2, 3, 4, 5].map((i) => (
           <div key={i} className="p-2">
@@ -166,7 +166,7 @@ function TimetableSkeleton() {
           </div>
           {[1, 2, 3, 4, 5].map((j) => (
             <div key={j} className="p-1">
-              <div className="h-12 bg-[var(--bg-tertiary)] rounded-lg animate-pulse" />
+              <div className="h-12 bg-[hsl(var(--surface-tertiary))] rounded-lg animate-pulse" />
             </div>
           ))}
         </div>
@@ -182,7 +182,7 @@ function TimetableSkeleton() {
 function EmptyState() {
   return (
     <div className="text-center py-16">
-      <div className="w-16 h-16 bg-[var(--bg-tertiary)] rounded-2xl flex items-center justify-center mx-auto mb-4">
+      <div className="w-16 h-16 bg-[hsl(var(--surface-tertiary))] rounded-2xl flex items-center justify-center mx-auto mb-4">
         <Calendar className="w-8 h-8 text-[var(--text-quaternary)]" />
       </div>
       <p className="text-[var(--text-tertiary)] font-medium text-base" style={{ fontFamily: "var(--font-body)" }}>
@@ -311,7 +311,7 @@ export default function TimetablePage() {
   }
 
   return (
-    <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
+    <div className="min-h-screen pb-24" style={{ backgroundColor: "hsl(var(--surface-secondary))" }}>
       {/* ============ Header ============ */}
       <div className="page-header px-5 pt-10 pb-6 rounded-b-2xl">
         <div className="mx-auto w-full max-w-6xl">
@@ -328,7 +328,7 @@ export default function TimetablePage() {
               <Calendar className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-white" style={{ fontFamily: "var(--font-display)" }}>
+              <h1 className="text-xl font-bold text-white">
                 My Timetable
               </h1>
               <p className="text-[var(--header-text-muted)] text-sm" style={{ fontFamily: "var(--font-body)" }}>
@@ -403,7 +403,7 @@ export default function TimetablePage() {
                   return (
                     <div
                       key={day.value}
-                      className={`p-2 text-center ${isToday ? "bg-[hsl(var(--accent)/0.1)]" : "bg-[var(--bg-tertiary)]"}`}
+                      className={`p-2 text-center ${isToday ? "bg-[hsl(var(--accent)/0.1)]" : "bg-[hsl(var(--surface-tertiary))]"}`}
                     >
                       <span
                         className={`text-[11px] font-bold uppercase tracking-wider ${
@@ -556,7 +556,7 @@ export default function TimetablePage() {
           <div
             className="relative w-full max-w-lg mx-auto rounded-t-2xl overflow-hidden"
             style={{
-              background: "var(--bg-elevated)",
+              background: "hsl(var(--surface-elevated))",
               borderTop: "1px solid var(--border-primary)",
               boxShadow: "var(--shadow-elevated)",
               paddingBottom: "env(safe-area-inset-bottom)",
@@ -564,7 +564,7 @@ export default function TimetablePage() {
           >
             {/* Drag handle */}
             <div className="flex justify-center py-3">
-              <div className="w-10 h-1 rounded-full bg-[var(--bg-tertiary)]" />
+              <div className="w-10 h-1 rounded-full bg-[hsl(var(--surface-tertiary))]" />
             </div>
 
             {/* Slot info header */}
@@ -597,7 +597,7 @@ export default function TimetablePage() {
             {/* Actions */}
             <div className="px-5 pb-5 space-y-2">
               {!activeSlot.existingEntry && activeSlot.recentEntry && (
-                <div className="rounded-xl px-3 py-2.5" style={{ background: "var(--bg-tertiary)" }}>
+                <div className="rounded-xl px-3 py-2.5" style={{ background: "hsl(var(--surface-tertiary))" }}>
                   <p style={{ fontFamily: "var(--font-body)", fontSize: "12px", fontWeight: 700, color: "var(--text-secondary)" }}>
                     Most recent lesson on{" "}
                     {new Date(activeSlot.recentEntry.date + "T00:00:00").toLocaleDateString("en-GB", {
@@ -680,7 +680,7 @@ export default function TimetablePage() {
                     }}
                     className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm transition-all active:scale-[0.98]"
                     style={{
-                      background: "var(--bg-tertiary)",
+                      background: "hsl(var(--surface-tertiary))",
                       color: "var(--text-primary)",
                       fontFamily: "var(--font-body)",
                     }}
@@ -733,7 +733,7 @@ export default function TimetablePage() {
                     }}
                     className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl font-semibold text-sm transition-all active:scale-[0.98]"
                     style={{
-                      background: "var(--bg-tertiary)",
+                      background: "hsl(var(--surface-tertiary))",
                       color: "var(--text-tertiary)",
                       fontFamily: "var(--font-body)",
                     }}
@@ -747,7 +747,7 @@ export default function TimetablePage() {
               {activeSlot.isFuture && !activeSlot.existingEntry && (
                 <div
                   className="flex items-center gap-3 px-4 py-3 rounded-xl"
-                  style={{ background: "var(--bg-tertiary)" }}
+                  style={{ background: "hsl(var(--surface-tertiary))" }}
                 >
                   <Clock className="w-5 h-5 text-[var(--text-tertiary)] flex-shrink-0" />
                   <div>

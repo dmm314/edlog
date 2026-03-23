@@ -99,9 +99,9 @@ export default function SchoolProfilePage() {
   }
 
   return (
-    <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-secondary)" }}>
+    <div className="min-h-screen pb-24" style={{ backgroundColor: "hsl(var(--surface-secondary))" }}>
       {/* Header */}
-      <div className="bg-gradient-to-br from-[var(--header-from)] to-[var(--header-to)] px-5 pt-10 pb-6 rounded-b-2xl">
+      <div className="bg-gradient-to-br from-[hsl(var(--accent))] to-[hsl(var(--accent-strong))] px-5 pt-10 pb-6 rounded-b-2xl">
         <div className="max-w-lg mx-auto">
           <Link
             href="/admin"
@@ -182,7 +182,7 @@ export default function SchoolProfilePage() {
                 href="/admin/classes"
                 className="card p-4 flex items-center gap-3 hover:shadow-md transition-shadow"
               >
-                <div className="flex items-center justify-center w-10 h-10 rounded-xl text-[var(--accent-text)]" style={{ background: "var(--accent-light)" }}>
+                <div className="flex items-center justify-center w-10 h-10 rounded-xl text-[var(--accent-text)]" style={{ background: "var(--accent-soft)" }}>
                   <GraduationCap className="w-5 h-5" />
                 </div>
                 <div className="flex-1">

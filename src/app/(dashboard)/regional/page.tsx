@@ -63,7 +63,7 @@ export default function RegionalDashboardPage() {
               <span className="role-dot role-dot-regional" />
               <p className="text-xs font-medium text-content-tertiary">Regional Inspector</p>
             </div>
-            <h1 className="font-display text-xl font-bold text-content-primary tracking-tight">
+            <h1 className="text-xl font-bold text-content-primary tracking-tight">
               Regional Dashboard
             </h1>
           </div>
@@ -98,7 +98,7 @@ export default function RegionalDashboardPage() {
                 <span className="role-dot role-dot-regional" />
                 <p className="text-xs font-medium text-content-tertiary">Regional Inspector</p>
               </div>
-              <h1 className="font-display text-xl font-bold text-content-primary tracking-tight">
+              <h1 className="text-xl font-bold text-content-primary tracking-tight">
                 {stats ? "Region Overview" : "Regional Dashboard"}
               </h1>
             </div>
@@ -114,7 +114,7 @@ export default function RegionalDashboardPage() {
             href="/regional/schools"
             className="animate-fade-slide-in flex items-center gap-3 border rounded-2xl p-4 animate-pulse-subtle active:scale-[0.98] transition-all duration-[80ms]"
             style={{
-              background: "var(--bg-elevated)",
+              background: "hsl(var(--surface-elevated))",
               borderColor: "var(--border-primary)",
               boxShadow: "var(--shadow-card)",
             }}
@@ -134,7 +134,7 @@ export default function RegionalDashboardPage() {
           <div
             className="p-4 active:scale-[0.97] transition-all duration-[80ms]"
             style={{
-              background: "var(--bg-elevated)",
+              background: "hsl(var(--surface-elevated))",
               border: "1px solid var(--border-primary)",
               borderRadius: "16px",
               boxShadow: "var(--shadow-card)",
@@ -154,7 +154,7 @@ export default function RegionalDashboardPage() {
           <div
             className="p-4 active:scale-[0.97] transition-all duration-[80ms]"
             style={{
-              background: "var(--bg-elevated)",
+              background: "hsl(var(--surface-elevated))",
               border: "1px solid var(--border-primary)",
               borderRadius: "16px",
               boxShadow: "var(--shadow-card)",
@@ -174,7 +174,7 @@ export default function RegionalDashboardPage() {
           <div
             className="p-4 active:scale-[0.97] transition-all duration-[80ms] relative"
             style={{
-              background: "var(--bg-elevated)",
+              background: "hsl(var(--surface-elevated))",
               border: "1px solid var(--border-primary)",
               borderRadius: "16px",
               boxShadow: "var(--shadow-card)",
@@ -200,7 +200,7 @@ export default function RegionalDashboardPage() {
           <div
             className="p-4 active:scale-[0.97] transition-all duration-[80ms]"
             style={{
-              background: "var(--bg-elevated)",
+              background: "hsl(var(--surface-elevated))",
               border: "1px solid var(--border-primary)",
               borderRadius: "16px",
               boxShadow: "var(--shadow-card)",
@@ -224,7 +224,7 @@ export default function RegionalDashboardPage() {
             className="animate-fade-slide-in p-4"
             style={{
               animationDelay: "160ms",
-              background: "var(--bg-elevated)",
+              background: "hsl(var(--surface-elevated))",
               border: "1px solid var(--border-primary)",
               borderRadius: "16px",
               boxShadow: "var(--shadow-card)",
@@ -314,7 +314,7 @@ export default function RegionalDashboardPage() {
               className="flex items-center justify-between p-4 group active:scale-[0.98] transition-all duration-[80ms] animate-fade-slide-in"
               style={{
                 animationDelay: `${(i + 4) * 80}ms`,
-                background: "var(--bg-elevated)",
+                background: "hsl(var(--surface-elevated))",
                 border: "1px solid var(--border-primary)",
                 borderRadius: "16px",
                 boxShadow: "var(--shadow-card)",
