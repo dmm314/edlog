@@ -177,7 +177,7 @@ export default function RegionalAnnouncementsPage() {
         className="px-5 pt-10 pb-6 rounded-b-2xl"
         style={{ background: "linear-gradient(135deg, hsl(var(--accent)) 0%, hsl(var(--accent)) 50%, hsl(var(--accent-strong)) 100%)" }}
       >
-        <div className="max-w-lg lg:max-w-4xl mx-auto">
+        <div className="mx-auto w-full max-w-6xl">
           <Link
             href="/regional"
             className="inline-flex items-center gap-1 text-white/70 hover:text-white text-sm mb-3"
@@ -199,7 +199,7 @@ export default function RegionalAnnouncementsPage() {
         </div>
       </div>
 
-      <div className="px-5 mt-4 max-w-lg lg:max-w-4xl mx-auto space-y-4 desktop-content-form">
+      <div className="px-5 mt-4 mx-auto w-full max-w-6xl space-y-4 desktop-content-form">
         {/* Success */}
         {success !== null && (
           <div className="flex items-center gap-2 bg-[hsl(var(--success)/0.1)] border border-[hsl(var(--success)/0.2)] text-[hsl(var(--success))] text-sm rounded-xl px-4 py-3 animate-slide-down">
