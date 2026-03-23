@@ -25,7 +25,7 @@ function getDashboardPath(role: string): string {
   }
 }
 
-// ── Login Form ───────────────────────────────────────────
+// ── Login Form — Always-dark premium ─────────────────────
 export default function LoginForm() {
   const router       = useRouter();
   const searchParams = useSearchParams();
@@ -69,29 +69,45 @@ export default function LoginForm() {
 
   return (
     /*
-     * Background: explicit soft gray (hsl(var(--surface-canvas))).
-     *   Light mode → 220 14% 96% = #f3f4f6-ish, never pure white.
-     *   Dark mode  → 220 10% 8%  = near-black.
-     * This creates real contrast between the page and the white card.
+     * className="dark" forces dark-mode CSS custom properties on this tree.
+     * surface-canvas → near-black, surface-elevated → dark card,
+     * text-primary → near-white, input-bg → dark, etc.
+     * The login page is ALWAYS dark — premium, intentional, dramatic.
      */
     <div
-      className="relative flex min-h-screen flex-col items-center justify-center px-5 py-10"
-      style={{ background: "hsl(var(--surface-canvas))" }}
+      className="dark relative flex min-h-screen flex-col items-center justify-center px-5 py-10"
+      style={{ background: "hsl(var(--surface-canvas))", colorScheme: "dark" }}
     >
+      {/* Subtle radial glow behind the card */}
+      <div
+        className="absolute pointer-events-none"
+        style={{
+          width: "480px",
+          height: "480px",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -55%)",
+          background: "radial-gradient(ellipse, rgba(8,102,255,0.06) 0%, transparent 70%)",
+        }}
+      />
+
       {/* ── MAIN CARD ── */}
       <div
         className="relative z-10 w-full max-w-[400px] animate-fade-in rounded-2xl p-6"
         style={{
-          background:  "hsl(var(--surface-elevated))",
-          border:      "1px solid hsl(var(--border-primary))",
-          boxShadow:   "0 4px 24px -4px rgba(0,0,0,0.10), 0 1px 4px -1px rgba(0,0,0,0.07)",
+          background: "hsl(var(--surface-elevated))",
+          border:     "1px solid hsl(var(--border-primary))",
+          boxShadow:  "0 8px 32px -4px rgba(0,0,0,0.45), 0 2px 8px -2px rgba(0,0,0,0.25)",
         }}
       >
         {/* Logo + wordmark */}
-        <div className="mb-6 flex flex-col items-center gap-3">
+        <div className="mb-7 flex flex-col items-center gap-3">
           <div
             className="flex h-12 w-12 items-center justify-center rounded-2xl"
-            style={{ background: "#0866FF" }}
+            style={{
+              background: "#0866FF",
+              boxShadow: "0 4px 16px -2px rgba(8,102,255,0.35)",
+            }}
           >
             <BookOpen className="h-6 w-6 text-white" />
           </div>
@@ -102,7 +118,7 @@ export default function LoginForm() {
             >
               Edlog
             </p>
-            <p className="mt-0.5 text-sm" style={{ color: "hsl(var(--text-tertiary))" }}>
+            <p className="mt-1 text-sm" style={{ color: "hsl(var(--text-tertiary))" }}>
               Sign in to your account
             </p>
           </div>
@@ -113,7 +129,7 @@ export default function LoginForm() {
           <div
             className="mb-4 flex items-center gap-2 rounded-xl px-4 py-3 text-sm"
             style={{
-              background: "hsla(160, 84%, 39%, 0.09)",
+              background: "hsl(var(--success) / 0.12)",
               color:      "hsl(var(--success))",
             }}
           >
@@ -129,7 +145,7 @@ export default function LoginForm() {
           <div
             className="mb-4 flex items-center gap-2 rounded-xl px-4 py-3 text-sm"
             style={{
-              background: "hsla(0, 72%, 51%, 0.09)",
+              background: "hsl(var(--danger) / 0.12)",
               color:      "hsl(var(--danger))",
             }}
           >
@@ -190,18 +206,17 @@ export default function LoginForm() {
             </div>
           </div>
 
-          {/*
-           * SIGN-IN BUTTON
-           * background: #0866FF — hardcoded Facebook blue, not a CSS variable.
-           * This guarantees visibility in light mode, dark mode, and on older
-           * Android WebViews that may not parse hsl(space-separated) syntax.
-           * color: #FFFFFF — always white text on blue.
-           */}
+          {/* SIGN-IN BUTTON — hardcoded #0866FF, always pops on dark */}
           <button
             type="submit"
             disabled={loading || !email || !password}
             className="flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-base font-bold text-white transition-all duration-[80ms] active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50"
-            style={{ background: "#0866FF", minHeight: "48px", color: "#FFFFFF" }}
+            style={{
+              background: "#0866FF",
+              minHeight: "48px",
+              color: "#FFFFFF",
+              boxShadow: "0 4px 14px -3px rgba(8,102,255,0.40)",
+            }}
           >
             {loading ? (
               <>
@@ -225,7 +240,7 @@ export default function LoginForm() {
           <Link
             href="/register"
             className="font-bold"
-            style={{ color: "#0866FF" }}
+            style={{ color: "#5B9BFF" }}
           >
             Get Started
           </Link>
@@ -241,14 +256,14 @@ export default function LoginForm() {
           style={{
             background: "hsl(var(--surface-elevated))",
             border:     "1px solid hsl(var(--border-primary))",
-            boxShadow:  "0 1px 3px rgba(0,0,0,0.06)",
+            boxShadow:  "0 2px 6px rgba(0,0,0,0.20)",
           }}
         >
           <div
             className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl"
             style={{ background: "hsl(var(--accent-soft))" }}
           >
-            <GraduationCap className="h-5 w-5" style={{ color: "#0866FF" }} />
+            <GraduationCap className="h-5 w-5" style={{ color: "#5B9BFF" }} />
           </div>
           <div className="min-w-0 flex-1">
             <h3 className="text-sm font-bold" style={{ color: "hsl(var(--text-primary))" }}>
@@ -271,12 +286,12 @@ export default function LoginForm() {
           style={{
             background: "hsl(var(--surface-elevated))",
             border:     "1px solid hsl(var(--border-primary))",
-            boxShadow:  "0 1px 3px rgba(0,0,0,0.06)",
+            boxShadow:  "0 2px 6px rgba(0,0,0,0.20)",
           }}
         >
           <div
             className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl"
-            style={{ background: "hsla(160, 84%, 39%, 0.1)" }}
+            style={{ background: "hsl(var(--success) / 0.12)" }}
           >
             <Shield className="h-5 w-5" style={{ color: "hsl(var(--success))" }} />
           </div>
@@ -294,9 +309,9 @@ export default function LoginForm() {
           />
         </Link>
 
-        {/* Regional Inspector — not yet available */}
+        {/* Regional Inspector */}
         <div
-          className="flex items-center gap-3.5 rounded-2xl p-4 opacity-50 cursor-not-allowed"
+          className="flex items-center gap-3.5 rounded-2xl p-4 opacity-40 cursor-not-allowed"
           style={{
             background: "hsl(var(--surface-elevated))",
             border:     "1px solid hsl(var(--border-muted))",
@@ -304,7 +319,7 @@ export default function LoginForm() {
         >
           <div
             className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl"
-            style={{ background: "hsla(199, 89%, 48%, 0.1)" }}
+            style={{ background: "hsl(var(--info) / 0.12)" }}
           >
             <Globe className="h-5 w-5" style={{ color: "hsl(var(--info))" }} />
           </div>

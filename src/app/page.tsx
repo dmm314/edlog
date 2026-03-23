@@ -35,20 +35,30 @@ function useCountUp(target: number, duration = 900, suffix = "") {
   return value;
 }
 
-// ── Landing Page ─────────────────────────────────────────
+// ── Landing Page — Always-dark premium ───────────────────
 export default function LandingPage() {
   const s1 = useCountUp(60, 900, "s");
   const s2 = useCountUp(40, 900, "+");
   const s3 = useCountUp(100, 900, "%");
 
   return (
-    <div className="min-h-screen" style={{ background: "hsl(var(--surface-canvas))" }}>
-
-      {/* ── STICKY HEADER ── */}
+    /*
+     * className="dark" forces ALL CSS custom properties to resolve
+     * to their dark-mode values — surface-canvas becomes near-black,
+     * text-primary becomes near-white, inputs/cards/borders all flip.
+     * This is a premium always-dark landing page, regardless of theme.
+     */
+    <div
+      className="dark min-h-screen"
+      style={{ background: "hsl(var(--surface-canvas))", colorScheme: "dark" }}
+    >
+      {/* ── STICKY HEADER — dark glass ── */}
       <header
         className="sticky top-0 z-30 border-b px-5"
         style={{
-          background: "hsl(var(--surface-elevated))",
+          background: "hsla(220, 10%, 8%, 0.92)",
+          backdropFilter: "blur(12px)",
+          WebkitBackdropFilter: "blur(12px)",
           borderColor: "hsl(var(--border-primary))",
         }}
       >
@@ -60,11 +70,13 @@ export default function LandingPage() {
             >
               <BookOpen className="w-4 h-4 text-white" />
             </div>
-            <span className="font-bold text-base" style={{ color: "hsl(var(--text-primary))" }}>
+            <span
+              className="font-bold text-base"
+              style={{ color: "hsl(var(--text-primary))" }}
+            >
               Edlog
             </span>
           </div>
-          {/* Sign-in in header: earned blue button — always pops on any bg */}
           <Link
             href="/login"
             className="flex items-center gap-1.5 rounded-xl px-4 text-sm font-bold text-white active:scale-[0.97] transition-all duration-[80ms]"
@@ -75,42 +87,41 @@ export default function LandingPage() {
         </div>
       </header>
 
-      {/* ── HERO — earned blue, contained card ── */}
-      <section className="px-5 pt-7 pb-5">
+      {/* ── HERO — earned blue gradient card on deep dark ── */}
+      <section className="px-5 pt-8 pb-5">
         <div className="max-w-lg mx-auto space-y-3">
-          {/* Blue gradient card — the ONE earned-color hero moment */}
           <div
-            className="relative overflow-hidden rounded-2xl p-6"
+            className="relative overflow-hidden rounded-2xl p-7"
             style={{
               background:
-                "linear-gradient(135deg, hsl(224 86% 36%) 0%, #0866FF 58%, hsl(217 90% 58%) 100%)",
+                "linear-gradient(135deg, hsl(224 86% 30%) 0%, #0866FF 55%, hsl(217 90% 54%) 100%)",
+              boxShadow: "0 16px 48px -8px rgba(8, 102, 255, 0.30), 0 4px 16px -4px rgba(8, 102, 255, 0.15)",
             }}
           >
-            {/* Subtle dot texture */}
+            {/* Dot texture */}
             <div
               className="absolute inset-0 pointer-events-none"
               style={{
                 backgroundImage:
-                  "radial-gradient(circle at 2px 2px, rgba(255,255,255,0.07) 1px, transparent 0)",
+                  "radial-gradient(circle at 2px 2px, rgba(255,255,255,0.08) 1px, transparent 0)",
                 backgroundSize: "22px 22px",
               }}
             />
             <div className="relative">
-              <span className="inline-flex items-center bg-white/[0.14] border border-white/[0.1] rounded-full px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-white/90 mb-5">
+              <span className="inline-flex items-center bg-white/[0.14] border border-white/[0.12] rounded-full px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-white/90 mb-5">
                 New · Smart timetabling
               </span>
-              <h1 className="text-[2.15rem] leading-[1.09] font-extrabold text-white tracking-tight mb-3">
+              <h1 className="text-[2.2rem] leading-[1.08] font-extrabold text-white tracking-tight mb-3">
                 The logbook<br />teachers actually use.
               </h1>
-              <p className="text-white/60 text-sm leading-relaxed mb-7 max-w-[280px]">
+              <p className="text-white/55 text-[0.9rem] leading-relaxed mb-7 max-w-[300px]">
                 Fill your curriculum logbook in under 60 seconds. GCE subjects
                 pre-loaded, real-time admin oversight.
               </p>
               <div className="flex gap-3">
-                {/* White button on blue hero — always maximum contrast */}
                 <Link
                   href="/login"
-                  className="flex-1 flex items-center justify-center gap-2 font-bold rounded-xl py-[14px] px-4 text-sm bg-white shadow-md active:scale-[0.97] transition-all duration-[80ms]"
+                  className="flex-1 flex items-center justify-center gap-2 font-bold rounded-xl py-[14px] px-4 text-sm bg-white shadow-lg active:scale-[0.97] transition-all duration-[80ms]"
                   style={{ color: "#0866FF" }}
                 >
                   Sign In <ArrowRight className="w-4 h-4" />
@@ -118,7 +129,7 @@ export default function LandingPage() {
                 <Link
                   href="/register"
                   className="flex-1 flex items-center justify-center font-semibold rounded-xl py-[14px] px-4 text-sm text-white border border-white/[0.18] active:scale-[0.97] transition-all duration-[80ms]"
-                  style={{ background: "rgba(255,255,255,0.13)" }}
+                  style={{ background: "rgba(255,255,255,0.10)" }}
                 >
                   Get Started
                 </Link>
@@ -126,12 +137,12 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {/* Stats row — neutral card beneath hero */}
+          {/* Stats row — dark elevated card */}
           <div
-            className="flex rounded-2xl border overflow-hidden"
+            className="flex rounded-2xl overflow-hidden"
             style={{
               background: "hsl(var(--surface-elevated))",
-              borderColor: "hsl(var(--border-primary))",
+              border: "1px solid hsl(var(--border-primary))",
             }}
           >
             {[
@@ -174,7 +185,7 @@ export default function LandingPage() {
         <div className="max-w-lg mx-auto">
           <p
             className="text-[10px] font-bold uppercase tracking-[0.2em] mb-1.5"
-            style={{ color: "#0866FF" }}
+            style={{ color: "#5B9BFF" }}
           >
             Built for everyone
           </p>
@@ -199,7 +210,7 @@ export default function LandingPage() {
                     className="w-10 h-10 rounded-xl flex items-center justify-center"
                     style={{ background: "hsl(var(--accent-soft))" }}
                   >
-                    <GraduationCap className="w-5 h-5" style={{ color: "#0866FF" }} />
+                    <GraduationCap className="w-5 h-5" style={{ color: "#5B9BFF" }} />
                   </div>
                   <div>
                     <h3
@@ -262,7 +273,7 @@ export default function LandingPage() {
               </div>
             </Link>
 
-            <div className="card p-5 opacity-60 cursor-default" aria-disabled="true">
+            <div className="card p-5 opacity-50 cursor-default" aria-disabled="true">
               <div className="flex items-center gap-3 mb-3">
                 <div
                   className="w-10 h-10 rounded-xl flex items-center justify-center"
@@ -294,7 +305,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── FEATURES — alternate surface for visual rhythm ── */}
+      {/* ── FEATURES — slightly lighter dark surface ── */}
       <section
         className="px-5 pt-10 pb-8 mt-3"
         style={{ background: "hsl(var(--surface-secondary))" }}
@@ -302,7 +313,7 @@ export default function LandingPage() {
         <div className="max-w-lg mx-auto">
           <p
             className="text-[10px] font-bold uppercase tracking-[0.2em] mb-1.5"
-            style={{ color: "#0866FF" }}
+            style={{ color: "#5B9BFF" }}
           >
             Why Edlog
           </p>
@@ -322,12 +333,19 @@ export default function LandingPage() {
               { icon: CheckCircle, title: "Verification",       desc: "Admins verify entries in real-time with one tap." },
               { icon: BarChart3,   title: "Analytics",          desc: "Track curriculum delivery rates across all classes." },
             ].map(({ icon: Icon, title, desc }) => (
-              <div key={title} className="card p-4">
+              <div
+                key={title}
+                className="rounded-xl p-4"
+                style={{
+                  background: "hsl(var(--surface-tertiary))",
+                  border: "1px solid hsl(var(--border-primary))",
+                }}
+              >
                 <div
                   className="w-9 h-9 rounded-xl flex items-center justify-center mb-3"
                   style={{ background: "hsl(var(--accent-soft))" }}
                 >
-                  <Icon className="w-[18px] h-[18px]" style={{ color: "#0866FF" }} />
+                  <Icon className="w-[18px] h-[18px]" style={{ color: "#5B9BFF" }} />
                 </div>
                 <h3
                   className="font-bold text-sm mb-1"
@@ -349,7 +367,7 @@ export default function LandingPage() {
         <div className="max-w-lg mx-auto">
           <p
             className="text-[10px] font-bold uppercase tracking-[0.2em] mb-1.5"
-            style={{ color: "#0866FF" }}
+            style={{ color: "#5B9BFF" }}
           >
             How it works
           </p>
@@ -381,7 +399,10 @@ export default function LandingPage() {
               <div key={n} className="flex gap-4">
                 <div
                   className="flex-shrink-0 w-10 h-10 rounded-2xl flex items-center justify-center text-white font-bold text-sm"
-                  style={{ background: "linear-gradient(135deg, hsl(224 86% 36%), #0866FF)" }}
+                  style={{
+                    background: "linear-gradient(135deg, hsl(224 86% 30%), #0866FF)",
+                    boxShadow: "0 4px 12px -2px rgba(8, 102, 255, 0.3)",
+                  }}
                 >
                   {n}
                 </div>
@@ -405,12 +426,12 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── FINAL CTA — second earned-color moment ── */}
+      {/* ── FINAL CTA — earned blue on dark ── */}
       <section
         className="relative overflow-hidden px-5 py-14 mt-4"
         style={{
           background:
-            "linear-gradient(135deg, hsl(224 86% 36%) 0%, #0866FF 58%, hsl(217 90% 58%) 100%)",
+            "linear-gradient(135deg, hsl(224 86% 28%) 0%, #0866FF 55%, hsl(217 90% 52%) 100%)",
         }}
       >
         <div
@@ -425,14 +446,14 @@ export default function LandingPage() {
           <h2 className="text-2xl font-extrabold text-white tracking-tight">
             Ready to go digital?
           </h2>
-          <p className="text-white/55 text-sm mt-2 leading-relaxed max-w-xs mx-auto">
+          <p className="text-white/50 text-sm mt-2 leading-relaxed max-w-xs mx-auto">
             Join schools across Cameroon already using Edlog to streamline
             curriculum tracking.
           </p>
           <div className="flex flex-col gap-3 mt-8 max-w-xs mx-auto">
             <Link
               href="/register"
-              className="flex items-center justify-center gap-2 font-bold rounded-xl py-3.5 px-6 text-sm bg-white shadow-md active:scale-[0.98] transition-all duration-[80ms]"
+              className="flex items-center justify-center gap-2 font-bold rounded-xl py-3.5 px-6 text-sm bg-white shadow-lg active:scale-[0.98] transition-all duration-[80ms]"
               style={{ color: "#0866FF" }}
             >
               Create Free Account <ArrowRight className="w-4 h-4" />
@@ -440,7 +461,7 @@ export default function LandingPage() {
             <Link
               href="/login"
               className="flex items-center justify-center gap-2 font-semibold rounded-xl py-3.5 px-6 text-sm text-white border border-white/[0.18] active:scale-[0.98] transition-all duration-[80ms]"
-              style={{ background: "rgba(255,255,255,0.13)" }}
+              style={{ background: "rgba(255,255,255,0.10)" }}
             >
               I already have an account
             </Link>
@@ -461,7 +482,7 @@ export default function LandingPage() {
             className="w-6 h-6 rounded-lg flex items-center justify-center"
             style={{ background: "hsl(var(--accent-soft))" }}
           >
-            <BookOpen className="w-3.5 h-3.5" style={{ color: "#0866FF" }} />
+            <BookOpen className="w-3.5 h-3.5" style={{ color: "#5B9BFF" }} />
           </div>
           <span
             className="font-semibold text-sm"
