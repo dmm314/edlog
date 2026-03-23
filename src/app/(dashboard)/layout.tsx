@@ -30,7 +30,7 @@ export default function DashboardLayout({
   }, [status, router]);
 
   useEffect(() => {
-    const role = (session?.user as Record<string, unknown>)?.role as string | undefined;
+    const role = session?.user?.role;
     if (status !== "authenticated" || role !== "TEACHER") return;
 
     fetch("/api/coordinator/check")
@@ -87,8 +87,8 @@ export default function DashboardLayout({
 
   if (!session) return null;
 
-  const role = (session.user as Record<string, unknown>)?.role as string;
-  const userName = (session.user as Record<string, unknown>)?.name as string | undefined;
+  const role = session.user?.role as string;
+  const userName = session.user?.name as string | undefined;
 
   return (
     <CoordinatorModeContext.Provider

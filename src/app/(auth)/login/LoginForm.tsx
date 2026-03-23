@@ -56,7 +56,7 @@ export default function LoginForm() {
       } else {
         const sessionRes = await fetch("/api/auth/session");
         const session    = await sessionRes.json();
-        const role       = (session?.user as Record<string, unknown>)?.role as string;
+        const role       = session?.user?.role as string;
         router.push(getDashboardPath(role || "TEACHER"));
         router.refresh();
       }

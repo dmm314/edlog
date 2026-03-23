@@ -133,6 +133,7 @@ export const {
           // The "as unknown as" cast is needed because NextAuth's default User type
           // only has { id, email, name } but we add custom fields (role, schoolId, etc.)
           console.log("[AUTH] Login successful for:", email, "role:", user.role);
+          // Type-safe return — matches the extended User type in next-auth.d.ts
           return {
             id: user.id,
             email: user.email,
@@ -140,10 +141,11 @@ export const {
             firstName: user.firstName,
             lastName: user.lastName,
             role: user.role,
+            gender: user.gender,
             schoolId: user.schoolId,
             regionId: user.regionId,
             createdAt: user.createdAt.toISOString(),
-          } as unknown as { id: string; email: string; name: string };
+          };
         } catch (err) {
           // ── If ANYTHING goes wrong, log it ──
           // Without this, NextAuth would silently swallow the error and
@@ -173,15 +175,15 @@ export const {
      */
     async jwt({ token, user }) {
       if (user) {
-        token.id = user.id;
-        const u = user as unknown as Record<string, unknown>;
-        token.role = u.role as string;
-        token.firstName = u.firstName as string;
-        token.lastName = u.lastName as string;
-        token.gender = u.gender as string | null;
-        token.schoolId = u.schoolId as string | null;
-        token.regionId = u.regionId as string | null;
-        token.createdAt = u.createdAt as string;
+        // Type-safe: next-auth.d.ts extends the User and JWT types
+        token.id = user.id!;
+        token.role = user.role;
+        token.firstName = user.firstName;
+        token.lastName = user.lastName;
+        token.gender = user.gender;
+        token.schoolId = user.schoolId;
+        token.regionId = user.regionId;
+        token.createdAt = user.createdAt;
       }
       return token;
     },
@@ -191,18 +193,18 @@ export const {
      *
      * Copies the custom fields from the JWT token into the session
      * object so they're available via useSession() in React components.
+     * Type-safe via next-auth.d.ts — no Record<string, unknown> casts.
      */
     async session({ session, token }) {
       if (session.user) {
-        session.user.id = token.id as string;
-        const u = session.user as unknown as Record<string, unknown>;
-        u.role = token.role;
-        u.firstName = token.firstName;
-        u.lastName = token.lastName;
-        u.gender = token.gender;
-        u.schoolId = token.schoolId;
-        u.regionId = token.regionId;
-        u.createdAt = token.createdAt;
+        session.user.id = token.id;
+        session.user.role = token.role;
+        session.user.firstName = token.firstName;
+        session.user.lastName = token.lastName;
+        session.user.gender = token.gender;
+        session.user.schoolId = token.schoolId;
+        session.user.regionId = token.regionId;
+        session.user.createdAt = token.createdAt;
       }
       return session;
     },
@@ -230,8 +232,8 @@ export async function getSessionUser() {
   const session = await auth();
   if (!session?.user) return null;
 
-  const user = session.user as unknown as Record<string, unknown>;
-  const userId = user.id as string;
+  // Type-safe: session.user.id is typed via next-auth.d.ts
+  const userId = session.user.id;
 
   // Always re-fetch from DB — the JWT might have stale role/schoolId
   const dbUser = await db.user.findUnique({
