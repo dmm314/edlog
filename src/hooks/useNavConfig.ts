@@ -64,7 +64,7 @@ function getNavItems(
     { href: "/logbook", label: "Home", icon: Home, dataTour: "nav-home" },
     { href: "/timetable", label: "Timetable", icon: Calendar, dataTour: "nav-timetable" },
     { href: "/logbook/new", label: "New Entry", icon: Plus, highlight: true, dataTour: "nav-new-entry" },
-    { href: "/messages", label: "Notices", icon: Bell, dataTour: "nav-notices" },
+    { href: "/history", label: "History", icon: ClipboardList, dataTour: "nav-history" },
     { href: "/profile", label: "Profile", icon: User, dataTour: "nav-profile" },
   ];
 }
