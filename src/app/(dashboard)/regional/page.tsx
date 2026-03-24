@@ -90,9 +90,10 @@ export default function RegionalDashboardPage() {
     : [];
 
   const dataReportsLinks = [
-    { href: "/regional/reports/schools", icon: Building2, label: "Explore school data", sub: "Compare schools across your region" },
+    { href: "/regional/reports/schools", icon: Building2, label: "Explore school data", sub: "Filter and sort schools by metrics" },
+    { href: "/regional/reports/comparison", icon: BarChart3, label: "Compare schools", sub: "Side-by-side cross-school comparison" },
     { href: "/regional/reports/coverage", icon: BookOpen, label: "Curriculum coverage", sub: "Regional syllabus tracking" },
-    { href: "/regional/reports", icon: BarChart3, label: "View Reports" },
+    { href: "/regional/reports", icon: Layers, label: "All Reports" },
     { href: "/regional/analysis", icon: Layers, label: "Deep Analysis", sub: "Modules, subjects, HODs" },
   ];
 
