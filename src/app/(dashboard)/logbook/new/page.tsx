@@ -1,16 +1,18 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Clock, AlertCircle, Save, Zap, Check } from "lucide-react";
+import { ArrowLeft, Clock, AlertCircle, Save, Zap, Check, WifiOff } from "lucide-react";
 import Link from "next/link";
 import { EntrySubmitBar } from "@/components/domain/EntrySubmitBar";
 import { useEntryForm } from "./hooks/useEntryForm";
 import { useEntrySubmit } from "./hooks/useEntrySubmit";
+import { useAutoSave, loadLocalDraft, clearLocalDraft } from "./hooks/useAutoSave";
 import { EntrySuccessScreen } from "./components/EntrySuccessScreen";
 import { SlotSelectionSection } from "./components/SlotSelectionSection";
 import { CurriculumSection } from "./components/CurriculumSection";
 import { LessonDetailsSection } from "./components/LessonDetailsSection";
+import { setupOfflineSync, getQueueCount } from "@/lib/offline-queue";
 import type { SubmittedEntryData } from "./types";
 
 const STEP_LABELS = ["Module", "Topic", "Details"];
@@ -35,6 +37,36 @@ export default function NewEntryPage() {
   const { handleSubmit: submitEntry } = useEntrySubmit({
     state, dispatch, assignments, selectedSlotsData, topicsForModule, seconds, stopTimer,
   });
+
+  // Auto-save every 5 seconds to localStorage + server DraftEntry
+  useAutoSave(state, { enabled: !state.success && !state.submitting });
+
+  // Draft recovery — check for saved draft on mount
+  const [showDraftRecovery, setShowDraftRecovery] = useState(false);
+  const [pendingOfflineCount, setPendingOfflineCount] = useState(0);
+
+  useEffect(() => {
+    const draft = loadLocalDraft();
+    if (draft && (draft.classId || draft.moduleName || draft.topicText)) {
+      setShowDraftRecovery(true);
+    }
+    setPendingOfflineCount(getQueueCount());
+    const cleanup = setupOfflineSync();
+    return cleanup;
+  }, []);
+
+  function restoreDraft() {
+    const draft = loadLocalDraft();
+    if (draft) {
+      dispatch({ type: "RESTORE_DRAFT", data: draft });
+      setShowDraftRecovery(false);
+    }
+  }
+
+  function dismissDraft() {
+    clearLocalDraft();
+    setShowDraftRecovery(false);
+  }
 
   const [submittedEntries, setSubmittedEntries] = useState<SubmittedEntryData | null>(null);
   const [completionTime, setCompletionTime] = useState(0);
@@ -224,6 +256,33 @@ export default function NewEntryPage() {
           <div className="rounded-xl px-4 py-3 mb-4 text-sm flex items-center gap-2 bg-[hsl(var(--accent-soft))] text-[hsl(var(--accent-text))] border border-[hsl(var(--accent)/0.2)]">
             <Save className="w-4 h-4" />
             Draft saved! You can complete this entry later.
+          </div>
+        )}
+
+        {/* Draft recovery banner */}
+        {showDraftRecovery && (
+          <div className="rounded-xl px-4 py-3 mb-4 text-sm border border-[hsl(var(--accent)/0.2)] bg-[hsl(var(--accent-soft))]">
+            <div className="flex items-center gap-2 mb-2">
+              <Save className="w-4 h-4 text-[hsl(var(--accent-text))]" />
+              <span className="font-semibold text-[hsl(var(--accent-text))]">Unsaved draft found</span>
+            </div>
+            <p className="text-xs text-[hsl(var(--accent-strong))] mb-2">You have an incomplete entry from a previous session.</p>
+            <div className="flex gap-2">
+              <button onClick={restoreDraft} className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-[hsl(var(--accent))] text-white">
+                Restore Draft
+              </button>
+              <button onClick={dismissDraft} className="text-xs font-medium px-3 py-1.5 rounded-lg text-[hsl(var(--accent-text))]">
+                Dismiss
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Offline queue banner */}
+        {pendingOfflineCount > 0 && (
+          <div className="rounded-xl px-4 py-3 mb-4 text-sm flex items-center gap-2 bg-[hsl(var(--warning)/0.1)] text-[hsl(var(--warning))] border border-[hsl(var(--warning)/0.2)]">
+            <WifiOff className="w-4 h-4 flex-shrink-0" />
+            {pendingOfflineCount} entr{pendingOfflineCount === 1 ? "y" : "ies"} waiting to sync when online
           </div>
         )}
 

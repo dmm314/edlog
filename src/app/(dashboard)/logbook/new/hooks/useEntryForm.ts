@@ -159,6 +159,41 @@ function reducer(state: EntryFormState, action: EntryFormAction): EntryFormState
       };
     case "RESET_FORM":
       return { ...initialState, date: new Date().toISOString().split("T")[0] };
+    case "RESTORE_DRAFT": {
+      const d = action.data;
+      return {
+        ...state,
+        date: (d.date as string) || state.date,
+        classId: (d.classId as string) || "",
+        subjectId: (d.subjectId as string) || "",
+        assignmentId: (d.assignmentId as string | null) || null,
+        moduleName: (d.moduleName as string) || "",
+        topicText: (d.topicText as string) || "",
+        selectedTopicIds: (d.selectedTopicIds as string[]) || [],
+        additionalClassIds: (d.additionalClassIds as string[]) || [],
+        selectedSlotIds: (d.selectedSlotIds as string[]) || [],
+        timetableSlotId: (d.timetableSlotId as string | null) || null,
+        period: (d.period as string) || "",
+        duration: (d.duration as string) || "60",
+        classDidNotHold: (d.classDidNotHold as boolean) || false,
+        familyOfSituation: (d.familyOfSituation as string) || "",
+        selectedObjectives: (d.selectedObjectives as Record<string, string>) || {},
+        integrationLevel: (d.integrationLevel as string) || "",
+        integrationStatus: (d.integrationStatus as string) || "",
+        bilingualActivity: (d.bilingualActivity as boolean) || false,
+        bilingualType: (d.bilingualType as string) || "",
+        bilingualNote: (d.bilingualNote as string) || "",
+        lessonMode: (d.lessonMode as string) || "physical",
+        digitalTools: (d.digitalTools as string[]) || [],
+        assignmentGiven: (d.assignmentGiven as boolean) || false,
+        assignmentDetails: (d.assignmentDetails as string) || "",
+        assignmentReviewed: (d.assignmentReviewed as boolean | null) ?? null,
+        notes: (d.notes as string) || "",
+        studentAttendance: (d.studentAttendance as string) || "",
+        engagementLevel: (d.engagementLevel as string) || "",
+        step: (d.step as number) || 0,
+      };
+    }
     default:
       return state;
   }

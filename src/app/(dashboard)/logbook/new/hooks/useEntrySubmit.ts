@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback } from "react";
+import { enqueueEntry } from "@/lib/offline-queue";
 import type { EntryFormState, EntryFormAction, AssignmentItem, TimetableSlot, TopicItem, SubmittedEntryData } from "../types";
 
 interface UseEntrySubmitParams {
@@ -129,11 +130,18 @@ export function useEntrySubmit({
           classDidNotHold: state.classDidNotHold || undefined,
         };
 
-        const res = await fetch("/api/entries", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(body),
-        });
+        let res: Response;
+        try {
+          res = await fetch("/api/entries", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body),
+          });
+        } catch {
+          // Network failure — queue for offline sync
+          enqueueEntry("/api/entries", "POST", body);
+          throw new Error("You appear to be offline. Your entry has been saved and will be submitted when you reconnect.");
+        }
 
         if (!res.ok) {
           const data = await res.json();

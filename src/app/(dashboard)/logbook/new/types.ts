@@ -191,6 +191,7 @@ export type EntryFormAction =
   | { type: "SET_REFLECTION_SENDING"; value: boolean }
   | { type: "SET_REFLECTION_SENT"; value: boolean }
   | { type: "RESET_FORM" }
+  | { type: "RESTORE_DRAFT"; data: Record<string, unknown> }
   | { type: "SELECT_SLOT"; classId: string; subjectId: string; assignmentId: string; slotId: string; period: string; duration: string }
   | { type: "CLEAR_SLOT_SELECTION" }
   | { type: "HANDLE_CLASS_CHANGE"; classId: string }
