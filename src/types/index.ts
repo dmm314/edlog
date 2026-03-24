@@ -167,8 +167,18 @@ export interface RegionalStats {
     code: string;
     teacherCount: number;
     entryCount: number;
+    monthlyEntries: number;
+    verifiedEntries: number;
+    flaggedEntries: number;
+    verificationRate: number;
     complianceRate: number;
   }[];
+  performanceTiers: {
+    excellent: number;
+    good: number;
+    needsAttention: number;
+    critical: number;
+  };
 }
 
 // ── v2.0 Types ───────────────────────────────────────────

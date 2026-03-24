@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { getSessionUser } from "@/lib/auth";
 import { createEntrySchema } from "@/lib/validations";
 import { sanitizeHtml } from "@/lib/utils";
+import { createAuditLog } from "@/lib/services/audit.service";
 
 export async function GET(request: NextRequest) {
   try {
@@ -437,6 +438,16 @@ export async function POST(request: Request) {
       });
 
       createdEntries.push(entry);
+
+      // Audit log for entry creation
+      await createAuditLog({
+        entityType: "LogbookEntry",
+        entityId: entry.id,
+        action: data.status === "DRAFT" ? "CREATED" : "SUBMITTED",
+        actorId: user.id,
+        actorRole: user.role || "TEACHER",
+        metadata: { status: data.status || "SUBMITTED", classId: thisClassId },
+      });
     }
 
     // Return single entry for backwards compatibility, or array if multi-class

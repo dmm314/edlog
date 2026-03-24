@@ -194,23 +194,44 @@ export default function AdminDashboardPage() {
         </div>
       )}
 
-      {/* Pending teacher approvals alert */}
-      {stats && (stats.pendingTeachers ?? 0) > 0 && (
-        <Link
-          href="/admin/teachers"
-          className="animate-slide-up flex items-center gap-3.5 card p-4 border-l-4 border-l-[hsl(var(--accent))] hover:shadow-card-hover active:scale-[0.98] transition-all duration-200 group"
-        >
-          <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 bg-[hsl(var(--accent-soft))]">
-            <AlertTriangle className="w-5 h-5 text-[hsl(var(--accent))]" />
+      {/* ── ATTENTION REQUIRED PANEL ── */}
+      {stats && ((stats.pendingTeachers ?? 0) > 0 || flaggedThisMonth > 0 || complianceRate < 50) && (
+        <section className="animate-slide-up section-card border-l-4 border-l-[hsl(var(--warning))]">
+          <div className="flex items-center gap-2 mb-3">
+            <AlertTriangle className="w-4 h-4 text-[hsl(var(--warning))]" />
+            <h3 className="text-sm font-bold text-content-primary">Attention Required</h3>
           </div>
-          <div className="flex-1">
-            <p className="text-sm font-bold text-content-primary">
-              {stats.pendingTeachers} teacher{(stats.pendingTeachers ?? 0) > 1 ? "s" : ""} awaiting approval
-            </p>
-            <p className="text-xs text-content-tertiary mt-0.5">Tap to review and approve</p>
+          <div className="space-y-2">
+            {(stats.pendingTeachers ?? 0) > 0 && (
+              <Link href="/admin/teachers" className="flex items-center gap-3 p-3 rounded-xl bg-[hsl(var(--accent-soft))] hover:bg-[hsl(var(--accent)/0.15)] transition-colors group">
+                <Users className="w-5 h-5 text-[hsl(var(--accent))]" />
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-content-primary">{stats.pendingTeachers} teacher{(stats.pendingTeachers ?? 0) > 1 ? "s" : ""} awaiting approval</p>
+                </div>
+                <ChevronRight className="w-4 h-4 text-content-tertiary group-hover:translate-x-0.5 transition-transform" />
+              </Link>
+            )}
+            {flaggedThisMonth > 0 && (
+              <Link href="/admin/entries?status=FLAGGED" className="flex items-center gap-3 p-3 rounded-xl bg-[hsl(var(--danger)/0.06)] hover:bg-[hsl(var(--danger)/0.1)] transition-colors group">
+                <AlertTriangle className="w-5 h-5 text-[hsl(var(--danger))]" />
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-content-primary">{flaggedThisMonth} flagged entr{flaggedThisMonth === 1 ? "y" : "ies"} need review</p>
+                </div>
+                <ChevronRight className="w-4 h-4 text-content-tertiary group-hover:translate-x-0.5 transition-transform" />
+              </Link>
+            )}
+            {complianceRate < 50 && (
+              <Link href="/admin/reports/teachers" className="flex items-center gap-3 p-3 rounded-xl bg-[hsl(var(--warning)/0.08)] hover:bg-[hsl(var(--warning)/0.12)] transition-colors group">
+                <BarChart3 className="w-5 h-5 text-[hsl(var(--warning))]" />
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-content-primary">Low compliance rate ({complianceRate}%)</p>
+                  <p className="text-xs text-content-tertiary">Review teacher activity reports</p>
+                </div>
+                <ChevronRight className="w-4 h-4 text-content-tertiary group-hover:translate-x-0.5 transition-transform" />
+              </Link>
+            )}
           </div>
-          <ChevronRight className="w-4 h-4 text-content-tertiary group-hover:translate-x-0.5 transition-transform" />
-        </Link>
+        </section>
       )}
 
       {/* ── QUICK ACTIONS — 2×3 grid ── */}

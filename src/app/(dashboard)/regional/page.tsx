@@ -13,6 +13,10 @@ import {
   Key,
   Layers,
   Megaphone,
+  AlertTriangle,
+  CheckCircle,
+  Shield,
+  Flag,
 } from "lucide-react";
 import { NotificationBell } from "@/components/NotificationBell";
 import { ProgressBar } from "@/components/ui/ProgressBar";
@@ -192,6 +196,42 @@ export default function RegionalDashboardPage() {
           </div>
         </div>
 
+        {/* Performance Tiers */}
+        {stats?.performanceTiers && (
+          <section className="section-card animate-fade-slide-in" style={{ animationDelay: "120ms" }}>
+            <div className="flex items-center gap-2 mb-3">
+              <h3 className="text-sm font-semibold text-content-primary">School Performance Tiers</h3>
+              <HelpHint
+                text="Schools grouped by compliance rate: Excellent (80%+), Good (50-79%), Needs Attention (20-49%), Critical (<20%)"
+                position="right"
+                createdAt={userCreatedAt}
+              />
+            </div>
+            <div className="grid grid-cols-4 gap-2">
+              <div className="rounded-xl p-3 text-center" style={{ background: "hsl(var(--success) / 0.08)" }}>
+                <CheckCircle className="w-4 h-4 mx-auto mb-1" style={{ color: "hsl(var(--success))" }} />
+                <p className="text-lg font-bold font-mono" style={{ color: "hsl(var(--success))" }}>{stats.performanceTiers.excellent}</p>
+                <p className="text-[9px] font-bold uppercase tracking-wider text-content-tertiary">Excellent</p>
+              </div>
+              <div className="rounded-xl p-3 text-center" style={{ background: "hsl(var(--accent) / 0.08)" }}>
+                <Shield className="w-4 h-4 mx-auto mb-1" style={{ color: "hsl(var(--accent))" }} />
+                <p className="text-lg font-bold font-mono" style={{ color: "hsl(var(--accent))" }}>{stats.performanceTiers.good}</p>
+                <p className="text-[9px] font-bold uppercase tracking-wider text-content-tertiary">Good</p>
+              </div>
+              <div className="rounded-xl p-3 text-center" style={{ background: "hsl(var(--warning) / 0.1)" }}>
+                <Flag className="w-4 h-4 mx-auto mb-1" style={{ color: "hsl(var(--warning))" }} />
+                <p className="text-lg font-bold font-mono" style={{ color: "hsl(var(--warning))" }}>{stats.performanceTiers.needsAttention}</p>
+                <p className="text-[9px] font-bold uppercase tracking-wider text-content-tertiary">Attention</p>
+              </div>
+              <div className="rounded-xl p-3 text-center" style={{ background: "hsl(var(--danger) / 0.08)" }}>
+                <AlertTriangle className="w-4 h-4 mx-auto mb-1" style={{ color: "hsl(var(--danger))" }} />
+                <p className="text-lg font-bold font-mono" style={{ color: "hsl(var(--danger))" }}>{stats.performanceTiers.critical}</p>
+                <p className="text-[9px] font-bold uppercase tracking-wider text-content-tertiary">Critical</p>
+              </div>
+            </div>
+          </section>
+        )}
+
         {/* Two-column layout: School Rankings + Quick Links */}
         <div className="lg:grid lg:grid-cols-2 lg:gap-5 space-y-4 lg:space-y-0">
           {/* School Rankings */}
@@ -253,6 +293,11 @@ export default function RegionalDashboardPage() {
                           <span className="text-[10px] text-content-tertiary">
                             <span className="font-mono">{school.entryCount}</span> entries
                           </span>
+                          {school.verificationRate > 0 && (
+                            <span className="text-[10px] text-content-tertiary">
+                              <span className="font-mono">{school.verificationRate}%</span> verified
+                            </span>
+                          )}
                         </div>
                       </div>
                     </div>
