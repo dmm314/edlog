@@ -114,17 +114,42 @@ export async function GET() {
       for (const r of monthlyEntryRows) monthlyEntryBySchool.set(r.school_id, Number(r.cnt));
     }
 
+    // Count verified/flagged entries for performance metrics
+    let verifiedBySchool = new Map<string, number>();
+    let flaggedBySchool = new Map<string, number>();
+    if (schoolIds.length > 0) {
+      const idList = Prisma.join(schoolIds.map((id) => Prisma.sql`${id}`));
+      const verifiedRows = await db.$queryRaw<{ school_id: string; cnt: bigint }[]>(
+        Prisma.sql`SELECT c."schoolId" as school_id, COUNT(le.id) as cnt
+         FROM "LogbookEntry" le JOIN "Class" c ON c.id = le."classId"
+         WHERE c."schoolId" IN (${idList}) AND le.status = 'VERIFIED'
+         GROUP BY c."schoolId"`
+      );
+      for (const r of verifiedRows) verifiedBySchool.set(r.school_id, Number(r.cnt));
+
+      const flaggedRows = await db.$queryRaw<{ school_id: string; cnt: bigint }[]>(
+        Prisma.sql`SELECT c."schoolId" as school_id, COUNT(le.id) as cnt
+         FROM "LogbookEntry" le JOIN "Class" c ON c.id = le."classId"
+         WHERE c."schoolId" IN (${idList}) AND le.status = 'FLAGGED'
+         GROUP BY c."schoolId"`
+      );
+      for (const r of flaggedRows) flaggedBySchool.set(r.school_id, Number(r.cnt));
+    }
+
     const schoolRankings = schools
       .map((school) => {
         const teacherCount = teacherCountBySchool.get(school.id) ?? 0;
         const entryCount = entryCountBySchool.get(school.id) ?? 0;
         const monthlyEntries = monthlyEntryBySchool.get(school.id) ?? 0;
+        const verifiedEntries = verifiedBySchool.get(school.id) ?? 0;
+        const flaggedEntries = flaggedBySchool.get(school.id) ?? 0;
         const schoolCompliance =
           teacherCount > 0
             ? Math.round(
                 (monthlyEntries / (teacherCount * expectedPerTeacher)) * 100
               )
             : 0;
+        const verificationRate = entryCount > 0 ? Math.round((verifiedEntries / entryCount) * 100) : 0;
 
         return {
           id: school.id,
@@ -132,10 +157,22 @@ export async function GET() {
           code: school.code,
           teacherCount,
           entryCount,
+          monthlyEntries,
+          verifiedEntries,
+          flaggedEntries,
+          verificationRate,
           complianceRate: Math.min(schoolCompliance, 100),
         };
       })
       .sort((a, b) => b.complianceRate - a.complianceRate);
+
+    // Performance tier summary
+    const performanceTiers = {
+      excellent: schoolRankings.filter((s) => s.complianceRate >= 80).length,
+      good: schoolRankings.filter((s) => s.complianceRate >= 50 && s.complianceRate < 80).length,
+      needsAttention: schoolRankings.filter((s) => s.complianceRate >= 20 && s.complianceRate < 50).length,
+      critical: schoolRankings.filter((s) => s.complianceRate < 20).length,
+    };
 
     // Fetch filter options for reports
     const [regionSubjects, regionClasses, regionModules] = await Promise.all([
@@ -171,6 +208,7 @@ export async function GET() {
       entriesThisMonth,
       complianceRate: Math.min(complianceRate, 100),
       schoolRankings,
+      performanceTiers,
       filterOptions: {
         subjects: regionSubjects,
         classes: regionClasses.map((c) => ({

@@ -142,40 +142,52 @@ export async function GET() {
     const complianceRate = expectedThisWeek > 0
       ? Math.round((entriesThisWeek / expectedThisWeek) * 100)
       : 0;
-    const vpBreakdown = await Promise.all(
-      activeCoordinators.map(async (coordinator) => {
-        const monthlyWhere = {
-          class: {
-            schoolId: user.schoolId!,
-            level: { in: coordinator.levels },
-          },
-          date: { gte: startOfMonth },
-        };
+    // Single raw query to get counts by level + status (replaces N+1 loop of 4×N queries)
+    const allCoordinatorLevels = activeCoordinators.flatMap((c) => c.levels);
+    const vpEntryCounts = allCoordinatorLevels.length > 0
+      ? await db.$queryRawUnsafe<{ level: string; status: string; cnt: bigint }[]>(
+          `SELECT c.level, le.status, COUNT(le.id) as cnt
+           FROM "LogbookEntry" le
+           JOIN "Class" c ON c.id = le."classId"
+           WHERE c."schoolId" = $1 AND c.level = ANY($2) AND le.date >= $3
+           GROUP BY c.level, le.status`,
+          user.schoolId,
+          allCoordinatorLevels,
+          startOfMonth,
+        ).catch(() => [])
+      : [];
 
-        const [
-          coordinatorEntriesThisMonth,
-          coordinatorVerifiedThisMonth,
-          coordinatorFlaggedThisMonth,
-          coordinatorPendingThisMonth,
-        ] = await Promise.all([
-          db.logbookEntry.count({ where: monthlyWhere }),
-          db.logbookEntry.count({ where: { ...monthlyWhere, status: "VERIFIED" } }),
-          db.logbookEntry.count({ where: { ...monthlyWhere, status: "FLAGGED" } }),
-          db.logbookEntry.count({ where: { ...monthlyWhere, status: "SUBMITTED" } }),
-        ]);
+    // Build lookup: level -> status -> count
+    const levelStatusMap = new Map<string, Map<string, number>>();
+    for (const row of vpEntryCounts) {
+      if (!levelStatusMap.has(row.level)) levelStatusMap.set(row.level, new Map());
+      levelStatusMap.get(row.level)!.set(row.status, Number(row.cnt));
+    }
 
-        return {
-          id: coordinator.id,
-          title: coordinator.title,
-          levels: coordinator.levels,
-          name: `${coordinator.user.firstName} ${coordinator.user.lastName}`,
-          entriesThisMonth: coordinatorEntriesThisMonth,
-          verifiedEntriesThisMonth: coordinatorVerifiedThisMonth,
-          pendingEntriesThisMonth: coordinatorPendingThisMonth,
-          flaggedEntriesThisMonth: coordinatorFlaggedThisMonth,
-        };
-      }),
-    );
+    const vpBreakdown = activeCoordinators.map((coordinator) => {
+      let total = 0, verified = 0, flagged = 0, pending = 0;
+      for (const level of coordinator.levels) {
+        const statusMap = levelStatusMap.get(level);
+        if (statusMap) {
+          statusMap.forEach((count, status) => {
+            total += count;
+            if (status === "VERIFIED") verified += count;
+            else if (status === "FLAGGED") flagged += count;
+            else if (status === "SUBMITTED") pending += count;
+          });
+        }
+      }
+      return {
+        id: coordinator.id,
+        title: coordinator.title,
+        levels: coordinator.levels,
+        name: `${coordinator.user.firstName} ${coordinator.user.lastName}`,
+        entriesThisMonth: total,
+        verifiedEntriesThisMonth: verified,
+        pendingEntriesThisMonth: pending,
+        flaggedEntriesThisMonth: flagged,
+      };
+    });
 
     return NextResponse.json({
       totalTeachers,

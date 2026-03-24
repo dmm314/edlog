@@ -11,7 +11,8 @@ const tabs = [
   { href: "/regional/reports/activity", label: "Teaching Activity" },
   { href: "/regional/reports/assessments", label: "Assessments" },
   { href: "/regional/reports/coverage", label: "Curriculum" },
-  { href: "/regional/reports/school-coverage", label: "School Comparison" },
+  { href: "/regional/reports/school-coverage", label: "School Coverage" },
+  { href: "/regional/reports/comparison", label: "Compare Schools" },
 ];
 
 export default function RegionalReportsLayout({ children }: { children: React.ReactNode }) {

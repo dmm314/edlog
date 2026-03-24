@@ -18,6 +18,10 @@ import {
   Mail,
   Eye,
   AlignJustify,
+  CheckSquare,
+  Square,
+  Minus,
+  Loader2,
 } from "lucide-react";
 import { formatDate } from "@/lib/utils";
 
@@ -153,6 +157,63 @@ export default function CoordinatorEntriesPage() {
   const [filterFrom, setFilterFrom] = useState("");
   const [filterTo, setFilterTo] = useState("");
 
+  // ── Batch selection state ──
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [batchProcessing, setBatchProcessing] = useState(false);
+  const [batchRemark, setBatchRemark] = useState("");
+  const [showBatchRemark, setShowBatchRemark] = useState(false);
+
+  const verifiableEntries = entries.filter((e) => e.status === "SUBMITTED");
+  const allVerifiableSelected = verifiableEntries.length > 0 && verifiableEntries.every((e) => selectedIds.has(e.id));
+  const someSelected = selectedIds.size > 0;
+
+  function toggleSelect(id: string) {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  function toggleSelectAll() {
+    if (allVerifiableSelected) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(verifiableEntries.map((e) => e.id)));
+    }
+  }
+
+  function clearSelection() {
+    setSelectedIds(new Set());
+    setBatchRemark("");
+    setShowBatchRemark(false);
+  }
+
+  async function batchAction(status: "VERIFIED" | "FLAGGED") {
+    if (selectedIds.size === 0) return;
+    setBatchProcessing(true);
+    try {
+      const ids = Array.from(selectedIds);
+      const results = await Promise.allSettled(
+        ids.map((entryId) =>
+          fetch("/api/coordinator/entries", {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ entryId, status, remark: batchRemark.trim() || undefined }),
+          })
+        )
+      );
+      const successes = results.filter((r) => r.status === "fulfilled" && (r.value as Response).ok).length;
+      if (successes > 0) {
+        clearSelection();
+        fetchEntries();
+      }
+    } finally {
+      setBatchProcessing(false);
+    }
+  }
+
   // ── Timetable view state ──
   const [timetableSlots, setTimetableSlots] = useState<TimetableSlot[]>([]);
   const [weekEntries, setWeekEntries] = useState<Entry[]>([]);
@@ -215,8 +276,8 @@ export default function CoordinatorEntriesPage() {
     fetchTT();
   }, [viewMode, weekStart]);
 
-  function handleSearch() { setSearch(searchInput); setOffset(0); }
-  function clearFilters() { setFilterTeacher(""); setFilterClass(""); setFilterStatus(""); setFilterFrom(""); setFilterTo(""); setOffset(0); }
+  function handleSearch() { setSearch(searchInput); setOffset(0); clearSelection(); }
+  function clearFilters() { setFilterTeacher(""); setFilterClass(""); setFilterStatus(""); setFilterFrom(""); setFilterTo(""); setOffset(0); clearSelection(); }
 
   const hasActiveFilters = filterTeacher || filterClass || filterStatus || filterFrom || filterTo;
   const totalPages = Math.ceil(total / PAGE_SIZE);
@@ -345,6 +406,28 @@ export default function CoordinatorEntriesPage() {
               </div>
             )}
 
+            {/* Select all toggle */}
+            {!loading && entries.length > 0 && verifiableEntries.length > 0 && (
+              <div className="flex items-center gap-2 px-1">
+                <button onClick={toggleSelectAll} className="flex items-center gap-2 text-xs font-semibold py-1 transition-colors"
+                  style={{ color: someSelected ? "hsl(var(--accent-text))" : "var(--text-tertiary)" }}>
+                  {allVerifiableSelected ? (
+                    <CheckSquare className="w-4 h-4" style={{ color: "hsl(var(--accent))" }} />
+                  ) : someSelected ? (
+                    <Minus className="w-4 h-4 p-0.5 rounded" style={{ background: "hsl(var(--accent))", color: "white" }} />
+                  ) : (
+                    <Square className="w-4 h-4" style={{ color: "var(--text-quaternary)" }} />
+                  )}
+                  {someSelected ? `${selectedIds.size} selected` : `Select all pending (${verifiableEntries.length})`}
+                </button>
+                {someSelected && (
+                  <button onClick={clearSelection} className="text-[10px] font-semibold" style={{ color: "var(--text-tertiary)" }}>
+                    Clear
+                  </button>
+                )}
+              </div>
+            )}
+
             {/* Entry cards */}
             {loading ? (
               <div className="space-y-2">
@@ -378,52 +461,80 @@ export default function CoordinatorEntriesPage() {
                   const subjectName = entry.topics?.[0]?.subject?.name || entry.assignment?.subject?.name || "—";
                   const isSeen = (entry.views?.length ?? 0) > 0;
                   const isUnseen = entry.status === "SUBMITTED" && !isSeen;
-                  return (
-                    <Link key={entry.id} href={`/coordinator/entries/${entry.id}`}
-                      className="card block active:scale-[0.98] transition-transform"
-                      style={{ borderLeft: isUnseen ? "3px solid hsl(var(--accent))" : entry.status === "VERIFIED" ? "3px solid hsl(var(--success))" : entry.status === "FLAGGED" ? "3px solid hsl(var(--danger))" : "3px solid var(--border-secondary)" }}>
-                      <div className="p-4">
-                        {/* Topic + status */}
-                        <div className="flex items-start justify-between gap-2 mb-2.5">
-                          <div className="min-w-0 flex-1">
-                            <p className={`text-sm truncate ${isUnseen ? "font-bold" : "font-semibold"} text-[var(--text-primary)]`}>
-                              {topicName}
-                            </p>
-                            <p className="text-xs text-[var(--text-tertiary)] mt-0.5">
-                              {entry.class.name} · {subjectName} · {formatDate(entry.date)}{entry.period ? ` · P${entry.period}` : ""}
-                            </p>
+                  const isSelectable = entry.status === "SUBMITTED";
+                  const isSelected = selectedIds.has(entry.id);
+                  const borderColor = isSelected ? "hsl(var(--accent))" : isUnseen ? "hsl(var(--accent))" : entry.status === "VERIFIED" ? "hsl(var(--success))" : entry.status === "FLAGGED" ? "hsl(var(--danger))" : "var(--border-secondary)";
+
+                  const cardContent = (
+                    <div className="p-4">
+                      <div className="flex items-start gap-2.5">
+                        {/* Checkbox for selectable entries */}
+                        {isSelectable && (
+                          <button
+                            onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleSelect(entry.id); }}
+                            className="flex-shrink-0 mt-0.5 p-0.5 rounded transition-colors"
+                            aria-label={isSelected ? "Deselect entry" : "Select entry"}>
+                            {isSelected ? (
+                              <CheckSquare className="w-4.5 h-4.5" style={{ color: "hsl(var(--accent))" }} />
+                            ) : (
+                              <Square className="w-4.5 h-4.5" style={{ color: "var(--text-quaternary)" }} />
+                            )}
+                          </button>
+                        )}
+                        <div className="flex-1 min-w-0">
+                          {/* Topic + status */}
+                          <div className="flex items-start justify-between gap-2 mb-2.5">
+                            <div className="min-w-0 flex-1">
+                              <p className={`text-sm truncate ${isUnseen ? "font-bold" : "font-semibold"} text-[var(--text-primary)]`}>
+                                {topicName}
+                              </p>
+                              <p className="text-xs text-[var(--text-tertiary)] mt-0.5">
+                                {entry.class.name} · {subjectName} · {formatDate(entry.date)}{entry.period ? ` · P${entry.period}` : ""}
+                              </p>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <StatusBadge status={entry.status} views={entry.views} />
+                              <ChevronRight className="w-3.5 h-3.5 flex-shrink-0" style={{ color: "var(--text-quaternary)" }} />
+                            </div>
                           </div>
-                          <div className="flex items-center gap-1">
-                            <StatusBadge status={entry.status} views={entry.views} />
-                            <ChevronRight className="w-3.5 h-3.5 flex-shrink-0" style={{ color: "var(--text-quaternary)" }} />
-                          </div>
-                        </div>
-                        {/* Teacher row */}
-                        <div className="flex items-center justify-between pt-2.5" style={{ borderTop: "1px solid var(--border-secondary)" }}>
-                          <div className="flex items-center gap-2 min-w-0">
-                            <TeacherAvatar photoUrl={entry.teacher.photoUrl} firstName={entry.teacher.firstName} lastName={entry.teacher.lastName} />
-                            <p className="text-xs font-semibold text-[var(--text-secondary)] truncate">
-                              {entry.teacher.firstName} {entry.teacher.lastName}
-                            </p>
-                          </div>
-                          <div className="flex items-center gap-1.5 flex-shrink-0">
-                            {entry.teacher.phone && (
-                              <a href={`tel:${entry.teacher.phone}`} onClick={(e) => e.stopPropagation()}
+                          {/* Teacher row */}
+                          <div className="flex items-center justify-between pt-2.5" style={{ borderTop: "1px solid var(--border-secondary)" }}>
+                            <div className="flex items-center gap-2 min-w-0">
+                              <TeacherAvatar photoUrl={entry.teacher.photoUrl} firstName={entry.teacher.firstName} lastName={entry.teacher.lastName} />
+                              <p className="text-xs font-semibold text-[var(--text-secondary)] truncate">
+                                {entry.teacher.firstName} {entry.teacher.lastName}
+                              </p>
+                            </div>
+                            <div className="flex items-center gap-1.5 flex-shrink-0">
+                              {entry.teacher.phone && (
+                                <a href={`tel:${entry.teacher.phone}`} onClick={(e) => e.stopPropagation()}
+                                  className="flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-lg active:scale-95"
+                                  style={{ background: "hsl(var(--accent-soft))", color: "hsl(var(--accent-text))" }}>
+                                  <Phone className="w-2.5 h-2.5" /> Call
+                                </a>
+                              )}
+                              <Link
+                                href={`/coordinator/announcements?teacherId=${entry.teacher.id}&teacherName=${encodeURIComponent(`${entry.teacher.firstName} ${entry.teacher.lastName}`)}`}
+                                onClick={(e) => e.stopPropagation()}
                                 className="flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-lg active:scale-95"
                                 style={{ background: "hsl(var(--accent-soft))", color: "hsl(var(--accent-text))" }}>
-                                <Phone className="w-2.5 h-2.5" /> Call
-                              </a>
-                            )}
-                            <Link
-                              href={`/coordinator/announcements?teacherId=${entry.teacher.id}&teacherName=${encodeURIComponent(`${entry.teacher.firstName} ${entry.teacher.lastName}`)}`}
-                              onClick={(e) => e.stopPropagation()}
-                              className="flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-lg active:scale-95"
-                              style={{ background: "hsl(var(--accent-soft))", color: "hsl(var(--accent-text))" }}>
-                              <Mail className="w-2.5 h-2.5" /> Mail
-                            </Link>
+                                <Mail className="w-2.5 h-2.5" /> Mail
+                              </Link>
+                            </div>
                           </div>
                         </div>
                       </div>
+                    </div>
+                  );
+
+                  return (
+                    <Link key={entry.id} href={`/coordinator/entries/${entry.id}`}
+                      className="card block active:scale-[0.98] transition-transform"
+                      style={{
+                        borderLeft: `3px solid ${borderColor}`,
+                        background: isSelected ? "hsl(var(--accent-soft))" : undefined,
+                      }}>
+                      {cardContent}
                     </Link>
                   );
                 })}
@@ -433,17 +544,60 @@ export default function CoordinatorEntriesPage() {
             {/* Pagination */}
             {totalPages > 1 && (
               <div className="flex items-center justify-between py-2">
-                <button onClick={() => setOffset(Math.max(0, offset - PAGE_SIZE))} disabled={offset === 0}
+                <button onClick={() => { setOffset(Math.max(0, offset - PAGE_SIZE)); clearSelection(); }} disabled={offset === 0}
                   className="flex items-center gap-1.5 text-sm font-semibold px-3 py-2 rounded-xl disabled:opacity-40"
                   style={{ background: "hsl(var(--surface-elevated))", color: "var(--text-secondary)", border: "1px solid var(--border-primary)" }}>
                   <ChevronLeft className="w-4 h-4" /> Prev
                 </button>
                 <p className="text-xs text-[var(--text-tertiary)]">Page {currentPage} of {totalPages}</p>
-                <button onClick={() => setOffset(offset + PAGE_SIZE)} disabled={offset + PAGE_SIZE >= total}
+                <button onClick={() => { setOffset(offset + PAGE_SIZE); clearSelection(); }} disabled={offset + PAGE_SIZE >= total}
                   className="flex items-center gap-1.5 text-sm font-semibold px-3 py-2 rounded-xl disabled:opacity-40"
                   style={{ background: "hsl(var(--surface-elevated))", color: "var(--text-secondary)", border: "1px solid var(--border-primary)" }}>
                   Next <ChevronRight className="w-4 h-4" />
                 </button>
+              </div>
+            )}
+
+            {/* ── Floating batch action bar ── */}
+            {someSelected && (
+              <div className="fixed bottom-20 left-1/2 -translate-x-1/2 z-50 animate-fade-in" style={{ width: "min(90vw, 420px)" }}>
+                <div className="rounded-2xl p-3 shadow-xl" style={{ background: "hsl(var(--surface-elevated))", border: "1px solid var(--border-primary)", boxShadow: "0 8px 32px rgba(0,0,0,0.15)" }}>
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-xs font-bold text-[var(--text-primary)]">
+                      {selectedIds.size} {selectedIds.size === 1 ? "entry" : "entries"} selected
+                    </p>
+                    <button onClick={clearSelection} className="text-[10px] font-semibold flex items-center gap-0.5" style={{ color: "var(--text-tertiary)" }}>
+                      <X className="w-3 h-3" /> Cancel
+                    </button>
+                  </div>
+
+                  {/* Optional remark */}
+                  <button onClick={() => setShowBatchRemark(!showBatchRemark)}
+                    className="text-[10px] font-semibold mb-2 transition-colors"
+                    style={{ color: "hsl(var(--accent-text))" }}>
+                    {showBatchRemark ? "Hide remark" : "+ Add remark"}
+                  </button>
+                  {showBatchRemark && (
+                    <input type="text" value={batchRemark} onChange={(e) => setBatchRemark(e.target.value)}
+                      placeholder="Optional remark for all entries..."
+                      className="input-field text-xs mb-2" />
+                  )}
+
+                  <div className="flex gap-2">
+                    <button onClick={() => batchAction("VERIFIED")} disabled={batchProcessing}
+                      className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-bold text-white active:scale-95 transition-all disabled:opacity-60"
+                      style={{ background: "hsl(var(--success))" }}>
+                      {batchProcessing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle className="w-3.5 h-3.5" />}
+                      Verify All
+                    </button>
+                    <button onClick={() => batchAction("FLAGGED")} disabled={batchProcessing}
+                      className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-bold text-white active:scale-95 transition-all disabled:opacity-60"
+                      style={{ background: "hsl(var(--danger))" }}>
+                      {batchProcessing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Flag className="w-3.5 h-3.5" />}
+                      Flag All
+                    </button>
+                  </div>
+                </div>
               </div>
             )}
           </>

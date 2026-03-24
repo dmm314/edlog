@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { getSessionUser } from "@/lib/auth";
 import { updateEntrySchema } from "@/lib/validations";
 import { sanitizeHtml } from "@/lib/utils";
+import { createAuditLog } from "@/lib/services/audit.service";
 
 const ONE_HOUR_MS = 60 * 60 * 1000;
 
@@ -192,6 +193,14 @@ export async function PATCH(
         class: true,
         topics: { include: { subject: true } },
       },
+    });
+
+    await createAuditLog({
+      entityType: "LogbookEntry",
+      entityId: params.id,
+      action: "EDITED",
+      actorId: user.id,
+      actorRole: user.role || "TEACHER",
     });
 
     return NextResponse.json(updated);

@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { getSessionUser } from "@/lib/auth";
 import { sanitizeHtml } from "@/lib/utils";
 import { getDisplayName } from "@/lib/greeting";
+import { createAuditLog } from "@/lib/services/audit.service";
 
 // Helper: get coordinator record and class IDs for the current user
 async function getCoordinatorContext(userId: string, schoolId?: string | null) {
@@ -234,6 +235,22 @@ export async function PATCH(request: NextRequest) {
       include: {
         teacher: { select: { id: true, firstName: true, lastName: true, gender: true } },
         class: { select: { id: true, name: true } },
+      },
+    });
+
+    // Audit log
+    await createAuditLog({
+      entityType: "LogbookEntry",
+      entityId: entryId,
+      action: status as "VERIFIED" | "FLAGGED",
+      actorId: user.id,
+      actorRole: "LEVEL_COORDINATOR",
+      metadata: {
+        previousStatus: entry.status,
+        newStatus: status,
+        verifierName: resolvedVerifierName,
+        verifierTitle: resolvedVerifierTitle,
+        ...(remark?.trim() ? { remark: remark.trim() } : {}),
       },
     });
 
