@@ -229,7 +229,7 @@
 
   @media (min-width: 1024px) {
     .dashboard-shell {
-      padding-left: 16.5rem;
+      padding-left: 18rem;
       padding-right: 0;
       padding-bottom: 0;
     }
@@ -241,7 +241,7 @@
 
   @media (min-width: 1280px) {
     .dashboard-shell {
-      padding-left: 17rem;
+      padding-left: 18rem;
     }
     .dashboard-content {
       padding: 1rem 2rem 2rem;
