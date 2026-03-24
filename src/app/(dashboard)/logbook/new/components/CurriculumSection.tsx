@@ -78,12 +78,14 @@ export function CurriculumSection({
                   className="text-sm transition-all"
                   style={{
                     background: isSel ? "var(--accent-soft)" : "hsl(var(--surface-elevated))",
-                    border: isSel ? "1px solid var(--accent)" : "1px solid var(--border-primary)",
+                    border: isSel ? "2px solid var(--accent)" : "1px solid var(--border-primary)",
                     color: isSel ? "var(--accent-text)" : "var(--text-secondary)",
                     borderRadius: "12px",
-                    padding: "8px 16px",
+                    padding: "10px 16px",
+                    minHeight: "44px",
                     fontWeight: isSel ? 600 : 500,
                   }}>
+                  {isSel && <Check className="w-3.5 h-3.5 inline mr-1 -mt-0.5" />}
                   {topic.name}
                 </button>
               );
