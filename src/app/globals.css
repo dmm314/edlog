@@ -520,6 +520,12 @@
   .text-pretty { text-wrap: pretty; }
   .touch-target { min-height: 44px; min-width: 44px; }
 
+  /* Off-screen feed item optimization — DESIGN_SPEC Performance */
+  .feed-item {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 120px;
+  }
+
   .dynamic-divider {
     height: 1px;
     background: hsl(var(--border-primary));

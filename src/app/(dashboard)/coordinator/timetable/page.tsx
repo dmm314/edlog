@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowLeft, Calendar, ChevronRight, Clock, Users } from "lucide-react";
 
 const DAYS = [
@@ -416,8 +417,8 @@ export default function CoordinatorTimetablePage() {
                         style={{ borderTop: "1px solid var(--border-secondary)" }}>
                         <div className="flex items-center gap-2 min-w-0">
                           {slot.teacherPhotoUrl ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img src={slot.teacherPhotoUrl} alt={slot.teacher}
+                            <Image src={slot.teacherPhotoUrl} alt={slot.teacher}
+                              width={32} height={32}
                               className="w-8 h-8 rounded-xl object-cover flex-shrink-0"
                               style={{ border: "1px solid var(--border-secondary)" }} />
                           ) : (
