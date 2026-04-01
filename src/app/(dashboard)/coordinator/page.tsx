@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import {
   Users,
   ChevronRight,
@@ -409,8 +410,8 @@ export default function CoordinatorDashboardPage() {
                     className={`px-4 py-3 flex items-center gap-3 ${isDone ? "opacity-50" : ""}`}>
                     {/* Avatar */}
                     {slot.teacherPhotoUrl ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={slot.teacherPhotoUrl} alt={slot.teacher}
+                      <Image src={slot.teacherPhotoUrl} alt={slot.teacher}
+                        width={32} height={32}
                         className="w-8 h-8 rounded-xl object-cover flex-shrink-0" />
                     ) : (
                       <div className={`w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 text-[10px] font-black ${isLive ? "bg-[hsl(var(--success))] text-white" : isDone ? "bg-[hsl(var(--surface-tertiary))] text-content-tertiary" : "bg-[hsl(var(--accent))] text-white"}`}>

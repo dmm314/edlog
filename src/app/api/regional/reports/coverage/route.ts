@@ -33,6 +33,7 @@ interface CoverageRow {
   total_entries: bigint;
   teachers_covering: bigint;
   last_taught: Date | null;
+  has_direct: boolean | null;
 }
 
 export async function GET(request: NextRequest) {
@@ -91,7 +92,8 @@ export async function GET(request: NextRequest) {
           le."teacherId",
           u."schoolId",
           le.date,
-          le.id as entry_id
+          le.id as entry_id,
+          'direct' as match_source
         FROM "_EntryTopics" et
         JOIN "LogbookEntry" le ON le.id = et."A"
         JOIN "User" u ON u.id = le."teacherId"
@@ -105,7 +107,8 @@ export async function GET(request: NextRequest) {
           le."teacherId",
           u."schoolId",
           le.date,
-          le.id as entry_id
+          le.id as entry_id,
+          'module' as match_source
         FROM "Topic" t2
         JOIN "LogbookEntry" le ON LOWER(le."moduleName") = LOWER(t2."moduleName")
         JOIN "User" u ON u.id = le."teacherId"
@@ -137,7 +140,8 @@ export async function GET(request: NextRequest) {
         COUNT(DISTINCT c."schoolId") as schools_covering,
         COUNT(DISTINCT c.entry_id) as total_entries,
         COUNT(DISTINCT c."teacherId") as teachers_covering,
-        MAX(c.date) as last_taught
+        MAX(c.date) as last_taught,
+        BOOL_OR(c.match_source = 'direct') as has_direct
       FROM "Topic" t
       JOIN "Subject" sub ON sub.id = t."subjectId"
       LEFT JOIN combined c ON c.topic_id = t.id
@@ -267,6 +271,7 @@ export async function GET(request: NextRequest) {
       totalEntries: Number(r.total_entries),
       teachersCovering: Number(r.teachers_covering),
       lastTaught: r.last_taught ? r.last_taught.toISOString() : null,
+      matchType: Number(r.total_entries) === 0 ? "none" : r.has_direct ? "direct" : "module",
     }));
 
     // Filter options

@@ -41,6 +41,12 @@ const columns: ColumnDef<TeacherRow>[] = [
     hideOnMobile: true,
   },
   {
+    key: "teacherCode",
+    label: "Teacher Code",
+    searchable: true,
+    hideOnMobile: true,
+  },
+  {
     key: "subjects",
     label: "Subjects",
     filterable: true,

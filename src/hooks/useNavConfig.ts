@@ -11,7 +11,6 @@ import {
   Calendar,
   Users,
   ClipboardList,
-  Bell,
 } from "lucide-react";
 import type { PortalMode } from "@/contexts/CoordinatorModeContext";
 

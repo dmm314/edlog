@@ -534,7 +534,7 @@ export default function AdminEntriesPage() {
                 const vpResult = notifyResult[entry.id];
 
                 return (
-                  <div key={entry.id} className="card overflow-hidden hover:shadow-card-hover transition-all duration-200">
+                  <div key={entry.id} className="feed-item card overflow-hidden hover:shadow-card-hover transition-all duration-200">
                     {/* Collapsed header */}
                     <button onClick={() => toggleExpand(entry.id)} className="w-full p-4 text-left">
                       <div className="flex items-start justify-between gap-2">
