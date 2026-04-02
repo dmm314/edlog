@@ -222,7 +222,7 @@ export default function AppearancePage() {
             <button
               type="button"
               onClick={toggleVibrantMode}
-              className={`relative inline-flex h-7 w-12 items-center rounded-full transition ${vibrantMode ? "bg-[#0866FF]" : "bg-surface-tertiary"}`}
+              className={`relative inline-flex h-7 w-12 items-center rounded-full transition ${vibrantMode ? "bg-[hsl(var(--accent))]" : "bg-surface-tertiary"}`}
             >
               <span className={`inline-block h-5 w-5 transform rounded-full bg-white transition ${vibrantMode ? "translate-x-6" : "translate-x-1"}`} />
             </button>
