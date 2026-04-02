@@ -57,15 +57,31 @@ async function main() {
   console.log(`  ✓ ${REGIONS.length} regions, ${Object.keys(divisionMap).length} divisions\n`);
 
   // ── 2. Regional Admin Accounts ─────────────────────────
+  // Real Cameroonian names for each region's inspector
+  const REGIONAL_NAMES: Record<string, { firstName: string; lastName: string }> = {
+    AD: { firstName: "Aïssatou", lastName: "Mohammadou" },
+    CE: { firstName: "Jean-Pierre", lastName: "Atangana" },
+    ES: { firstName: "Hélène", lastName: "Mbassi" },
+    FN: { firstName: "Oumarou", lastName: "Boukar" },
+    LT: { firstName: "Christelle", lastName: "Douala-Bell" },
+    NO: { firstName: "Abdoulaye", lastName: "Hamadou" },
+    NW: { firstName: "Comfort", lastName: "Ngwa" },
+    SU: { firstName: "Marie-Claire", lastName: "Oyono" },
+    SW: { firstName: "Peter", lastName: "Enoh Mbi" },
+    OU: { firstName: "Bernadette", lastName: "Tchouankam" },
+  };
+
   console.log("👤 Creating regional admin accounts...");
+  // Unified password for all regional accounts: Edlog2026!
+  const regionalPw = await hash("Edlog2026!", 12);
   for (const r of REGIONS) {
-    const pw = await hash(`EdLog2026_${r.code}!`, 12);
+    const names = REGIONAL_NAMES[r.code] || { firstName: "Regional", lastName: `Admin ${r.name}` };
     await prisma.user.create({
       data: {
         email: r.email,
-        passwordHash: pw,
-        firstName: "Regional",
-        lastName: `Admin — ${r.name}`,
+        passwordHash: regionalPw,
+        firstName: names.firstName,
+        lastName: names.lastName,
         role: Role.REGIONAL_ADMIN,
         isVerified: true,
         regionId: regionMap[r.code],

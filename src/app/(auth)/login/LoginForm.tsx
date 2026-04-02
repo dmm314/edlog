@@ -5,7 +5,7 @@ import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
-  BookOpen,
+  Leaf,
   Eye,
   EyeOff,
   ArrowRight,
@@ -25,7 +25,6 @@ function getDashboardPath(role: string): string {
   }
 }
 
-// ── Login Form — Always-dark premium ─────────────────────
 export default function LoginForm() {
   const router       = useRouter();
   const searchParams = useSearchParams();
@@ -68,36 +67,30 @@ export default function LoginForm() {
   }
 
   return (
-    /*
-     * className="dark" forces dark-mode CSS custom properties on this tree.
-     * surface-canvas → near-black, surface-elevated → dark card,
-     * text-primary → near-white, input-bg → dark, etc.
-     * The login page is ALWAYS dark — premium, intentional, dramatic.
-     */
     <div
-      className="dark relative flex min-h-screen flex-col items-center justify-center px-5 py-10"
-      style={{ background: "hsl(var(--surface-canvas))", colorScheme: "dark" }}
+      className="relative flex min-h-screen flex-col items-center justify-center px-5 py-10"
+      style={{ background: "hsl(var(--surface-canvas))" }}
     >
-      {/* Subtle radial glow behind the card */}
+      {/* Subtle warm glow */}
       <div
         className="absolute pointer-events-none"
         style={{
-          width: "480px",
-          height: "480px",
-          top: "50%",
+          width: "600px",
+          height: "600px",
+          top: "30%",
           left: "50%",
-          transform: "translate(-50%, -55%)",
-          background: "radial-gradient(ellipse, rgba(8,102,255,0.06) 0%, transparent 70%)",
+          transform: "translate(-50%, -50%)",
+          background: "radial-gradient(ellipse, hsl(var(--accent) / 0.04) 0%, transparent 70%)",
         }}
       />
 
       {/* ── MAIN CARD ── */}
       <div
-        className="relative z-10 w-full max-w-[400px] animate-fade-in rounded-2xl p-6"
+        className="relative z-10 w-full max-w-[400px] animate-fade-in rounded-2xl p-7"
         style={{
           background: "hsl(var(--surface-elevated))",
-          border:     "1px solid hsl(var(--border-primary))",
-          boxShadow:  "0 8px 32px -4px rgba(0,0,0,0.45), 0 2px 8px -2px rgba(0,0,0,0.25)",
+          border: "1px solid hsl(var(--border-primary))",
+          boxShadow: "var(--shadow-elevated)",
         }}
       >
         {/* Logo + wordmark */}
@@ -105,17 +98,14 @@ export default function LoginForm() {
           <div
             className="flex h-12 w-12 items-center justify-center rounded-2xl"
             style={{
-              background: "#0866FF",
-              boxShadow: "0 4px 16px -2px rgba(8,102,255,0.35)",
+              background: "hsl(var(--accent))",
+              boxShadow: "var(--shadow-accent)",
             }}
           >
-            <BookOpen className="h-6 w-6 text-white" />
+            <Leaf className="h-6 w-6 text-white" />
           </div>
           <div className="text-center">
-            <p
-              className="text-2xl font-bold"
-              style={{ color: "hsl(var(--text-primary))" }}
-            >
+            <p className="text-2xl font-bold" style={{ color: "hsl(var(--text-primary))" }}>
               Edlog
             </p>
             <p className="mt-1 text-sm" style={{ color: "hsl(var(--text-tertiary))" }}>
@@ -129,8 +119,9 @@ export default function LoginForm() {
           <div
             className="mb-4 flex items-center gap-2 rounded-xl px-4 py-3 text-sm"
             style={{
-              background: "hsl(var(--success) / 0.12)",
-              color:      "hsl(var(--success))",
+              background: "hsl(var(--success) / 0.08)",
+              color: "hsl(var(--success))",
+              border: "1px solid hsl(var(--success) / 0.15)",
             }}
           >
             <svg className="h-4 w-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
@@ -145,8 +136,9 @@ export default function LoginForm() {
           <div
             className="mb-4 flex items-center gap-2 rounded-xl px-4 py-3 text-sm"
             style={{
-              background: "hsl(var(--danger) / 0.12)",
-              color:      "hsl(var(--danger))",
+              background: "hsl(var(--danger) / 0.06)",
+              color: "hsl(var(--danger))",
+              border: "1px solid hsl(var(--danger) / 0.12)",
             }}
           >
             <AlertCircle className="h-4 w-4 flex-shrink-0" />
@@ -155,12 +147,8 @@ export default function LoginForm() {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Email */}
           <div>
-            <label
-              className="mb-1.5 block text-[13px] font-semibold"
-              style={{ color: "hsl(var(--text-secondary))" }}
-            >
+            <label className="mb-1.5 block text-[13px] font-semibold" style={{ color: "hsl(var(--text-secondary))" }}>
               Email address
             </label>
             <input
@@ -174,12 +162,8 @@ export default function LoginForm() {
             />
           </div>
 
-          {/* Password */}
           <div>
-            <label
-              className="mb-1.5 block text-[13px] font-semibold"
-              style={{ color: "hsl(var(--text-secondary))" }}
-            >
+            <label className="mb-1.5 block text-[13px] font-semibold" style={{ color: "hsl(var(--text-secondary))" }}>
               Password
             </label>
             <div className="relative">
@@ -199,23 +183,19 @@ export default function LoginForm() {
                 style={{ color: "hsl(var(--text-tertiary))" }}
                 aria-label={showPassword ? "Hide password" : "Show password"}
               >
-                {showPassword
-                  ? <EyeOff className="h-[18px] w-[18px]" />
-                  : <Eye    className="h-[18px] w-[18px]" />}
+                {showPassword ? <EyeOff className="h-[18px] w-[18px]" /> : <Eye className="h-[18px] w-[18px]" />}
               </button>
             </div>
           </div>
 
-          {/* SIGN-IN BUTTON — hardcoded #0866FF, always pops on dark */}
           <button
             type="submit"
             disabled={loading || !email || !password}
             className="flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-base font-bold text-white transition-all duration-[80ms] active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50"
             style={{
-              background: "#0866FF",
+              background: "hsl(var(--accent))",
               minHeight: "48px",
-              color: "#FFFFFF",
-              boxShadow: "0 4px 14px -3px rgba(8,102,255,0.40)",
+              boxShadow: "var(--shadow-accent)",
             }}
           >
             {loading ? (
@@ -237,11 +217,7 @@ export default function LoginForm() {
 
         <p className="mt-5 text-center text-sm" style={{ color: "hsl(var(--text-tertiary))" }}>
           Don&apos;t have an account?{" "}
-          <Link
-            href="/register"
-            className="font-bold"
-            style={{ color: "#5B9BFF" }}
-          >
+          <Link href="/register" className="font-bold" style={{ color: "hsl(var(--accent))" }}>
             Get Started
           </Link>
         </p>
@@ -249,87 +225,57 @@ export default function LoginForm() {
 
       {/* ── REGISTER OPTIONS ── */}
       <div className="relative z-10 mt-4 w-full max-w-[400px] space-y-2">
-        {/* Teacher */}
         <Link
           href="/register"
           className="group flex items-center gap-3.5 rounded-2xl p-4 transition-all duration-[80ms] active:scale-[0.98]"
           style={{
             background: "hsl(var(--surface-elevated))",
-            border:     "1px solid hsl(var(--border-primary))",
-            boxShadow:  "0 2px 6px rgba(0,0,0,0.20)",
+            border: "1px solid hsl(var(--border-primary))",
+            boxShadow: "var(--shadow-card)",
           }}
         >
-          <div
-            className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl"
-            style={{ background: "hsl(var(--accent-soft))" }}
-          >
-            <GraduationCap className="h-5 w-5" style={{ color: "#5B9BFF" }} />
+          <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl" style={{ background: "hsl(var(--accent-soft))" }}>
+            <GraduationCap className="h-5 w-5" style={{ color: "hsl(var(--accent))" }} />
           </div>
           <div className="min-w-0 flex-1">
-            <h3 className="text-sm font-bold" style={{ color: "hsl(var(--text-primary))" }}>
-              Teacher Account
-            </h3>
-            <p className="mt-0.5 text-xs" style={{ color: "hsl(var(--text-tertiary))" }}>
-              Join your school with a school code
-            </p>
+            <h3 className="text-sm font-bold" style={{ color: "hsl(var(--text-primary))" }}>Teacher Account</h3>
+            <p className="mt-0.5 text-xs" style={{ color: "hsl(var(--text-tertiary))" }}>Join your school with a school code</p>
           </div>
-          <ChevronRight
-            className="h-[18px] w-[18px] transition-transform group-hover:translate-x-0.5"
-            style={{ color: "hsl(var(--text-tertiary))" }}
-          />
+          <ChevronRight className="h-[18px] w-[18px] transition-transform group-hover:translate-x-0.5" style={{ color: "hsl(var(--text-tertiary))" }} />
         </Link>
 
-        {/* School Admin */}
         <Link
           href="/register/school"
           className="group flex items-center gap-3.5 rounded-2xl p-4 transition-all duration-[80ms] active:scale-[0.98]"
           style={{
             background: "hsl(var(--surface-elevated))",
-            border:     "1px solid hsl(var(--border-primary))",
-            boxShadow:  "0 2px 6px rgba(0,0,0,0.20)",
+            border: "1px solid hsl(var(--border-primary))",
+            boxShadow: "var(--shadow-card)",
           }}
         >
-          <div
-            className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl"
-            style={{ background: "hsl(var(--success) / 0.12)" }}
-          >
-            <Shield className="h-5 w-5" style={{ color: "hsl(var(--success))" }} />
+          <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl" style={{ background: "hsl(var(--gold-soft))" }}>
+            <Shield className="h-5 w-5" style={{ color: "hsl(var(--gold-text))" }} />
           </div>
           <div className="min-w-0 flex-1">
-            <h3 className="text-sm font-bold" style={{ color: "hsl(var(--text-primary))" }}>
-              School Admin Account
-            </h3>
-            <p className="mt-0.5 text-xs" style={{ color: "hsl(var(--text-tertiary))" }}>
-              Register your school on Edlog
-            </p>
+            <h3 className="text-sm font-bold" style={{ color: "hsl(var(--text-primary))" }}>School Admin Account</h3>
+            <p className="mt-0.5 text-xs" style={{ color: "hsl(var(--text-tertiary))" }}>Register your school on Edlog</p>
           </div>
-          <ChevronRight
-            className="h-[18px] w-[18px] transition-transform group-hover:translate-x-0.5"
-            style={{ color: "hsl(var(--text-tertiary))" }}
-          />
+          <ChevronRight className="h-[18px] w-[18px] transition-transform group-hover:translate-x-0.5" style={{ color: "hsl(var(--text-tertiary))" }} />
         </Link>
 
-        {/* Regional Inspector */}
         <div
           className="flex items-center gap-3.5 rounded-2xl p-4 opacity-40 cursor-not-allowed"
           style={{
             background: "hsl(var(--surface-elevated))",
-            border:     "1px solid hsl(var(--border-muted))",
+            border: "1px solid hsl(var(--border-muted))",
           }}
         >
-          <div
-            className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl"
-            style={{ background: "hsl(var(--info) / 0.12)" }}
-          >
+          <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl" style={{ background: "hsl(var(--info) / 0.08)" }}>
             <Globe className="h-5 w-5" style={{ color: "hsl(var(--info))" }} />
           </div>
           <div className="min-w-0 flex-1">
-            <h3 className="text-sm font-bold" style={{ color: "hsl(var(--text-primary))" }}>
-              Regional Inspector
-            </h3>
-            <p className="mt-0.5 text-xs" style={{ color: "hsl(var(--text-tertiary))" }}>
-              Contact your regional office
-            </p>
+            <h3 className="text-sm font-bold" style={{ color: "hsl(var(--text-primary))" }}>Regional Inspector</h3>
+            <p className="mt-0.5 text-xs" style={{ color: "hsl(var(--text-tertiary))" }}>Contact your regional office</p>
           </div>
         </div>
       </div>
