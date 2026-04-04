@@ -1,4 +1,4 @@
-# EDLOG DESIGN SPECIFICATION — v5.1 (Elite Functional Minimal)
+# EDLOG DESIGN SPECIFICATION — v7.0 (Emerald Identity)
 
 ## DESIGN PHILOSOPHY
 
@@ -6,15 +6,16 @@ Edlog is a **functional-first teacher portal**. It must be the fastest, clearest
 tool a Cameroonian teacher has ever used — on any device, on any network. Beauty
 serves purpose. Beauty never hides function.
 
-**Target vibe:** Facebook 2026 top form — color only on tabs and active elements.
-The dashboard is neutral, readable, and functional. Teachers on Tecno phones
-finish a log in 30 seconds without fighting beauty.
+**Target vibe:** Clean, warm, professional. Emerald green = growth = education =
+Cameroon. Gold = achievement = trust. Warm neutral surfaces — not cold tech-gray.
+Teachers on Tecno phones finish a log in 30 seconds without fighting beauty.
 
-**Reference products:** Facebook (neutral feed, color only on nav tabs and
-buttons), WhatsApp (familiar, fast, functional), Linear (craft quality).
+**Reference products:** WhatsApp (familiar, fast, functional), Linear (craft
+quality), Instagram (one accent color, restrained use).
 
 **Anti-references:** Glassmorphism dashboards, glow effects, pulsing animations,
-rainbow accent shifts, anything that makes a button hard to find.
+rainbow accent shifts, anything that makes a button hard to find. Facebook blue
+clone aesthetics.
 
 ### The Three Pillars
 
@@ -22,9 +23,10 @@ rainbow accent shifts, anything that makes a button hard to find.
    A teacher sees "Log this class" within 2 seconds of opening the app. An admin
    sees "What needs attention today" instantly.
 
-2. **Neutral calm.** Surfaces are white/gray in light mode, near-black in dark.
-   No accent-tinted shadows, no background gradients, no glows on cards. Color
-   appears ONLY on: active nav tabs, primary buttons, status badges, role dots.
+2. **Warm neutral calm.** Surfaces are warm white/cream in light mode, warm
+   charcoal in dark. No accent-tinted shadows, no background gradients, no glows
+   on cards. Color appears ONLY on: active nav tabs, primary buttons, status
+   badges, role dots.
 
 3. **Beauty must never hide function.** The sign-in button is always visible.
    The header always shows what school/role/date. Every touch target is 44px.
@@ -60,7 +62,7 @@ rainbow accent shifts, anything that makes a button hard to find.
 - Must see: Today's timetable auto-filled + "Log this class now."
 - One action: Fill entry → submit.
 - Layout: Minimal form, collapsed extras, instant success.
-- Role dot color: Blue (`hsl(217 100% 51%)`)
+- Role dot color: Emerald (`hsl(152 60% 36%)`)
 
 All portals share:
 - Bottom nav: Home / Timetable / New Entry / Notices / Profile
@@ -69,38 +71,56 @@ All portals share:
 - WhatsApp-level familiarity
 
 
-## COLOR SYSTEM — Facebook-Minimal
+## COLOR SYSTEM — Emerald + Gold
 
 ### Philosophy
 
-One accent color: **#0866FF** (Facebook blue). Used ONLY on:
+Primary accent: **Emerald green** `hsl(152 60% 36%)`. Used ONLY on:
 - Bottom nav active tab icon + label
 - Primary action buttons
-- Status pills (submitted = blue, verified = green, flagged = red)
-- Tiny role indicator dots in the header
+- Sign-in button
+- Active link highlights
 
-Everything else is neutral gray/white.
+Secondary accent: **Gold** `hsl(42 92% 50%)`. Used ONLY on:
+- Achievement badges, stars, streak indicators
+- Premium/trust highlights
+- Subtle decorative accents (sparingly)
+
+Status colors stay semantic: green=verified, amber=warning, red=flagged,
+blue=submitted.
+
+Everything else is warm neutral.
 
 ### Surface Palette
 
 | Token | Light | Dark | Purpose |
 |-------|-------|------|---------|
-| surface-canvas | `220 5% 96%` | `220 10% 8%` | Page background |
-| surface-secondary | `0 0% 100%` | `220 8% 12%` | Cards |
-| surface-tertiary | `220 5% 91%` | `220 6% 16%` | Insets, dividers |
-| surface-elevated | `0 0% 100%` | `220 8% 13%` | Floating panels |
+| surface-canvas | `40 30% 97%` | `30 10% 8%` | Page background (warm) |
+| surface-secondary | `40 25% 99%` | `30 8% 12%` | Cards |
+| surface-tertiary | `40 15% 93%` | `30 6% 16%` | Insets, dividers |
+| surface-elevated | `0 0% 100%` | `30 8% 13%` | Floating panels |
 
-Neutrals have minimal blue tint — clean, professional, not cold.
+Neutrals have warm undertone — professional, welcoming, not cold.
+
+### Brand Colors
+
+| Token | Value | Purpose |
+|-------|-------|---------|
+| --accent | `152 60% 36%` | Primary green (buttons, links, nav) |
+| --accent-hover | `152 60% 30%` | Green hover state |
+| --gold | `42 92% 50%` | Achievement gold |
+| --gold-soft | `42 80% 92%` | Gold background tint |
+| --gold-text | `42 70% 35%` | Gold text (accessible) |
 
 ### Color Rules
 
 1. **No accent-tinted shadows.** All shadows are neutral black at low opacity.
-2. **No accent-tinted borders.** Borders are neutral gray.
+2. **No accent-tinted borders.** Borders are warm neutral gray.
 3. **No background gradients** on cards, headers, or body.
 4. **No glow, pulse, breathe, or ripple** effects on any element.
 5. **Status colors stay semantic:** green=verified, amber=warning, red=flagged.
-6. **Sign-in button:** Always `background: #0866FF; color: #FFFFFF;` — visible
-   in both light and dark modes.
+6. **Sign-in button:** Always emerald green bg, white text — visible in both
+   light and dark modes.
 
 
 ## TYPOGRAPHY
@@ -175,16 +195,16 @@ Clean functional bar on every page:
 ### Bottom Navigation (Mobile)
 
 5 tabs maximum. Clean solid background (not frosted glass).
-- Active tab: accent blue icon + label
+- Active tab: accent green icon + label
 - Inactive: gray icon + label
-- Center "New Entry": accent blue pill button
+- Center "New Entry": accent green pill button
 - Height: 64px + safe area inset
 - No glow, no bob animation, no shadows on tabs
 
 ### Desktop Sidebar
 
 Persistent 288px (18rem) left sidebar on ≥1024px. Clean white/dark surface
-with simple nav links. Active link has accent blue text + subtle blue bg tint.
+with simple nav links. Active link has accent green text + subtle green bg tint.
 
 
 ## COMPONENT PATTERNS
@@ -202,7 +222,7 @@ Simple white (or dark surface) cards with:
 
 | Variant | Style |
 |---------|-------|
-| Primary | Solid accent blue bg, white text |
+| Primary | Solid accent green bg, white text |
 | Secondary | White bg, gray border, dark text |
 | Ghost | Transparent, gray text, gray bg on hover |
 | Danger | Solid red bg, white text |
@@ -214,7 +234,7 @@ One primary button per screen. Everything else secondary or ghost.
 
 Small pills with tinted backgrounds:
 - Draft: gray bg, gray text
-- Submitted: light blue bg, blue text
+- Submitted: light accent bg, accent text
 - Verified: light green bg, green text
 - Flagged: light red bg, red text
 
@@ -231,11 +251,11 @@ Clean, functional display:
 ## DARK MODE
 
 1. Every element uses CSS custom properties.
-2. Dark surfaces: near-black with minimal blue tint (220° 8-10%).
-3. Accent blue brightens in dark mode for visibility (51% → 66% lightness).
+2. Dark surfaces: warm charcoal (30° 8-10%) — not cold blue-black.
+3. Accent green brightens in dark mode for visibility (36% → 50% lightness).
 4. Shadows use deeper blacks (no accent tint).
 5. Text hierarchy: primary=near-white, secondary=64%, tertiary=46%.
-6. Borders stay subtle (20% lightness).
+6. Borders stay subtle (20% lightness, warm undertone).
 
 
 ## RESPONSIVE BREAKPOINTS
@@ -247,51 +267,45 @@ Clean, functional display:
 | > 1024px | Sidebar + main content | Side nav | Full table |
 
 
-## LOGIN PAGE & PUBLIC HOMEPAGE — v5.1 Standard
+## LOGIN PAGE & PUBLIC HOMEPAGE — v7.0
 
 ### Philosophy
 
-Both the public homepage (`/`) and the login page (`/login`) follow the same
-"standard modern login" pattern used by Facebook, WhatsApp, and Notion in 2026:
-earned blue on a calm neutral canvas, centered white card, no pure-white pages.
+Both the public homepage (`/`) and the login page (`/login`) use emerald green
+on warm neutral surfaces. The homepage is a compelling landing page — even users
+without accounts should feel the urge to join.
 
 ### Background
 
 | Surface     | Light mode              | Dark mode             |
 |-------------|-------------------------|-----------------------|
-| Page canvas | `hsl(220 14% 96%)`      | `hsl(220 10% 8%)`     |
-| Card        | `#FFFFFF`               | `hsl(220 8% 12%)`     |
+| Page canvas | `hsl(40 30% 97%)`       | `hsl(30 10% 8%)`      |
+| Card        | `#FFFFFF`               | `hsl(30 8% 12%)`      |
 
-Never use `background: white` on the full page. The canvas must always be a
-step off-white (light gray) so the card pops with genuine contrast.
+Warm off-white canvas so cards pop with genuine contrast.
 
 ### Sign-In Button (THE rule)
 
 ```
-background: #0866FF   ← hardcoded, not a CSS variable
-color:      #FFFFFF   ← always white text
-min-height: 48px      ← 44px touch target + breathing room
+background: hsl(var(--accent))   ← emerald green from CSS variables
+color:      #FFFFFF              ← always white text
+min-height: 48px                 ← 44px touch target + breathing room
 ```
-
-**Why hardcoded?** Older Android WebViews (Tecno/Infinix phones, Chrome < 65)
-may not resolve `hsl(space-separated)` CSS Level 4 syntax reliably. Hardcoding
-`#0866FF` guarantees the button is always blue with white text — no FOUC, no
-white-on-white, no contrast failure in either light or dark mode.
 
 ### Homepage Layout
 
 ```
-[sticky header: logo left | Sign In button right (#0866FF)]
-[hero card: blue gradient contained in rounded-2xl card]
-  ├─ "New · Smart timetabling" pill
-  ├─ H1 headline (white text)
-  ├─ Tagline (white/60 text)
-  └─ [Sign In — white bg #0866FF text] [Get Started — ghost]
-[stats row: 60s / 40+ / 100% — neutral white card]
+[sticky header: Leaf logo left | Sign In button right (green)]
+[hero section: "The logbook that grows with your teaching"]
+  ├─ H1 headline + tagline
+  └─ [Get Started — green] [Learn More — ghost]
+[stats bar: 60s / 40+ schools / 10 regions / 58 divisions]
 [role cards: Teacher, School Admin, Regional Inspector]
-[features grid: 2-col, neutral cards on secondary bg]
-[how it works: 3-step list]
-[final CTA: blue gradient section — second earned-color moment]
+[features grid: 6 features with green icons]
+[how it works: 3-step flow]
+[regional coverage: all 10 Cameroon regions with capitals]
+[testimonials: 3 educator quotes with gold stars]
+[green CTA section: "Ready to grow?"]
 [footer: neutral]
 ```
 
@@ -299,28 +313,33 @@ white-on-white, no contrast failure in either light or dark mode.
 
 ```
 [centered column, max-w-[400px]]
-  ├─ Logo: #0866FF icon + "Edlog" wordmark + "Sign in to your account"
+  ├─ Logo: green Leaf icon + "Edlog" wordmark
+  ├─ "Sign in to your account"
   ├─ [optional success / error banners]
-  ├─ Email input (input-field class)
+  ├─ Email input
   ├─ Password input + show/hide toggle
-  ├─ [Sign In button: #0866FF bg, #FFFFFF text, 48px height]
+  ├─ [Sign In button: green bg, white text, 48px height]
   └─ "Don't have an account? Get Started"
 [register option cards below: Teacher / School Admin / Regional Inspector]
 ```
 
 ### Earned-Color on Login & Homepage
 
-Blue (`#0866FF`) appears ONLY on:
-1. Logo icon background
-2. The Sign In / primary CTA button (always blue, always pops)
-3. Section label micro-text (e.g. "BUILT FOR EVERYONE")
-4. Role card icons that map to the accent (Teacher role)
-5. Hero card and final CTA section background gradient
-6. Step number bubbles (gradient)
+Emerald green appears ONLY on:
+1. Logo icon (Leaf)
+2. The Sign In / primary CTA button
+3. Section label micro-text (e.g. "BUILT FOR CAMEROON")
+4. Feature card icons
+5. CTA section background
+6. Step number circles
 
-Everything else is neutral surfaces (`surface-canvas`, `surface-elevated`,
-`border-primary`, `text-primary/secondary/tertiary`). The blue button stands
-out because everything around it is neutral — that IS the earned color working.
+Gold appears on:
+1. Star ratings in testimonials
+2. Stats bar numbers
+3. Achievement/streak indicators
+
+Everything else is warm neutral surfaces. The green button stands out because
+everything around it is neutral — that IS the earned color working.
 
 
 ## PERFORMANCE
