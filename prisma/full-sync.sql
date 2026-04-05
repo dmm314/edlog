@@ -1,8 +1,13 @@
 -- ============================================================
--- EdLog: Complete Database Sync Script
--- Safe to run multiple times (uses IF NOT EXISTS everywhere)
+-- EdLog: Complete Database Sync Script — v7.0
+--
+-- Safe to run multiple times (uses IF NOT EXISTS everywhere).
 -- Paste this ENTIRE script into the Neon SQL Editor and run it.
--- Matches schema.prisma exactly.
+-- Matches prisma/schema.prisma exactly.
+--
+-- This does NOT delete data. It only ADDS missing tables,
+-- columns, indexes, and constraints. Use neon-reset.sql if
+-- you want to wipe everything and start fresh.
 -- ============================================================
 
 -- ── ENUMS (safe: only created if they don't exist) ──────────
@@ -33,18 +38,22 @@ EXCEPTION WHEN duplicate_object THEN NULL;
 END $$;
 
 DO $$ BEGIN
-  CREATE TYPE "NotificationType" AS ENUM ('LOG_REMINDER', 'WEEKLY_SUMMARY', 'COMPLIANCE_WARNING', 'LOG_REVIEWED', 'NEW_TEACHER', 'CURRICULUM_GAP', 'GENERAL', 'SCHOOL_INVITATION');
+  CREATE TYPE "NotificationType" AS ENUM ('LOG_REMINDER', 'WEEKLY_SUMMARY', 'COMPLIANCE_WARNING', 'LOG_REVIEWED', 'NEW_TEACHER', 'CURRICULUM_GAP', 'GENERAL', 'SCHOOL_INVITATION', 'SCHOOL_ANNOUNCEMENT', 'REGIONAL_ANNOUNCEMENT');
 EXCEPTION WHEN duplicate_object THEN NULL;
 END $$;
 
--- Add SCHOOL_INVITATION if enum already exists but value is missing
-DO $$ BEGIN
-  ALTER TYPE "NotificationType" ADD VALUE IF NOT EXISTS 'SCHOOL_INVITATION';
-EXCEPTION WHEN others THEN NULL;
-END $$;
+-- Add enum values that may be missing
+DO $$ BEGIN ALTER TYPE "NotificationType" ADD VALUE IF NOT EXISTS 'SCHOOL_INVITATION'; EXCEPTION WHEN others THEN NULL; END $$;
+DO $$ BEGIN ALTER TYPE "NotificationType" ADD VALUE IF NOT EXISTS 'SCHOOL_ANNOUNCEMENT'; EXCEPTION WHEN others THEN NULL; END $$;
+DO $$ BEGIN ALTER TYPE "NotificationType" ADD VALUE IF NOT EXISTS 'REGIONAL_ANNOUNCEMENT'; EXCEPTION WHEN others THEN NULL; END $$;
 
 DO $$ BEGIN
   CREATE TYPE "TeacherSchoolStatus" AS ENUM ('PENDING', 'ACTIVE', 'REMOVED');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+
+DO $$ BEGIN
+  CREATE TYPE "Language" AS ENUM ('EN', 'FR');
 EXCEPTION WHEN duplicate_object THEN NULL;
 END $$;
 
@@ -98,6 +107,11 @@ ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "dateOfBirth" TIMESTAMP(3);
 ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "gender" "Gender";
 ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "photoUrl" TEXT;
 ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "regionId" TEXT;
+ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "qualifications" TEXT[] NOT NULL DEFAULT '{}';
+ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "yearsOfExperience" INTEGER;
+ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "matricule" TEXT;
+ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "preferredLanguage" "Language" NOT NULL DEFAULT 'EN';
+CREATE INDEX IF NOT EXISTS "User_schoolId_role_idx" ON "User"("schoolId", "role");
 
 CREATE TABLE IF NOT EXISTS "Session" (
     "id" TEXT NOT NULL,
@@ -145,6 +159,7 @@ CREATE TABLE IF NOT EXISTS "School" (
 );
 CREATE UNIQUE INDEX IF NOT EXISTS "School_code_key" ON "School"("code");
 CREATE UNIQUE INDEX IF NOT EXISTS "School_adminId_key" ON "School"("adminId");
+CREATE INDEX IF NOT EXISTS "School_regionId_divisionId_idx" ON "School"("regionId", "divisionId");
 
 -- Add columns that may be missing from older schemas
 ALTER TABLE "School" ADD COLUMN IF NOT EXISTS "schoolType" TEXT;
@@ -276,6 +291,8 @@ CREATE TABLE IF NOT EXISTS "TeacherAssignment" (
 );
 CREATE INDEX IF NOT EXISTS "TeacherAssignment_teacherId_idx" ON "TeacherAssignment"("teacherId");
 CREATE INDEX IF NOT EXISTS "TeacherAssignment_schoolId_idx" ON "TeacherAssignment"("schoolId");
+CREATE INDEX IF NOT EXISTS "TeacherAssignment_teacherId_schoolId_idx" ON "TeacherAssignment"("teacherId", "schoolId");
+CREATE INDEX IF NOT EXISTS "TeacherAssignment_schoolId_classId_idx" ON "TeacherAssignment"("schoolId", "classId");
 CREATE UNIQUE INDEX IF NOT EXISTS "TeacherAssignment_teacherId_classId_subjectId_divisionId_key" ON "TeacherAssignment"("teacherId", "classId", "subjectId", "divisionId");
 
 -- Add columns that may be missing from older schemas
@@ -326,6 +343,32 @@ ALTER TABLE "LogbookEntry" ADD COLUMN IF NOT EXISTS "studentAttendance" INTEGER;
 ALTER TABLE "LogbookEntry" ADD COLUMN IF NOT EXISTS "engagementLevel" "EngagementLevel";
 ALTER TABLE "LogbookEntry" ADD COLUMN IF NOT EXISTS "assignmentId" TEXT;
 ALTER TABLE "LogbookEntry" ADD COLUMN IF NOT EXISTS "timetableSlotId" TEXT;
+ALTER TABLE "LogbookEntry" ADD COLUMN IF NOT EXISTS "schoolId" TEXT;
+ALTER TABLE "LogbookEntry" ADD COLUMN IF NOT EXISTS "academicYearId" TEXT;
+ALTER TABLE "LogbookEntry" ADD COLUMN IF NOT EXISTS "termId" TEXT;
+ALTER TABLE "LogbookEntry" ADD COLUMN IF NOT EXISTS "weekNumber" INTEGER;
+ALTER TABLE "LogbookEntry" ADD COLUMN IF NOT EXISTS "classDidNotHold" BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE "LogbookEntry" ADD COLUMN IF NOT EXISTS "classDidNotHoldReason" TEXT;
+ALTER TABLE "LogbookEntry" ADD COLUMN IF NOT EXISTS "offlineCreatedAt" TIMESTAMP(3);
+ALTER TABLE "LogbookEntry" ADD COLUMN IF NOT EXISTS "familyOfSituation" TEXT;
+ALTER TABLE "LogbookEntry" ADD COLUMN IF NOT EXISTS "bilingualActivity" BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE "LogbookEntry" ADD COLUMN IF NOT EXISTS "bilingualType" TEXT;
+ALTER TABLE "LogbookEntry" ADD COLUMN IF NOT EXISTS "bilingualNote" TEXT;
+ALTER TABLE "LogbookEntry" ADD COLUMN IF NOT EXISTS "integrationActivity" TEXT;
+ALTER TABLE "LogbookEntry" ADD COLUMN IF NOT EXISTS "integrationLevel" TEXT;
+ALTER TABLE "LogbookEntry" ADD COLUMN IF NOT EXISTS "integrationStatus" TEXT;
+ALTER TABLE "LogbookEntry" ADD COLUMN IF NOT EXISTS "lessonMode" TEXT;
+ALTER TABLE "LogbookEntry" ADD COLUMN IF NOT EXISTS "digitalTools" TEXT[] NOT NULL DEFAULT '{}';
+ALTER TABLE "LogbookEntry" ADD COLUMN IF NOT EXISTS "assignmentGiven" BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE "LogbookEntry" ADD COLUMN IF NOT EXISTS "assignmentDetails" TEXT;
+ALTER TABLE "LogbookEntry" ADD COLUMN IF NOT EXISTS "assignmentReviewed" BOOLEAN;
+ALTER TABLE "LogbookEntry" ADD COLUMN IF NOT EXISTS "verificationSignature" TEXT;
+CREATE INDEX IF NOT EXISTS "LogbookEntry_schoolId_date_status_idx" ON "LogbookEntry"("schoolId", "date", "status");
+CREATE INDEX IF NOT EXISTS "LogbookEntry_teacherId_academicYearId_termId_idx" ON "LogbookEntry"("teacherId", "academicYearId", "termId");
+
+-- Add missing Notification columns
+ALTER TABLE "Notification" ADD COLUMN IF NOT EXISTS "senderRole" TEXT;
+ALTER TABLE "Notification" ADD COLUMN IF NOT EXISTS "schoolId" TEXT;
 
 CREATE TABLE IF NOT EXISTS "Notification" (
     "id" TEXT NOT NULL,
@@ -587,7 +630,118 @@ DO $$ BEGIN
 EXCEPTION WHEN duplicate_object THEN NULL;
 END $$;
 
+DO $$ BEGIN
+    ALTER TABLE "LogbookEntry" ADD CONSTRAINT "LogbookEntry_schoolId_fkey"
+        FOREIGN KEY ("schoolId") REFERENCES "School"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+
+-- ── ACADEMIC YEAR & TERMS ─────────────────────────────────────
+CREATE TABLE IF NOT EXISTS "AcademicYear" (
+    "id" TEXT NOT NULL, "name" TEXT NOT NULL, "startDate" TIMESTAMP(3) NOT NULL,
+    "endDate" TIMESTAMP(3) NOT NULL, "isActive" BOOLEAN NOT NULL DEFAULT false,
+    "schoolId" TEXT NOT NULL, "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "AcademicYear_pkey" PRIMARY KEY ("id")
+);
+DO $$ BEGIN ALTER TABLE "AcademicYear" ADD CONSTRAINT "AcademicYear_schoolId_name_key" UNIQUE ("schoolId", "name"); EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+CREATE INDEX IF NOT EXISTS "AcademicYear_schoolId_isActive_idx" ON "AcademicYear"("schoolId", "isActive");
+DO $$ BEGIN ALTER TABLE "AcademicYear" ADD CONSTRAINT "AcademicYear_schoolId_fkey" FOREIGN KEY ("schoolId") REFERENCES "School"("id") ON DELETE RESTRICT ON UPDATE CASCADE; EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+CREATE TABLE IF NOT EXISTS "Term" (
+    "id" TEXT NOT NULL, "academicYearId" TEXT NOT NULL, "name" TEXT NOT NULL,
+    "number" INTEGER NOT NULL, "startDate" TIMESTAMP(3) NOT NULL,
+    "endDate" TIMESTAMP(3) NOT NULL, "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "Term_pkey" PRIMARY KEY ("id")
+);
+DO $$ BEGIN ALTER TABLE "Term" ADD CONSTRAINT "Term_academicYearId_number_key" UNIQUE ("academicYearId", "number"); EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+CREATE INDEX IF NOT EXISTS "Term_academicYearId_idx" ON "Term"("academicYearId");
+DO $$ BEGIN ALTER TABLE "Term" ADD CONSTRAINT "Term_academicYearId_fkey" FOREIGN KEY ("academicYearId") REFERENCES "AcademicYear"("id") ON DELETE RESTRICT ON UPDATE CASCADE; EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+DO $$ BEGIN ALTER TABLE "LogbookEntry" ADD CONSTRAINT "LogbookEntry_academicYearId_fkey" FOREIGN KEY ("academicYearId") REFERENCES "AcademicYear"("id") ON DELETE SET NULL ON UPDATE CASCADE; EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+DO $$ BEGIN ALTER TABLE "LogbookEntry" ADD CONSTRAINT "LogbookEntry_termId_fkey" FOREIGN KEY ("termId") REFERENCES "Term"("id") ON DELETE SET NULL ON UPDATE CASCADE; EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+-- ── AUDIT LOG ─────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS "AuditLog" (
+    "id" TEXT NOT NULL, "entityType" TEXT NOT NULL, "entityId" TEXT NOT NULL,
+    "action" TEXT NOT NULL, "actorId" TEXT NOT NULL, "actorRole" TEXT NOT NULL,
+    "metadata" JSONB, "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "AuditLog_pkey" PRIMARY KEY ("id")
+);
+CREATE INDEX IF NOT EXISTS "AuditLog_entityType_entityId_idx" ON "AuditLog"("entityType", "entityId");
+CREATE INDEX IF NOT EXISTS "AuditLog_actorId_idx" ON "AuditLog"("actorId");
+CREATE INDEX IF NOT EXISTS "AuditLog_createdAt_idx" ON "AuditLog"("createdAt");
+DO $$ BEGIN ALTER TABLE "AuditLog" ADD CONSTRAINT "AuditLog_actorId_fkey" FOREIGN KEY ("actorId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE; EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+-- ── DRAFT ENTRIES ─────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS "DraftEntry" (
+    "id" TEXT NOT NULL, "teacherId" TEXT NOT NULL, "formData" JSONB NOT NULL,
+    "slotId" TEXT, "lastSavedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "expiresAt" TIMESTAMP(3) NOT NULL, "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "DraftEntry_pkey" PRIMARY KEY ("id")
+);
+CREATE INDEX IF NOT EXISTS "DraftEntry_teacherId_idx" ON "DraftEntry"("teacherId");
+CREATE INDEX IF NOT EXISTS "DraftEntry_expiresAt_idx" ON "DraftEntry"("expiresAt");
+
+-- ── ASSESSMENTS ───────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS "Assessment" (
+    "id" TEXT NOT NULL, "teacherId" TEXT NOT NULL, "classId" TEXT NOT NULL,
+    "subjectId" TEXT NOT NULL, "schoolId" TEXT NOT NULL, "assignmentId" TEXT,
+    "academicYearId" TEXT, "title" TEXT NOT NULL, "type" TEXT NOT NULL,
+    "date" TIMESTAMP(3) NOT NULL, "totalMarks" INTEGER NOT NULL, "passMark" INTEGER NOT NULL,
+    "topicsNote" TEXT, "corrected" BOOLEAN NOT NULL DEFAULT false, "correctionDate" TIMESTAMP(3),
+    "totalStudents" INTEGER, "totalMale" INTEGER, "totalFemale" INTEGER,
+    "totalPassed" INTEGER, "malePassed" INTEGER, "femalePassed" INTEGER,
+    "highestMark" DOUBLE PRECISION, "lowestMark" DOUBLE PRECISION, "averageMark" DOUBLE PRECISION,
+    "passRate" DOUBLE PRECISION, "malePassRate" DOUBLE PRECISION, "femalePassRate" DOUBLE PRECISION,
+    "notifiedParents" BOOLEAN NOT NULL DEFAULT false,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "Assessment_pkey" PRIMARY KEY ("id")
+);
+CREATE INDEX IF NOT EXISTS "Assessment_teacherId_classId_idx" ON "Assessment"("teacherId", "classId");
+CREATE INDEX IF NOT EXISTS "Assessment_schoolId_date_idx" ON "Assessment"("schoolId", "date");
+CREATE INDEX IF NOT EXISTS "Assessment_classId_subjectId_idx" ON "Assessment"("classId", "subjectId");
+CREATE INDEX IF NOT EXISTS "Assessment_schoolId_academicYearId_type_idx" ON "Assessment"("schoolId", "academicYearId", "type");
+DO $$ BEGIN ALTER TABLE "Assessment" ADD CONSTRAINT "Assessment_teacherId_fkey" FOREIGN KEY ("teacherId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE; EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+DO $$ BEGIN ALTER TABLE "Assessment" ADD CONSTRAINT "Assessment_classId_fkey" FOREIGN KEY ("classId") REFERENCES "Class"("id") ON DELETE RESTRICT ON UPDATE CASCADE; EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+DO $$ BEGIN ALTER TABLE "Assessment" ADD CONSTRAINT "Assessment_subjectId_fkey" FOREIGN KEY ("subjectId") REFERENCES "Subject"("id") ON DELETE RESTRICT ON UPDATE CASCADE; EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+DO $$ BEGIN ALTER TABLE "Assessment" ADD CONSTRAINT "Assessment_schoolId_fkey" FOREIGN KEY ("schoolId") REFERENCES "School"("id") ON DELETE RESTRICT ON UPDATE CASCADE; EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+DO $$ BEGIN ALTER TABLE "Assessment" ADD CONSTRAINT "Assessment_academicYearId_fkey" FOREIGN KEY ("academicYearId") REFERENCES "AcademicYear"("id") ON DELETE SET NULL ON UPDATE CASCADE; EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+CREATE TABLE IF NOT EXISTS "_AssessmentTopics" ("A" TEXT NOT NULL, "B" TEXT NOT NULL);
+CREATE UNIQUE INDEX IF NOT EXISTS "_AssessmentTopics_AB_unique" ON "_AssessmentTopics"("A", "B");
+CREATE INDEX IF NOT EXISTS "_AssessmentTopics_B_index" ON "_AssessmentTopics"("B");
+DO $$ BEGIN ALTER TABLE "_AssessmentTopics" ADD CONSTRAINT "_AssessmentTopics_A_fkey" FOREIGN KEY ("A") REFERENCES "Assessment"("id") ON DELETE CASCADE ON UPDATE CASCADE; EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+DO $$ BEGIN ALTER TABLE "_AssessmentTopics" ADD CONSTRAINT "_AssessmentTopics_B_fkey" FOREIGN KEY ("B") REFERENCES "Topic"("id") ON DELETE CASCADE ON UPDATE CASCADE; EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+-- ── ENTRY VIEWS ("Seen" tracking) ─────────────────────────────
+CREATE TABLE IF NOT EXISTS "EntryView" (
+    "id" TEXT NOT NULL, "entryId" TEXT NOT NULL, "viewerId" TEXT NOT NULL,
+    "viewerRole" TEXT NOT NULL, "viewerTitle" TEXT,
+    "viewedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "EntryView_pkey" PRIMARY KEY ("id")
+);
+DO $$ BEGIN ALTER TABLE "EntryView" ADD CONSTRAINT "EntryView_entryId_viewerId_key" UNIQUE ("entryId", "viewerId"); EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+CREATE INDEX IF NOT EXISTS "EntryView_entryId_idx" ON "EntryView"("entryId");
+CREATE INDEX IF NOT EXISTS "EntryView_viewerId_idx" ON "EntryView"("viewerId");
+DO $$ BEGIN ALTER TABLE "EntryView" ADD CONSTRAINT "EntryView_entryId_fkey" FOREIGN KEY ("entryId") REFERENCES "LogbookEntry"("id") ON DELETE CASCADE ON UPDATE CASCADE; EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+DO $$ BEGIN ALTER TABLE "EntryView" ADD CONSTRAINT "EntryView_viewerId_fkey" FOREIGN KEY ("viewerId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE; EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+-- ── ENTRY REMARKS (feedback & review) ─────────────────────────
+CREATE TABLE IF NOT EXISTS "EntryRemark" (
+    "id" TEXT NOT NULL, "entryId" TEXT NOT NULL, "authorId" TEXT NOT NULL,
+    "authorRole" TEXT NOT NULL, "content" TEXT NOT NULL, "remarkType" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "EntryRemark_pkey" PRIMARY KEY ("id")
+);
+CREATE INDEX IF NOT EXISTS "EntryRemark_entryId_createdAt_idx" ON "EntryRemark"("entryId", "createdAt");
+CREATE INDEX IF NOT EXISTS "EntryRemark_authorId_idx" ON "EntryRemark"("authorId");
+DO $$ BEGIN ALTER TABLE "EntryRemark" ADD CONSTRAINT "EntryRemark_entryId_fkey" FOREIGN KEY ("entryId") REFERENCES "LogbookEntry"("id") ON DELETE CASCADE ON UPDATE CASCADE; EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+DO $$ BEGIN ALTER TABLE "EntryRemark" ADD CONSTRAINT "EntryRemark_authorId_fkey" FOREIGN KEY ("authorId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE; EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
 -- ============================================================
 -- DONE! All tables, enums, indexes, and foreign keys are synced.
 -- This script is safe to re-run at any time.
+-- Matches prisma/schema.prisma v7.0
 -- ============================================================
