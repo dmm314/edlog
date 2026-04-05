@@ -11,38 +11,55 @@ import {
   ChevronRight,
   BarChart3,
   Key,
-  Layers,
   Megaphone,
   AlertTriangle,
   CheckCircle,
   Shield,
   Flag,
+  ArrowUpRight,
+  Activity,
+  Zap,
+  Target,
+  MapPin,
 } from "lucide-react";
 import { NotificationBell } from "@/components/NotificationBell";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import { OnboardingTour } from "@/components/OnboardingTour";
-import { HelpHint } from "@/components/HelpHint";
 import { REGIONAL_TOUR } from "@/lib/tour-steps";
 import type { RegionalStats } from "@/types";
 
-function getRankColor(rank: number, total: number): string {
-  const quartile = total > 0 ? rank / total : 1;
-  if (quartile <= 0.25) return "text-[hsl(var(--success))]";
-  if (quartile <= 0.75) return "text-[hsl(var(--accent-strong))]";
-  return "text-[hsl(var(--danger))]";
+function getComplianceColor(rate: number): string {
+  if (rate >= 70) return "hsl(var(--success))";
+  if (rate >= 40) return "hsl(var(--warning))";
+  return "hsl(var(--danger))";
+}
+
+function getComplianceBg(rate: number): string {
+  if (rate >= 70) return "hsl(var(--success) / 0.08)";
+  if (rate >= 40) return "hsl(var(--warning) / 0.08)";
+  return "hsl(var(--danger) / 0.08)";
 }
 
 export default function RegionalDashboardPage() {
   const [stats, setStats] = useState<RegionalStats | null>(null);
   const [loading, setLoading] = useState(true);
-  const [userCreatedAt, setUserCreatedAt] = useState<string | undefined>(undefined);
+  const [userName, setUserName] = useState("");
+  const [regionName, setRegionName] = useState("");
 
   useEffect(() => {
-    async function fetchStats() {
+    async function load() {
       try {
-        const res = await fetch("/api/regional/stats");
-        if (res.ok) {
-          setStats(await res.json());
+        const [statsRes, sessionRes] = await Promise.all([
+          fetch("/api/regional/stats"),
+          fetch("/api/auth/session"),
+        ]);
+        if (statsRes.ok) setStats(await statsRes.json());
+        if (sessionRes.ok) {
+          const s = await sessionRes.json();
+          if (s?.user) {
+            setUserName(s.user.name || s.user.firstName || "");
+            // Try to get region name from stats
+          }
         }
       } catch {
         // silently fail
@@ -50,327 +67,462 @@ export default function RegionalDashboardPage() {
         setLoading(false);
       }
     }
-    fetchStats();
+    load();
+  }, []);
 
-    // Fetch createdAt for HelpHints
-    fetch("/api/auth/session").then(r => r.ok ? r.json() : null).then(s => {
-      if (s?.user?.createdAt) setUserCreatedAt(s.user.createdAt as string);
-    }).catch(() => {});
+  // Get region name from stats if available
+  useEffect(() => {
+    if (stats && !regionName) {
+      // Extract from school rankings or other data
+      setRegionName(""); // Will be set from profile API
+    }
+  }, [stats, regionName]);
+
+  // Fetch region name
+  useEffect(() => {
+    fetch("/api/profile")
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (data?.regionName) setRegionName(data.regionName);
+        if (data?.firstName) setUserName(`${data.firstName} ${data.lastName}`);
+      })
+      .catch(() => {});
   }, []);
 
   if (loading) {
-    return (
-      <div className="min-h-screen pb-24 bg-[hsl(var(--surface-canvas))]">
-        <div className="page-shell pt-8 pb-6">
-          <div className="flex items-center gap-1.5 mb-1">
-            <span className="role-dot role-dot-regional" />
-            <p className="text-xs font-medium text-content-tertiary">Regional Inspector</p>
-          </div>
-          <h1 className="text-xl font-bold text-content-primary tracking-tight">
-            Regional Dashboard
-          </h1>
-        </div>
-        <div className="page-shell mt-4">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-            {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="card p-4 animate-pulse">
-                <div className="h-10 bg-[var(--skeleton-base)] rounded mb-2" />
-                <div className="h-3 bg-[var(--skeleton-base)] rounded w-2/3" />
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    );
+    return <DashboardSkeleton />;
   }
 
-  // Sort schools by compliance (lowest first)
   const sortedSchools = stats
     ? [...stats.schoolRankings].sort((a, b) => a.complianceRate - b.complianceRate)
     : [];
 
-  const dataReportsLinks = [
-    { href: "/regional/reports/schools", icon: Building2, label: "Explore school data", sub: "Filter and sort schools by metrics" },
-    { href: "/regional/reports/comparison", icon: BarChart3, label: "Compare schools", sub: "Side-by-side cross-school comparison" },
-    { href: "/regional/reports/coverage", icon: BookOpen, label: "Curriculum coverage", sub: "Regional syllabus tracking" },
-    { href: "/regional/reports", icon: Layers, label: "All Reports" },
-    { href: "/regional/analysis", icon: Layers, label: "Deep Analysis", sub: "Modules, subjects, HODs" },
-  ];
-
-  const managementLinks = [
-    { href: "/regional/announcements", icon: Megaphone, label: "Send Announcement", sub: "Broadcast to all teachers in region" },
-    { href: "/regional/schools", icon: Building2, label: "Manage Schools" },
-    { href: "/regional/codes", icon: Key, label: "Registration Codes" },
-  ];
+  const firstName = userName.split(" ")[0] || "Inspector";
+  const greeting = getGreeting();
 
   return (
-    <div className="min-h-screen pb-24 bg-[hsl(var(--surface-canvas))]">
-      {/* Header */}
-      <div className="border-b border-[hsl(var(--border-primary))] bg-[hsl(var(--surface-elevated))]">
-        <div className="page-shell pt-8 pb-6">
-          <div data-tour="regional-welcome" className="flex items-start justify-between">
+    <div className="min-h-screen pb-24" style={{ background: "hsl(var(--surface-canvas))" }}>
+      {/* ── Hero Header ── */}
+      <header
+        className="relative overflow-hidden border-b"
+        style={{
+          background: "linear-gradient(135deg, hsl(var(--accent-strong)), hsl(var(--accent)), hsl(152 50% 44%))",
+          borderColor: "transparent",
+        }}
+      >
+        {/* Decorative pattern */}
+        <div className="absolute inset-0 opacity-[0.07]" style={{
+          backgroundImage: `radial-gradient(circle at 20% 80%, white 1px, transparent 1px), radial-gradient(circle at 80% 20%, white 1px, transparent 1px)`,
+          backgroundSize: "40px 40px",
+        }} />
+
+        <div className="page-shell relative z-10 pt-8 pb-7">
+          <div className="flex items-start justify-between">
             <div>
-              <div className="flex items-center gap-1.5 mb-1">
-                <span className="role-dot role-dot-regional" />
-                <p className="text-xs font-medium text-content-tertiary">Regional Inspector</p>
-              </div>
-              <h1 className="text-xl font-bold text-content-primary tracking-tight">
-                {stats ? "Region Overview" : "Regional Dashboard"}
+              <p className="text-sm font-medium text-white/70 mb-1">
+                {greeting}
+              </p>
+              <h1 className="text-2xl font-bold text-white tracking-tight">
+                {firstName}
               </h1>
+              {regionName && (
+                <div className="flex items-center gap-1.5 mt-2">
+                  <MapPin className="w-3.5 h-3.5 text-white/60" />
+                  <span className="text-sm text-white/70 font-medium">{regionName} Region</span>
+                </div>
+              )}
             </div>
-            <NotificationBell />
+            <div className="flex items-center gap-2">
+              <NotificationBell />
+            </div>
           </div>
         </div>
-      </div>
+      </header>
 
-      <div className="page-shell space-y-4 pt-4 lg:space-y-5">
-        {/* Pending schools alert */}
+      <div className="page-shell space-y-5 pt-5">
+        {/* ── Pending Alert ── */}
         {stats && stats.pendingSchools > 0 && (
           <Link
             href="/regional/schools"
-            className="animate-fade-slide-in card flex items-center gap-3 rounded-xl border border-[hsl(var(--border-muted))] p-4 animate-pulse-subtle active:scale-[0.98] transition-all duration-[80ms]"
+            className="group flex items-center gap-3.5 rounded-2xl p-4 transition-all duration-200 active:scale-[0.98]"
+            style={{
+              background: "hsl(var(--warning) / 0.06)",
+              border: "1px solid hsl(var(--warning) / 0.15)",
+            }}
           >
-            <Clock className="w-5 h-5 text-[hsl(var(--accent-strong))] flex-shrink-0" />
-            <div className="flex-1">
-              <p className="text-sm font-medium text-content-primary">
-                <span className="font-mono">{stats.pendingSchools}</span> school{stats.pendingSchools > 1 ? "s" : ""} pending approval
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl" style={{ background: "hsl(var(--warning) / 0.12)" }}>
+              <Clock className="w-5 h-5" style={{ color: "hsl(var(--warning))" }} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold" style={{ color: "hsl(var(--text-primary))" }}>
+                {stats.pendingSchools} school{stats.pendingSchools > 1 ? "s" : ""} awaiting approval
+              </p>
+              <p className="text-xs mt-0.5" style={{ color: "hsl(var(--text-tertiary))" }}>
+                Review and approve to activate
               </p>
             </div>
-            <ChevronRight className="w-4 h-4 text-content-tertiary" />
+            <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" style={{ color: "hsl(var(--warning))" }} />
           </Link>
         )}
 
-        {/* Stat pods — 2×2 on mobile, 4-col on desktop */}
-        <div data-tour="regional-stats" className="animate-fade-slide-in grid grid-cols-2 lg:grid-cols-4 gap-3" style={{ animationDelay: "80ms" }}>
-          <div className="card rounded-xl border border-[hsl(var(--border-muted))] p-4 active:scale-[0.97] transition-all duration-[80ms]">
-            <div className="w-10 h-10 bg-[hsl(var(--accent-soft))] rounded-xl flex items-center justify-center mb-2">
-              <Building2 className="w-5 h-5 text-[hsl(var(--accent))]" />
-            </div>
-            <p className="text-2xl font-bold text-content-primary font-mono">
-              {stats?.totalSchools ?? 0}
-            </p>
-            <p className="text-xs text-content-tertiary mt-0.5">
-              Total Schools
-            </p>
-          </div>
-
-          <div className="card rounded-xl border border-[hsl(var(--border-muted))] p-4 active:scale-[0.97] transition-all duration-[80ms]">
-            <div className="w-10 h-10 bg-[hsl(var(--accent-soft))] rounded-xl flex items-center justify-center mb-2">
-              <Users className="w-5 h-5 text-accent-text" />
-            </div>
-            <p className="text-2xl font-bold text-content-primary font-mono">
-              {stats?.totalTeachers ?? 0}
-            </p>
-            <p className="text-xs text-content-tertiary mt-0.5">
-              Total Teachers
-            </p>
-          </div>
-
-          <div className="card rounded-xl border border-[hsl(var(--border-muted))] p-4 active:scale-[0.97] transition-all duration-[80ms] relative">
-            <HelpHint
-              text="Average logging compliance across all schools in your region. Based on entries submitted vs. expected."
-              position="bottom"
-              createdAt={userCreatedAt}
-              className="absolute -top-1 -right-1 z-10"
-            />
-            <div className="w-10 h-10 bg-[hsl(var(--success)/0.1)] rounded-xl flex items-center justify-center mb-2">
-              <TrendingUp className="w-5 h-5 text-[hsl(var(--success))]" />
-            </div>
-            <p className="text-2xl font-bold text-content-primary font-mono">
-              {stats?.complianceRate ?? 0}%
-            </p>
-            <p className="text-xs text-content-tertiary mt-0.5">
-              Avg Compliance
-            </p>
-          </div>
-
-          <div className="card rounded-xl border border-[hsl(var(--border-muted))] p-4 active:scale-[0.97] transition-all duration-[80ms]">
-            <div className="w-10 h-10 bg-[hsl(var(--accent-soft))] rounded-xl flex items-center justify-center mb-2">
-              <BookOpen className="w-5 h-5 text-accent-text" />
-            </div>
-            <p className="text-2xl font-bold text-content-primary font-mono">
-              {stats?.entriesThisMonth ?? 0}
-            </p>
-            <p className="text-xs text-content-tertiary mt-0.5">
-              Entries This Month
-            </p>
-          </div>
+        {/* ── Key Metrics ── */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3" data-tour="regional-stats">
+          <MetricCard
+            icon={Building2}
+            value={stats?.totalSchools ?? 0}
+            label="Schools"
+            color="hsl(var(--info))"
+            delay={0}
+          />
+          <MetricCard
+            icon={Users}
+            value={stats?.totalTeachers ?? 0}
+            label="Teachers"
+            color="hsl(var(--accent))"
+            delay={1}
+          />
+          <MetricCard
+            icon={Target}
+            value={`${stats?.complianceRate ?? 0}%`}
+            label="Compliance"
+            color={getComplianceColor(stats?.complianceRate ?? 0)}
+            delay={2}
+          />
+          <MetricCard
+            icon={Activity}
+            value={stats?.entriesThisMonth ?? 0}
+            label="This Month"
+            color="hsl(var(--gold-text))"
+            delay={3}
+          />
         </div>
 
-        {/* Performance Tiers */}
+        {/* ── Performance Overview ── */}
         {stats?.performanceTiers && (
-          <section className="section-card animate-fade-slide-in" style={{ animationDelay: "120ms" }}>
-            <div className="flex items-center gap-2 mb-3">
-              <h3 className="text-sm font-semibold text-content-primary">School Performance Tiers</h3>
-              <HelpHint
-                text="Schools grouped by compliance rate: Excellent (80%+), Good (50-79%), Needs Attention (20-49%), Critical (<20%)"
-                position="right"
-                createdAt={userCreatedAt}
+          <div
+            className="rounded-2xl p-5 animate-fade-slide-in"
+            style={{
+              background: "hsl(var(--surface-elevated))",
+              border: "1px solid hsl(var(--border-primary))",
+              boxShadow: "var(--shadow-card)",
+              animationDelay: "120ms",
+            }}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-[15px] font-bold" style={{ color: "hsl(var(--text-primary))" }}>
+                Performance Overview
+              </h3>
+              <Link
+                href="/regional/reports/schools"
+                className="flex items-center gap-1 text-xs font-semibold transition-colors"
+                style={{ color: "hsl(var(--accent-text))" }}
+              >
+                Details <ArrowUpRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-4 gap-2.5">
+              <TierPill
+                icon={Zap}
+                count={stats.performanceTiers.excellent}
+                label="Excellent"
+                color="hsl(var(--success))"
+                bg="hsl(var(--success) / 0.06)"
+              />
+              <TierPill
+                icon={Shield}
+                count={stats.performanceTiers.good}
+                label="Good"
+                color="hsl(var(--accent))"
+                bg="hsl(var(--accent) / 0.06)"
+              />
+              <TierPill
+                icon={Flag}
+                count={stats.performanceTiers.needsAttention}
+                label="Attention"
+                color="hsl(var(--warning))"
+                bg="hsl(var(--warning) / 0.06)"
+              />
+              <TierPill
+                icon={AlertTriangle}
+                count={stats.performanceTiers.critical}
+                label="Critical"
+                color="hsl(var(--danger))"
+                bg="hsl(var(--danger) / 0.06)"
               />
             </div>
-            <div className="grid grid-cols-4 gap-2">
-              <div className="rounded-xl p-3 text-center" style={{ background: "hsl(var(--success) / 0.08)" }}>
-                <CheckCircle className="w-4 h-4 mx-auto mb-1" style={{ color: "hsl(var(--success))" }} />
-                <p className="text-lg font-bold font-mono" style={{ color: "hsl(var(--success))" }}>{stats.performanceTiers.excellent}</p>
-                <p className="text-[9px] font-bold uppercase tracking-wider text-content-tertiary">Excellent</p>
-              </div>
-              <div className="rounded-xl p-3 text-center" style={{ background: "hsl(var(--accent) / 0.08)" }}>
-                <Shield className="w-4 h-4 mx-auto mb-1" style={{ color: "hsl(var(--accent))" }} />
-                <p className="text-lg font-bold font-mono" style={{ color: "hsl(var(--accent))" }}>{stats.performanceTiers.good}</p>
-                <p className="text-[9px] font-bold uppercase tracking-wider text-content-tertiary">Good</p>
-              </div>
-              <div className="rounded-xl p-3 text-center" style={{ background: "hsl(var(--warning) / 0.1)" }}>
-                <Flag className="w-4 h-4 mx-auto mb-1" style={{ color: "hsl(var(--warning))" }} />
-                <p className="text-lg font-bold font-mono" style={{ color: "hsl(var(--warning))" }}>{stats.performanceTiers.needsAttention}</p>
-                <p className="text-[9px] font-bold uppercase tracking-wider text-content-tertiary">Attention</p>
-              </div>
-              <div className="rounded-xl p-3 text-center" style={{ background: "hsl(var(--danger) / 0.08)" }}>
-                <AlertTriangle className="w-4 h-4 mx-auto mb-1" style={{ color: "hsl(var(--danger))" }} />
-                <p className="text-lg font-bold font-mono" style={{ color: "hsl(var(--danger))" }}>{stats.performanceTiers.critical}</p>
-                <p className="text-[9px] font-bold uppercase tracking-wider text-content-tertiary">Critical</p>
-              </div>
-            </div>
-          </section>
+          </div>
         )}
 
-        {/* Two-column layout: School Rankings + Quick Links */}
-        <div className="lg:grid lg:grid-cols-2 lg:gap-5 space-y-4 lg:space-y-0">
-          {/* School Rankings */}
-          {sortedSchools.length > 0 && (
-            <section className="section-card animate-fade-slide-in" style={{ animationDelay: "160ms" }}>
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
-                  <h3 className="text-sm font-semibold text-content-primary">
-                    School Rankings
-                  </h3>
-                  <HelpHint
-                    text="Schools sorted by compliance — lowest first. This helps you identify which schools need attention."
-                    position="right"
-                    createdAt={userCreatedAt}
-                  />
-                </div>
+        {/* ── Two Column: Rankings + Actions ── */}
+        <div className="lg:grid lg:grid-cols-5 lg:gap-5 space-y-5 lg:space-y-0">
+          {/* School Rankings — wider column */}
+          <div className="lg:col-span-3">
+            <div
+              className="rounded-2xl animate-fade-slide-in overflow-hidden"
+              style={{
+                background: "hsl(var(--surface-elevated))",
+                border: "1px solid hsl(var(--border-primary))",
+                boxShadow: "var(--shadow-card)",
+                animationDelay: "160ms",
+              }}
+            >
+              <div className="flex items-center justify-between px-5 pt-5 pb-3">
+                <h3 className="text-[15px] font-bold" style={{ color: "hsl(var(--text-primary))" }}>
+                  School Rankings
+                </h3>
                 <Link
                   href="/regional/schools"
-                  className="text-xs text-accent-text font-medium"
+                  className="text-xs font-semibold flex items-center gap-1 transition-colors"
+                  style={{ color: "hsl(var(--accent-text))" }}
                 >
-                  View all
+                  View all <ArrowUpRight className="w-3.5 h-3.5" />
                 </Link>
               </div>
-              <div className="space-y-3">
-                {sortedSchools.slice(0, 10).map((school, i) => {
-                  const progressColor = school.complianceRate >= 70 ? "green" : school.complianceRate >= 40 ? "amber" : "red";
-                  return (
-                    <div
+
+              {sortedSchools.length === 0 ? (
+                <div className="px-5 pb-5">
+                  <p className="text-sm" style={{ color: "hsl(var(--text-tertiary))" }}>
+                    No schools registered yet. Share registration codes to get started.
+                  </p>
+                </div>
+              ) : (
+                <div className="divide-y" style={{ borderColor: "hsl(var(--border-muted))" }}>
+                  {sortedSchools.slice(0, 8).map((school, i) => (
+                    <Link
                       key={school.id}
-                      className="flex items-center gap-3 animate-fade-slide-in"
-                      style={{ animationDelay: `${(i + 3) * 80}ms` }}
+                      href={`/regional/schools`}
+                      className="flex items-center gap-3.5 px-5 py-3.5 transition-colors duration-150 hover:bg-black/[0.02] dark:hover:bg-white/[0.02] active:bg-black/[0.04]"
+                      style={{ animationDelay: `${(i + 4) * 60}ms` }}
                     >
-                      {/* Rank number */}
-                      <span
-                        className={`text-sm font-bold w-6 text-center flex-shrink-0 font-mono ${getRankColor(i + 1, sortedSchools.length)}`}
+                      {/* Rank badge */}
+                      <div
+                        className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg text-xs font-bold"
+                        style={{
+                          background: getComplianceBg(school.complianceRate),
+                          color: getComplianceColor(school.complianceRate),
+                        }}
                       >
                         {i + 1}
-                      </span>
+                      </div>
 
-                      {/* School info + progress */}
+                      {/* School info */}
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between mb-1">
-                          <p className="text-sm font-medium text-content-primary truncate">
-                            {school.name}
-                          </p>
-                          <span
-                            className={`text-xs font-bold ml-2 flex-shrink-0 font-mono ${
-                              school.complianceRate >= 70 ? "text-[hsl(var(--success))]" : school.complianceRate >= 40 ? "text-[hsl(var(--accent-strong))]" : "text-[hsl(var(--danger))]"
-                            }`}
-                          >
-                            {school.complianceRate}%
-                          </span>
-                        </div>
-                        <ProgressBar value={school.complianceRate} color={progressColor} />
+                        <p className="text-sm font-semibold truncate" style={{ color: "hsl(var(--text-primary))" }}>
+                          {school.name}
+                        </p>
                         <div className="flex items-center gap-3 mt-1">
-                          <span className="text-[10px] text-content-tertiary">
-                            <span className="font-mono">{school.teacherCount}</span> teachers
+                          <span className="text-[11px] font-medium" style={{ color: "hsl(var(--text-tertiary))" }}>
+                            {school.teacherCount} teachers
                           </span>
-                          <span className="text-[10px] text-content-tertiary">
-                            <span className="font-mono">{school.entryCount}</span> entries
+                          <span className="text-[11px] font-medium" style={{ color: "hsl(var(--text-tertiary))" }}>
+                            {school.entryCount} entries
                           </span>
-                          {school.verificationRate > 0 && (
-                            <span className="text-[10px] text-content-tertiary">
-                              <span className="font-mono">{school.verificationRate}%</span> verified
-                            </span>
-                          )}
                         </div>
                       </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </section>
-          )}
 
-          {/* Quick Links — grouped into two section-cards */}
-          <div className="space-y-4 lg:space-y-5">
-            {/* Data & Reports */}
-            <section className="section-card animate-fade-slide-in" style={{ animationDelay: "240ms" }}>
-              <h3 className="text-sm font-semibold text-content-primary mb-3">Data &amp; Reports</h3>
-              <div className="space-y-1">
-                {dataReportsLinks.map((link) => (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    className="flex items-center justify-between rounded-xl p-3 group active:scale-[0.98] transition-all duration-[80ms] hover:bg-[hsl(var(--surface-canvas))]"
-                  >
-                    <div className="flex items-center gap-3">
-                      <link.icon className="w-5 h-5 text-content-tertiary" />
-                      <div>
-                        <span className="text-sm font-medium text-content-primary">
-                          {link.label}
+                      {/* Compliance */}
+                      <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
+                        <span
+                          className="text-sm font-bold font-mono tabular-nums"
+                          style={{ color: getComplianceColor(school.complianceRate) }}
+                        >
+                          {school.complianceRate}%
                         </span>
-                        {link.sub && (
-                          <span className="block text-[11px] text-content-tertiary">
-                            {link.sub}
-                          </span>
-                        )}
+                        <div className="w-16">
+                          <ProgressBar
+                            value={school.complianceRate}
+                            color={school.complianceRate >= 70 ? "green" : school.complianceRate >= 40 ? "amber" : "red"}
+                          />
+                        </div>
                       </div>
-                    </div>
-                    <ChevronRight className="w-4 h-4 text-content-tertiary group-hover:translate-x-0.5 transition-transform" />
-                  </Link>
-                ))}
-              </div>
-            </section>
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Quick Actions — narrower column */}
+          <div className="lg:col-span-2 space-y-4">
+            {/* Data & Reports */}
+            <ActionGroup
+              title="Data & Reports"
+              delay="200ms"
+              links={[
+                { href: "/regional/reports/schools", icon: Building2, label: "Explore Schools", desc: "Filter by metrics" },
+                { href: "/regional/reports/comparison", icon: BarChart3, label: "Compare Schools", desc: "Side-by-side analysis" },
+                { href: "/regional/reports/coverage", icon: BookOpen, label: "Curriculum Coverage", desc: "Syllabus tracking" },
+                { href: "/regional/reports", icon: TrendingUp, label: "All Reports" },
+              ]}
+            />
 
             {/* Management */}
-            <section className="section-card animate-fade-slide-in" style={{ animationDelay: "320ms" }}>
-              <h3 className="text-sm font-semibold text-content-primary mb-3">Management</h3>
-              <div className="space-y-1">
-                {managementLinks.map((link) => (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    className="flex items-center justify-between rounded-xl p-3 group active:scale-[0.98] transition-all duration-[80ms] hover:bg-[hsl(var(--surface-canvas))]"
-                  >
-                    <div className="flex items-center gap-3">
-                      <link.icon className="w-5 h-5 text-content-tertiary" />
-                      <div>
-                        <span className="text-sm font-medium text-content-primary">
-                          {link.label}
-                        </span>
-                        {link.sub && (
-                          <span className="block text-[11px] text-content-tertiary">
-                            {link.sub}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                    <ChevronRight className="w-4 h-4 text-content-tertiary group-hover:translate-x-0.5 transition-transform" />
-                  </Link>
-                ))}
-              </div>
-            </section>
+            <ActionGroup
+              title="Management"
+              delay="280ms"
+              links={[
+                { href: "/regional/announcements", icon: Megaphone, label: "Announcements", desc: "Broadcast to region" },
+                { href: "/regional/schools", icon: Building2, label: "Manage Schools" },
+                { href: "/regional/codes", icon: Key, label: "Registration Codes" },
+              ]}
+            />
           </div>
         </div>
       </div>
       <OnboardingTour steps={REGIONAL_TOUR} tourKey="regional" />
     </div>
   );
+}
+
+/* ── Sub-components ── */
+
+function MetricCard({ icon: Icon, value, label, color, delay }: {
+  icon: React.ElementType;
+  value: string | number;
+  label: string;
+  color: string;
+  delay: number;
+}) {
+  return (
+    <div
+      className="rounded-2xl p-4 animate-fade-slide-in transition-all duration-200"
+      style={{
+        background: "hsl(var(--surface-elevated))",
+        border: "1px solid hsl(var(--border-primary))",
+        boxShadow: "var(--shadow-card)",
+        animationDelay: `${delay * 60}ms`,
+      }}
+    >
+      <div
+        className="flex h-9 w-9 items-center justify-center rounded-xl mb-3"
+        style={{ background: `color-mix(in srgb, ${color} 10%, transparent)` }}
+      >
+        <Icon className="w-[18px] h-[18px]" style={{ color }} />
+      </div>
+      <p className="text-2xl font-bold font-mono tabular-nums tracking-tight" style={{ color: "hsl(var(--text-primary))" }}>
+        {value}
+      </p>
+      <p className="text-xs font-medium mt-0.5" style={{ color: "hsl(var(--text-tertiary))" }}>
+        {label}
+      </p>
+    </div>
+  );
+}
+
+function TierPill({ icon: Icon, count, label, color, bg }: {
+  icon: React.ElementType;
+  count: number;
+  label: string;
+  color: string;
+  bg: string;
+}) {
+  return (
+    <div className="rounded-xl p-3 text-center transition-all duration-150" style={{ background: bg }}>
+      <Icon className="w-4 h-4 mx-auto mb-1.5" style={{ color }} />
+      <p className="text-lg font-bold font-mono tabular-nums" style={{ color }}>
+        {count}
+      </p>
+      <p className="text-[10px] font-semibold uppercase tracking-wider mt-0.5" style={{ color: "hsl(var(--text-tertiary))" }}>
+        {label}
+      </p>
+    </div>
+  );
+}
+
+function ActionGroup({ title, delay, links }: {
+  title: string;
+  delay: string;
+  links: Array<{ href: string; icon: React.ElementType; label: string; desc?: string }>;
+}) {
+  return (
+    <div
+      className="rounded-2xl overflow-hidden animate-fade-slide-in"
+      style={{
+        background: "hsl(var(--surface-elevated))",
+        border: "1px solid hsl(var(--border-primary))",
+        boxShadow: "var(--shadow-card)",
+        animationDelay: delay,
+      }}
+    >
+      <div className="px-4 pt-4 pb-2">
+        <h3 className="text-xs font-bold uppercase tracking-wider" style={{ color: "hsl(var(--text-tertiary))" }}>
+          {title}
+        </h3>
+      </div>
+      <div>
+        {links.map((link) => {
+          const Icon = link.icon;
+          return (
+            <Link
+              key={link.href}
+              href={link.href}
+              className="flex items-center gap-3 px-4 py-3 transition-colors duration-100 hover:bg-black/[0.02] dark:hover:bg-white/[0.02] active:bg-black/[0.04] group"
+            >
+              <div
+                className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl transition-colors"
+                style={{ background: "hsl(var(--surface-tertiary))" }}
+              >
+                <Icon className="w-[18px] h-[18px]" style={{ color: "hsl(var(--text-secondary))" }} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold" style={{ color: "hsl(var(--text-primary))" }}>
+                  {link.label}
+                </p>
+                {link.desc && (
+                  <p className="text-[11px] mt-0.5" style={{ color: "hsl(var(--text-tertiary))" }}>
+                    {link.desc}
+                  </p>
+                )}
+              </div>
+              <ChevronRight
+                className="w-4 h-4 flex-shrink-0 group-hover:translate-x-0.5 transition-transform"
+                style={{ color: "hsl(var(--text-quaternary))" }}
+              />
+            </Link>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function DashboardSkeleton() {
+  return (
+    <div className="min-h-screen pb-24" style={{ background: "hsl(var(--surface-canvas))" }}>
+      {/* Hero skeleton */}
+      <div className="h-36" style={{ background: "linear-gradient(135deg, hsl(var(--accent-strong)), hsl(var(--accent)))" }}>
+        <div className="page-shell pt-8">
+          <div className="h-4 w-24 rounded bg-white/20 mb-2" />
+          <div className="h-7 w-40 rounded bg-white/20" />
+        </div>
+      </div>
+      <div className="page-shell pt-5 space-y-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="rounded-2xl p-4 animate-pulse" style={{ background: "hsl(var(--surface-elevated))", border: "1px solid hsl(var(--border-primary))" }}>
+              <div className="h-9 w-9 rounded-xl mb-3" style={{ background: "var(--skeleton-base)" }} />
+              <div className="h-7 w-12 rounded mb-1" style={{ background: "var(--skeleton-base)" }} />
+              <div className="h-3 w-16 rounded" style={{ background: "var(--skeleton-base)" }} />
+            </div>
+          ))}
+        </div>
+        <div className="rounded-2xl p-5 animate-pulse" style={{ background: "hsl(var(--surface-elevated))", border: "1px solid hsl(var(--border-primary))" }}>
+          <div className="h-5 w-40 rounded mb-4" style={{ background: "var(--skeleton-base)" }} />
+          <div className="grid grid-cols-4 gap-2.5">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="rounded-xl p-3 h-20" style={{ background: "var(--skeleton-base)" }} />
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function getGreeting(): string {
+  const hour = new Date().getHours();
+  if (hour < 12) return "Good morning";
+  if (hour < 17) return "Good afternoon";
+  return "Good evening";
 }
