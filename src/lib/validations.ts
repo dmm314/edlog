@@ -121,14 +121,36 @@ export const updateEntrySchema = z.object({
   classId: z.string().optional(),
   topicId: z.string().optional(),
   topicIds: z.array(z.string()).optional(),
+  moduleName: z.string().optional().nullable(),
+  topicText: z.string().max(300).optional().nullable(),
   period: z.number().int().min(1).max(9).optional().nullable(),
   duration: z.number().int().min(15).max(180).optional(),
   notes: z.string().max(500).optional().nullable(),
-  objectives: z.string().max(500).optional().nullable(),
+  objectives: z.union([
+    z.string().max(500),
+    z.array(z.object({
+      text: z.string(),
+      proportion: z.enum(["all", "most", "some", "few"]).default("all"),
+    })),
+  ]).optional().nullable(),
   signatureData: z.string().optional().nullable(),
   status: z.enum(["DRAFT", "SUBMITTED", "VERIFIED", "FLAGGED"]).optional(),
   studentAttendance: z.number().int().min(0).optional().nullable(),
   engagementLevel: z.enum(["LOW", "MEDIUM", "HIGH"]).optional().nullable(),
+  // CBA Fields
+  familyOfSituation: z.string().max(200).optional().nullable(),
+  bilingualActivity: z.boolean().optional(),
+  bilingualType: z.enum(["game", "discussion", "quiz", "role_play", "exercise", "translation", "song"]).optional().nullable(),
+  bilingualNote: z.string().max(200).optional().nullable(),
+  integrationActivity: z.string().max(500).optional().nullable(),
+  integrationLevel: z.enum(["basic", "intermediate", "advanced"]).optional().nullable(),
+  integrationStatus: z.enum(["completed", "partial", "carried_over"]).optional().nullable(),
+  lessonMode: z.enum(["physical", "digital", "hybrid"]).optional().nullable(),
+  digitalTools: z.array(z.string()).optional(),
+  // Assignment tracking
+  assignmentGiven: z.boolean().optional(),
+  assignmentDetails: z.string().max(300).optional().nullable(),
+  assignmentReviewed: z.boolean().optional().nullable(),
 });
 
 // ── Assessments ──────────────────────────────────────────
