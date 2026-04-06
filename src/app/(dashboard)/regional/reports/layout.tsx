@@ -22,25 +22,10 @@ export default function RegionalReportsLayout({ children }: { children: React.Re
     <div className="desktop-content-wide" style={{ paddingBottom: 80 }}>
       {/* Header */}
       <div style={{ padding: "24px 16px 0" }}>
-        <h1
-          style={{
-            fontFamily: "var(--font-body)",
-            fontSize: 18,
-            fontWeight: 700,
-            color: "var(--text-primary)",
-            margin: 0,
-          }}
-        >
+        <h1 className="font-display text-[22px] font-bold text-content-primary">
           Reports
         </h1>
-        <p
-          style={{
-            fontFamily: "var(--font-body)",
-            fontSize: 14,
-            color: "var(--text-tertiary)",
-            margin: "4px 0 0",
-          }}
-        >
+        <p className="text-sm text-content-tertiary mt-1">
           Live data across your region — updates automatically.
         </p>
       </div>

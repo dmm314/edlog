@@ -24,7 +24,7 @@ interface SubjectDef {
 
 async function main() {
   console.log("========================================");
-  console.log("  EDLOG DATABASE SEED");
+  console.log("  EDLOG PRODUCTION DATABASE SEED");
   console.log("========================================\n");
 
   // ── 1. Regions & Divisions ─────────────────────────────
@@ -147,17 +147,16 @@ async function main() {
 
   // ── Summary ────────────────────────────────────────────
   console.log("========================================");
-  console.log("  DATABASE SEED COMPLETE");
+  console.log("  PRODUCTION SEED COMPLETE");
   console.log("========================================\n");
-  console.log("Regional Admin Login Credentials:");
-  console.log("  Password for ALL regional accounts: Edlog2026!");
+  console.log("10 Regional Admin Accounts (Password: Edlog2026!)");
   console.log("─────────────────────────────────────────");
   for (const r of REGIONS) {
     const names = REGIONAL_NAMES[r.code];
     console.log(`  ${r.name.padEnd(14)} ${names.firstName} ${names.lastName.padEnd(16)} ${r.email}`);
   }
-  console.log("\n─────────────────────────────────────────");
-  console.log("No schools, teachers, or entries created.");
+  console.log("─────────────────────────────────────────\n");
+  console.log("This is a PRODUCTION seed. No demo data created.");
   console.log("Regional admins create registration codes,");
   console.log("schools register at /register/school,");
   console.log("teachers register at /register.");
