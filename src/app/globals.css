@@ -228,6 +228,7 @@
   }
 
   .font-mono { font-family: var(--font-mono), "JetBrains Mono", monospace; }
+  .font-display { font-family: var(--font-display), Georgia, serif; }
 
   .dashboard-shell {
     min-height: 100vh;

@@ -21,6 +21,12 @@ export async function GET() {
 
     const startOfMonth = getStartOfMonth();
 
+    // Fetch region details for personalization
+    const region = await db.region.findUnique({
+      where: { id: user.regionId },
+      select: { name: true, capital: true },
+    });
+
     const [
       totalSchools,
       activeSchools,
@@ -200,6 +206,9 @@ export async function GET() {
     ]);
 
     return NextResponse.json({
+      regionName: region?.name ?? "",
+      regionCapital: region?.capital ?? "",
+      userName: user.firstName ?? "",
       totalSchools,
       activeSchools,
       pendingSchools,

@@ -80,29 +80,28 @@ export default function RegionalAnalysisPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[hsl(var(--surface-secondary))] to-[hsl(var(--surface-tertiary))] pb-24">
+    <div className="min-h-screen bg-[hsl(var(--surface-canvas))] pb-24">
       {/* Header */}
-      <div className="bg-gradient-to-br from-[hsl(var(--accent-text))] via-[hsl(var(--accent-strong))] to-[hsl(var(--accent))] px-5 pt-10 pb-8 rounded-b-[2rem] shadow-elevated relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[hsl(var(--accent)/0.2)] via-transparent to-transparent" />
-        <div className="page-shell relative">
+      <div className="border-b border-[hsl(var(--border-primary))] bg-[hsl(var(--surface-elevated))]">
+        <div className="page-shell pt-8 pb-5">
           <Link
             href="/regional"
-            className="inline-flex items-center gap-1.5 text-white/70 hover:text-white text-sm mb-4 transition-colors"
+            className="inline-flex items-center gap-1 text-sm text-content-tertiary hover:text-content-primary mb-3"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to Dashboard
           </Link>
-          <h1 className="text-xl font-bold text-white flex items-center gap-2">
-            <Layers className="w-5 h-5 text-[hsl(var(--accent-muted))]" />
+          <h1 className="font-display text-[22px] font-bold text-content-primary flex items-center gap-2">
+            <Layers className="w-5 h-5 text-content-tertiary" />
             Deep Analysis
           </h1>
-          <p className="text-[hsl(var(--accent-muted)/0.7)] text-sm mt-0.5">
+          <p className="text-sm text-content-tertiary mt-0.5">
             Module completion, teachers, and HODs across schools
           </p>
         </div>
       </div>
 
-      <div className="px-5 mt-4 page-shell space-y-4">
+      <div className="page-shell pt-4 space-y-4">
         {/* Tab switcher */}
         <div className="flex bg-[hsl(var(--surface-elevated))] rounded-xl border border-[var(--border-primary)] p-1">
           {[
@@ -118,7 +117,7 @@ export default function RegionalAnalysisPage() {
               }}
               className={`flex-1 flex items-center justify-center gap-1.5 text-sm font-semibold py-2.5 rounded-lg transition-all ${
                 activeTab === tab.key
-                  ? "bg-[hsl(var(--accent))] text-white shadow-sm"
+                  ? "bg-[hsl(var(--accent-soft))] text-[hsl(var(--accent-text))] shadow-sm"
                   : "text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]"
               }`}
             >

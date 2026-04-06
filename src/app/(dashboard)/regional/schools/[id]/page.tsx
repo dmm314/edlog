@@ -129,14 +129,14 @@ export default function SchoolDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen pb-24" style={{ backgroundColor: "hsl(var(--surface-secondary))" }}>
-        <div className="bg-gradient-to-br from-[hsl(var(--accent))] to-[hsl(var(--accent-strong))] px-5 pt-10 pb-6 rounded-b-2xl">
-          <div className="page-shell">
-            <div className="h-4 bg-[hsl(var(--surface-elevated))]/20 rounded w-1/3 mb-4" />
-            <div className="h-6 bg-[hsl(var(--surface-elevated))]/20 rounded w-2/3" />
+      <div className="min-h-screen pb-24 bg-[hsl(var(--surface-canvas))]">
+        <div className="border-b border-[hsl(var(--border-primary))] bg-[hsl(var(--surface-elevated))]">
+          <div className="page-shell pt-8 pb-5">
+            <div className="h-4 bg-[var(--skeleton-base)] rounded w-1/3 mb-4" />
+            <div className="h-6 bg-[var(--skeleton-base)] rounded w-2/3" />
           </div>
         </div>
-        <div className="px-5 mt-4 page-shell space-y-4">
+        <div className="page-shell pt-4 space-y-4">
           {[1, 2, 3].map((i) => (
             <div key={i} className="card p-4 animate-pulse">
               <div className="h-4 bg-[var(--skeleton-base)] rounded w-1/2 mb-2" />
@@ -150,20 +150,20 @@ export default function SchoolDetailPage() {
 
   if (!school) {
     return (
-      <div className="min-h-screen pb-24" style={{ backgroundColor: "hsl(var(--surface-secondary))" }}>
-        <div className="bg-gradient-to-br from-[hsl(var(--accent))] to-[hsl(var(--accent-strong))] px-5 pt-10 pb-6 rounded-b-2xl">
-          <div className="page-shell">
+      <div className="min-h-screen pb-24 bg-[hsl(var(--surface-canvas))]">
+        <div className="border-b border-[hsl(var(--border-primary))] bg-[hsl(var(--surface-elevated))]">
+          <div className="page-shell pt-8 pb-5">
             <Link
               href="/regional/schools"
-              className="inline-flex items-center gap-1 text-white/70 hover:text-white text-sm mb-3"
+              className="inline-flex items-center gap-1 text-sm text-content-tertiary hover:text-content-primary mb-3"
             >
               <ArrowLeft className="w-4 h-4" />
               Back to Schools
             </Link>
-            <h1 className="text-xl font-bold text-white">School Not Found</h1>
+            <h1 className="font-display text-[22px] font-bold text-content-primary">School Not Found</h1>
           </div>
         </div>
-        <div className="px-5 mt-8 page-shell text-center">
+        <div className="page-shell pt-8 text-center">
           <Building2 className="w-12 h-12 text-[var(--text-quaternary)] mx-auto mb-3" />
           <p className="text-[var(--text-tertiary)]">This school could not be found in your region.</p>
         </div>
@@ -174,27 +174,27 @@ export default function SchoolDetailPage() {
   const classGroups = groupClassesByLevel(school.classes);
 
   return (
-    <div className="min-h-screen pb-24" style={{ backgroundColor: "hsl(var(--surface-secondary))" }}>
+    <div className="min-h-screen pb-24 bg-[hsl(var(--surface-canvas))]">
       {/* Header */}
-      <div className="bg-gradient-to-br from-[hsl(var(--accent))] to-[hsl(var(--accent-strong))] px-5 pt-10 pb-6 rounded-b-2xl">
-        <div className="page-shell">
+      <div className="border-b border-[hsl(var(--border-primary))] bg-[hsl(var(--surface-elevated))]">
+        <div className="page-shell pt-8 pb-5">
           <Link
             href="/regional/schools"
-            className="inline-flex items-center gap-1 text-white/70 hover:text-white text-sm mb-3"
+            className="inline-flex items-center gap-1 text-sm text-content-tertiary hover:text-content-primary mb-3"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to Schools
           </Link>
           <div className="flex items-start gap-3">
-            <div className="w-12 h-12 bg-[hsl(var(--surface-elevated))]/10 rounded-xl flex items-center justify-center flex-shrink-0">
-              <Building2 className="w-6 h-6 text-white" />
+            <div className="w-12 h-12 bg-[hsl(var(--surface-tertiary))] rounded-xl flex items-center justify-center flex-shrink-0">
+              <Building2 className="w-6 h-6 text-content-secondary" />
             </div>
             <div className="flex-1 min-w-0">
-              <h1 className="text-xl font-bold text-white truncate">
+              <h1 className="font-display text-[22px] font-bold text-content-primary truncate">
                 {school.name}
               </h1>
               <div className="flex items-center gap-2 mt-1">
-                <span className="text-[var(--header-text-muted)] text-sm font-mono">
+                <span className="text-sm text-content-tertiary font-mono">
                   {school.code}
                 </span>
                 <span
@@ -211,7 +211,7 @@ export default function SchoolDetailPage() {
       </div>
 
       {/* Stats Row */}
-      <div className="px-5 -mt-1 page-shell">
+      <div className="page-shell pt-4">
         <div className="flex gap-2">
           <div className="flex-1 card p-3 text-center">
             <p className="text-xl font-bold text-[var(--text-primary)]">
@@ -241,7 +241,7 @@ export default function SchoolDetailPage() {
       </div>
 
       {/* Tab Selector */}
-      <div className="px-5 mt-4 page-shell">
+      <div className="page-shell mt-4">
         <div className="flex gap-1 bg-[hsl(var(--surface-tertiary))] rounded-xl p-1">
           {(["overview", "classes", "teachers"] as const).map((tab) => (
             <button
