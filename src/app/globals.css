@@ -2,79 +2,72 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ─── EDLOG DESIGN SYSTEM v7.0 ─── */
-/* Green + Gold identity. Warm surfaces. Education = growth. */
+/* ─── EDLOG DESIGN SYSTEM v6.0 ─── */
+/* Neutral surfaces. Color only on tabs, buttons, status. */
 
 @layer base {
   :root,
   .light {
-    /* ─ Primary: Emerald Green ─ */
-    --accent: 152 60% 36%;
-    --accent-soft: 148 40% 94%;
-    --accent-strong: 152 65% 28%;
-    --accent-text: 152 60% 30%;
-    --accent-muted: 148 30% 91%;
-    --accent-glow: 152 60% 36%;
-    --accent-hover: 152 60% 32%;
+    /* ─ Primary: Blue 600 #1A56DB ─ */
+    --accent: 224 86% 48%;
+    --accent-soft: 217 92% 95%;
+    --accent-strong: 224 86% 40%;
+    --accent-text: 224 86% 42%;
+    --accent-muted: 217 60% 92%;
+    --accent-glow: 224 86% 48%;
 
-    /* ─ Gold highlight (achievements, CTAs) ─ */
-    --gold: 42 92% 50%;
-    --gold-soft: 42 80% 94%;
-    --gold-text: 36 80% 36%;
-
-    /* ─ Warm neutral surfaces ─ */
-    --surface-canvas: 40 20% 97%;
-    --surface-primary: 40 20% 97%;
-    --surface-secondary: 40 15% 99%;
-    --surface-tertiary: 40 14% 93%;
-    --surface-elevated: 40 15% 99%;
+    /* ─ Neutral surfaces ─ */
+    --surface-canvas: 220 14% 96%;
+    --surface-primary: 220 14% 96%;
+    --surface-secondary: 0 0% 100%;
+    --surface-tertiary: 220 13% 91%;
+    --surface-elevated: 0 0% 100%;
     --surface-float: 0 0% 100%;
 
     /* ─ Text hierarchy ─ */
-    --text-primary: 30 10% 12%;
-    --text-secondary: 30 6% 44%;
-    --text-tertiary: 30 4% 56%;
+    --text-primary: 220 14% 10%;
+    --text-secondary: 220 9% 46%;
+    --text-tertiary: 220 4% 55%;
     --text-inverse: 0 0% 100%;
-    --text-quaternary: 30 4% 66%;
+    --text-quaternary: 220 4% 64%;
 
-    /* ─ Borders (warm neutral) ─ */
-    --border-primary: 35 12% 90%;
-    --border-secondary: 35 8% 93%;
-    --border-muted: 35 6% 92%;
-    --border-strong: 30 6% 80%;
+    /* ─ Borders (pure neutral) ─ */
+    --border-primary: 220 13% 91%;
+    --border-secondary: 220 9% 94%;
+    --border-muted: 220 4% 92%;
+    --border-strong: 220 6% 78%;
 
     /* ─ Status colors ─ */
-    --success: 152 60% 36%;
-    --success-light: hsl(152 60% 36% / 0.1);
+    --success: 160 84% 39%;
+    --success-light: hsl(160 84% 39% / 0.1);
     --warning: 38 92% 50%;
     --warning-light: hsl(38 92% 50% / 0.1);
     --danger: 0 72% 51%;
     --info: 199 89% 48%;
 
-    /* ─ Header ─ */
-    --header-bg: hsl(40 15% 99%);
-    --header-text: hsl(30 10% 12%);
-    --header-text-muted: hsl(30 4% 56%);
+    /* ─ Header (flat white, no gradient) ─ */
+    --header-bg: #FFFFFF;
+    --header-text: hsl(220 14% 10%);
+    --header-text-muted: hsl(220 4% 55%);
 
-    /* ─ Shadows (warm, no colored tint) ─ */
-    --shadow-card: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.04);
-    --shadow-elevated: 0 8px 24px -6px rgba(0, 0, 0, 0.08);
-    --shadow-float: 0 12px 32px -8px rgba(0, 0, 0, 0.10);
-    --shadow-accent: 0 4px 14px -3px hsl(152 60% 36% / 0.25);
+    /* ─ Shadows (neutral, no accent tint) ─ */
+    --shadow-card: 0 1px 3px 0 rgba(0, 0, 0, 0.06), 0 1px 2px -1px rgba(0, 0, 0, 0.06);
+    --shadow-elevated: 0 8px 24px -6px rgba(0, 0, 0, 0.1);
+    --shadow-float: 0 12px 32px -8px rgba(0, 0, 0, 0.12);
 
     /* ─ Navigation ─ */
     --nav-bg: rgba(255, 255, 255, 0.96);
-    --nav-border: hsl(35 12% 90% / 0.7);
-    --nav-text: hsl(30 4% 56%);
-    --nav-text-active: hsl(152 60% 30%);
+    --nav-border: hsl(220 13% 91% / 0.7);
+    --nav-text: hsl(220 4% 55%);
+    --nav-text-active: hsl(224 86% 48%);
 
     /* ─ Inputs ─ */
     --input-bg: #FFFFFF;
-    --input-border: hsl(35 12% 88%);
-    --input-focus-ring: hsl(152 60% 36% / 0.15);
+    --input-border: hsl(220 13% 91%);
+    --input-focus-ring: hsl(224 86% 48% / 0.15);
 
     /* ─ Skeleton ─ */
-    --skeleton-base: hsl(35 14% 92%);
+    --skeleton-base: hsl(220 14% 91%);
     --skeleton-highlight: rgba(255, 255, 255, 0.6);
 
     /* ─ Timing ─ */
@@ -92,89 +85,82 @@
     --radius-2xl: 20px;
 
     /* ─ Role dots ─ */
-    --role-regional: 199 80% 40%;
-    --role-coordinator: 270 50% 50%;
-    --role-admin: 152 60% 36%;
-    --role-teacher: 42 80% 48%;
+    --role-regional: 210 100% 30%;
+    --role-coordinator: 270 60% 45%;
+    --role-admin: 215 20% 40%;
+    --role-teacher: 224 86% 48%;
 
     color-scheme: light;
   }
 
   .dark {
-    /* ─ Accent (brighter green for dark bg) ─ */
-    --accent: 152 55% 52%;
-    --accent-soft: 152 30% 14%;
-    --accent-strong: 152 60% 44%;
-    --accent-text: 152 55% 58%;
-    --accent-muted: 152 25% 16%;
-    --accent-glow: 152 55% 52%;
-    --accent-hover: 152 55% 48%;
+    /* ─ Accent (brighter for dark bg visibility) ─ */
+    --accent: 217 92% 66%;
+    --accent-soft: 217 50% 16%;
+    --accent-strong: 217 100% 58%;
+    --accent-text: 217 92% 72%;
+    --accent-muted: 217 40% 18%;
+    --accent-glow: 217 92% 72%;
 
-    /* ─ Gold ─ */
-    --gold: 42 92% 58%;
-    --gold-soft: 42 40% 14%;
-    --gold-text: 42 80% 62%;
-
-    /* ─ Dark surfaces (warm charcoal, not cold blue-black) ─ */
-    --surface-canvas: 30 8% 8%;
-    --surface-primary: 30 8% 8%;
-    --surface-secondary: 30 6% 11%;
-    --surface-tertiary: 30 5% 15%;
-    --surface-elevated: 30 6% 12%;
-    --surface-float: 30 6% 14%;
+    /* ─ Dark surfaces (near-black, minimal blue tint) ─ */
+    --surface-canvas: 220 10% 8%;
+    --surface-primary: 220 10% 8%;
+    --surface-secondary: 220 8% 12%;
+    --surface-tertiary: 220 6% 16%;
+    --surface-elevated: 220 8% 12%;
+    --surface-float: 220 8% 15%;
 
     /* ─ Text ─ */
-    --text-primary: 30 8% 95%;
-    --text-secondary: 30 5% 62%;
-    --text-tertiary: 30 4% 46%;
-    --text-inverse: 30 8% 8%;
-    --text-quaternary: 30 3% 38%;
+    --text-primary: 220 8% 96%;
+    --text-secondary: 220 6% 64%;
+    --text-tertiary: 220 4% 46%;
+    --text-inverse: 220 10% 8%;
+    --text-quaternary: 220 4% 38%;
 
     /* ─ Borders ─ */
-    --border-primary: 30 6% 20%;
-    --border-secondary: 30 5% 17%;
-    --border-muted: 30 4% 16%;
-    --border-strong: 30 6% 28%;
+    --border-primary: 220 8% 20%;
+    --border-secondary: 220 6% 18%;
+    --border-muted: 220 6% 16%;
+    --border-strong: 220 8% 28%;
 
     /* ─ Status ─ */
-    --success: 152 55% 50%;
-    --success-light: hsl(152 55% 50% / 0.15);
+    --success: 160 84% 45%;
+    --success-light: hsl(160 84% 45% / 0.15);
     --warning: 38 92% 55%;
     --warning-light: hsl(38 92% 55% / 0.15);
     --danger: 0 72% 62%;
     --info: 199 89% 55%;
 
-    /* ─ Header ─ */
-    --header-bg: hsl(30 8% 8%);
-    --header-text: hsl(30 8% 95%);
-    --header-text-muted: hsl(30 4% 46%);
+    /* ─ Header (flat dark surface, no gradient) ─ */
+    --header-bg: hsl(220 10% 8%);
+    --header-text: hsl(220 8% 96%);
+    --header-text-muted: hsl(220 4% 46%);
 
     /* ─ Shadows ─ */
     --shadow-card: 0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 1px 2px -1px rgba(0, 0, 0, 0.2);
     --shadow-elevated: 0 8px 24px -6px rgba(0, 0, 0, 0.5);
     --shadow-float: 0 12px 32px -8px rgba(0, 0, 0, 0.5);
-    --shadow-accent: 0 4px 14px -3px hsl(152 55% 52% / 0.3);
 
     /* ─ Navigation ─ */
-    --nav-bg: rgba(20, 18, 16, 0.96);
-    --nav-border: hsl(30 6% 20% / 0.7);
-    --nav-text: hsl(30 4% 46%);
-    --nav-text-active: hsl(152 55% 52%);
+    --nav-bg: rgba(18, 20, 24, 0.96);
+    --nav-border: hsl(220 8% 20% / 0.7);
+    --nav-text: hsl(220 4% 46%);
+    --nav-text-active: hsl(217 92% 66%);
 
     /* ─ Inputs ─ */
-    --input-bg: hsl(30 5% 15%);
-    --input-border: hsl(30 6% 22%);
-    --input-focus-ring: hsl(152 55% 52% / 0.2);
+    --input-bg: hsl(220 6% 16%);
+    --input-border: hsl(220 8% 20%);
+    --input-focus-ring: hsl(217 92% 66% / 0.2);
 
     /* ─ Skeleton ─ */
-    --skeleton-base: hsl(30 5% 15%);
+    --skeleton-base: hsl(220 6% 16%);
     --skeleton-highlight: rgba(255, 255, 255, 0.04);
 
     /* ─ Role dots ─ */
-    --role-regional: 199 70% 58%;
-    --role-coordinator: 270 45% 62%;
-    --role-admin: 152 55% 52%;
-    --role-teacher: 42 75% 56%;
+    --role-regional: 210 80% 60%;
+    --role-coordinator: 270 50% 65%;
+    --role-admin: 215 15% 60%;
+    --role-teacher: 217 92% 66%;
 
     color-scheme: dark;
   }
@@ -228,7 +214,6 @@
   }
 
   .font-mono { font-family: var(--font-mono), "JetBrains Mono", monospace; }
-  .font-display { font-family: var(--font-display), Georgia, serif; }
 
   .dashboard-shell {
     min-height: 100vh;
@@ -534,12 +519,6 @@
   .text-balance { text-wrap: balance; }
   .text-pretty { text-wrap: pretty; }
   .touch-target { min-height: 44px; min-width: 44px; }
-
-  /* Off-screen feed item optimization — DESIGN_SPEC Performance */
-  .feed-item {
-    content-visibility: auto;
-    contain-intrinsic-size: auto 120px;
-  }
 
   .dynamic-divider {
     height: 1px;

@@ -163,38 +163,18 @@ export async function PATCH(
       delete data.status;
     }
 
-    // Sanitize text and build update data
+    // Sanitize text
     const updateData: Record<string, unknown> = {};
     if (data.date) updateData.date = new Date(data.date);
     if (data.classId) updateData.classId = data.classId;
     if (data.period !== undefined) updateData.period = data.period;
     if (data.duration) updateData.duration = data.duration;
-    if (data.moduleName !== undefined) updateData.moduleName = data.moduleName ? sanitizeHtml(data.moduleName) : null;
-    if (data.topicText !== undefined) updateData.topicText = data.topicText ? sanitizeHtml(data.topicText) : null;
     if (data.notes !== undefined) updateData.notes = data.notes ? sanitizeHtml(data.notes) : null;
-    if (data.objectives !== undefined) {
-      updateData.objectives = Array.isArray(data.objectives)
-        ? data.objectives.map((o) => ({ text: sanitizeHtml(o.text), proportion: o.proportion }))
-        : data.objectives ? sanitizeHtml(data.objectives) : null;
-    }
+    if (data.objectives !== undefined) updateData.objectives = data.objectives ? sanitizeHtml(data.objectives) : null;
     if (data.signatureData !== undefined) updateData.signatureData = data.signatureData;
     if (data.status) updateData.status = data.status;
     if (data.studentAttendance !== undefined) updateData.studentAttendance = data.studentAttendance;
     if (data.engagementLevel !== undefined) updateData.engagementLevel = data.engagementLevel;
-    // CBA fields
-    if (data.familyOfSituation !== undefined) updateData.familyOfSituation = data.familyOfSituation ? sanitizeHtml(data.familyOfSituation) : null;
-    if (data.bilingualActivity !== undefined) updateData.bilingualActivity = data.bilingualActivity;
-    if (data.bilingualType !== undefined) updateData.bilingualType = data.bilingualType;
-    if (data.bilingualNote !== undefined) updateData.bilingualNote = data.bilingualNote ? sanitizeHtml(data.bilingualNote) : null;
-    if (data.integrationActivity !== undefined) updateData.integrationActivity = data.integrationActivity ? sanitizeHtml(data.integrationActivity) : null;
-    if (data.integrationLevel !== undefined) updateData.integrationLevel = data.integrationLevel;
-    if (data.integrationStatus !== undefined) updateData.integrationStatus = data.integrationStatus;
-    if (data.lessonMode !== undefined) updateData.lessonMode = data.lessonMode;
-    if (data.digitalTools !== undefined) updateData.digitalTools = data.digitalTools;
-    // Assignment tracking
-    if (data.assignmentGiven !== undefined) updateData.assignmentGiven = data.assignmentGiven;
-    if (data.assignmentDetails !== undefined) updateData.assignmentDetails = data.assignmentDetails ? sanitizeHtml(data.assignmentDetails) : null;
-    if (data.assignmentReviewed !== undefined) updateData.assignmentReviewed = data.assignmentReviewed;
 
     // Handle topic updates via many-to-many
     const topicConnect = data.topicIds?.length

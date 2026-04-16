@@ -62,7 +62,7 @@ export function EntryCard({ entry, priority = "default", onClick }: EntryCardPro
       type="button"
       onClick={onClick}
       className={cn(
-        "feed-item w-full rounded-xl border bg-[hsl(var(--surface-elevated))] p-4 text-left shadow-card transition-shadow hover:shadow-elevated",
+        "w-full rounded-xl border bg-[hsl(var(--surface-elevated))] p-4 text-left shadow-card transition-shadow hover:shadow-elevated",
         priority === "live" && "border-[hsl(var(--accent)/0.3)]",
         priority !== "live" && "border-[hsl(var(--border-primary))]",
         priority === "calm" && "opacity-80",

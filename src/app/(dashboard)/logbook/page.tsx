@@ -6,6 +6,7 @@ import {
   BookOpen,
   CheckCircle2,
   ChevronRight,
+  Clock3,
   Flame,
   PenLine,
   ArrowUpRight,

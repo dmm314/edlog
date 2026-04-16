@@ -1,12 +1,3 @@
-// ============================================================
-// DEVELOPMENT/TESTING ONLY — NOT FOR PRODUCTION
-//
-// This file contains demo data (school, teachers, classes,
-// timetable, sample entries) for local development and testing.
-// It is NOT imported by the production seed (prisma/seed.ts).
-// Never run this in production environments.
-// ============================================================
-
 // Demo school, teachers, classes, timetable, and sample entries
 
 export const DEMO_SCHOOL = {

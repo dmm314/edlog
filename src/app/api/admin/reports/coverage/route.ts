@@ -30,7 +30,6 @@ interface CoverageRow {
   taught_by: string | null;
   times_covered: bigint;
   last_taught: Date | null;
-  has_direct: boolean | null;
 }
 
 export async function GET(request: NextRequest) {
@@ -80,8 +79,7 @@ export async function GET(request: NextRequest) {
           et."B" as topic_id,
           le."teacherId",
           le.id as entry_id,
-          le.date,
-          'direct' as match_source
+          le.date
         FROM "_EntryTopics" et
         JOIN "LogbookEntry" le ON le.id = et."A"
         JOIN "User" u ON u.id = le."teacherId"
@@ -93,8 +91,7 @@ export async function GET(request: NextRequest) {
           t2.id as topic_id,
           le."teacherId",
           le.id as entry_id,
-          le.date,
-          'module' as match_source
+          le.date
         FROM "Topic" t2
         JOIN "LogbookEntry" le ON LOWER(le."moduleName") = LOWER(t2."moduleName")
         JOIN "User" u ON u.id = le."teacherId"
@@ -136,8 +133,7 @@ export async function GET(request: NextRequest) {
       JOIN "Subject" sub ON sub.id = t."subjectId"
       JOIN "SchoolSubject" ss ON ss."subjectId" = sub.id AND ss."schoolId" = ${schoolId}
       LEFT JOIN (
-        SELECT topic_id, COUNT(DISTINCT entry_id) as entry_count, MAX(date) as last_date,
-          BOOL_OR(match_source = 'direct') as has_direct
+        SELECT topic_id, COUNT(DISTINCT entry_id) as entry_count, MAX(date) as last_date
         FROM combined
         GROUP BY topic_id
       ) agg ON agg.topic_id = t.id
@@ -208,7 +204,6 @@ export async function GET(request: NextRequest) {
       timesCovered: Number(r.times_covered),
       lastTaught: r.last_taught ? r.last_taught.toISOString() : null,
       covered: Number(r.times_covered) > 0,
-      matchType: Number(r.times_covered) === 0 ? "none" : r.has_direct ? "direct" : "module",
     });
 
     // CSV export path — return all rows without pagination

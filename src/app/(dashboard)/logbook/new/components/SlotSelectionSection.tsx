@@ -1,6 +1,7 @@
 "use client";
 
 import { AlertCircle, Check } from "lucide-react";
+import Link from "next/link";
 import { SlotSelector } from "@/components/domain/SlotSelector";
 import { HelpHint } from "@/components/HelpHint";
 import { ChevronRight } from "lucide-react";

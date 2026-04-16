@@ -171,24 +171,27 @@ export default function RegionalAnnouncementsPage() {
   }
 
   return (
-    <div className="min-h-screen pb-24 bg-[hsl(var(--surface-canvas))]">
+    <div className="min-h-screen pb-24" style={{ backgroundColor: "hsl(var(--surface-secondary))" }}>
       {/* Header */}
-      <div className="border-b border-[hsl(var(--border-primary))] bg-[hsl(var(--surface-elevated))]">
-        <div className="page-shell pt-8 pb-5">
+      <div
+        className="px-5 pt-10 pb-6 rounded-b-2xl"
+        style={{ background: "linear-gradient(135deg, hsl(var(--accent)) 0%, hsl(var(--accent)) 50%, hsl(var(--accent-strong)) 100%)" }}
+      >
+        <div className="page-shell">
           <Link
             href="/regional"
-            className="inline-flex items-center gap-1 text-sm text-content-tertiary hover:text-content-primary mb-3"
+            className="inline-flex items-center gap-1 text-white/70 hover:text-white text-sm mb-3"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to Dashboard
           </Link>
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-[hsl(var(--accent-soft))] flex items-center justify-center">
-              <Megaphone className="w-5 h-5 text-[hsl(var(--accent))]" />
+            <div className="w-9 h-9 rounded-xl bg-[hsl(var(--success)/0.2)] flex items-center justify-center">
+              <Megaphone className="w-5 h-5 text-[hsl(var(--success))]" />
             </div>
             <div>
-              <h1 className="font-display text-[22px] font-bold text-content-primary">Regional Announcement</h1>
-              <p className="text-sm text-content-tertiary mt-0.5">
+              <h1 className="text-xl font-bold text-white">Regional Announcement</h1>
+              <p className="text-[var(--header-text-muted)] text-sm mt-0.5">
                 Broadcast to teachers in your region
               </p>
             </div>
@@ -196,7 +199,7 @@ export default function RegionalAnnouncementsPage() {
         </div>
       </div>
 
-      <div className="page-shell pt-4 space-y-4 desktop-content-form">
+      <div className="px-5 mt-4 page-shell space-y-4 desktop-content-form">
         {/* Success */}
         {success !== null && (
           <div className="flex items-center gap-2 bg-[hsl(var(--success)/0.1)] border border-[hsl(var(--success)/0.2)] text-[hsl(var(--success))] text-sm rounded-xl px-4 py-3 animate-slide-down">
@@ -430,7 +433,12 @@ export default function RegionalAnnouncementsPage() {
           <button
             type="submit"
             disabled={sending || !canSend()}
-            className="w-full mt-4 btn-primary flex items-center justify-center gap-2 py-3.5 rounded-2xl text-sm font-bold transition-all active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full mt-4 flex items-center justify-center gap-2 py-3.5 rounded-2xl text-sm font-bold transition-all active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed"
+            style={{
+              background: "linear-gradient(135deg, hsl(var(--success)), hsl(var(--success) / 0.85))",
+              color: "hsl(var(--success) / 0.05)",
+              boxShadow: "0 2px 8px hsl(var(--success) / 0.3)",
+            }}
           >
             {sending ? (
               <>
@@ -551,7 +559,11 @@ export default function RegionalAnnouncementsPage() {
               </button>
               <button
                 onClick={handleSend}
-                className="flex-1 py-2.5 rounded-xl text-sm font-bold transition-all active:scale-[0.97] btn-primary"
+                className="flex-1 py-2.5 rounded-xl text-sm font-bold transition-all active:scale-[0.97]"
+                style={{
+                  background: "linear-gradient(135deg, hsl(var(--success)), hsl(var(--success)))",
+                  color: "hsl(var(--success) / 0.06)",
+                }}
               >
                 Send
               </button>

@@ -17,7 +17,6 @@ import {
   CheckCircle,
   Shield,
   Flag,
-  MapPin,
 } from "lucide-react";
 import { NotificationBell } from "@/components/NotificationBell";
 import { ProgressBar } from "@/components/ui/ProgressBar";
@@ -25,13 +24,6 @@ import { OnboardingTour } from "@/components/OnboardingTour";
 import { HelpHint } from "@/components/HelpHint";
 import { REGIONAL_TOUR } from "@/lib/tour-steps";
 import type { RegionalStats } from "@/types";
-
-function getGreeting(): string {
-  const hour = new Date().getHours();
-  if (hour < 12) return "Good morning";
-  if (hour < 17) return "Good afternoon";
-  return "Good evening";
-}
 
 function getRankColor(rank: number, total: number): string {
   const quartile = total > 0 ? rank / total : 1;
@@ -69,22 +61,21 @@ export default function RegionalDashboardPage() {
   if (loading) {
     return (
       <div className="min-h-screen pb-24 bg-[hsl(var(--surface-canvas))]">
-        <div className="border-b border-[hsl(var(--border-primary))] bg-[hsl(var(--surface-elevated))]">
-          <div className="page-shell pt-8 pb-6">
-            <div className="animate-pulse space-y-3">
-              <div className="h-3 w-24 rounded bg-[var(--skeleton-base)]" />
-              <div className="h-8 w-56 rounded bg-[var(--skeleton-base)]" />
-              <div className="h-3 w-40 rounded bg-[var(--skeleton-base)]" />
-            </div>
+        <div className="page-shell pt-8 pb-6">
+          <div className="flex items-center gap-1.5 mb-1">
+            <span className="role-dot role-dot-regional" />
+            <p className="text-xs font-medium text-content-tertiary">Regional Inspector</p>
           </div>
+          <h1 className="text-xl font-bold text-content-primary tracking-tight">
+            Regional Dashboard
+          </h1>
         </div>
-        <div className="page-shell pt-5">
+        <div className="page-shell mt-4">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
             {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="card p-5 animate-pulse">
-                <div className="h-10 bg-[var(--skeleton-base)] rounded-xl mb-3" />
-                <div className="h-8 w-16 bg-[var(--skeleton-base)] rounded mb-2" />
-                <div className="h-3 w-20 bg-[var(--skeleton-base)] rounded" />
+              <div key={i} className="card p-4 animate-pulse">
+                <div className="h-10 bg-[var(--skeleton-base)] rounded mb-2" />
+                <div className="h-3 bg-[var(--skeleton-base)] rounded w-2/3" />
               </div>
             ))}
           </div>
@@ -114,37 +105,30 @@ export default function RegionalDashboardPage() {
 
   return (
     <div className="min-h-screen pb-24 bg-[hsl(var(--surface-canvas))]">
-      {/* Header — Personalized greeting */}
+      {/* Header */}
       <div className="border-b border-[hsl(var(--border-primary))] bg-[hsl(var(--surface-elevated))]">
         <div className="page-shell pt-8 pb-6">
           <div data-tour="regional-welcome" className="flex items-start justify-between">
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-content-tertiary mb-1">
-                Regional Inspector
-              </p>
-              <h1 className="font-display text-[26px] font-bold text-content-primary leading-tight tracking-tight">
-                {getGreeting()}{stats?.userName ? `, ${stats.userName}` : ""}
+              <div className="flex items-center gap-1.5 mb-1">
+                <span className="role-dot role-dot-regional" />
+                <p className="text-xs font-medium text-content-tertiary">Regional Inspector</p>
+              </div>
+              <h1 className="text-xl font-bold text-content-primary tracking-tight">
+                {stats ? "Region Overview" : "Regional Dashboard"}
               </h1>
-              {stats?.regionName && (
-                <div className="flex items-center gap-1.5 mt-2">
-                  <MapPin className="w-3.5 h-3.5 text-content-tertiary" />
-                  <p className="text-sm text-content-secondary">
-                    {stats.regionName} Region{stats.regionCapital ? ` \u00b7 ${stats.regionCapital}` : ""}
-                  </p>
-                </div>
-              )}
             </div>
             <NotificationBell />
           </div>
         </div>
       </div>
 
-      <div className="page-shell space-y-5 pt-5 lg:space-y-6">
+      <div className="page-shell space-y-4 pt-4 lg:space-y-5">
         {/* Pending schools alert */}
         {stats && stats.pendingSchools > 0 && (
           <Link
             href="/regional/schools"
-            className="animate-fade-slide-in card flex items-center gap-3 rounded-xl border border-[hsl(var(--border-muted))] p-4 active:scale-[0.98] transition-all duration-[80ms]"
+            className="animate-fade-slide-in card flex items-center gap-3 rounded-xl border border-[hsl(var(--border-muted))] p-4 animate-pulse-subtle active:scale-[0.98] transition-all duration-[80ms]"
           >
             <Clock className="w-5 h-5 text-[hsl(var(--accent-strong))] flex-shrink-0" />
             <div className="flex-1">
@@ -156,58 +140,58 @@ export default function RegionalDashboardPage() {
           </Link>
         )}
 
-        {/* Stat pods — 2x2 on mobile, 4-col on desktop */}
+        {/* Stat pods — 2×2 on mobile, 4-col on desktop */}
         <div data-tour="regional-stats" className="animate-fade-slide-in grid grid-cols-2 lg:grid-cols-4 gap-3" style={{ animationDelay: "80ms" }}>
-          <div className="card rounded-xl border border-[hsl(var(--border-muted))] p-5">
-            <div className="w-10 h-10 bg-[hsl(var(--accent-soft))] rounded-xl flex items-center justify-center mb-3">
+          <div className="card rounded-xl border border-[hsl(var(--border-muted))] p-4 active:scale-[0.97] transition-all duration-[80ms]">
+            <div className="w-10 h-10 bg-[hsl(var(--accent-soft))] rounded-xl flex items-center justify-center mb-2">
               <Building2 className="w-5 h-5 text-[hsl(var(--accent))]" />
             </div>
-            <p className="font-display text-[28px] font-bold text-content-primary leading-none">
+            <p className="text-2xl font-bold text-content-primary font-mono">
               {stats?.totalSchools ?? 0}
             </p>
-            <p className="text-xs text-content-tertiary mt-1.5">
+            <p className="text-xs text-content-tertiary mt-0.5">
               Total Schools
             </p>
           </div>
 
-          <div className="card rounded-xl border border-[hsl(var(--border-muted))] p-5">
-            <div className="w-10 h-10 bg-[hsl(var(--accent-soft))] rounded-xl flex items-center justify-center mb-3">
-              <Users className="w-5 h-5 text-[hsl(var(--accent))]" />
+          <div className="card rounded-xl border border-[hsl(var(--border-muted))] p-4 active:scale-[0.97] transition-all duration-[80ms]">
+            <div className="w-10 h-10 bg-[hsl(var(--accent-soft))] rounded-xl flex items-center justify-center mb-2">
+              <Users className="w-5 h-5 text-accent-text" />
             </div>
-            <p className="font-display text-[28px] font-bold text-content-primary leading-none">
+            <p className="text-2xl font-bold text-content-primary font-mono">
               {stats?.totalTeachers ?? 0}
             </p>
-            <p className="text-xs text-content-tertiary mt-1.5">
+            <p className="text-xs text-content-tertiary mt-0.5">
               Total Teachers
             </p>
           </div>
 
-          <div className="card rounded-xl border border-[hsl(var(--border-muted))] p-5 relative">
+          <div className="card rounded-xl border border-[hsl(var(--border-muted))] p-4 active:scale-[0.97] transition-all duration-[80ms] relative">
             <HelpHint
               text="Average logging compliance across all schools in your region. Based on entries submitted vs. expected."
               position="bottom"
               createdAt={userCreatedAt}
               className="absolute -top-1 -right-1 z-10"
             />
-            <div className="w-10 h-10 bg-[hsl(var(--success)/0.1)] rounded-xl flex items-center justify-center mb-3">
+            <div className="w-10 h-10 bg-[hsl(var(--success)/0.1)] rounded-xl flex items-center justify-center mb-2">
               <TrendingUp className="w-5 h-5 text-[hsl(var(--success))]" />
             </div>
-            <p className="font-display text-[28px] font-bold text-content-primary leading-none">
-              {stats?.complianceRate ?? 0}<span className="text-lg">%</span>
+            <p className="text-2xl font-bold text-content-primary font-mono">
+              {stats?.complianceRate ?? 0}%
             </p>
-            <p className="text-xs text-content-tertiary mt-1.5">
+            <p className="text-xs text-content-tertiary mt-0.5">
               Avg Compliance
             </p>
           </div>
 
-          <div className="card rounded-xl border border-[hsl(var(--border-muted))] p-5">
-            <div className="w-10 h-10 bg-[hsl(var(--accent-soft))] rounded-xl flex items-center justify-center mb-3">
-              <BookOpen className="w-5 h-5 text-[hsl(var(--accent))]" />
+          <div className="card rounded-xl border border-[hsl(var(--border-muted))] p-4 active:scale-[0.97] transition-all duration-[80ms]">
+            <div className="w-10 h-10 bg-[hsl(var(--accent-soft))] rounded-xl flex items-center justify-center mb-2">
+              <BookOpen className="w-5 h-5 text-accent-text" />
             </div>
-            <p className="font-display text-[28px] font-bold text-content-primary leading-none">
+            <p className="text-2xl font-bold text-content-primary font-mono">
               {stats?.entriesThisMonth ?? 0}
             </p>
-            <p className="text-xs text-content-tertiary mt-1.5">
+            <p className="text-xs text-content-tertiary mt-0.5">
               Entries This Month
             </p>
           </div>
@@ -216,8 +200,8 @@ export default function RegionalDashboardPage() {
         {/* Performance Tiers */}
         {stats?.performanceTiers && (
           <section className="section-card animate-fade-slide-in" style={{ animationDelay: "120ms" }}>
-            <div className="flex items-center gap-2 mb-4">
-              <h3 className="font-display text-base font-bold text-content-primary">School Performance</h3>
+            <div className="flex items-center gap-2 mb-3">
+              <h3 className="text-sm font-semibold text-content-primary">School Performance Tiers</h3>
               <HelpHint
                 text="Schools grouped by compliance rate: Excellent (80%+), Good (50-79%), Needs Attention (20-49%), Critical (<20%)"
                 position="right"
@@ -225,25 +209,25 @@ export default function RegionalDashboardPage() {
               />
             </div>
             <div className="grid grid-cols-4 gap-2">
-              <div className="rounded-xl p-3.5 text-center" style={{ background: "hsl(var(--success) / 0.08)" }}>
-                <CheckCircle className="w-4 h-4 mx-auto mb-1.5" style={{ color: "hsl(var(--success))" }} />
-                <p className="font-display text-xl font-bold" style={{ color: "hsl(var(--success))" }}>{stats.performanceTiers.excellent}</p>
-                <p className="text-[9px] font-bold uppercase tracking-wider text-content-tertiary mt-0.5">Excellent</p>
+              <div className="rounded-xl p-3 text-center" style={{ background: "hsl(var(--success) / 0.08)" }}>
+                <CheckCircle className="w-4 h-4 mx-auto mb-1" style={{ color: "hsl(var(--success))" }} />
+                <p className="text-lg font-bold font-mono" style={{ color: "hsl(var(--success))" }}>{stats.performanceTiers.excellent}</p>
+                <p className="text-[9px] font-bold uppercase tracking-wider text-content-tertiary">Excellent</p>
               </div>
-              <div className="rounded-xl p-3.5 text-center" style={{ background: "hsl(var(--accent) / 0.08)" }}>
-                <Shield className="w-4 h-4 mx-auto mb-1.5" style={{ color: "hsl(var(--accent))" }} />
-                <p className="font-display text-xl font-bold" style={{ color: "hsl(var(--accent))" }}>{stats.performanceTiers.good}</p>
-                <p className="text-[9px] font-bold uppercase tracking-wider text-content-tertiary mt-0.5">Good</p>
+              <div className="rounded-xl p-3 text-center" style={{ background: "hsl(var(--accent) / 0.08)" }}>
+                <Shield className="w-4 h-4 mx-auto mb-1" style={{ color: "hsl(var(--accent))" }} />
+                <p className="text-lg font-bold font-mono" style={{ color: "hsl(var(--accent))" }}>{stats.performanceTiers.good}</p>
+                <p className="text-[9px] font-bold uppercase tracking-wider text-content-tertiary">Good</p>
               </div>
-              <div className="rounded-xl p-3.5 text-center" style={{ background: "hsl(var(--warning) / 0.1)" }}>
-                <Flag className="w-4 h-4 mx-auto mb-1.5" style={{ color: "hsl(var(--warning))" }} />
-                <p className="font-display text-xl font-bold" style={{ color: "hsl(var(--warning))" }}>{stats.performanceTiers.needsAttention}</p>
-                <p className="text-[9px] font-bold uppercase tracking-wider text-content-tertiary mt-0.5">Attention</p>
+              <div className="rounded-xl p-3 text-center" style={{ background: "hsl(var(--warning) / 0.1)" }}>
+                <Flag className="w-4 h-4 mx-auto mb-1" style={{ color: "hsl(var(--warning))" }} />
+                <p className="text-lg font-bold font-mono" style={{ color: "hsl(var(--warning))" }}>{stats.performanceTiers.needsAttention}</p>
+                <p className="text-[9px] font-bold uppercase tracking-wider text-content-tertiary">Attention</p>
               </div>
-              <div className="rounded-xl p-3.5 text-center" style={{ background: "hsl(var(--danger) / 0.08)" }}>
-                <AlertTriangle className="w-4 h-4 mx-auto mb-1.5" style={{ color: "hsl(var(--danger))" }} />
-                <p className="font-display text-xl font-bold" style={{ color: "hsl(var(--danger))" }}>{stats.performanceTiers.critical}</p>
-                <p className="text-[9px] font-bold uppercase tracking-wider text-content-tertiary mt-0.5">Critical</p>
+              <div className="rounded-xl p-3 text-center" style={{ background: "hsl(var(--danger) / 0.08)" }}>
+                <AlertTriangle className="w-4 h-4 mx-auto mb-1" style={{ color: "hsl(var(--danger))" }} />
+                <p className="text-lg font-bold font-mono" style={{ color: "hsl(var(--danger))" }}>{stats.performanceTiers.critical}</p>
+                <p className="text-[9px] font-bold uppercase tracking-wider text-content-tertiary">Critical</p>
               </div>
             </div>
           </section>
@@ -256,7 +240,7 @@ export default function RegionalDashboardPage() {
             <section className="section-card animate-fade-slide-in" style={{ animationDelay: "160ms" }}>
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
-                  <h3 className="font-display text-base font-bold text-content-primary">
+                  <h3 className="text-sm font-semibold text-content-primary">
                     School Rankings
                   </h3>
                   <HelpHint
@@ -267,7 +251,7 @@ export default function RegionalDashboardPage() {
                 </div>
                 <Link
                   href="/regional/schools"
-                  className="text-xs text-accent-text font-semibold"
+                  className="text-xs text-accent-text font-medium"
                 >
                   View all
                 </Link>
@@ -291,7 +275,7 @@ export default function RegionalDashboardPage() {
                       {/* School info + progress */}
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between mb-1">
-                          <p className="text-sm font-semibold text-content-primary truncate">
+                          <p className="text-sm font-medium text-content-primary truncate">
                             {school.name}
                           </p>
                           <span
@@ -328,8 +312,8 @@ export default function RegionalDashboardPage() {
           <div className="space-y-4 lg:space-y-5">
             {/* Data & Reports */}
             <section className="section-card animate-fade-slide-in" style={{ animationDelay: "240ms" }}>
-              <h3 className="font-display text-base font-bold text-content-primary mb-3">Data &amp; Reports</h3>
-              <div className="space-y-0.5">
+              <h3 className="text-sm font-semibold text-content-primary mb-3">Data &amp; Reports</h3>
+              <div className="space-y-1">
                 {dataReportsLinks.map((link) => (
                   <Link
                     key={link.href}
@@ -337,9 +321,7 @@ export default function RegionalDashboardPage() {
                     className="flex items-center justify-between rounded-xl p-3 group active:scale-[0.98] transition-all duration-[80ms] hover:bg-[hsl(var(--surface-canvas))]"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-lg bg-[hsl(var(--surface-tertiary))] flex items-center justify-center flex-shrink-0">
-                        <link.icon className="w-4 h-4 text-content-secondary" />
-                      </div>
+                      <link.icon className="w-5 h-5 text-content-tertiary" />
                       <div>
                         <span className="text-sm font-medium text-content-primary">
                           {link.label}
@@ -351,7 +333,7 @@ export default function RegionalDashboardPage() {
                         )}
                       </div>
                     </div>
-                    <ChevronRight className="w-4 h-4 text-content-tertiary" />
+                    <ChevronRight className="w-4 h-4 text-content-tertiary group-hover:translate-x-0.5 transition-transform" />
                   </Link>
                 ))}
               </div>
@@ -359,8 +341,8 @@ export default function RegionalDashboardPage() {
 
             {/* Management */}
             <section className="section-card animate-fade-slide-in" style={{ animationDelay: "320ms" }}>
-              <h3 className="font-display text-base font-bold text-content-primary mb-3">Management</h3>
-              <div className="space-y-0.5">
+              <h3 className="text-sm font-semibold text-content-primary mb-3">Management</h3>
+              <div className="space-y-1">
                 {managementLinks.map((link) => (
                   <Link
                     key={link.href}
@@ -368,9 +350,7 @@ export default function RegionalDashboardPage() {
                     className="flex items-center justify-between rounded-xl p-3 group active:scale-[0.98] transition-all duration-[80ms] hover:bg-[hsl(var(--surface-canvas))]"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-lg bg-[hsl(var(--surface-tertiary))] flex items-center justify-center flex-shrink-0">
-                        <link.icon className="w-4 h-4 text-content-secondary" />
-                      </div>
+                      <link.icon className="w-5 h-5 text-content-tertiary" />
                       <div>
                         <span className="text-sm font-medium text-content-primary">
                           {link.label}
@@ -382,7 +362,7 @@ export default function RegionalDashboardPage() {
                         )}
                       </div>
                     </div>
-                    <ChevronRight className="w-4 h-4 text-content-tertiary" />
+                    <ChevronRight className="w-4 h-4 text-content-tertiary group-hover:translate-x-0.5 transition-transform" />
                   </Link>
                 ))}
               </div>

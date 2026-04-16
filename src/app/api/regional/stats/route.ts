@@ -21,12 +21,6 @@ export async function GET() {
 
     const startOfMonth = getStartOfMonth();
 
-    // Fetch region details for personalization
-    const region = await db.region.findUnique({
-      where: { id: user.regionId },
-      select: { name: true, capital: true },
-    });
-
     const [
       totalSchools,
       activeSchools,
@@ -121,8 +115,8 @@ export async function GET() {
     }
 
     // Count verified/flagged entries for performance metrics
-    const verifiedBySchool = new Map<string, number>();
-    const flaggedBySchool = new Map<string, number>();
+    let verifiedBySchool = new Map<string, number>();
+    let flaggedBySchool = new Map<string, number>();
     if (schoolIds.length > 0) {
       const idList = Prisma.join(schoolIds.map((id) => Prisma.sql`${id}`));
       const verifiedRows = await db.$queryRaw<{ school_id: string; cnt: bigint }[]>(
@@ -206,9 +200,6 @@ export async function GET() {
     ]);
 
     return NextResponse.json({
-      regionName: region?.name ?? "",
-      regionCapital: region?.capital ?? "",
-      userName: user.firstName ?? "",
       totalSchools,
       activeSchools,
       pendingSchools,

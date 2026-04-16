@@ -219,8 +219,6 @@ model School {
   levelCoordinators LevelCoordinator[]
   academicYears    AcademicYear[]
   entries          LogbookEntry[]      @relation("SchoolEntries")
-
-  @@index([regionId, divisionId])
 }
 
 // ── PERIOD SCHEDULE (school-wide bell times) ─────────────

@@ -19,7 +19,6 @@ interface CoverageRow {
   timesCovered: number;
   lastTaught: string | null;
   covered: boolean;
-  matchType: "none" | "direct" | "module";
 }
 
 const columns: ColumnDef<CoverageRow>[] = [
@@ -82,15 +81,8 @@ const columns: ColumnDef<CoverageRow>[] = [
     filterKey: "covered",
     filterOptions: ["all", "covered", "gaps"],
     render: (_value, row) => {
-      if (row.matchType === "direct") {
+      if (row.covered) {
         return <Badge variant="verified">Covered</Badge>;
-      }
-      if (row.matchType === "module") {
-        return (
-          <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
-            <Badge variant="submitted">Matched by module</Badge>
-          </span>
-        );
       }
       return <Badge variant="draft">Not Yet</Badge>;
     },

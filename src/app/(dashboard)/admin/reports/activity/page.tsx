@@ -39,7 +39,6 @@ const columns: ColumnDef<ActivityRow>[] = [
   { key: "teacher", label: "Teacher", sortable: true, filterable: true, searchable: true },
   { key: "subject", label: "Subject", sortable: true, filterable: true },
   { key: "class", label: "Class", sortable: true, filterable: true, hideOnMobile: true },
-  { key: "level", label: "Level", filterable: true, hideOnMobile: true },
   { key: "moduleName", label: "Module", searchable: true, hideOnMobile: true },
   { key: "topicText", label: "Topic", searchable: true, hideOnMobile: true },
   { key: "status", label: "Status", type: "badge", filterable: true },
