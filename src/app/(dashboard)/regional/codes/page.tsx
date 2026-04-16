@@ -72,30 +72,30 @@ export default function RegistrationCodesPage() {
   const expired = codes.filter((c) => c.isExpired && !c.isUsed);
 
   return (
-    <div className="min-h-screen pb-24 bg-[hsl(var(--surface-canvas))]">
+    <div className="min-h-screen pb-24" style={{ backgroundColor: "hsl(var(--surface-secondary))" }}>
       {/* Header */}
-      <div className="border-b border-[hsl(var(--border-primary))] bg-[hsl(var(--surface-elevated))]">
-        <div className="page-shell pt-8 pb-5">
+      <div className="bg-gradient-to-br from-[hsl(var(--accent))] to-[hsl(var(--accent-strong))] px-5 pt-10 pb-6 rounded-b-2xl">
+        <div className="page-shell">
           <Link
             href="/regional"
-            className="inline-flex items-center gap-1 text-sm text-content-tertiary hover:text-content-primary mb-3"
+            className="inline-flex items-center gap-1 text-white/70 hover:text-white text-sm mb-3"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to Dashboard
           </Link>
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="font-display text-[22px] font-bold text-content-primary">
+              <h1 className="text-xl font-bold text-white">
                 Registration Codes
               </h1>
-              <p className="text-sm text-content-tertiary mt-0.5">
+              <p className="text-[var(--header-text-muted)] text-sm mt-0.5">
                 Generate one-time codes for school registration
               </p>
             </div>
             <button
               onClick={handleGenerate}
               disabled={generating}
-              className="btn-primary px-4 py-2 text-sm"
+              className="flex items-center gap-1.5 bg-[hsl(var(--surface-elevated))]/10 hover:bg-[hsl(var(--surface-elevated))]/20 text-white text-sm rounded-lg px-3 py-1.5"
             >
               <Plus className="w-4 h-4" />
               {generating ? "..." : "Generate"}
@@ -104,7 +104,7 @@ export default function RegistrationCodesPage() {
         </div>
       </div>
 
-      <div className="page-shell pt-4 space-y-4">
+      <div className="px-5 mt-4 page-shell space-y-4">
         {/* Status summary */}
         <div className="flex gap-2">
           <div className="flex-1 rounded-xl px-3 py-2 text-center bg-[hsl(var(--success)/0.15)] text-[hsl(var(--success))]">

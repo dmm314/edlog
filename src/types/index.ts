@@ -154,9 +154,6 @@ export interface NotificationData {
 }
 
 export interface RegionalStats {
-  regionName: string;
-  regionCapital: string;
-  userName: string;
   totalSchools: number;
   activeSchools: number;
   pendingSchools: number;

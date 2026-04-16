@@ -141,26 +141,26 @@ export default function RegionalSchoolsPage() {
   }
 
   return (
-    <div className="min-h-screen pb-24 bg-[hsl(var(--surface-canvas))]">
+    <div className="min-h-screen pb-24" style={{ backgroundColor: "hsl(var(--surface-secondary))" }}>
       {/* Header */}
-      <div className="border-b border-[hsl(var(--border-primary))] bg-[hsl(var(--surface-elevated))]">
-        <div className="page-shell pt-8 pb-5">
+      <div className="bg-gradient-to-br from-[hsl(var(--accent))] to-[hsl(var(--accent-strong))] px-5 pt-10 pb-6 rounded-b-2xl">
+        <div className="page-shell">
           <Link
             href="/regional"
-            className="inline-flex items-center gap-1 text-sm text-content-tertiary hover:text-content-primary mb-3"
+            className="inline-flex items-center gap-1 text-white/70 hover:text-white text-sm mb-3"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to Dashboard
           </Link>
-          <h1 className="font-display text-[22px] font-bold text-content-primary">Manage Schools</h1>
-          <p className="text-sm text-content-tertiary mt-0.5">
+          <h1 className="text-xl font-bold text-white">Manage Schools</h1>
+          <p className="text-[var(--header-text-muted)] text-sm mt-0.5">
             {schools.length} school{schools.length !== 1 ? "s" : ""} in your
             region
           </p>
         </div>
       </div>
 
-      <div className="page-shell pt-4 space-y-4">
+      <div className="px-5 mt-4 page-shell space-y-4">
         {/* Search + Filter button */}
         <div className="flex gap-2">
           <div className="relative flex-1">

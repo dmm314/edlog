@@ -22,7 +22,7 @@ export default function NewEntryPage() {
 
   const {
     state, dispatch,
-    assignments, timetableSlots, filledPeriods, filledSlotIds,
+    assignments, subjects, timetableSlots, filledPeriods, filledSlotIds,
     loadingData, loadingSlots, userCreatedAt,
     seconds, stopTimer,
     assignedClasses, subjectsForClass, selectedClassLevel,

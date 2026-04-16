@@ -67,29 +67,15 @@ async function main() {
   console.log(`  ${REGIONS.length} regions, ${Object.keys(divisionMap).length} divisions\n`);
 
   // ── 3. Regional Admin Accounts ──────────────────────────
-  const REGIONAL_NAMES: Record<string, { firstName: string; lastName: string }> = {
-    AD: { firstName: "Aïssatou", lastName: "Mohammadou" },
-    CE: { firstName: "Jean-Pierre", lastName: "Atangana" },
-    ES: { firstName: "Hélène", lastName: "Mbassi" },
-    FN: { firstName: "Oumarou", lastName: "Boukar" },
-    LT: { firstName: "Christelle", lastName: "Douala-Bell" },
-    NO: { firstName: "Abdoulaye", lastName: "Hamadou" },
-    NW: { firstName: "Comfort", lastName: "Ngwa" },
-    SU: { firstName: "Marie-Claire", lastName: "Oyono" },
-    SW: { firstName: "Peter", lastName: "Enoh Mbi" },
-    OU: { firstName: "Bernadette", lastName: "Tchouankam" },
-  };
-
   console.log("Creating 10 regional admin accounts...");
-  const regionalPw = await hash("Edlog2026!", 12);
   for (const r of REGIONS) {
-    const names = REGIONAL_NAMES[r.code] || { firstName: "Regional", lastName: `Admin ${r.name}` };
+    const pw = await hash(`EdLog2026_${r.code}!`, 12);
     await prisma.user.create({
       data: {
         email: r.email,
-        passwordHash: regionalPw,
-        firstName: names.firstName,
-        lastName: names.lastName,
+        passwordHash: pw,
+        firstName: "Regional",
+        lastName: `Admin — ${r.name}`,
         role: Role.REGIONAL_ADMIN,
         isVerified: true,
         regionId: regionMap[r.code],
@@ -166,17 +152,14 @@ async function main() {
   console.log("  DATABASE RESET COMPLETE");
   console.log("========================================\n");
   console.log("Regional Admin Login Credentials:");
-  console.log("  Password for ALL regional accounts: Edlog2026!");
   console.log("─────────────────────────────────────────");
   for (const r of REGIONS) {
-    const names = REGIONAL_NAMES[r.code];
-    console.log(`  ${r.name.padEnd(14)} ${names.firstName} ${names.lastName.padEnd(16)} ${r.email}`);
+    console.log(`  ${r.name.padEnd(14)} Email: ${r.email.padEnd(24)} Password: EdLog2026_${r.code}!`);
   }
   console.log("\n─────────────────────────────────────────");
   console.log("No schools, teachers, or entries exist.");
-  console.log("Regional admins create registration codes,");
-  console.log("schools register at /register/school,");
-  console.log("teachers register at /register.");
+  console.log("Schools can register at /register/school");
+  console.log("Teachers can register at /register");
   console.log("─────────────────────────────────────────");
 }
 

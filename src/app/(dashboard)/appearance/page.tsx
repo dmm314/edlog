@@ -37,14 +37,14 @@ const themeOptions: ThemeOption[] = [
     description: "Bright, adaptive surfaces for daytime speed.",
     icon: Sun,
     preview: {
-      bg: "linear-gradient(180deg, #f7faf8, #e9f5ee)",
+      bg: "linear-gradient(180deg, #f7fbff, #e9f1fb)",
       card: "rgba(255,255,255,0.92)",
-      glow: "rgba(30, 120, 70, 0.18)",
-      text: "#1a2e22",
-      textMuted: "#5f7d6d",
-      accent: "#1e7846",
-      accentSoft: "#dcf0e5",
-      border: "rgba(30, 120, 70, 0.16)",
+      glow: "rgba(8, 102, 255, 0.18)",
+      text: "#122033",
+      textMuted: "#5f728d",
+      accent: "#0866ff",
+      accentSoft: "#dce9ff",
+      border: "rgba(8, 102, 255, 0.16)",
     },
   },
   {
@@ -53,14 +53,14 @@ const themeOptions: ThemeOption[] = [
     description: "Immersive contrast without losing calm.",
     icon: Moon,
     preview: {
-      bg: "linear-gradient(180deg, #0f1a14, #152218)",
-      card: "rgba(16, 30, 22, 0.94)",
-      glow: "rgba(60, 200, 120, 0.24)",
-      text: "#f0f7f3",
-      textMuted: "#9fbdab",
-      accent: "#3cc878",
-      accentSoft: "rgba(60, 200, 120, 0.16)",
-      border: "rgba(60, 200, 120, 0.18)",
+      bg: "linear-gradient(180deg, #08111f, #111b2d)",
+      card: "rgba(16, 24, 39, 0.94)",
+      glow: "rgba(61, 177, 255, 0.24)",
+      text: "#f7fbff",
+      textMuted: "#9fb3cb",
+      accent: "#3db1ff",
+      accentSoft: "rgba(61, 177, 255, 0.16)",
+      border: "rgba(61, 177, 255, 0.18)",
     },
   },
 ];
@@ -120,7 +120,7 @@ function ThemePreviewCard({
               </div>
             </div>
             {isActive ? (
-              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/90 text-[#1e7846] shadow-accent">
+              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/90 text-[#0866ff] shadow-accent">
                 <Check className="h-4 w-4" />
               </span>
             ) : null}
@@ -222,7 +222,7 @@ export default function AppearancePage() {
             <button
               type="button"
               onClick={toggleVibrantMode}
-              className={`relative inline-flex h-7 w-12 items-center rounded-full transition ${vibrantMode ? "bg-[hsl(var(--accent))]" : "bg-surface-tertiary"}`}
+              className={`relative inline-flex h-7 w-12 items-center rounded-full transition ${vibrantMode ? "bg-[#0866FF]" : "bg-surface-tertiary"}`}
             >
               <span className={`inline-block h-5 w-5 transform rounded-full bg-white transition ${vibrantMode ? "translate-x-6" : "translate-x-1"}`} />
             </button>

@@ -390,17 +390,10 @@ export async function POST(request: Request) {
         }
       }
 
-      // Resolve schoolId from the class
-      const entryClass = await db.class.findUnique({
-        where: { id: thisClassId },
-        select: { schoolId: true },
-      });
-
       const entry = await db.logbookEntry.create({
         data: {
           date: new Date(data.date),
           classId: thisClassId,
-          schoolId: entryClass?.schoolId ?? user.schoolId ?? null,
           ...(topicIds.length > 0
             ? { topics: { connect: topicIds.map((id: string) => ({ id })) } }
             : {}),
@@ -429,9 +422,6 @@ export async function POST(request: Request) {
           assignmentGiven: data.assignmentGiven || false,
           assignmentDetails: data.assignmentGiven ? (data.assignmentDetails ? sanitizeHtml(data.assignmentDetails) : null) : null,
           assignmentReviewed: data.assignmentReviewed ?? null,
-          // Class did not hold
-          classDidNotHold: data.classDidNotHold || false,
-          classDidNotHoldReason: data.classDidNotHold ? (data.notes || null) : null,
           status: data.status || "SUBMITTED",
           teacherId: user.id,
         },

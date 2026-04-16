@@ -22,11 +22,10 @@ interface CoverageRow {
   totalEntries: number;
   teachersCovering: number;
   lastTaught: string | null;
-  matchType: "none" | "direct" | "module";
 }
 
 function CoverageCell({ row }: { row: CoverageRow }) {
-  const { schoolsCovering, totalSchools, coverageRate, matchType } = row;
+  const { schoolsCovering, totalSchools, coverageRate } = row;
   let barColor = "hsl(var(--danger))"; // red
   if (coverageRate >= 80) barColor = "hsl(var(--success))"; // green
   else if (coverageRate >= 50) barColor = "hsl(var(--accent))"; // amber
@@ -62,16 +61,10 @@ function CoverageCell({ row }: { row: CoverageRow }) {
             height: "100%",
             borderRadius: 9999,
             background: barColor,
-            borderStyle: matchType === "module" ? "dashed" : "solid",
             transition: "width 400ms ease",
           }}
         />
       </div>
-      {matchType === "module" && (
-        <span style={{ fontSize: 9, color: "hsl(var(--warning))", fontWeight: 500 }}>
-          module match
-        </span>
-      )}
     </div>
   );
 }

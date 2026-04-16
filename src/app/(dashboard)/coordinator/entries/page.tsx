@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import {
   ArrowLeft,
   Search,
@@ -61,10 +60,9 @@ function TeacherAvatar({ photoUrl, firstName, lastName, size = "sm" }: { photoUr
   const textSize = size === "md" ? "text-xs" : "text-[9px]";
   const radius = size === "md" ? "rounded-xl" : "rounded-lg";
   if (photoUrl) {
-    const px = size === "md" ? 36 : 24;
     return (
-      <Image src={photoUrl} alt={`${firstName} ${lastName}`}
-        width={px} height={px}
+      // eslint-disable-next-line @next/next/no-img-element
+      <img src={photoUrl} alt={`${firstName} ${lastName}`}
         className={`${dim} ${radius} object-cover flex-shrink-0`}
         style={{ border: "1px solid var(--border-secondary)" }} />
     );
@@ -531,7 +529,7 @@ export default function CoordinatorEntriesPage() {
 
                   return (
                     <Link key={entry.id} href={`/coordinator/entries/${entry.id}`}
-                      className="feed-item card block active:scale-[0.98] transition-transform"
+                      className="card block active:scale-[0.98] transition-transform"
                       style={{
                         borderLeft: `3px solid ${borderColor}`,
                         background: isSelected ? "hsl(var(--accent-soft))" : undefined,
