@@ -222,7 +222,7 @@ export function useEntrySubmit({
       dispatch({ type: "SET_SUBMITTING", value: false });
       dispatch({ type: "SET_SAVING_DRAFT", value: false });
     }
-  }, [state, assignments, selectedSlotsData, topicsForModule, seconds, stopTimer, dispatch]);
+  }, [state, assignments, selectedSlotsData, topicsForModule, seconds, stopTimer, dispatch, validateBeforeSubmit]);
 
   return { handleSubmit, validateBeforeSubmit };
 }

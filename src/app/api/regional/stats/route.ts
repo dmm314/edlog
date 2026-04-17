@@ -115,8 +115,8 @@ export async function GET() {
     }
 
     // Count verified/flagged entries for performance metrics
-    let verifiedBySchool = new Map<string, number>();
-    let flaggedBySchool = new Map<string, number>();
+    const verifiedBySchool = new Map<string, number>();
+    const flaggedBySchool = new Map<string, number>();
     if (schoolIds.length > 0) {
       const idList = Prisma.join(schoolIds.map((id) => Prisma.sql`${id}`));
       const verifiedRows = await db.$queryRaw<{ school_id: string; cnt: bigint }[]>(
